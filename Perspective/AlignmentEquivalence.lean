@@ -851,10 +851,150 @@ theorem hollow_triangle_h1_nontrivial :
       -- 2. Applying face computations: face {a,b} 0 = {b}, face {a,b} 1 = {a}
       -- 3. Using proof irrelevance for g' arguments
       -- 4. Applying the algebraic identity (a-b) + (c-a) = c-b
-      --
-      -- Due to Lean's dependent type handling with Fin (s.card) vs Fin 2,
-      -- the direct computation is complex. We defer this technical verification.
-      sorry
+
+      -- Helper: g' only depends on the simplex, not the proof
+      have h_g'_irrel : ∀ (s : Simplex) (h1 h2 : s ∈ hollowTriangle.ksimplices 0),
+          g' ⟨s, h1⟩ = g' ⟨s, h2⟩ := fun _ _ _ => rfl
+
+      -- Card facts for each edge
+      have h2_01 : ({0, 1} : Simplex).card = 2 := by native_decide
+      have h2_12 : ({1, 2} : Simplex).card = 2 := by native_decide
+      have h2_02 : ({0, 2} : Simplex).card = 2 := by native_decide
+
+      -- Face membership proofs for 0-simplices
+      have h_face_01_0_mem : face {0, 1} ⟨0, by decide⟩ ∈ hollowTriangle.ksimplices 0 := by
+        simp only [hf_01_0, SimplicialComplex.ksimplices, Set.mem_setOf_eq, hollowTriangle]
+        exact ⟨by right; right; left; rfl, by decide⟩
+      have h_face_01_1_mem : face {0, 1} ⟨1, by decide⟩ ∈ hollowTriangle.ksimplices 0 := by
+        simp only [hf_01_1, SimplicialComplex.ksimplices, Set.mem_setOf_eq, hollowTriangle]
+        exact ⟨by right; left; rfl, by decide⟩
+      have h_face_12_0_mem : face {1, 2} ⟨0, by decide⟩ ∈ hollowTriangle.ksimplices 0 := by
+        simp only [hf_12_0, SimplicialComplex.ksimplices, Set.mem_setOf_eq, hollowTriangle]
+        exact ⟨by right; right; right; left; rfl, by decide⟩
+      have h_face_12_1_mem : face {1, 2} ⟨1, by decide⟩ ∈ hollowTriangle.ksimplices 0 := by
+        simp only [hf_12_1, SimplicialComplex.ksimplices, Set.mem_setOf_eq, hollowTriangle]
+        exact ⟨by right; right; left; rfl, by decide⟩
+      have h_face_02_0_mem : face {0, 2} ⟨0, by decide⟩ ∈ hollowTriangle.ksimplices 0 := by
+        simp only [hf_02_0, SimplicialComplex.ksimplices, Set.mem_setOf_eq, hollowTriangle]
+        exact ⟨by right; right; right; left; rfl, by decide⟩
+      have h_face_02_1_mem : face {0, 2} ⟨1, by decide⟩ ∈ hollowTriangle.ksimplices 0 := by
+        simp only [hf_02_1, SimplicialComplex.ksimplices, Set.mem_setOf_eq, hollowTriangle]
+        exact ⟨by right; left; rfl, by decide⟩
+
+      -- Helper to expand coboundary sum over a 2-element simplex
+      -- For edge e with e.card = 2:
+      -- coboundary K 0 g' ⟨e, he⟩ = ∑ i : Fin e.card, sign i * g'(face e i)
+      --                          = sign 0 * g'(face e 0) + sign 1 * g'(face e 1)
+      --                          = g'(face e 0) - g'(face e 1)
+
+      -- Compute each coboundary sum explicitly
+      have h_cb_01 : ∑ i : Fin ({0, 1} : Simplex).card, sign i.val *
+          g' ⟨face {0, 1} i, by
+            have := hollowTriangle.down_closed {0,1} (by simp [hollowTriangle]; right; right; right; right; left; rfl) i
+            simp [SimplicialComplex.ksimplices]
+            constructor
+            · exact this
+            · have hcard : ({0,1} : Simplex).card = 2 := by native_decide
+              have := Simplex.face_card {0,1} i (by rw [hcard]; exact i.isLt)
+              rw [this, hcard]; rfl⟩ = g'1 - g'0 := by
+        calc ∑ i : Fin ({0, 1} : Simplex).card, sign i.val * g' ⟨face {0, 1} i, _⟩
+            = ∑ i : Fin 2, sign (Fin.cast h2_01.symm i).val *
+                g' ⟨face {0, 1} (Fin.cast h2_01.symm i), _⟩ :=
+              Fintype.sum_equiv (Fin.castIso h2_01).symm.toEquiv _ _ (fun _ => rfl)
+          _ = sign (Fin.cast h2_01.symm 0).val * g' ⟨face {0, 1} (Fin.cast h2_01.symm 0), _⟩ +
+              sign (Fin.cast h2_01.symm 1).val * g' ⟨face {0, 1} (Fin.cast h2_01.symm 1), _⟩ :=
+              Fin.sum_univ_two
+          _ = sign 0 * g' ⟨face {0, 1} 0, _⟩ + sign 1 * g' ⟨face {0, 1} 1, _⟩ := by
+              simp only [Fin.castIso_symm_apply, Fin.cast_zero, Fin.cast_one]
+          _ = 1 * g' ⟨face {0, 1} 0, _⟩ + (-1) * g' ⟨face {0, 1} 1, _⟩ := by
+              simp only [sign_zero, sign_one]
+          _ = g' ⟨{1}, h_face_01_0_mem⟩ - g' ⟨{0}, h_face_01_1_mem⟩ := by
+              simp only [hf_01_0, hf_01_1, one_mul, neg_one_mul, sub_eq_add_neg]
+          _ = g'1 - g'0 := by
+              rw [h_g'_irrel {1} h_face_01_0_mem h_1_mem,
+                  h_g'_irrel {0} h_face_01_1_mem h_0_mem]
+
+      have h_cb_12 : ∑ i : Fin ({1, 2} : Simplex).card, sign i.val *
+          g' ⟨face {1, 2} i, by
+            have := hollowTriangle.down_closed {1,2} (by simp [hollowTriangle]; right; right; right; right; right; left; rfl) i
+            simp [SimplicialComplex.ksimplices]
+            constructor
+            · exact this
+            · have hcard : ({1,2} : Simplex).card = 2 := by native_decide
+              have := Simplex.face_card {1,2} i (by rw [hcard]; exact i.isLt)
+              rw [this, hcard]; rfl⟩ = g'2 - g'1 := by
+        calc ∑ i : Fin ({1, 2} : Simplex).card, sign i.val * g' ⟨face {1, 2} i, _⟩
+            = ∑ i : Fin 2, sign (Fin.cast h2_12.symm i).val *
+                g' ⟨face {1, 2} (Fin.cast h2_12.symm i), _⟩ :=
+              Fintype.sum_equiv (Fin.castIso h2_12).symm.toEquiv _ _ (fun _ => rfl)
+          _ = sign (Fin.cast h2_12.symm 0).val * g' ⟨face {1, 2} (Fin.cast h2_12.symm 0), _⟩ +
+              sign (Fin.cast h2_12.symm 1).val * g' ⟨face {1, 2} (Fin.cast h2_12.symm 1), _⟩ :=
+              Fin.sum_univ_two
+          _ = sign 0 * g' ⟨face {1, 2} 0, _⟩ + sign 1 * g' ⟨face {1, 2} 1, _⟩ := by
+              simp only [Fin.castIso_symm_apply, Fin.cast_zero, Fin.cast_one]
+          _ = 1 * g' ⟨face {1, 2} 0, _⟩ + (-1) * g' ⟨face {1, 2} 1, _⟩ := by
+              simp only [sign_zero, sign_one]
+          _ = g' ⟨{2}, h_face_12_0_mem⟩ - g' ⟨{1}, h_face_12_1_mem⟩ := by
+              simp only [hf_12_0, hf_12_1, one_mul, neg_one_mul, sub_eq_add_neg]
+          _ = g'2 - g'1 := by
+              rw [h_g'_irrel {2} h_face_12_0_mem h_2_mem,
+                  h_g'_irrel {1} h_face_12_1_mem h_1_mem]
+
+      have h_cb_02 : ∑ i : Fin ({0, 2} : Simplex).card, sign i.val *
+          g' ⟨face {0, 2} i, by
+            have := hollowTriangle.down_closed {0,2} (by simp [hollowTriangle]; right; right; right; right; right; right; rfl) i
+            simp [SimplicialComplex.ksimplices]
+            constructor
+            · exact this
+            · have hcard : ({0,2} : Simplex).card = 2 := by native_decide
+              have := Simplex.face_card {0,2} i (by rw [hcard]; exact i.isLt)
+              rw [this, hcard]; rfl⟩ = g'2 - g'0 := by
+        calc ∑ i : Fin ({0, 2} : Simplex).card, sign i.val * g' ⟨face {0, 2} i, _⟩
+            = ∑ i : Fin 2, sign (Fin.cast h2_02.symm i).val *
+                g' ⟨face {0, 2} (Fin.cast h2_02.symm i), _⟩ :=
+              Fintype.sum_equiv (Fin.castIso h2_02).symm.toEquiv _ _ (fun _ => rfl)
+          _ = sign (Fin.cast h2_02.symm 0).val * g' ⟨face {0, 2} (Fin.cast h2_02.symm 0), _⟩ +
+              sign (Fin.cast h2_02.symm 1).val * g' ⟨face {0, 2} (Fin.cast h2_02.symm 1), _⟩ :=
+              Fin.sum_univ_two
+          _ = sign 0 * g' ⟨face {0, 2} 0, _⟩ + sign 1 * g' ⟨face {0, 2} 1, _⟩ := by
+              simp only [Fin.castIso_symm_apply, Fin.cast_zero, Fin.cast_one]
+          _ = 1 * g' ⟨face {0, 2} 0, _⟩ + (-1) * g' ⟨face {0, 2} 1, _⟩ := by
+              simp only [sign_zero, sign_one]
+          _ = g' ⟨{2}, h_face_02_0_mem⟩ - g' ⟨{0}, h_face_02_1_mem⟩ := by
+              simp only [hf_02_0, hf_02_1, one_mul, neg_one_mul, sub_eq_add_neg]
+          _ = g'2 - g'0 := by
+              rw [h_g'_irrel {2} h_face_02_0_mem h_2_mem,
+                  h_g'_irrel {0} h_face_02_1_mem h_0_mem]
+
+      -- Now show the coboundary sums equal what we computed
+      -- The goal (after simp [coboundary]) involves sums with auto-generated proofs
+      -- We use convert to match with our explicit computations
+      have h_lhs : (∑ i : Fin ({0, 1} : Simplex).card, sign i.val * g' ⟨face {0, 1} i, _⟩) +
+                   (∑ i : Fin ({1, 2} : Simplex).card, sign i.val * g' ⟨face {1, 2} i, _⟩) =
+                   (g'1 - g'0) + (g'2 - g'1) := by
+        -- Convert using proof irrelevance
+        have h1 : ∑ i : Fin ({0, 1} : Simplex).card, sign i.val * g' ⟨face {0, 1} i, _⟩ = g'1 - g'0 := by
+          convert h_cb_01 using 2
+          ext i
+          rfl
+        have h2 : ∑ i : Fin ({1, 2} : Simplex).card, sign i.val * g' ⟨face {1, 2} i, _⟩ = g'2 - g'1 := by
+          convert h_cb_12 using 2
+          ext i
+          rfl
+        rw [h1, h2]
+
+      have h_rhs : ∑ i : Fin ({0, 2} : Simplex).card, sign i.val * g' ⟨face {0, 2} i, _⟩ =
+                   g'2 - g'0 := by
+        convert h_cb_02 using 2
+        ext i
+        rfl
+
+      -- Final step: combine using the algebraic identity
+      calc (∑ i : Fin ({0, 1} : Simplex).card, sign i.val * g' ⟨face {0, 1} i, _⟩) +
+           (∑ i : Fin ({1, 2} : Simplex).card, sign i.val * g' ⟨face {1, 2} i, _⟩)
+          = (g'1 - g'0) + (g'2 - g'1) := h_lhs
+        _ = g'2 - g'0 := h_alg
+        _ = ∑ i : Fin ({0, 2} : Simplex).card, sign i.val * g' ⟨face {0, 2} i, _⟩ := h_rhs.symm
 
     -- Now apply the cycle constraint to our hypothesis
     -- hg : δ g = f means: coboundary ... g = f
