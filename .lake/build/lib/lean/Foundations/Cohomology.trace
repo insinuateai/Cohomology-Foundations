@@ -1,0 +1,33 @@
+{"synthetic": false,
+ "schemaVersion": "2025-09-10",
+ "outputs":
+ {"o": ["dd2a41f32a2e1b08.olean"],
+  "i": "6aff31d0f72fda03.ilean",
+  "c": "bd7b3865a87d2c32.c"},
+ "log":
+ [{"message":
+   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/codespace/.elan/toolchains/leanprover--lean4---v4.26.0/bin/lean /workspaces/Cohomology-Foundations/Foundations/Cohomology.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Foundations/Cohomology.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Foundations/Cohomology.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/Foundations/Cohomology.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/Foundations/Cohomology.setup.json --json",
+   "level": "trace"}],
+ "inputs":
+ [["Foundations.Cohomology:deps",
+   [["deps",
+     [["CohomologyFoundations/Foundations:extraDep",
+       [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
+      ["imports",
+       [["Foundations.Coboundary transitive imports (legacy)",
+         "d6e89c2972c42369"],
+        ["Foundations.Coboundary:importAllArts", "ddf02f854e40545c"]]]]],
+    ["libs",
+     [["import dynlibs", "00000000000006bb"],
+      ["package external libraries", "00000000000006bb"],
+      ["module dynlibs", "00000000000006bb"],
+      ["module plugins", "00000000000006bb"]]]]],
+  ["Lean 4.26.0, commit d8204c9fd894f91bbb2cdfec5912ec8196fd8562",
+   "9c9419104e9584f8"],
+  ["/workspaces/Cohomology-Foundations/Foundations/Cohomology.lean",
+   "de6825dec9c301df"],
+  ["options",
+   [["-Dpp.unicode.fun=true", "9b94070140457fab"],
+    ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
+  ["Module.leanArgs: #[]", "00000000000006bb"]],
+ "depHash": "137546ad976c1fb8"}
