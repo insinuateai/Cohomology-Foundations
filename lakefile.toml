@@ -1,0 +1,22 @@
+name = "CohomologyFoundations"
+version = "1.0.0"
+keywords = ["math", "topology", "cohomology", "formal-verification"]
+defaultTargets = ["Foundations", "H1Characterization", "Perspective"]
+
+[leanOptions]
+pp.unicode.fun = true
+autoImplicit = false
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+rev = "v4.26.0"
+
+[[lean_lib]]
+name = "Foundations"
+
+[[lean_lib]]
+name = "H1Characterization"
+
+[[lean_lib]]
+name = "Perspective"
