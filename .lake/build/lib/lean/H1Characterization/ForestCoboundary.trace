@@ -1,8 +1,8 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["9d28de8b82e10d22.olean"],
-  "i": "e614e8425abce760.ilean",
+ {"o": ["fc4637efd4bc4a6d.olean"],
+  "i": "3d0c644f895ad173.ilean",
   "c": "7cacf4da22101fee.c"},
  "log":
  [{"message":
@@ -51,7 +51,7 @@
    "H1Characterization/ForestCoboundary.lean:398:8: declaration uses 'sorry'",
    "level": "warning"},
   {"message":
-   "H1Characterization/ForestCoboundary.lean:451:8: declaration uses 'sorry'",
+   "H1Characterization/ForestCoboundary.lean:522:8: declaration uses 'sorry'",
    "level": "warning"}],
  "inputs":
  [["H1Characterization.ForestCoboundary:deps",
@@ -74,9 +74,9 @@
   ["Lean 4.26.0, commit d8204c9fd894f91bbb2cdfec5912ec8196fd8562",
    "9c9419104e9584f8"],
   ["/workspaces/Cohomology-Foundations/H1Characterization/ForestCoboundary.lean",
-   "affa8239f0b50b04"],
+   "5f54e9d54268d44c"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "bc470d69b809773d"}
+ "depHash": "0b802fa73a8f58c9"}
