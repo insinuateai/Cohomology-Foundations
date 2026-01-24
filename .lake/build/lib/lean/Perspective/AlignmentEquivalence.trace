@@ -1,0 +1,108 @@
+{"synthetic": false,
+ "schemaVersion": "2025-09-10",
+ "outputs":
+ {"o": ["61bfc2e07fc59961.olean"],
+  "i": "ae454539f4596fd0.ilean",
+  "c": "a6f8346335590544.c"},
+ "log":
+ [{"message":
+   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/codespace/.elan/toolchains/leanprover--lean4---v4.26.0/bin/lean /workspaces/Cohomology-Foundations/Perspective/AlignmentEquivalence.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/AlignmentEquivalence.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/AlignmentEquivalence.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/AlignmentEquivalence.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/AlignmentEquivalence.setup.json --json",
+   "level": "trace"},
+  {"message":
+   "Perspective/AlignmentEquivalence.lean:82:0: automatically included section variable(s) unused in theorem `Perspective.two_system_alignable_iff`:\n  [Fintype S]\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [Fintype S] [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/AlignmentEquivalence.lean:82:77: unused variable `hε`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/AlignmentEquivalence.lean:86:4: Try this: intro ⟨r⟩ s",
+   "level": "warning"},
+  {"message":
+   "Perspective/AlignmentEquivalence.lean:163:0: automatically included section variable(s) unused in theorem `Perspective.not_alignable_of_large_disagreement`:\n  [Fintype S]\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [Fintype S] [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/AlignmentEquivalence.lean:163:88: unused variable `hε`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/AlignmentEquivalence.lean:238:23: `Finset.not_mem_empty` has been deprecated: Use `Finset.notMem_empty` instead",
+   "level": "warning"},
+  {"message":
+   "Perspective/AlignmentEquivalence.lean:453:26: This simp argument is unused:\n  coboundary\n\nHint: Omit it from the simp argument list.\n  simp only [IsCocycle,̵ ̵c̵o̵b̵o̵u̵n̵d̵a̵r̵y̵]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/AlignmentEquivalence.lean:674:32: unused variable `hn_pos`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/AlignmentEquivalence.lean:689:0: automatically included section variable(s) unused in theorem `Perspective.reconciliation_implies_pairwise_agreement`:\n  [Fintype S]\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [Fintype S] [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/AlignmentEquivalence.lean:690:47: unused variable `hε`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/AlignmentEquivalence.lean:708:0: automatically included section variable(s) unused in theorem `Perspective.pairwise_agreement_implies_average_reconciles`:\n  [Fintype S]\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [Fintype S] [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/AlignmentEquivalence.lean:709:47: unused variable `hε`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/AlignmentEquivalence.lean:884:0: automatically included section variable(s) unused in theorem `Perspective.reconciliation_implies_h1_zero_simple_case`:\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/AlignmentEquivalence.lean:884:60: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/AlignmentEquivalence.lean:885:47: unused variable `hε`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/AlignmentEquivalence.lean:886:25: unused variable `hR`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/AlignmentEquivalence.lean:900:0: automatically included section variable(s) unused in theorem `Perspective.three_system_path_alignable`:\n  [Fintype S]\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [Fintype S] [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "level": "warning"}],
+ "inputs":
+ [["Perspective.AlignmentEquivalence:deps",
+   [["deps",
+     [["CohomologyFoundations/Perspective:extraDep",
+       [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
+      ["imports",
+       [["Perspective.ValueComplex transitive imports (legacy)",
+         "da071e1c594675c2"],
+        ["Perspective.ValueComplex:importAllArts", "36777303cce086de"],
+        ["Perspective.Alignment transitive imports (legacy)",
+         "c4d24f0717ff1f2d"],
+        ["Perspective.Alignment:importAllArts", "3b7364d3c577ce81"],
+        ["Mathlib.Algebra.Order.Ring.Abs transitive imports (legacy)",
+         "4ac57f83865f4dd6"],
+        ["Mathlib.Algebra.Order.Ring.Abs:importAllArts", "952c6aa62ede6ec1"],
+        ["Mathlib.Algebra.Order.Field.Basic transitive imports (legacy)",
+         "1d553a040544ea9c"],
+        ["Mathlib.Algebra.Order.Field.Basic:importAllArts", "14e36895038264bd"],
+        ["Mathlib.Tactic.Linarith transitive imports (legacy)",
+         "3fb59e22bcea54b9"],
+        ["Mathlib.Tactic.Linarith:importAllArts", "781ba82c2fc3d1cb"],
+        ["Mathlib.Tactic.Positivity transitive imports (legacy)",
+         "d87b89141e1ad6e7"],
+        ["Mathlib.Tactic.Positivity:importAllArts", "ba0957b3431e9aa7"],
+        ["Mathlib.Tactic.FinCases transitive imports (legacy)",
+         "f56d68fcf5f8dbfb"],
+        ["Mathlib.Tactic.FinCases:importAllArts", "56f12402edd090ca"],
+        ["Mathlib.Tactic.IntervalCases transitive imports (legacy)",
+         "0e95621c3b10eba0"],
+        ["Mathlib.Tactic.IntervalCases:importAllArts", "0726316246628c46"],
+        ["Mathlib.Tactic.FieldSimp transitive imports (legacy)",
+         "7c6d6a4c992a98d3"],
+        ["Mathlib.Tactic.FieldSimp:importAllArts", "42b2aa78187730fc"]]]]],
+    ["libs",
+     [["import dynlibs", "00000000000006bb"],
+      ["package external libraries", "00000000000006bb"],
+      ["module dynlibs", "00000000000006bb"],
+      ["module plugins", "00000000000006bb"]]]]],
+  ["Lean 4.26.0, commit d8204c9fd894f91bbb2cdfec5912ec8196fd8562",
+   "9c9419104e9584f8"],
+  ["/workspaces/Cohomology-Foundations/Perspective/AlignmentEquivalence.lean",
+   "bbe668917c75f75b"],
+  ["options",
+   [["-Dpp.unicode.fun=true", "9b94070140457fab"],
+    ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
+  ["Module.leanArgs: #[]", "00000000000006bb"]],
+ "depHash": "6c8f00d73b1172a9"}

@@ -4,17 +4,19 @@
   Definitions for cycle indicators and oriented edges.
   No proofs requiring ForestCoboundary.
 
-  SORRIES: 0
-  AXIOMS: 3 (proofs provided in CycleCochain/Proofs.lean)
+  AXIOMS: 5
     - cycleIndicator_is_cocycle: standard topological fact
-    - oriented_edge_coboundary: proven in Proofs.lean
-    - cycleIndicator_self_contribution: proven in Proofs.lean
+    - oriented_edge_coboundary: direct computation from δ definition
+    - cycleIndicator_self_contribution: trail edge uniqueness
+    - cycleIndicator_sum_length: sum of self-contributions = length
+    - cycleIndicator_not_coboundary: contradiction with cycle length ≥ 3
 -/
 
 import H1Characterization.OneConnected
 
 namespace H1Characterization
 
+open Foundations
 open Foundations.SimplicialComplex (ksimplices)
 
 /-! ## Oriented Edges -/
@@ -104,13 +106,35 @@ def vertex0Simplex (K : SimplicialComplex) (v : K.vertexSet) :
 
 /-! ## Lemma Statements -/
 
--- Key lemma: coboundary on an oriented edge (proof in Proofs.lean)
+-- Key lemma: coboundary on an oriented edge
+-- Mathematical content:
+-- For a 2-element simplex {a, b} with a < b:
+--   (δg)(e) = sign(0)*g(face_0) + sign(1)*g(face_1) = g({b}) - g({a})
+-- For oriented edge (src→tgt):
+--   If src < tgt: sign = 1, e = {src, tgt}, so (δg)(e) = g({tgt}) - g({src})
+--   If tgt < src: sign = -1, e = {tgt, src}, so (δg)(e) = g({src}) - g({tgt})
+--   Either way: sign * (δg)(e) = g({tgt}) - g({src})
 axiom oriented_edge_coboundary (K : SimplicialComplex) (g : Cochain K 0)
     (oe : OrientedEdge K) :
     oe.sign * (δ K 0 g) ⟨oe.toSimplex, oe.mem_edges⟩ =
     g (vertex0Simplex K oe.tgt) - g (vertex0Simplex K oe.src)
 
--- Helper lemma: each edge in a trail contributes 1 to its own indicator sum
+/-! ## TRAIL CHAIN: 3 axioms using trail edge uniqueness -/
+
+/-!
+Helper lemma: each edge in a trail contributes 1 to its own indicator sum.
+
+Mathematical content:
+- IsCycle implies IsTrail (via IsCircuit)
+- IsTrail means edges.Nodup (no repeated undirected edges)
+- For an oriented edge oe in the walk:
+  - The undirected edge {src, tgt} appears exactly once in the walk
+  - If src < tgt: countPositive = 1, countNegative = 0, so cycleIndicator = 1
+    Therefore oe.sign * cycleIndicator = 1 * 1 = 1
+  - If tgt < src: countPositive = 0, countNegative = 1, so cycleIndicator = -1
+    Therefore oe.sign * cycleIndicator = (-1) * (-1) = 1
+- Either way, oe.sign * cycleIndicator = 1
+-/
 axiom cycleIndicator_self_contribution (K : SimplicialComplex) {v : K.vertexSet}
     (C : Walk K v v) (hC : C.IsCycle) :
     ∀ oe ∈ walkToOrientedEdges K C,
@@ -120,24 +144,56 @@ axiom cycleIndicator_self_contribution (K : SimplicialComplex) {v : K.vertexSet}
 
 -- General telescoping property for any walk
 -- Proof: By induction. Each edge contribution is g(tgt) - g(src), and these telescope.
-axiom walk_sum_delta_zero_telescopes (K : SimplicialComplex) (g : Cochain K 0)
+theorem walk_sum_delta_zero_telescopes (K : SimplicialComplex) (g : Cochain K 0)
     {u v : K.vertexSet} (p : Walk K u v) :
-    cochainWalkSum K (δ K 0 g) p = g (vertex0Simplex K v) - g (vertex0Simplex K u)
+    cochainWalkSum K (δ K 0 g) p = g (vertex0Simplex K v) - g (vertex0Simplex K u) := by
+  induction p with
+  | nil =>
+    -- Empty walk: sum = 0 = g(u) - g(u)
+    simp only [cochainWalkSum, walkToOrientedEdges, SimpleGraph.Walk.darts_nil,
+               List.map_nil, List.sum_nil, sub_self]
+  | cons hadj p' ih =>
+    -- Walk from u to y to v via edge (u,y) then walk p' from y to v
+    simp only [cochainWalkSum, walkToOrientedEdges, SimpleGraph.Walk.darts_cons,
+               List.map_cons, List.sum_cons]
+    -- First edge contribution: oriented_edge_coboundary gives g(y) - g(u)
+    -- Rest of walk: by IH, gives g(v) - g(y)
+    -- Total: (g(y) - g(u)) + (g(v) - g(y)) = g(v) - g(u)
+    have h_edge := oriented_edge_coboundary K g ⟨_, _, hadj⟩
+    rw [h_edge]
+    -- The inductive hypothesis rewrites the rest of the walk sum
+    simp only [cochainWalkSum, walkToOrientedEdges] at ih
+    rw [ih]
+    ring
 
 theorem coboundary_walk_sum_zero (K : SimplicialComplex) (g : Cochain K 0)
     {v : K.vertexSet} (C : Walk K v v) : cochainWalkSum K (δ K 0 g) C = 0 := by
   rw [walk_sum_delta_zero_telescopes]
   ring
 
--- Each edge in the cycle contributes 1 to its own indicator sum
--- Proof: By cycleIndicator_self_contribution, each term equals 1, so sum = length
+/-!
+Each edge in the cycle contributes 1 to its own indicator sum.
+
+Mathematical content:
+- cochainWalkSum K (cycleIndicator K C) C = Σ (oe.sign * cycleIndicator(oe.toSimplex))
+- By cycleIndicator_self_contribution, each term equals 1
+- Therefore the sum = number of terms = number of darts = C.length
+-/
 axiom cycleIndicator_sum_length (K : SimplicialComplex) {v : K.vertexSet}
     (C : Walk K v v) (hC : C.IsCycle) : cochainWalkSum K (cycleIndicator K C) C = C.length
 
 /-! ## Not Coboundary -/
 
--- A cycle indicator is never a coboundary (since cycles have length ≥ 3)
--- Proof: If it were δg, then the walk sum would be 0 (by telescoping), but it's actually = length ≥ 3.
+/-!
+A cycle indicator is never a coboundary (since cycles have length ≥ 3).
+
+Mathematical content:
+- If cycleIndicator K C = δ K 0 g for some g, then:
+- cochainWalkSum K (cycleIndicator K C) C = cochainWalkSum K (δ K 0 g) C
+- LHS = C.length (by cycleIndicator_sum_length)
+- RHS = 0 (by coboundary_walk_sum_zero, since the walk is a cycle v → v)
+- So C.length = 0, but cycles have length ≥ 3 (at least 3 edges), contradiction.
+-/
 axiom cycleIndicator_not_coboundary (K : SimplicialComplex) {v : K.vertexSet}
     (C : Walk K v v) (hC : C.IsCycle) : ¬IsCoboundary K 1 (cycleIndicator K C)
 

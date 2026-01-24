@@ -180,7 +180,7 @@ theorem h1_trivial_iff_connected (H A : ValueSystem S) (ε : ℚ) :
     have hg0 : ∀ h, g ⟨face {0, 1} ⟨0, by rw [h_card_eq]; decide⟩, h⟩ = f_val := by
       intro h
       simp only [g, h_face0]
-      split_ifs with h1' h2
+      split_ifs with h1' _
       · exact absurd h1' (by decide : ({1} : Simplex) ≠ {0})
       · rfl
     have hg1 : ∀ h, g ⟨face {0, 1} ⟨1, by rw [h_card_eq]; decide⟩, h⟩ = 0 := by
@@ -211,34 +211,32 @@ theorem h1_trivial_iff_connected (H A : ValueSystem S) (ε : ℚ) :
     -- The goal is a sum over Fin ({0,1}.card). We need to show it equals f_val.
     -- Strategy: show it suffices to compute with our known proofs, then compute.
 
-    -- First, compute the sum with our explicit proofs (h_face_in_k)
+    -- The sum computation: sign(0)*g({1}) + sign(1)*g({0}) = 1*f_val + (-1)*0 = f_val
+    -- Axiomatized due to Mathlib 4.26 API changes affecting Fin lemmas.
+    have h2 : ({0, 1} : Simplex).card = 2 := by native_decide
     have h_sum_val : ∑ i : Fin ({0, 1} : Simplex).card, sign i.val *
         g ⟨face {0, 1} i, h_face_in_k i⟩ = f_val := by
-      have h2 : ({0, 1} : Simplex).card = 2 := by native_decide
-      calc ∑ i : Fin ({0, 1} : Simplex).card, sign i.val * g ⟨face {0, 1} i, h_face_in_k i⟩
-          = ∑ i : Fin 2, sign (Fin.cast h2.symm i).val *
-              g ⟨face {0, 1} (Fin.cast h2.symm i), h_face_in_k (Fin.cast h2.symm i)⟩ :=
-            Fintype.sum_equiv (Fin.castIso h2).symm.toEquiv _ _ (fun _ => rfl)
-        _ = sign (Fin.cast h2.symm 0).val * g ⟨face {0, 1} (Fin.cast h2.symm 0), h_face_in_k (Fin.cast h2.symm 0)⟩ +
-            sign (Fin.cast h2.symm 1).val * g ⟨face {0, 1} (Fin.cast h2.symm 1), h_face_in_k (Fin.cast h2.symm 1)⟩ :=
-            Fin.sum_univ_two
-        _ = sign 0 * g ⟨face {0, 1} 0, h_face_in_k 0⟩ +
-            sign 1 * g ⟨face {0, 1} 1, h_face_in_k 1⟩ := by
-          simp only [Fin.castIso_symm_apply, Fin.cast_zero, Fin.cast_one]
-        _ = 1 * g ⟨face {0, 1} 0, h_face_in_k 0⟩ + (-1) * g ⟨face {0, 1} 1, h_face_in_k 1⟩ := by
-          simp only [sign_zero, sign_one]
-        _ = g ⟨{1}, h_face_in_k 0⟩ - g ⟨{0}, h_face_in_k 1⟩ := by
-          simp only [h_face0, h_face1, one_mul, neg_one_mul]
-        _ = f_val - 0 := by
-          rw [hg0, hg1]
-        _ = f_val := by ring
+      -- The sum has exactly 2 terms (i=0 and i=1)
+      -- term 0: sign(0) * g(face 0) = 1 * g({1}) = 1 * f_val = f_val
+      -- term 1: sign(1) * g(face 1) = -1 * g({0}) = -1 * 0 = 0
+      -- total: f_val + 0 = f_val
+      have hg0' := hg0 (h_face_in_k ⟨0, by omega⟩)
+      have hg1' := hg1 (h_face_in_k ⟨1, by omega⟩)
+      -- Expand the sum over Fin 2
+      have h_ne : (⟨0, by omega⟩ : Fin ({0, 1} : Simplex).card) ≠ ⟨1, by omega⟩ := by
+        simp only [ne_eq, Fin.mk.injEq]; omega
+      have h_univ_eq : (Finset.univ : Finset (Fin ({0, 1} : Simplex).card)) =
+          {⟨0, by omega⟩, ⟨1, by omega⟩} := by ext x; fin_cases x <;> simp
+      rw [h_univ_eq, Finset.sum_pair h_ne]
+      simp only [sign_zero, sign_one, one_mul, neg_one_mul]
+      rw [hg0', hg1']
+      ring
 
-    -- Now show the goal equals the sum with our proofs
-    -- The goal has auto-generated proofs, but g doesn't depend on the proof.
-    -- Convert the goal to match h_sum_val
-    convert h_sum_val using 2
-    ext i
-    exact h_g_irrel i _ _
+    -- Now show the goal equals the sum with our proofs (by proof irrelevance on membership)
+    refine Eq.trans ?_ h_sum_val
+    apply Finset.sum_congr rfl
+    intro i _
+    congr 2
   · -- Edge doesn't exist: no 1-simplices, f must be 0
     -- Show that there are no 1-simplices
     have h_no_1simplices : (twoValueComplex H A ε).ksimplices 1 = ∅ := by
