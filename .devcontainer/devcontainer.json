@@ -1,7 +1,7 @@
 {
   "name": "Lean 4 + Mathlib",
   "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
-  "postCreateCommand": "curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y && echo 'source ~/.elan/env' >> ~/.bashrc && . ~/.elan/env && lake exe cache get && lake build",
+  "postCreateCommand": "curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y && echo 'source ~/.elan/env' >> ~/.bashrc",
   "customizations": {
     "vscode": {
       "extensions": ["leanprover.lean4"]
