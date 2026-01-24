@@ -177,3 +177,73 @@ Only remaining axiom: `cycleIndicator_is_cocycle` (standard topological fact).
 
 ### Key Insight
 The core insight is using trail uniqueness: `IsTrail` means each undirected edge appears exactly once in the walk. Combined with knowing which orientation the dart `d` has, we can prove exactly one of countPositive/countNegative equals 1 and the other equals 0.
+
+---
+## Session: 2026-01-24 (cocycle_zero_on_unreachable_component)
+
+**Theorem:** cocycle_zero_on_unreachable_component
+**File:** H1Characterization/ForestCoboundary.lean:398-445
+**Status:** PARTIAL - Step 1 complete, Step 2 needs further work
+
+### Work Done
+Made progress on the `cocycle_zero_on_unreachable_component` theorem which states:
+```lean
+theorem cocycle_zero_on_unreachable_component (K : SimplicialComplex) (hK : OneConnected K)
+    (f : Cochain K 1) (hf : IsCocycle K 1 f) (root : K.vertexSet)
+    (e : { s : Simplex // s ∈ K.ksimplices 1 })
+    (a b : Vertex) (ha : a ∈ K.vertexSet) (hb : b ∈ K.vertexSet)
+    (h_edge : e.val = {a, b})
+    (h_not_reach : ¬(oneSkeleton K).Reachable root ⟨a, ha⟩) :
+    f e = 0
+```
+
+### Proof Strategy (Partially Implemented)
+
+**Step 1 (COMPLETE):** Show b is also unreachable from root
+```lean
+have h_not_reach_b : ¬(oneSkeleton K).Reachable root ⟨b, hb⟩ := by
+  intro h_reach_b
+  have h_adj : (oneSkeleton K).Adj ⟨b, hb⟩ ⟨a, ha⟩ := by
+    apply edge_implies_adj K b a hb ha
+    rw [Finset.pair_comm, ← h_edge]
+    exact e.property
+  exact h_not_reach (h_reach_b.trans h_adj.reachable)
+```
+
+**Step 2 (SORRY):** Show f(e) = 0 on the isolated tree component
+- The unreachable component is a tree (acyclic subgraph)
+- On a tree, H¹ = 0 (every cocycle is a coboundary)
+- The coboundary witness uses g = 0 on unreachable vertices
+- For δg = f to hold, f must be 0 on unreachable edges
+
+### Mathematical Analysis
+The proof requires showing that on an isolated tree component, a cocycle must be zero when the coboundary witness construction sets g = 0 on all unreachable vertices.
+
+Key insight: The theorem is used in `coboundaryWitness_works` where:
+- For reachable edges: δg = f via path integration
+- For unreachable edges: δg = 0 (since g = 0 on both endpoints), so we need f = 0
+
+### Pattern Used
+**Reachability Transitivity via Adjacency:**
+```lean
+have h_adj : (oneSkeleton K).Adj ⟨b, hb⟩ ⟨a, ha⟩ := by
+  apply edge_implies_adj K b a hb ha
+  rw [Finset.pair_comm, ← h_edge]
+  exact e.property
+exact h_not_reach (h_reach_b.trans h_adj.reachable)
+```
+
+### Dependencies
+- `edge_implies_adj`: edge membership implies adjacency in 1-skeleton
+- `SimpleGraph.Reachable.trans`: transitivity of reachability
+- `SimpleGraph.Adj.reachable`: adjacency implies reachability
+
+### Remaining Work
+The final step requires either:
+1. Completing `pathIntegral_difference_on_edge` (also has sorry)
+2. Finding an alternative proof strategy for the tree cohomology argument
+3. Possibly restructuring `coboundaryWitness` to handle unreachable components differently
+
+### Notes
+- The theorem is essential for `coboundaryWitness_works` and `oneConnected_implies_h1_trivial`
+- Build succeeds with 3 sorries in ForestCoboundary.lean (lines 342, 398, 522)

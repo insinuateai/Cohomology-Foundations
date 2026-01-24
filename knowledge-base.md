@@ -319,3 +319,71 @@ have hzs : zs = [] := List.length_eq_zero.mp hcount
 ```lean
 have hzs : zs = [] := List.eq_nil_of_length_eq_zero hcount
 ```
+
+---
+Added: 2026-01-24
+Source: cocycle_zero_on_unreachable_component proof
+
+### Pattern: Proving Unreachability via Edge Adjacency
+
+**Name:** Unreachability Propagation Through Edges
+**Use when:** Showing that if one endpoint of an edge is unreachable, so is the other
+
+**Mathematical Content:**
+In a graph, if vertex `a` is unreachable from `root`, and there's an edge {a, b}, then `b` is also unreachable from `root`. Otherwise, `root → b → a` would be a path to `a`.
+
+**Code:**
+```lean
+have h_not_reach_b : ¬(oneSkeleton K).Reachable root ⟨b, hb⟩ := by
+  intro h_reach_b
+  -- Get adjacency from edge membership
+  have h_adj : (oneSkeleton K).Adj ⟨b, hb⟩ ⟨a, ha⟩ := by
+    apply edge_implies_adj K b a hb ha
+    rw [Finset.pair_comm, ← h_edge]  -- {b, a} = {a, b}
+    exact e.property
+  -- Transitivity: root → b (reachable) → a (adjacent) contradicts h_not_reach
+  exact h_not_reach (h_reach_b.trans h_adj.reachable)
+```
+
+**Key Lemmas:**
+- `edge_implies_adj`: `{a, b} ∈ K.ksimplices 1 → (oneSkeleton K).Adj ⟨a, _⟩ ⟨b, _⟩`
+- `SimpleGraph.Reachable.trans`: `Reachable u v → Reachable v w → Reachable u w`
+- `SimpleGraph.Adj.reachable`: `Adj v w → Reachable v w`
+- `Finset.pair_comm`: `{a, b} = {b, a}`
+
+**Use Case:**
+When proving properties about edges in unreachable components, first establish that both endpoints are unreachable using this pattern.
+
+---
+### Strategy: Coboundary Witness for Forests
+
+**Name:** H¹ = 0 via Coboundary Witness Construction
+**Use when:** Proving OneConnected K implies H1Trivial K
+
+**Mathematical Content:**
+For a forest (1-skeleton is acyclic), construct a coboundary witness g for any cocycle f:
+- For reachable vertices: g(v) = pathIntegral(root → v)
+- For unreachable vertices: g(v) = 0
+
+This satisfies δg = f because:
+- On reachable edges: path integration gives the correct difference
+- On unreachable edges: both endpoints have g = 0, so δg = 0
+
+**Key Requirements:**
+1. Path uniqueness in forests (acyclicity ensures pathIntegral is well-defined)
+2. Cocycle must be zero on unreachable edges (for δg = f when g = 0)
+
+**Code Structure:**
+```lean
+noncomputable def coboundaryWitness (K : SimplicialComplex) (hK : OneConnected K)
+    (f : Cochain K 1) (hf : IsCocycle K 1 f) (root : K.vertexSet) : Cochain K 0 :=
+  fun s =>
+    let v := toVertex K s
+    if h : (oneSkeleton K).Reachable root v
+    then pathIntegral K f (pathBetween K h)
+    else 0
+```
+
+**Proof Cases:**
+- **Reachable case:** Use path integration and coboundary formula
+- **Unreachable case:** Use `cocycle_zero_on_unreachable_component` to show f = 0
