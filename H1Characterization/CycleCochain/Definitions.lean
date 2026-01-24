@@ -4,11 +4,10 @@
   Definitions for cycle indicators and oriented edges.
   No proofs requiring ForestCoboundary.
 
-  AXIOMS: 5
+  AXIOMS: 4
     - cycleIndicator_is_cocycle: standard topological fact
     - oriented_edge_coboundary: direct computation from δ definition
     - cycleIndicator_self_contribution: trail edge uniqueness
-    - cycleIndicator_sum_length: sum of self-contributions = length
     - cycleIndicator_not_coboundary: contradiction with cycle length ≥ 3
 -/
 
@@ -179,8 +178,17 @@ Mathematical content:
 - By cycleIndicator_self_contribution, each term equals 1
 - Therefore the sum = number of terms = number of darts = C.length
 -/
-axiom cycleIndicator_sum_length (K : SimplicialComplex) {v : K.vertexSet}
-    (C : Walk K v v) (hC : C.IsCycle) : cochainWalkSum K (cycleIndicator K C) C = C.length
+theorem cycleIndicator_sum_length (K : SimplicialComplex) {v : K.vertexSet}
+    (C : Walk K v v) (hC : C.IsCycle) : cochainWalkSum K (cycleIndicator K C) C = C.length := by
+  simp only [cochainWalkSum]
+  have h_all_one : ∀ oe ∈ walkToOrientedEdges K C,
+      oe.sign * cycleIndicator K C ⟨oe.toSimplex, oe.mem_edges⟩ = 1 :=
+    cycleIndicator_self_contribution K C hC
+  rw [List.map_eq_replicate_iff.mpr ⟨1, ?_⟩]
+  · simp only [List.sum_replicate, smul_eq_mul, mul_one]
+    simp only [walkToOrientedEdges, List.length_map]
+    exact C.length_darts.symm
+  · exact h_all_one
 
 /-! ## Not Coboundary -/
 
