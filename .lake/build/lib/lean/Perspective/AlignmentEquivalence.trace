@@ -1,12 +1,12 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["acb154574f3a10e4.olean"],
+ {"o": ["7c3640a7600d7793.olean"],
   "i": "fa1c0f4194310c31.ilean",
   "c": "1f5073286381d5b4.c"},
  "log":
  [{"message":
-   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/codespace/.elan/toolchains/leanprover--lean4---v4.26.0/bin/lean /workspaces/Cohomology-Foundations/Perspective/AlignmentEquivalence.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/AlignmentEquivalence.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/AlignmentEquivalence.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/AlignmentEquivalence.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/AlignmentEquivalence.setup.json --json",
+   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.26.0/bin/lean /workspaces/Cohomology-Foundations/Perspective/AlignmentEquivalence.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/AlignmentEquivalence.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/AlignmentEquivalence.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/AlignmentEquivalence.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/AlignmentEquivalence.setup.json --json",
    "level": "trace"},
   {"message":
    "Perspective/AlignmentEquivalence.lean:83:0: automatically included section variable(s) unused in theorem `Perspective.two_system_alignable_iff`:\n  [Fintype S]\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [Fintype S] [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
@@ -78,7 +78,7 @@
          "1d553a040544ea9c"],
         ["Mathlib.Algebra.Order.Field.Basic:importAllArts", "14e36895038264bd"],
         ["Mathlib.Tactic.Linarith transitive imports (legacy)",
-         "3fb59e22bcea54b9"],
+         "7785236b0e852e06"],
         ["Mathlib.Tactic.Linarith:importAllArts", "781ba82c2fc3d1cb"],
         ["Mathlib.Tactic.Positivity transitive imports (legacy)",
          "d87b89141e1ad6e7"],
@@ -87,15 +87,15 @@
          "f56d68fcf5f8dbfb"],
         ["Mathlib.Tactic.FinCases:importAllArts", "56f12402edd090ca"],
         ["Mathlib.Tactic.IntervalCases transitive imports (legacy)",
-         "0e95621c3b10eba0"],
+         "663abc476a3de877"],
         ["Mathlib.Tactic.IntervalCases:importAllArts", "0726316246628c46"],
         ["Mathlib.Tactic.FieldSimp transitive imports (legacy)",
          "7c6d6a4c992a98d3"],
         ["Mathlib.Tactic.FieldSimp:importAllArts", "42b2aa78187730fc"],
         ["H1Characterization.ForestCoboundary transitive imports (legacy)",
-         "8939a8cf6ad18f36"],
+         "8d872e03a62ade68"],
         ["H1Characterization.ForestCoboundary:importAllArts",
-         "ef4b9dceadd4aa81"]]]]],
+         "f2febdc95cdc04e8"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
@@ -109,4 +109,4 @@
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "1b9fa51cb1d39383"}
+ "depHash": "563b8ec249b3f22e"}

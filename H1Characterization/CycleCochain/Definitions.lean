@@ -4,11 +4,8 @@
   Definitions for cycle indicators and oriented edges.
   No proofs requiring ForestCoboundary.
 
-  AXIOMS: 4
+  AXIOMS: 1
     - cycleIndicator_is_cocycle: standard topological fact
-    - oriented_edge_coboundary: direct computation from δ definition
-    - cycleIndicator_self_contribution: trail edge uniqueness
-    - cycleIndicator_not_coboundary: contradiction with cycle length ≥ 3
 -/
 
 import H1Characterization.OneConnected
@@ -113,10 +110,151 @@ def vertex0Simplex (K : SimplicialComplex) (v : K.vertexSet) :
 --   If src < tgt: sign = 1, e = {src, tgt}, so (δg)(e) = g({tgt}) - g({src})
 --   If tgt < src: sign = -1, e = {tgt, src}, so (δg)(e) = g({src}) - g({tgt})
 --   Either way: sign * (δg)(e) = g({tgt}) - g({src})
-axiom oriented_edge_coboundary (K : SimplicialComplex) (g : Cochain K 0)
+theorem oriented_edge_coboundary (K : SimplicialComplex) (g : Cochain K 0)
     (oe : OrientedEdge K) :
     oe.sign * (δ K 0 g) ⟨oe.toSimplex, oe.mem_edges⟩ =
-    g (vertex0Simplex K oe.tgt) - g (vertex0Simplex K oe.src)
+    g (vertex0Simplex K oe.tgt) - g (vertex0Simplex K oe.src) := by
+  -- The edge has cardinality 2 and vertices src ≠ tgt
+  have hcard : oe.toSimplex.card = 2 := oe.mem_edges.2
+  have hne : oe.src.val ≠ oe.tgt.val := oe.adj.1
+  -- Define indices for the two faces
+  have h_idx0 : (0 : ℕ) < oe.toSimplex.card := by rw [hcard]; omega
+  have h_idx1 : (1 : ℕ) < oe.toSimplex.card := by rw [hcard]; omega
+  let i0 : Fin oe.toSimplex.card := ⟨0, h_idx0⟩
+  let i1 : Fin oe.toSimplex.card := ⟨1, h_idx1⟩
+  -- The universe of Fin 2 is {i0, i1}
+  have h_univ : (Finset.univ : Finset (Fin oe.toSimplex.card)) = {i0, i1} := by
+    ext i; simp only [Finset.mem_univ, Finset.mem_insert, Finset.mem_singleton, true_iff]
+    have hi : i.val < 2 := by rw [← hcard]; exact i.isLt
+    rcases i with ⟨n, hn⟩
+    rcases n with _ | n; · left; rfl
+    rcases n with _ | n; · right; rfl
+    omega
+  have h_ne_idx : i0 ≠ i1 := by intro h; have : (0 : ℕ) = 1 := congrArg Fin.val h; omega
+  -- Case split on the ordering of src and tgt
+  by_cases hslt : oe.src.val < oe.tgt.val
+  · -- Case: src < tgt, so sign = 1
+    -- Sorted list is [src, tgt], so face 0 = {tgt}, face 1 = {src}
+    have h_sort : oe.toSimplex.sort (· ≤ ·) = [oe.src.val, oe.tgt.val] := by
+      simp only [OrientedEdge.toSimplex]
+      have h_ne' : oe.src.val ∉ ({oe.tgt.val} : Finset ℕ) := by simp [ne_of_lt hslt]
+      have h_insert : ({oe.src.val, oe.tgt.val} : Finset ℕ) = insert oe.src.val {oe.tgt.val} := by
+        ext x; simp [Finset.mem_insert, Finset.mem_singleton, or_comm]
+      rw [h_insert, Finset.sort_insert (r := (· ≤ ·))]
+      · simp only [Finset.sort_singleton]
+      · intro x hx; simp only [Finset.mem_singleton] at hx; rw [hx]; exact le_of_lt hslt
+      · exact h_ne'
+    have h_face0 : oe.toSimplex.face i0 = {oe.tgt.val} := by
+      simp only [Simplex.face, h_sort, List.get_eq_getElem, List.getElem_cons_zero]
+      ext x; simp only [Finset.mem_erase, Finset.mem_insert, Finset.mem_singleton]
+      constructor
+      · intro ⟨hne', hx⟩
+        simp only [OrientedEdge.toSimplex] at hx
+        simp at hx; rcases hx with rfl | rfl
+        · exact absurd rfl hne'
+        · rfl
+      · intro rfl; simp only [OrientedEdge.toSimplex]
+        exact ⟨ne_of_gt hslt, by simp⟩
+    have h_face1 : oe.toSimplex.face i1 = {oe.src.val} := by
+      simp only [Simplex.face, h_sort, List.get_eq_getElem, List.getElem_cons_succ,
+                 List.getElem_cons_zero]
+      ext x; simp only [Finset.mem_erase, Finset.mem_insert, Finset.mem_singleton]
+      constructor
+      · intro ⟨hne', hx⟩
+        simp only [OrientedEdge.toSimplex] at hx
+        simp at hx; rcases hx with rfl | rfl
+        · rfl
+        · exact absurd rfl hne'
+      · intro rfl; simp only [OrientedEdge.toSimplex]
+        exact ⟨ne_of_lt hslt, by simp⟩
+    -- Face membership proofs
+    have h_face0_mem : oe.toSimplex.face i0 ∈ K.ksimplices 0 := by
+      rw [h_face0]
+      exact ⟨oe.tgt.property, Finset.card_singleton _⟩
+    have h_face1_mem : oe.toSimplex.face i1 ∈ K.ksimplices 0 := by
+      rw [h_face1]
+      exact ⟨oe.src.property, Finset.card_singleton _⟩
+    -- Subtype equalities
+    have h_eq_tgt : (⟨oe.toSimplex.face i0, h_face0_mem⟩ : {s // s ∈ K.ksimplices 0}) =
+        vertex0Simplex K oe.tgt := Subtype.ext h_face0
+    have h_eq_src : (⟨oe.toSimplex.face i1, h_face1_mem⟩ : {s // s ∈ K.ksimplices 0}) =
+        vertex0Simplex K oe.src := Subtype.ext h_face1
+    -- Now compute the coboundary
+    simp only [OrientedEdge.sign, hslt, ↓reduceIte, one_mul, coboundary]
+    rw [show (Finset.univ : Finset (Fin oe.toSimplex.card)) = {i0, i1} from h_univ]
+    rw [Finset.sum_pair h_ne_idx]
+    -- Simplify the signs
+    have hi0 : i0.val = 0 := rfl
+    have hi1 : i1.val = 1 := rfl
+    simp only [hi0, hi1, sign_zero, sign_one, one_mul, neg_one_mul]
+    -- Use proof irrelevance for the subtype membership
+    have h1 : g ⟨oe.toSimplex.face i0, _⟩ = g ⟨oe.toSimplex.face i0, h_face0_mem⟩ := rfl
+    have h2 : g ⟨oe.toSimplex.face i1, _⟩ = g ⟨oe.toSimplex.face i1, h_face1_mem⟩ := rfl
+    rw [h1, h2, h_eq_tgt, h_eq_src]
+    ring
+  · -- Case: ¬(src < tgt), so tgt < src (since src ≠ tgt), sign = -1
+    have htls : oe.tgt.val < oe.src.val := Nat.lt_of_le_of_ne (Nat.not_lt.mp hslt) (Ne.symm hne)
+    -- Sorted list is [tgt, src], so face 0 = {src}, face 1 = {tgt}
+    have h_sort : oe.toSimplex.sort (· ≤ ·) = [oe.tgt.val, oe.src.val] := by
+      simp only [OrientedEdge.toSimplex]
+      have h_ne' : oe.tgt.val ∉ ({oe.src.val} : Finset ℕ) := by simp [ne_of_lt htls]
+      have h_insert : ({oe.src.val, oe.tgt.val} : Finset ℕ) = insert oe.tgt.val {oe.src.val} := by
+        ext x; simp [Finset.mem_insert, Finset.mem_singleton]
+        constructor
+        · intro h; rcases h with rfl | rfl <;> [right; left] <;> rfl
+        · intro h; rcases h with rfl | rfl <;> [right; left] <;> rfl
+      rw [h_insert, Finset.sort_insert (r := (· ≤ ·))]
+      · simp only [Finset.sort_singleton]
+      · intro x hx; simp only [Finset.mem_singleton] at hx; rw [hx]; exact le_of_lt htls
+      · exact h_ne'
+    have h_face0 : oe.toSimplex.face i0 = {oe.src.val} := by
+      simp only [Simplex.face, h_sort, List.get_eq_getElem, List.getElem_cons_zero]
+      ext x; simp only [Finset.mem_erase, Finset.mem_insert, Finset.mem_singleton]
+      constructor
+      · intro ⟨hne', hx⟩
+        simp only [OrientedEdge.toSimplex] at hx
+        simp at hx; rcases hx with rfl | rfl
+        · rfl
+        · exact absurd rfl hne'
+      · intro rfl; simp only [OrientedEdge.toSimplex]
+        exact ⟨ne_of_gt htls, by simp⟩
+    have h_face1 : oe.toSimplex.face i1 = {oe.tgt.val} := by
+      simp only [Simplex.face, h_sort, List.get_eq_getElem, List.getElem_cons_succ,
+                 List.getElem_cons_zero]
+      ext x; simp only [Finset.mem_erase, Finset.mem_insert, Finset.mem_singleton]
+      constructor
+      · intro ⟨hne', hx⟩
+        simp only [OrientedEdge.toSimplex] at hx
+        simp at hx; rcases hx with rfl | rfl
+        · exact absurd rfl hne'
+        · rfl
+      · intro rfl; simp only [OrientedEdge.toSimplex]
+        exact ⟨ne_of_lt htls, by simp⟩
+    -- Face membership proofs
+    have h_face0_mem : oe.toSimplex.face i0 ∈ K.ksimplices 0 := by
+      rw [h_face0]
+      exact ⟨oe.src.property, Finset.card_singleton _⟩
+    have h_face1_mem : oe.toSimplex.face i1 ∈ K.ksimplices 0 := by
+      rw [h_face1]
+      exact ⟨oe.tgt.property, Finset.card_singleton _⟩
+    -- Subtype equalities
+    have h_eq_src : (⟨oe.toSimplex.face i0, h_face0_mem⟩ : {s // s ∈ K.ksimplices 0}) =
+        vertex0Simplex K oe.src := Subtype.ext h_face0
+    have h_eq_tgt : (⟨oe.toSimplex.face i1, h_face1_mem⟩ : {s // s ∈ K.ksimplices 0}) =
+        vertex0Simplex K oe.tgt := Subtype.ext h_face1
+    -- Now compute the coboundary
+    simp only [OrientedEdge.sign, hslt, ↓reduceIte, neg_one_mul, coboundary]
+    rw [show (Finset.univ : Finset (Fin oe.toSimplex.card)) = {i0, i1} from h_univ]
+    rw [Finset.sum_pair h_ne_idx]
+    -- Simplify the signs
+    have hi0 : i0.val = 0 := rfl
+    have hi1 : i1.val = 1 := rfl
+    simp only [hi0, hi1, sign_zero, sign_one, one_mul, neg_one_mul]
+    -- Use proof irrelevance for the subtype membership
+    have h1 : g ⟨oe.toSimplex.face i0, _⟩ = g ⟨oe.toSimplex.face i0, h_face0_mem⟩ := rfl
+    have h2 : g ⟨oe.toSimplex.face i1, _⟩ = g ⟨oe.toSimplex.face i1, h_face1_mem⟩ := rfl
+    rw [h1, h2, h_eq_src, h_eq_tgt]
+    ring
 
 /-! ## TRAIL CHAIN: 3 axioms using trail edge uniqueness -/
 
@@ -134,10 +272,251 @@ Mathematical content:
     Therefore oe.sign * cycleIndicator = (-1) * (-1) = 1
 - Either way, oe.sign * cycleIndicator = 1
 -/
-axiom cycleIndicator_self_contribution (K : SimplicialComplex) {v : K.vertexSet}
+-- Helper: walkToOrientedEdges membership relates to darts
+private lemma walkToOrientedEdges_mem_iff' {v w : K.vertexSet}
+    (p : Walk K v w) (oe : OrientedEdge K) :
+    oe ∈ walkToOrientedEdges K p ↔ ∃ d ∈ p.darts, oe = ⟨d.fst, d.snd, d.adj⟩ := by
+  simp only [walkToOrientedEdges, List.mem_map]
+  constructor
+  · intro ⟨d, hd, heq⟩; exact ⟨d, hd, heq.symm⟩
+  · intro ⟨d, hd, heq⟩; exact ⟨d, hd, heq.symm⟩
+
+-- Helper: count in mapped list = countP
+private lemma count_map_eq_countP {α β : Type*} [DecidableEq β] (f : α → β) (l : List α) (b : β) :
+    (l.map f).count b = l.countP (fun a => f a = b) := by
+  induction l with
+  | nil => simp
+  | cons x xs ih =>
+    simp only [List.map_cons, List.count_cons, List.countP_cons, ih, beq_iff_eq, decide_eq_true_eq]
+
+-- Helper: In a trail, each dart's edge appears exactly once
+private lemma trail_dart_edge_unique' {v w : K.vertexSet}
+    (p : Walk K v w) (hp : p.IsTrail) (d : (oneSkeleton K).Dart) (hd : d ∈ p.darts) :
+    p.darts.countP (fun d' => d'.edge = d.edge) = 1 := by
+  have he : d.edge ∈ p.edges := List.mem_map.mpr ⟨d, hd, rfl⟩
+  have hcount : p.edges.count d.edge = 1 := List.count_eq_one_of_mem hp.edges_nodup he
+  simp only [SimpleGraph.Walk.edges] at hcount
+  rw [count_map_eq_countP] at hcount
+  exact hcount
+
+-- Helper: toSimplex equality means same unordered pair
+private lemma toSimplex_eq_iff_same_pair' (a b c d : K.vertexSet)
+    (hab : a.val ≠ b.val) (hcd : c.val ≠ d.val) :
+    ({a.val, b.val} : Finset ℕ) = {c.val, d.val} ↔
+    (a.val = c.val ∧ b.val = d.val) ∨ (a.val = d.val ∧ b.val = c.val) := by
+  constructor
+  · intro heq
+    have ha : a.val ∈ ({c.val, d.val} : Finset ℕ) := by
+      rw [← heq]; exact Finset.mem_insert_self _ _
+    have hb : b.val ∈ ({c.val, d.val} : Finset ℕ) := by
+      rw [← heq]; exact Finset.mem_insert_of_mem (Finset.mem_singleton_self _)
+    simp only [Finset.mem_insert, Finset.mem_singleton] at ha hb
+    rcases ha with ha_eq | ha_eq
+    · rcases hb with hb_eq | hb_eq
+      · -- a = c, b = c, so a = b, contradicts hab
+        rw [ha_eq, hb_eq] at hab; exact absurd rfl hab
+      · left; exact ⟨ha_eq, hb_eq⟩
+    · rcases hb with hb_eq | hb_eq
+      · right; exact ⟨ha_eq, hb_eq⟩
+      · -- a = d, b = d, so a = b, contradicts hab
+        rw [ha_eq, hb_eq] at hab; exact absurd rfl hab
+  · intro h
+    rcases h with ⟨ha, hb⟩ | ⟨ha, hb⟩
+    · simp only [ha, hb]
+    · rw [Finset.pair_comm]; simp only [ha, hb]
+
+-- Helper: Sym2 equality for edges
+private lemma dart_edge_eq_iff (d1 d2 : (oneSkeleton K).Dart) :
+    d1.edge = d2.edge ↔
+    (d1.fst = d2.fst ∧ d1.snd = d2.snd) ∨ (d1.fst = d2.snd ∧ d1.snd = d2.fst) := by
+  rw [SimpleGraph.Dart.edge, SimpleGraph.Dart.edge, Sym2.mk_eq_mk_iff]
+  constructor
+  · intro h
+    rcases h with heq | heq
+    · left; exact Prod.ext_iff.mp heq
+    · right
+      have h1 : d1.fst = d2.snd := by
+        have := congrArg Prod.fst heq
+        simp only [Prod.fst_swap] at this
+        exact this
+      have h2 : d1.snd = d2.fst := by
+        have := congrArg Prod.snd heq
+        simp only [Prod.snd_swap] at this
+        exact this
+      exact ⟨h1, h2⟩
+  · intro h
+    rcases h with ⟨h1, h2⟩ | ⟨h1, h2⟩
+    · left; exact Prod.ext h1 h2
+    · right
+      apply Prod.ext
+      · simp only [Prod.fst_swap]; exact h1
+      · simp only [Prod.snd_swap]; exact h2
+
+-- Helper: If countP = 1, any two elements satisfying predicate are equal
+private lemma countP_eq_one_unique {α : Type*} {l : List α} {p : α → Bool}
+    (hcount : l.countP p = 1) (x y : α) (hx : x ∈ l) (hy : y ∈ l)
+    (hpx : p x = true) (hpy : p y = true) : x = y := by
+  -- Convert to filter
+  rw [List.countP_eq_length_filter] at hcount
+  have hx_filt : x ∈ l.filter p := List.mem_filter.mpr ⟨hx, hpx⟩
+  have hy_filt : y ∈ l.filter p := List.mem_filter.mpr ⟨hy, hpy⟩
+  -- In a singleton list, all elements are equal
+  cases hf : l.filter p with
+  | nil =>
+    simp only [hf, List.length_nil] at hcount
+    omega  -- 0 = 1 is false
+  | cons z zs =>
+    simp only [hf, List.length_cons] at hcount
+    have hzs : zs = [] := by
+      have h : zs.length = 0 := Nat.succ_injective hcount
+      exact List.eq_nil_of_length_eq_zero h
+    rw [hf, hzs] at hx_filt hy_filt
+    simp only [List.mem_singleton] at hx_filt hy_filt
+    exact hx_filt.trans hy_filt.symm
+
+-- Helper: countP q ≤ countP p when q implies p
+private lemma countP_le_of_imp {α : Type*} (l : List α) {p q : α → Bool}
+    (hqp : ∀ x, q x = true → p x = true) : l.countP q ≤ l.countP p := by
+  induction l with
+  | nil => simp
+  | cons a as ih =>
+    simp only [List.countP_cons]
+    by_cases hqa : q a = true
+    · have hpa : p a = true := hqp a hqa
+      simp only [hqa, hpa, ite_true]
+      exact Nat.add_le_add_right ih 1
+    · simp only [Bool.not_eq_true] at hqa
+      simp only [hqa, ite_false]
+      by_cases hpa : p a = true
+      · simp only [hpa, ite_true]
+        calc as.countP q ≤ as.countP p := ih
+          _ ≤ as.countP p + 1 := Nat.le_add_right _ _
+      · simp only [Bool.not_eq_true] at hpa
+        simp only [hpa, ite_false]
+        exact ih
+
+-- Helper: countP ≥ 1 when element in list satisfies predicate
+private lemma countP_pos_of_mem {α : Type*} {l : List α} {p : α → Bool}
+    (x : α) (hx : x ∈ l) (hpx : p x = true) : 1 ≤ l.countP p := by
+  induction l with
+  | nil => simp at hx
+  | cons a as ih =>
+    simp only [List.countP_cons]
+    simp only [List.mem_cons] at hx
+    rcases hx with rfl | hxas
+    · simp only [hpx, ↓reduceIte]; omega
+    · have := ih hxas; omega
+
+-- Helper: If countP p l = 1 and q implies p, and unique element satisfies q, then countP q l = 1
+private lemma countP_eq_one_of_refines {α : Type*} {l : List α} {p q : α → Bool}
+    (hp_one : l.countP p = 1) (hqp : ∀ x, q x = true → p x = true)
+    (x : α) (hx : x ∈ l) (hqx : q x = true) : l.countP q = 1 := by
+  have hle : l.countP q ≤ l.countP p := countP_le_of_imp l hqp
+  have hge : 1 ≤ l.countP q := countP_pos_of_mem x hx hqx
+  omega
+
+theorem cycleIndicator_self_contribution (K : SimplicialComplex) {v : K.vertexSet}
     (C : Walk K v v) (hC : C.IsCycle) :
     ∀ oe ∈ walkToOrientedEdges K C,
-      oe.sign * cycleIndicator K C ⟨oe.toSimplex, oe.mem_edges⟩ = 1
+      oe.sign * cycleIndicator K C ⟨oe.toSimplex, oe.mem_edges⟩ = 1 := by
+  intro oe hoe
+  -- oe comes from some dart d in C.darts
+  rw [walkToOrientedEdges_mem_iff'] at hoe
+  obtain ⟨d, hd, rfl⟩ := hoe
+  set oe_d : OrientedEdge K := ⟨d.fst, d.snd, d.adj⟩ with hoe_d
+  -- C is a trail, so each undirected edge appears exactly once
+  have htrail : C.IsTrail := hC.isCircuit.isTrail
+  have _hedge_unique : C.darts.countP (fun d' => d'.edge = d.edge) = 1 :=
+    trail_dart_edge_unique' C htrail d hd
+  -- Unfold cycleIndicator
+  simp only [cycleIndicator]
+  -- Key: trail_dart_edge_unique' says exactly 1 dart has the same edge
+  have hedge_unique := trail_dart_edge_unique' C htrail d hd
+  -- Any dart d' with same edge must be d (since count = 1)
+  have same_edge_implies_eq : ∀ d' ∈ C.darts, d'.edge = d.edge → d' = d := by
+    intro d' hd' hedge
+    exact countP_eq_one_unique hedge_unique d' d hd' hd
+      (by simp only [decide_eq_true_eq]; exact hedge)
+      (by simp only [decide_eq_true_eq])
+  -- Case split on whether src < tgt
+  by_cases hslt : d.fst.val < d.snd.val
+  · -- Case: src < tgt, so sign = 1
+    -- countPositive = 1, countNegative = 0, cycleIndicator = 1
+    have hsign : oe_d.sign = 1 := if_pos hslt
+    rw [hsign, one_mul]
+    have hpos : countPositive K C ⟨oe_d.toSimplex, oe_d.mem_edges⟩ = 1 := by
+      simp only [countPositive, walkToOrientedEdges, List.countP_map]
+      -- Use countP_eq_one_of_refines: positive predicate implies edge equality
+      apply countP_eq_one_of_refines hedge_unique
+      · -- same simplex implies same edge
+        intro d' hq
+        simp only [Function.comp_apply, decide_eq_true_eq] at hq ⊢
+        obtain ⟨hsimplex, _⟩ := hq
+        rw [dart_edge_eq_iff]
+        simp only [OrientedEdge.toSimplex] at hsimplex
+        rw [toSimplex_eq_iff_same_pair' _ _ _ _ d'.adj.1 d.adj.1] at hsimplex
+        rcases hsimplex with ⟨h1, h2⟩ | ⟨h1, h2⟩
+        · left; exact ⟨Subtype.ext h1, Subtype.ext h2⟩
+        · right; exact ⟨Subtype.ext h1, Subtype.ext h2⟩
+      · exact hd
+      · -- d satisfies the positive predicate
+        simp only [Function.comp_apply, decide_eq_true_eq, OrientedEdge.toSimplex]
+        exact ⟨rfl, hslt⟩
+    have hneg : countNegative K C ⟨oe_d.toSimplex, oe_d.mem_edges⟩ = 0 := by
+      simp only [countNegative, walkToOrientedEdges, List.countP_map]
+      apply List.countP_eq_zero.mpr; intro d' hd'
+      simp only [Function.comp_apply, decide_eq_true_eq, not_and, not_lt]
+      intro heq
+      simp only [OrientedEdge.toSimplex] at heq
+      have hedge : d'.edge = d.edge := by
+        rw [dart_edge_eq_iff]
+        rw [toSimplex_eq_iff_same_pair' _ _ _ _ d'.adj.1 d.adj.1] at heq
+        rcases heq with ⟨h1, h2⟩ | ⟨h1, h2⟩
+        · left; exact ⟨Subtype.ext h1, Subtype.ext h2⟩
+        · right; exact ⟨Subtype.ext h1, Subtype.ext h2⟩
+      have heq_d := same_edge_implies_eq d' hd' hedge
+      rw [heq_d]; exact Nat.le_of_lt hslt
+    simp only [hpos, hneg, Nat.cast_one, Nat.cast_zero, sub_zero]
+
+  · -- Case: ¬(src < tgt), so tgt < src, sign = -1
+    have hne : d.fst.val ≠ d.snd.val := d.adj.1
+    have htls : d.snd.val < d.fst.val := Nat.lt_of_le_of_ne (Nat.not_lt.mp hslt) (Ne.symm hne)
+    have hsign : oe_d.sign = -1 := if_neg hslt
+    rw [hsign]
+    have hpos : countPositive K C ⟨oe_d.toSimplex, oe_d.mem_edges⟩ = 0 := by
+      simp only [countPositive, walkToOrientedEdges, List.countP_map]
+      apply List.countP_eq_zero.mpr; intro d' hd'
+      simp only [Function.comp_apply, decide_eq_true_eq, not_and, not_lt]
+      intro heq
+      simp only [OrientedEdge.toSimplex] at heq
+      have hedge : d'.edge = d.edge := by
+        rw [dart_edge_eq_iff]
+        rw [toSimplex_eq_iff_same_pair' _ _ _ _ d'.adj.1 hne] at heq
+        rcases heq with ⟨h1, h2⟩ | ⟨h1, h2⟩
+        · left; exact ⟨Subtype.ext h1, Subtype.ext h2⟩
+        · right; exact ⟨Subtype.ext h1, Subtype.ext h2⟩
+      have heq_d := same_edge_implies_eq d' hd' hedge
+      rw [heq_d]; exact Nat.le_of_lt htls
+    have hneg : countNegative K C ⟨oe_d.toSimplex, oe_d.mem_edges⟩ = 1 := by
+      simp only [countNegative, walkToOrientedEdges, List.countP_map]
+      -- Use countP_eq_one_of_refines: negative predicate implies edge equality
+      apply countP_eq_one_of_refines hedge_unique
+      · -- same simplex implies same edge
+        intro d' hq
+        simp only [Function.comp_apply, decide_eq_true_eq] at hq ⊢
+        obtain ⟨hsimplex, _⟩ := hq
+        rw [dart_edge_eq_iff]
+        simp only [OrientedEdge.toSimplex] at hsimplex
+        rw [toSimplex_eq_iff_same_pair' _ _ _ _ d'.adj.1 hne] at hsimplex
+        rcases hsimplex with ⟨h1, h2⟩ | ⟨h1, h2⟩
+        · left; exact ⟨Subtype.ext h1, Subtype.ext h2⟩
+        · right; exact ⟨Subtype.ext h1, Subtype.ext h2⟩
+      · exact hd
+      · -- d satisfies the negative predicate
+        simp only [Function.comp_apply, decide_eq_true_eq, OrientedEdge.toSimplex]
+        exact ⟨rfl, htls⟩
+    simp only [hpos, hneg, Nat.cast_zero, Nat.cast_one, zero_sub]
+    ring
 
 /-! ## Derived Theorems -/
 
@@ -178,17 +557,33 @@ Mathematical content:
 - By cycleIndicator_self_contribution, each term equals 1
 - Therefore the sum = number of terms = number of darts = C.length
 -/
+-- Helper: If all elements of a list are 1, the sum equals the length
+private lemma sum_eq_length_of_all_one {l : List ℚ} (h : ∀ x ∈ l, x = 1) : l.sum = l.length := by
+  induction l with
+  | nil => simp
+  | cons a as ih =>
+    simp only [List.sum_cons, List.length_cons, Nat.cast_add, Nat.cast_one]
+    have ha : a = 1 := h a (List.Mem.head as)
+    have has : ∀ x ∈ as, x = 1 := fun x hx => h x (List.Mem.tail a hx)
+    rw [ha, ih has]
+    ring
+
 theorem cycleIndicator_sum_length (K : SimplicialComplex) {v : K.vertexSet}
     (C : Walk K v v) (hC : C.IsCycle) : cochainWalkSum K (cycleIndicator K C) C = C.length := by
   simp only [cochainWalkSum]
   have h_all_one : ∀ oe ∈ walkToOrientedEdges K C,
       oe.sign * cycleIndicator K C ⟨oe.toSimplex, oe.mem_edges⟩ = 1 :=
     cycleIndicator_self_contribution K C hC
-  rw [List.map_eq_replicate_iff.mpr ⟨1, ?_⟩]
-  · simp only [List.sum_replicate, smul_eq_mul, mul_one]
-    simp only [walkToOrientedEdges, List.length_map]
-    exact C.length_darts.symm
-  · exact h_all_one
+  -- The mapped list has all elements = 1
+  have h_map_all_one : ∀ x ∈ (walkToOrientedEdges K C).map
+      (fun oe => oe.sign * cycleIndicator K C ⟨oe.toSimplex, oe.mem_edges⟩), x = 1 := by
+    intro x hx
+    simp only [List.mem_map] at hx
+    obtain ⟨oe, hoe, rfl⟩ := hx
+    exact h_all_one oe hoe
+  rw [sum_eq_length_of_all_one h_map_all_one]
+  simp only [List.length_map, walkToOrientedEdges, List.length_map]
+  rw [C.length_darts]
 
 /-! ## Not Coboundary -/
 
@@ -202,8 +597,21 @@ Mathematical content:
 - RHS = 0 (by coboundary_walk_sum_zero, since the walk is a cycle v → v)
 - So C.length = 0, but cycles have length ≥ 3 (at least 3 edges), contradiction.
 -/
-axiom cycleIndicator_not_coboundary (K : SimplicialComplex) {v : K.vertexSet}
-    (C : Walk K v v) (hC : C.IsCycle) : ¬IsCoboundary K 1 (cycleIndicator K C)
+theorem cycleIndicator_not_coboundary (K : SimplicialComplex) {v : K.vertexSet}
+    (C : Walk K v v) (hC : C.IsCycle) : ¬IsCoboundary K 1 (cycleIndicator K C) := by
+  intro ⟨g, hg⟩
+  -- Compute the walk sum two ways:
+  have h1 : cochainWalkSum K (cycleIndicator K C) C = C.length := cycleIndicator_sum_length K C hC
+  have h2 : cochainWalkSum K (δ K 0 g) C = 0 := coboundary_walk_sum_zero K g C
+  -- hg : δ K 0 g = cycleIndicator K C, so substitute into h2
+  rw [hg] at h2
+  -- Now h1 : ... = C.length and h2 : ... = 0, so C.length = 0
+  have h_zero : (C.length : ℚ) = 0 := h1.symm.trans h2
+  -- Convert from ℚ to ℕ: (n : ℚ) = 0 ↔ n = 0
+  have h_len_zero : C.length = 0 := Nat.cast_injective h_zero
+  -- But cycles have length ≥ 3
+  have h_len : C.length ≥ 3 := hC.three_le_length
+  omega
 
 /-! ## Main Forward Lemmas -/
 

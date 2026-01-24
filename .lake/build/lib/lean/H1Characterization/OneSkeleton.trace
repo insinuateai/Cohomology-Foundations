@@ -6,7 +6,7 @@
   "c": "79e77232e74d054b.c"},
  "log":
  [{"message":
-   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/codespace/.elan/toolchains/leanprover--lean4---v4.26.0/bin/lean /workspaces/Cohomology-Foundations/H1Characterization/OneSkeleton.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/H1Characterization/OneSkeleton.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/H1Characterization/OneSkeleton.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/H1Characterization/OneSkeleton.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/H1Characterization/OneSkeleton.setup.json --json",
+   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.26.0/bin/lean /workspaces/Cohomology-Foundations/H1Characterization/OneSkeleton.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/H1Characterization/OneSkeleton.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/H1Characterization/OneSkeleton.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/H1Characterization/OneSkeleton.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/H1Characterization/OneSkeleton.setup.json --json",
    "level": "trace"}],
  "inputs":
  [["H1Characterization.OneSkeleton:deps",
@@ -15,7 +15,7 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["H1Characterization.Basic transitive imports (legacy)",
-         "2649cba457e78796"],
+         "8103b866f02580f3"],
         ["H1Characterization.Basic:importAllArts", "334cdb8a3e54f64f"],
         ["Mathlib.Combinatorics.SimpleGraph.Basic transitive imports (legacy)",
          "b17fb58f7694fe03"],
@@ -42,4 +42,4 @@
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "7a099a49662de972"}
+ "depHash": "4ca6f8fa40f8dcfe"}

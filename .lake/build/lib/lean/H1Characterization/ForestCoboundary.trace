@@ -1,12 +1,12 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["23274dbdaa34cd44.olean"],
+ {"o": ["9d28de8b82e10d22.olean"],
   "i": "e614e8425abce760.ilean",
   "c": "7cacf4da22101fee.c"},
  "log":
  [{"message":
-   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/codespace/.elan/toolchains/leanprover--lean4---v4.26.0/bin/lean /workspaces/Cohomology-Foundations/H1Characterization/ForestCoboundary.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/H1Characterization/ForestCoboundary.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/H1Characterization/ForestCoboundary.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/H1Characterization/ForestCoboundary.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/H1Characterization/ForestCoboundary.setup.json --json",
+   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.26.0/bin/lean /workspaces/Cohomology-Foundations/H1Characterization/ForestCoboundary.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/H1Characterization/ForestCoboundary.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/H1Characterization/ForestCoboundary.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/H1Characterization/ForestCoboundary.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/H1Characterization/ForestCoboundary.setup.json --json",
    "level": "trace"},
   {"message":
    "H1Characterization/ForestCoboundary.lean:60:61: unused variable `hK`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
@@ -60,8 +60,8 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["H1Characterization.PathIntegral transitive imports (legacy)",
-         "05844959a8b890ab"],
-        ["H1Characterization.PathIntegral:importAllArts", "0bc0693de1a9f269"],
+         "05abf6b865cc2124"],
+        ["H1Characterization.PathIntegral:importAllArts", "1f3ac4597d29a932"],
         ["Mathlib.Algebra.BigOperators.Fin transitive imports (legacy)",
          "aa850927454296e4"],
         ["Mathlib.Algebra.BigOperators.Fin:importAllArts",
@@ -79,4 +79,4 @@
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "4a87a2639464d994"}
+ "depHash": "bc470d69b809773d"}
