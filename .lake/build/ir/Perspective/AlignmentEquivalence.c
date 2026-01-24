@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Perspective.AlignmentEquivalence
-// Imports: public import Init public import Perspective.ValueComplex public import Perspective.Alignment public import Mathlib.Algebra.Order.Ring.Abs public import Mathlib.Algebra.Order.Field.Basic public import Mathlib.Tactic.Linarith public import Mathlib.Tactic.Positivity public import Mathlib.Tactic.FinCases public import Mathlib.Tactic.IntervalCases public import Mathlib.Tactic.FieldSimp
+// Imports: public import Init public import Perspective.ValueComplex public import Perspective.Alignment public import Mathlib.Algebra.Order.Ring.Abs public import Mathlib.Algebra.Order.Field.Basic public import Mathlib.Tactic.Linarith public import Mathlib.Tactic.Positivity public import Mathlib.Tactic.FinCases public import Mathlib.Tactic.IntervalCases public import Mathlib.Tactic.FieldSimp public import H1Characterization.ForestCoboundary
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -920,6 +920,7 @@ lean_object* initialize_Mathlib_Tactic_Positivity(uint8_t builtin);
 lean_object* initialize_Mathlib_Tactic_FinCases(uint8_t builtin);
 lean_object* initialize_Mathlib_Tactic_IntervalCases(uint8_t builtin);
 lean_object* initialize_Mathlib_Tactic_FieldSimp(uint8_t builtin);
+lean_object* initialize_H1Characterization_ForestCoboundary(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Perspective_AlignmentEquivalence(uint8_t builtin) {
 lean_object * res;
@@ -953,6 +954,9 @@ res = initialize_Mathlib_Tactic_IntervalCases(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Mathlib_Tactic_FieldSimp(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_H1Characterization_ForestCoboundary(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Perspective_hollowTriangle___nativeDecide__4___closed__0 = _init_l_Perspective_hollowTriangle___nativeDecide__4___closed__0();

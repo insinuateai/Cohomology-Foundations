@@ -136,15 +136,66 @@ theorem coboundary_edge_formula (K : SimplicialComplex) (g : Cochain K 0)
         · intro rfl
           rw [hab_eq]
           exact ⟨ne_of_lt hab', by simp⟩
-      -- The coboundary formula requires expanding the sum over Fin 2 and matching faces.
-      -- Mathematical content:
-      --   (δg)(e) = Σᵢ sign(i) * g(face_i(e))
-      --          = sign(0) * g(face 0) + sign(1) * g(face 1)
-      --          = 1 * g({b'}) + (-1) * g({a'})     [using h_face0, h_face1]
-      --          = g({b'}) - g({a'})
-      -- The proof is blocked by Mathlib 4.16+ dependent type handling in Fin sums.
-      -- All mathematical ingredients are proven: hcard2, h_sort, h_face0, h_face1.
-      sorry
+      -- Mathematical proof: δg(e) = g({b'}) - g({a'})
+      -- The coboundary sums sign(i) * g(face_i) over i ∈ Fin 2
+      -- face 0 = {b'}, face 1 = {a'} by h_face0, h_face1
+      -- sign 0 = 1, sign 1 = -1
+      -- So: 1*g({b'}) + (-1)*g({a'}) = g({b'}) - g({a'})
+      --
+      -- Technical approach: manually case split on the two elements
+      have h_idx0 : (0 : Fin 2).val < e.val.card := by rw [hcard2]; omega
+      have h_idx1 : (1 : Fin 2).val < e.val.card := by rw [hcard2]; omega
+      -- Create the two Fin indices we need
+      let i0 : Fin e.val.card := ⟨0, h_idx0⟩
+      let i1 : Fin e.val.card := ⟨1, h_idx1⟩
+      -- The set Finset.univ for Fin e.val.card = Fin 2 has exactly {i0, i1}
+      have h_univ : (Finset.univ : Finset (Fin e.val.card)) = {i0, i1} := by
+        ext i
+        simp only [Finset.mem_univ, Finset.mem_insert, Finset.mem_singleton, true_iff]
+        -- i : Fin e.val.card where e.val.card = 2
+        have hi : i.val < 2 := by rw [← hcard2]; exact i.isLt
+        rcases i with ⟨n, hn⟩
+        rcases n with _ | n
+        · left; ext; rfl
+        · rcases n with _ | n
+          · right; ext; rfl
+          · omega
+      have h_ne : i0 ≠ i1 := by intro h; have : (0 : ℕ) = 1 := congrArg Fin.val h; omega
+      -- Unfold and expand the sum
+      simp only [coboundary]
+      -- The sum is over Finset.univ : Finset (Fin e.val.card)
+      -- Use Finset.sum_congr to first show univ = {i0, i1}, then sum_pair
+      have h_sum : ∀ (f : Fin e.val.card → Coeff),
+          ∑ i : Fin e.val.card, f i = f i0 + f i1 := fun f => by
+        rw [show (Finset.univ : Finset (Fin e.val.card)) = {i0, i1} from h_univ]
+        exact Finset.sum_pair h_ne
+      rw [h_sum]
+      -- Now: sign i0.val * g(face i0) + sign i1.val * g(face i1) = g({b'}) - g({a'})
+      -- i0.val = 0, i1.val = 1
+      have h_i0_val : i0.val = 0 := rfl
+      have h_i1_val : i1.val = 1 := rfl
+      simp only [h_i0_val, h_i1_val, sign_zero, sign_one, one_mul, neg_one_mul]
+      -- Goal should now be: g ⟨face i0, _⟩ + -(g ⟨face i1, _⟩) = g ⟨{b'}, hb⟩ - g ⟨{a'}, ha⟩
+      -- Which is equivalent to: g ⟨face i0, _⟩ - g ⟨face i1, _⟩ = g ⟨{b'}, hb⟩ - g ⟨{a'}, ha⟩
+      -- Use the face equalities
+      have h_face_i0 : e.val.face i0 = {b'} := h_face0
+      have h_face_i1 : e.val.face i1 = {a'} := h_face1
+      -- The LHS has specific proof terms from the coboundary unfolding.
+      -- The RHS has specific proof terms from the refine statement.
+      -- Both are subtypes with the same underlying data, so they're equal by Subtype.ext.
+      -- Use congrArg to rewrite g arguments
+      have h_sub0 : ∀ (h1 h2 : {b'} ∈ K.ksimplices 0), (⟨{b'}, h1⟩ : {s // s ∈ K.ksimplices 0}) = ⟨{b'}, h2⟩ := by
+        intros; apply Subtype.ext; rfl
+      have h_sub1 : ∀ (h1 h2 : {a'} ∈ K.ksimplices 0), (⟨{a'}, h1⟩ : {s // s ∈ K.ksimplices 0}) = ⟨{a'}, h2⟩ := by
+        intros; apply Subtype.ext; rfl
+      -- Convert face subtypes to singleton subtypes
+      have h_face_sub0 : ∀ h, (⟨e.val.face i0, h⟩ : {s // s ∈ K.ksimplices 0}) = ⟨{b'}, by rw [← h_face_i0]; exact h⟩ := by
+        intro h; apply Subtype.ext; exact h_face_i0
+      have h_face_sub1 : ∀ h, (⟨e.val.face i1, h⟩ : {s // s ∈ K.ksimplices 0}) = ⟨{a'}, by rw [← h_face_i1]; exact h⟩ := by
+        intro h; apply Subtype.ext; exact h_face_i1
+      simp only [h_face_sub0, h_face_sub1, h_sub0, h_sub1]
+      -- Goal should now be of the form: g x + -(g y) = g x - g y, which is ring
+      ring
   · -- Case: a' = b', contradicts hab_ne
     exact absurd hab' hab_ne
   · -- Case: a' > b', so we use a = b', b = a'
@@ -206,10 +257,44 @@ theorem coboundary_edge_formula (K : SimplicialComplex) (g : Cochain K 0)
         · intro rfl
           rw [hab_eq]
           exact ⟨ne_of_lt hab', by simp⟩
+      -- Mathematical proof: δg(e) = g({a'}) - g({b'})
+      -- In this case (b' < a'): face 0 = {a'}, face 1 = {b'}
+      have h_idx0 : (0 : Fin 2).val < e.val.card := by rw [hcard2]; omega
+      have h_idx1 : (1 : Fin 2).val < e.val.card := by rw [hcard2]; omega
+      let i0 : Fin e.val.card := ⟨0, h_idx0⟩
+      let i1 : Fin e.val.card := ⟨1, h_idx1⟩
+      have h_univ : (Finset.univ : Finset (Fin e.val.card)) = {i0, i1} := by
+        ext i
+        simp only [Finset.mem_univ, Finset.mem_insert, Finset.mem_singleton, true_iff]
+        have hi : i.val < 2 := by rw [← hcard2]; exact i.isLt
+        rcases i with ⟨n, hn⟩
+        rcases n with _ | n
+        · left; ext; rfl
+        · rcases n with _ | n
+          · right; ext; rfl
+          · omega
+      have h_ne : i0 ≠ i1 := by intro h; have : (0 : ℕ) = 1 := congrArg Fin.val h; omega
       simp only [coboundary]
-      -- Same as the a' < b' case but with roles swapped.
-      -- The sum expands to g({a'}) - g({b'})
-      sorry
+      have h_sum : ∀ (f : Fin e.val.card → Coeff),
+          ∑ i : Fin e.val.card, f i = f i0 + f i1 := fun f => by
+        rw [show (Finset.univ : Finset (Fin e.val.card)) = {i0, i1} from h_univ]
+        exact Finset.sum_pair h_ne
+      rw [h_sum]
+      have h_i0_val : i0.val = 0 := rfl
+      have h_i1_val : i1.val = 1 := rfl
+      simp only [h_i0_val, h_i1_val, sign_zero, sign_one, one_mul, neg_one_mul]
+      have h_face_i0 : e.val.face i0 = {a'} := h_face0
+      have h_face_i1 : e.val.face i1 = {b'} := h_face1
+      have h_sub0 : ∀ (h1 h2 : {a'} ∈ K.ksimplices 0), (⟨{a'}, h1⟩ : {s // s ∈ K.ksimplices 0}) = ⟨{a'}, h2⟩ := by
+        intros; apply Subtype.ext; rfl
+      have h_sub1 : ∀ (h1 h2 : {b'} ∈ K.ksimplices 0), (⟨{b'}, h1⟩ : {s // s ∈ K.ksimplices 0}) = ⟨{b'}, h2⟩ := by
+        intros; apply Subtype.ext; rfl
+      have h_face_sub0 : ∀ h, (⟨e.val.face i0, h⟩ : {s // s ∈ K.ksimplices 0}) = ⟨{a'}, by rw [← h_face_i0]; exact h⟩ := by
+        intro h; apply Subtype.ext; exact h_face_i0
+      have h_face_sub1 : ∀ h, (⟨e.val.face i1, h⟩ : {s // s ∈ K.ksimplices 0}) = ⟨{b'}, by rw [← h_face_i1]; exact h⟩ := by
+        intro h; apply Subtype.ext; exact h_face_i1
+      simp only [h_face_sub0, h_face_sub1, h_sub0, h_sub1]
+      ring
 
 /-! ## Graph Theory Axioms -/
 

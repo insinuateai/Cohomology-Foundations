@@ -1,48 +1,46 @@
-# Cohomology-Foundations Session Notes
+# Session Notes - H1 Characterization Proofs
 
 ---
+## Session: 2026-01-24 (Continuation)
 
-## Session: 2026-01-24 12:00
-
-**Theorem:** coboundary_edge_formula
-**File:** H1Characterization/ForestCoboundary.lean
-**Status:** In Progress
+**Theorem:** singleEdge_oneConnected_axiom + review of remaining work
+**File:** H1Characterization/Characterization.lean
+**Status:** Completed (singleEdge), review of remaining items done
 
 ### Work Done
-Converted `coboundary_edge_formula` from axiom to theorem. Successfully proved edge decomposition via `Finset.card_eq_two`, established vertex ordering via trichotomy, computed the sorted list for the simplex, and proved face computations (`h_face0`, `h_face1`). The final Fin sum computation remains blocked by dependent type issues in Mathlib 4.16+. Created comprehensive analysis of the Mathlib API issues and documented the `finCongr` + `Finset.sum_equiv` solution pattern.
+This session was a continuation from a previous context. The `singleEdge_oneConnected_axiom` was completed (converted from axiom to theorem with ~180 lines of proof). The session reviewed remaining work: 3 sorries in ForestCoboundary.lean and 5 axioms in CycleCochain/Definitions.lean.
 
 ### Errors Encountered
-
 | Error | Fix | Added to KB? |
 |-------|-----|--------------|
-| `Fin.sum_univ_two` unknown constant | Add `import Mathlib.Algebra.BigOperators.Fin` | Yes |
-| `conv_lhs => rw [hcard2]` fails to find pattern | Use `finCongr` + `Finset.sum_equiv` instead | Yes |
-| `subst hab_eq` fails (not a variable) | Use `rw [hab_eq]` directly | Yes |
-| Type mismatch `Fin e.val.card` vs `Fin 2` | Transport via `finCongr` equivalence | Yes |
+| native_decide needed for 0 ≠ 1 | Use native_decide not decide | Yes |
+| Walk.noConfusion for ne_nil | Use noConfusion not direct pattern | Yes |
+| Sym2.eq_iff for edge equality | Case split on both orderings | Yes |
 
 ### Patterns Used
-- Edge decomposition via `Finset.card_eq_two` (new, added to KB)
-- Trichotomy for establishing vertex ordering (standard)
-- `Finset.sort_insert` for sort computation (new, added to KB)
-- Face computation via `Simplex.face` definition (new, added to KB)
+- IsCycle Construction (from hollowTriangle proof)
+- Finset Pair Membership Transport
+- Case analysis on walk structure (nil vs cons)
 
 ### Remaining Work
-
 | Line | Type | Statement | Suggested Approach |
 |------|------|-----------|-------------------|
-| 147 | sorry | `(δ K 0 g) e = g ⟨{b'}, hb⟩ - g ⟨{a'}, ha⟩` (a' < b' case) | Use `finCongr hcard2` + `Finset.sum_equiv` to transport sum, then `Fin.sum_univ_two`, then `Subtype.ext` with h_face0/h_face1 |
-| 212 | sorry | Same formula (a' > b' case) | Same approach with swapped roles |
-| 290 | sorry | `pathIntegral_difference_on_edge` | Depends on coboundary_edge_formula |
-| 339 | sorry | `cocycle_zero_on_unreachable_component` | Cohomology argument on isolated component |
-| 392 | sorry | `coboundaryWitness_works` (reachable case) | Assembles above results |
+| ForestCoboundary.lean:375 | sorry | pathIntegral_difference_on_edge | Use path uniqueness in forests |
+| ForestCoboundary.lean:424 | sorry | cocycle_zero_on_unreachable_component | Show unreachable component is isolated tree |
+| ForestCoboundary.lean:477 | sorry | coboundaryWitness_works (reachable case) | Use pathIntegral_difference_on_edge |
+| Definitions.lean:90 | axiom | cycleIndicator_is_cocycle | Keep as axiom (topological fact) |
+| Definitions.lean:117 | axiom | oriented_edge_coboundary | Has proof in Proofs.lean |
+| Definitions.lean:138 | axiom | cycleIndicator_self_contribution | Prove using trail edges_nodup |
+| Definitions.lean:182 | axiom | cycleIndicator_sum_length | Prove using self_contribution |
+| Definitions.lean:197 | axiom | cycleIndicator_not_coboundary | Has proof in Proofs.lean |
+| Characterization.lean:163 | axiom | (was singleEdge_oneConnected_axiom) | COMPLETED |
 
 ### Dependencies
-- `finCongr` from `Mathlib.Logic.Equiv.Fin` (available)
-- `Finset.sum_equiv` from `Mathlib.Algebra.BigOperators.Group.Finset` (available)
-- `Fin.sum_univ_two` from `Mathlib.Algebra.BigOperators.Fin` (imported)
+- cycleIndicator_self_contribution → cycleIndicator_sum_length (sequential)
+- pathIntegral_difference_on_edge → coboundaryWitness_works (sequential)
 
 ### Key Insight
-The fundamental blocker is that `Fin n` and `Fin m` are distinct types even when `n = m` is provable. The solution is to use `finCongr` to create an explicit type equivalence, then `Finset.sum_equiv` to transport the sum across that equivalence, and only then apply lemmas like `Fin.sum_univ_two` that require specific literal types.
+For singleEdge acyclicity: any closed walk in a 2-vertex, 1-edge graph must traverse the single edge at least twice to return, violating IsTrail (edges.Nodup). Pattern-match on walk structure and show duplicate edge membership.
 
 ### Time Spent
-~90 minutes (across context continuation)
+~20 minutes (mostly reviewing continuation context and verifying build)

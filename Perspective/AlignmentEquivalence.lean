@@ -54,6 +54,7 @@ import Mathlib.Tactic.Positivity
 import Mathlib.Tactic.FinCases
 import Mathlib.Tactic.IntervalCases
 import Mathlib.Tactic.FieldSimp
+import H1Characterization.ForestCoboundary
 
 namespace Perspective
 
@@ -391,16 +392,121 @@ This is because:
 
 And algebraically: (g₁ - g₀) + (g₂ - g₁) = g₂ - g₀
 
-Axiomatized due to Mathlib 4.26 API changes affecting Fin.castIso and related lemmas.
+This follows from the coboundary_edge_formula and ring arithmetic.
 -/
-axiom hollowTriangle_coboundary_cycle_axiom
+theorem hollowTriangle_coboundary_cycle_axiom
     (h_01 : {0, 1} ∈ hollowTriangle.ksimplices 1)
     (h_12 : {1, 2} ∈ hollowTriangle.ksimplices 1)
     (h_02 : {0, 2} ∈ hollowTriangle.ksimplices 1) :
     ∀ (g' : Cochain hollowTriangle 0),
         coboundary hollowTriangle 0 g' ⟨{0, 1}, h_01⟩ +
         coboundary hollowTriangle 0 g' ⟨{1, 2}, h_12⟩ =
-        coboundary hollowTriangle 0 g' ⟨{0, 2}, h_02⟩
+        coboundary hollowTriangle 0 g' ⟨{0, 2}, h_02⟩ := by
+  intro g'
+  -- Use coboundary_edge_formula to expand each coboundary
+  -- For {0,1}: δg'({0,1}) = g'({1}) - g'({0}) since 0 < 1
+  -- For {1,2}: δg'({1,2}) = g'({2}) - g'({1}) since 1 < 2
+  -- For {0,2}: δg'({0,2}) = g'({2}) - g'({0}) since 0 < 2
+  -- Algebraically: (g'({1}) - g'({0})) + (g'({2}) - g'({1})) = g'({2}) - g'({0})
+  obtain ⟨a01, b01, ha01, hb01, heq01, hlt01, hδ01⟩ :=
+    H1Characterization.coboundary_edge_formula hollowTriangle g' ⟨{0, 1}, h_01⟩
+  obtain ⟨a12, b12, ha12, hb12, heq12, hlt12, hδ12⟩ :=
+    H1Characterization.coboundary_edge_formula hollowTriangle g' ⟨{1, 2}, h_12⟩
+  obtain ⟨a02, b02, ha02, hb02, heq02, hlt02, hδ02⟩ :=
+    H1Characterization.coboundary_edge_formula hollowTriangle g' ⟨{0, 2}, h_02⟩
+  -- The edges are {0,1}, {1,2}, {0,2} with specific orderings
+  -- From heq and hlt, we deduce: a01=0, b01=1, a12=1, b12=2, a02=0, b02=2
+  -- These follow from: {a, b} = {x, y} with a < b implies a is the min, b is the max
+  -- Use membership reasoning: a ∈ {a, b} and then transport via set equality
+  have h_a01 : a01 = 0 := by
+    have ha01_in_pair : a01 ∈ ({a01, b01} : Finset ℕ) := Finset.mem_insert_self a01 {b01}
+    rw [heq01.symm] at ha01_in_pair
+    simp only [Finset.mem_insert, Finset.mem_singleton] at ha01_in_pair
+    have hb01_in_pair : b01 ∈ ({a01, b01} : Finset ℕ) := Finset.mem_insert_of_mem (Finset.mem_singleton_self b01)
+    rw [heq01.symm] at hb01_in_pair
+    simp only [Finset.mem_insert, Finset.mem_singleton] at hb01_in_pair
+    -- ha01_in_pair : a01 = 0 ∨ a01 = 1
+    -- hb01_in_pair : b01 = 0 ∨ b01 = 1
+    -- hlt01 : a01 < b01
+    -- If a01 = 0, done.
+    -- If a01 = 1, then b01 must be 0 or 1. But a01 < b01 means 1 < b01.
+    -- If b01 = 0: 1 < 0 is false.
+    -- If b01 = 1: 1 < 1 is false.
+    rcases ha01_in_pair with ha | ha
+    · exact ha
+    · rcases hb01_in_pair with hb | hb
+      · -- a01 = 1, b01 = 0, need 1 < 0, contradiction
+        subst ha hb; exact absurd hlt01 (Nat.not_lt_of_gt (Nat.zero_lt_one))
+      · -- a01 = 1, b01 = 1, need 1 < 1, contradiction
+        subst ha hb; exact absurd hlt01 (Nat.lt_irrefl 1)
+  have h_b01 : b01 = 1 := by
+    have hb01_in_pair : b01 ∈ ({a01, b01} : Finset ℕ) := Finset.mem_insert_of_mem (Finset.mem_singleton_self b01)
+    rw [heq01.symm] at hb01_in_pair
+    simp only [Finset.mem_insert, Finset.mem_singleton] at hb01_in_pair
+    rcases hb01_in_pair with hb | hb
+    · -- b01 = 0, but a01 = 0, so need 0 < 0, contradiction
+      subst hb; rw [h_a01] at hlt01; exact absurd hlt01 (Nat.lt_irrefl 0)
+    · exact hb
+  have h_a12 : a12 = 1 := by
+    have ha12_in_pair : a12 ∈ ({a12, b12} : Finset ℕ) := Finset.mem_insert_self a12 {b12}
+    rw [heq12.symm] at ha12_in_pair
+    simp only [Finset.mem_insert, Finset.mem_singleton] at ha12_in_pair
+    have hb12_in_pair : b12 ∈ ({a12, b12} : Finset ℕ) := Finset.mem_insert_of_mem (Finset.mem_singleton_self b12)
+    rw [heq12.symm] at hb12_in_pair
+    simp only [Finset.mem_insert, Finset.mem_singleton] at hb12_in_pair
+    rcases ha12_in_pair with ha | ha
+    · exact ha
+    · rcases hb12_in_pair with hb | hb
+      · -- a12 = 2, b12 = 1, need 2 < 1, contradiction
+        subst ha hb; exact absurd hlt12 (Nat.not_lt_of_gt (Nat.one_lt_two))
+      · -- a12 = 2, b12 = 2, need 2 < 2, contradiction
+        subst ha hb; exact absurd hlt12 (Nat.lt_irrefl 2)
+  have h_b12 : b12 = 2 := by
+    have hb12_in_pair : b12 ∈ ({a12, b12} : Finset ℕ) := Finset.mem_insert_of_mem (Finset.mem_singleton_self b12)
+    rw [heq12.symm] at hb12_in_pair
+    simp only [Finset.mem_insert, Finset.mem_singleton] at hb12_in_pair
+    rcases hb12_in_pair with hb | hb
+    · subst hb; rw [h_a12] at hlt12; exact absurd hlt12 (Nat.lt_irrefl 1)
+    · exact hb
+  have h_a02 : a02 = 0 := by
+    have ha02_in_pair : a02 ∈ ({a02, b02} : Finset ℕ) := Finset.mem_insert_self a02 {b02}
+    rw [heq02.symm] at ha02_in_pair
+    simp only [Finset.mem_insert, Finset.mem_singleton] at ha02_in_pair
+    have hb02_in_pair : b02 ∈ ({a02, b02} : Finset ℕ) := Finset.mem_insert_of_mem (Finset.mem_singleton_self b02)
+    rw [heq02.symm] at hb02_in_pair
+    simp only [Finset.mem_insert, Finset.mem_singleton] at hb02_in_pair
+    rcases ha02_in_pair with ha | ha
+    · exact ha
+    · rcases hb02_in_pair with hb | hb
+      · -- a02 = 2, b02 = 0, need 2 < 0, contradiction
+        subst ha hb; exact absurd hlt02 (Nat.not_lt_zero 2)
+      · -- a02 = 2, b02 = 2, need 2 < 2, contradiction
+        subst ha hb; exact absurd hlt02 (Nat.lt_irrefl 2)
+  have h_b02 : b02 = 2 := by
+    have hb02_in_pair : b02 ∈ ({a02, b02} : Finset ℕ) := Finset.mem_insert_of_mem (Finset.mem_singleton_self b02)
+    rw [heq02.symm] at hb02_in_pair
+    simp only [Finset.mem_insert, Finset.mem_singleton] at hb02_in_pair
+    rcases hb02_in_pair with hb | hb
+    · subst hb; rw [h_a02] at hlt02; exact absurd hlt02 (Nat.lt_irrefl 0)
+    · exact hb
+  -- Now substitute and use ring
+  rw [hδ01, hδ12, hδ02]
+  -- Goal: g' ⟨{b01}, hb01⟩ - g' ⟨{a01}, ha01⟩ + (g' ⟨{b12}, hb12⟩ - g' ⟨{a12}, ha12⟩) =
+  --       g' ⟨{b02}, hb02⟩ - g' ⟨{a02}, ha02⟩
+  -- With: b01=1, a01=0, b12=2, a12=1, b02=2, a02=0
+  -- So: g'({1}) - g'({0}) + (g'({2}) - g'({1})) = g'({2}) - g'({0})
+  -- Need to show the subtypes with different proofs give the same g' values
+  have h_g0_eq : g' ⟨{a01}, ha01⟩ = g' ⟨{a02}, ha02⟩ := by
+    congr 1; apply Subtype.ext
+    simp only [h_a01, h_a02]
+  have h_g1_eq1 : g' ⟨{b01}, hb01⟩ = g' ⟨{a12}, ha12⟩ := by
+    congr 1; apply Subtype.ext
+    simp only [h_b01, h_a12]
+  have h_g2_eq : g' ⟨{b12}, hb12⟩ = g' ⟨{b02}, hb02⟩ := by
+    congr 1; apply Subtype.ext
+    simp only [h_b12, h_b02]
+  rw [h_g0_eq, h_g1_eq1, h_g2_eq]
+  ring
 
 /-- H¹ of hollow triangle is nontrivial: there exists a cocycle that is not a coboundary.
 

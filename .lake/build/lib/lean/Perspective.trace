@@ -1,7 +1,7 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["22e30bd90a3302e2.olean"],
+ {"o": ["2618fb5522cb6ada.olean"],
   "i": "72440f60564b0dee.ilean",
   "c": "966b0883a7064596.c"},
  "log":
@@ -24,8 +24,8 @@
          "da071e1c594675c2"],
         ["Perspective.ValueComplex:importAllArts", "36777303cce086de"],
         ["Perspective.AlignmentEquivalence transitive imports (legacy)",
-         "27062e1461887580"],
-        ["Perspective.AlignmentEquivalence:importAllArts", "533a9ba552188104"],
+         "c7f074a84bf9bf9a"],
+        ["Perspective.AlignmentEquivalence:importAllArts", "b66221d105529444"],
         ["Perspective.AlignmentTheorem transitive imports (legacy)",
          "8724511aa706a98b"],
         ["Perspective.AlignmentTheorem:importAllArts", "e115d66330e3ce9e"]]]]],
@@ -41,4 +41,4 @@
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "ea10b9c795d26d57"}
+ "depHash": "8f2d331a322f63d6"}

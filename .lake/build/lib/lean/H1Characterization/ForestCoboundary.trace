@@ -1,8 +1,8 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["138ec32577515294.olean"],
-  "i": "7a3e30a8a1c35391.ilean",
+ {"o": ["23274dbdaa34cd44.olean"],
+  "i": "e614e8425abce760.ilean",
   "c": "7cacf4da22101fee.c"},
  "log":
  [{"message":
@@ -15,9 +15,6 @@
    "H1Characterization/ForestCoboundary.lean:61:23: unused variable `hf`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "H1Characterization/ForestCoboundary.lean:73:8: declaration uses 'sorry'",
-   "level": "warning"},
-  {"message":
    "H1Characterization/ForestCoboundary.lean:103:64: This simp argument is unused:\n  or_comm\n\nHint: Omit it from the simp argument list.\n  simp [Finset.mem_insert, Finset.mem_singleton,̵ ̵o̵r̵_̵c̵o̵m̵m̵]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
    "level": "warning"},
   {"message":
@@ -27,22 +24,34 @@
    "H1Characterization/ForestCoboundary.lean:128:37: This simp argument is unused:\n  Finset.mem_insert\n\nHint: Omit it from the simp argument list.\n  simp only [Finset.mem_erase, F̵i̵n̵s̵e̵t̵.̵m̵e̵m̵_̵i̵n̵s̵e̵r̵t̵,̵ ̵Finset.mem_singleton]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
    "level": "warning"},
   {"message":
-   "H1Characterization/ForestCoboundary.lean:184:37: This simp argument is unused:\n  Finset.mem_insert\n\nHint: Omit it from the simp argument list.\n  simp only [Finset.mem_erase, F̵i̵n̵s̵e̵t̵.̵m̵e̵m̵_̵i̵n̵s̵e̵r̵t̵,̵ ̵Finset.mem_singleton]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "H1Characterization/ForestCoboundary.lean:196:43: This simp argument is unused:\n  h_sub0\n\nHint: Omit it from the simp argument list.\n  simp only [h_face_sub0, h_face_sub1, h_sub0̵,̵ ̵h̵_̵s̵u̵b̵1]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
    "level": "warning"},
   {"message":
-   "H1Characterization/ForestCoboundary.lean:198:37: This simp argument is unused:\n  Finset.mem_insert\n\nHint: Omit it from the simp argument list.\n  simp only [Finset.mem_erase, F̵i̵n̵s̵e̵t̵.̵m̵e̵m̵_̵i̵n̵s̵e̵r̵t̵,̵ ̵Finset.mem_singleton]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "H1Characterization/ForestCoboundary.lean:196:51: This simp argument is unused:\n  h_sub1\n\nHint: Omit it from the simp argument list.\n  simp only [h_face_sub0, h_face_sub1, h_sub0,̵ ̵h̵_̵s̵u̵b̵1̵]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
    "level": "warning"},
   {"message":
-   "H1Characterization/ForestCoboundary.lean:227:13: This simp argument is unused:\n  Subtype.coe_mk\n\nHint: Omit it from the simp argument list.\n  simp only [̵S̵u̵b̵t̵y̵p̵e̵.̵c̵o̵e̵_̵m̵k̵]̵ ̵at h_eq\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "H1Characterization/ForestCoboundary.lean:235:37: This simp argument is unused:\n  Finset.mem_insert\n\nHint: Omit it from the simp argument list.\n  simp only [Finset.mem_erase, F̵i̵n̵s̵e̵t̵.̵m̵e̵m̵_̵i̵n̵s̵e̵r̵t̵,̵ ̵Finset.mem_singleton]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
    "level": "warning"},
   {"message":
-   "H1Characterization/ForestCoboundary.lean:257:8: declaration uses 'sorry'",
+   "H1Characterization/ForestCoboundary.lean:249:37: This simp argument is unused:\n  Finset.mem_insert\n\nHint: Omit it from the simp argument list.\n  simp only [Finset.mem_erase, F̵i̵n̵s̵e̵t̵.̵m̵e̵m̵_̵i̵n̵s̵e̵r̵t̵,̵ ̵Finset.mem_singleton]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
    "level": "warning"},
   {"message":
-   "H1Characterization/ForestCoboundary.lean:313:8: declaration uses 'sorry'",
+   "H1Characterization/ForestCoboundary.lean:296:43: This simp argument is unused:\n  h_sub0\n\nHint: Omit it from the simp argument list.\n  simp only [h_face_sub0, h_face_sub1, h_sub0̵,̵ ̵h̵_̵s̵u̵b̵1]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
    "level": "warning"},
   {"message":
-   "H1Characterization/ForestCoboundary.lean:366:8: declaration uses 'sorry'",
+   "H1Characterization/ForestCoboundary.lean:296:51: This simp argument is unused:\n  h_sub1\n\nHint: Omit it from the simp argument list.\n  simp only [h_face_sub0, h_face_sub1, h_sub0,̵ ̵h̵_̵s̵u̵b̵1̵]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "H1Characterization/ForestCoboundary.lean:312:13: This simp argument is unused:\n  Subtype.coe_mk\n\nHint: Omit it from the simp argument list.\n  simp only [̵S̵u̵b̵t̵y̵p̵e̵.̵c̵o̵e̵_̵m̵k̵]̵ ̵at h_eq\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "H1Characterization/ForestCoboundary.lean:342:8: declaration uses 'sorry'",
+   "level": "warning"},
+  {"message":
+   "H1Characterization/ForestCoboundary.lean:398:8: declaration uses 'sorry'",
+   "level": "warning"},
+  {"message":
+   "H1Characterization/ForestCoboundary.lean:451:8: declaration uses 'sorry'",
    "level": "warning"}],
  "inputs":
  [["H1Characterization.ForestCoboundary:deps",
@@ -65,9 +74,9 @@
   ["Lean 4.26.0, commit d8204c9fd894f91bbb2cdfec5912ec8196fd8562",
    "9c9419104e9584f8"],
   ["/workspaces/Cohomology-Foundations/H1Characterization/ForestCoboundary.lean",
-   "85ec58b5988157c6"],
+   "affa8239f0b50b04"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "6fb9fd6bc08e8523"}
+ "depHash": "4a87a2639464d994"}
