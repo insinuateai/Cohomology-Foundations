@@ -6,3 +6,4 @@ import Perspective.AlignmentTheorem
 import Perspective.ImpossibilityStrong
 import Perspective.ConflictLocalization
 import Perspective.ConflictResolution
+import Perspective.AgentCoordination

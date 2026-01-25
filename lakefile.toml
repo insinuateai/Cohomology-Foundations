@@ -20,3 +20,6 @@ name = "H1Characterization"
 
 [[lean_lib]]
 name = "Perspective"
+
+[[lean_lib]]
+name = "AgentCoordination"
