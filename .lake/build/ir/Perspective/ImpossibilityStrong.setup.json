@@ -1,6 +1,6 @@
 {"plugins": [],
  "options": {"pp.unicode.fun": true, "autoImplicit": false},
- "name": "Perspective",
+ "name": "Perspective.ImpossibilityStrong",
  "isModule": false,
  "importArts":
  {"Qq.Typ":
@@ -172,8 +172,6 @@
   ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/ValueSystem.olean"],
   "Perspective.ValueComplex":
   ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/ValueComplex.olean"],
-  "Perspective.ImpossibilityStrong":
-  ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/ImpossibilityStrong.olean"],
   "Perspective.AlignmentTheorem":
   ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/AlignmentTheorem.olean"],
   "Perspective.AlignmentEquivalence":

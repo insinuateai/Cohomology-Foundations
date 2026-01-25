@@ -657,3 +657,109 @@ The axiom `cocycle_zero_on_unreachable_component` is only valid when:
 - `cocycle_zero_on_unreachable_component`: OneConnected + connected → single tree → all reachable → vacuous
 
 This completes the formal verification with well-documented scope limitations.
+
+---
+Added: 2026-01-25
+Source: ImpossibilityStrong.lean compilation fixes
+
+### Error: Docstring vs Regular Comment
+
+**Message:** `unexpected token '/--'; expected 'lemma'`
+**Cause:** Using `/--` (docstring) for explanation blocks not followed by a definition
+
+**Wrong:**
+```lean
+/--
+This is a multi-line explanation of the construction...
+-/
+
+def myDef := ...  -- docstring attaches here, but parser confused
+```
+
+**Fix:**
+```lean
+/-
+This is a multi-line explanation of the construction...
+-/
+
+/-- Brief docstring for the definition -/
+def myDef := ...
+```
+
+**Rule:** Use `/-` for standalone comments, `/--` only immediately before definitions.
+
+---
+### Pattern: Fin.val for Concrete Values Beyond 1
+
+**Name:** native_decide for Fin.val Computation
+**Use when:** Simplifying `(n : Fin m).val` for n > 1
+
+**Problem:**
+`Fin.val_zero` and `Fin.val_one` exist, but no `Fin.val_two`, `Fin.val_three`, etc.
+
+**Code:**
+```lean
+-- For (2 : Fin 3).val = 2
+have hval2 : ((2 : Fin 3).val : ℚ) = 2 := by native_decide
+simp only [hval2] at h
+```
+
+**Why native_decide:** The value is computable at compile time; `native_decide` evaluates it.
+
+**Alternative:** For general Fin values, use `Fin.val_ofNat` with modular arithmetic.
+
+---
+### Pattern: Absolute Value of Zero Minus
+
+**Name:** Handling |0 - x| in Proofs
+**Use when:** Simplifying `|0 - x|` to `|x|`
+
+**Wrong approach:**
+```lean
+simp only [sub_zero]  -- This is x - 0 = x, NOT 0 - x
+rw [abs_of_nonneg h_pos]  -- Pattern mismatch!
+```
+
+**Correct approach:**
+```lean
+simp only [zero_sub]  -- 0 - x = -x
+rw [abs_neg, abs_of_nonneg h_pos]  -- |-x| = |x|, then |x| = x
+```
+
+**Key lemmas:**
+- `zero_sub : 0 - a = -a`
+- `abs_neg : |-a| = |a|`
+- `abs_of_nonneg : 0 ≤ a → |a| = a`
+
+---
+### Strategy: Impossibility Proof via Interval Intersection
+
+**Name:** Reconciler Impossibility via Empty Interval Intersection
+**Use when:** Proving no global reconciler exists for multiple value systems
+
+**Mathematical Content:**
+If a reconciler R must satisfy `|R(s) - vᵢ| ≤ ε` for all i, then:
+- R(s) ∈ [vᵢ - ε, vᵢ + ε] for each i
+- Intersection must be non-empty for R to exist
+- Show intersection is empty when values are spread too far
+
+**Proof Pattern:**
+```lean
+-- Get constraints from each system
+have h_first := hR ⟨0, _⟩ s     -- |R(s) - v₀| ≤ ε
+have h_last := hR ⟨n-1, _⟩ s   -- |R(s) - v_{n-1}| ≤ ε
+
+-- Extract bounds
+have h_upper : R.values s ≤ v₀ + ε := by
+  have := abs_le.mp h_first; linarith
+
+have h_lower : R.values s ≥ v_{n-1} - ε := by
+  have := abs_le.mp h_last; linarith
+
+-- Show contradiction: v₀ + ε < v_{n-1} - ε when gap is large
+have h_gap : v_{n-1} - ε > v₀ + ε := by linarith
+
+linarith  -- R.values s ≤ v₀ + ε and R.values s ≥ v_{n-1} - ε contradict
+```
+
+**Use Case:** Strong Impossibility Theorem for n ≥ 3 agents with linear value spacing.

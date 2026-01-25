@@ -572,3 +572,82 @@ Both axioms are mathematically sound for the intended use case (OneConnected com
 - `H1Characterization/CycleCochain/Definitions.lean` - Axiom documentation updated
 - `knowledge-base.md` - Patterns added for axiom analysis
 - `session-notes.md` - Complete session documentation
+
+---
+## Session: 2026-01-25 (ImpossibilityStrong - BATCH 1A)
+
+**Task:** Build and fix Perspective.ImpossibilityStrong
+**File:** Perspective/ImpossibilityStrong.lean
+**Status:** COMPLETED - 0 sorries, 0 axioms, builds successfully
+
+### Work Done
+
+Fixed 4 compilation errors to make the Strong Impossibility Theorem compile:
+
+1. **Lines 59 and 125**: Changed docstring `/--` to regular comment `/-`
+   - Docstrings must immediately precede definitions
+   - Multi-line explanation blocks should use `/-` not `/--`
+
+2. **Line 105-107**: Added explicit Fin.val computation for `(2 : Fin 3).val`
+   ```lean
+   have hval2 : ((2 : Fin 3).val : ℚ) = 2 := by native_decide
+   simp only [hval2] at h2
+   ```
+   - `Fin.val_one` only handles `(1 : Fin n).val`, not arbitrary values
+   - Use `native_decide` for concrete Fin computations
+
+3. **Line 154-159**: Fixed absolute value rewrite for `|0 - x|`
+   ```lean
+   simp only [Nat.cast_zero, mul_zero, zero_sub]
+   -- Now we have |-2 * ↑(n - 1)| = 2 * ↑(n - 1)
+   rw [abs_neg, abs_of_nonneg h_pos]
+   ```
+   - `sub_zero` is `x - 0 = x`, not `0 - x`
+   - Use `zero_sub` to get `0 - x = -x`
+   - Then `abs_neg` for `|-x| = |x|`
+
+### Key Theorem Proven
+
+```lean
+theorem no_universal_reconciler_strong [Nonempty S] (n : ℕ) (hn : n ≥ 3) :
+    ∃ (ε : ℚ) (hε : ε > 0) (systems : Fin n → ValueSystem S),
+      (∀ i : Fin n, ∀ hi : i.val + 1 < n,
+        ∀ s : S, |(systems i).values s - (systems ⟨i.val + 1, hi⟩).values s| ≤ 2 * ε) ∧
+      (¬∃ R : ValueSystem S, ∀ i : Fin n, Reconciles R (systems i) ε)
+```
+
+**In English:** For n ≥ 3 agents, there exist configurations where consecutive pairs agree within 2ε, but no global reconciler exists within ε of all systems.
+
+### Construction Used
+
+- n systems with values: 0, 2, 4, 6, ..., 2(n-1)
+- ε = 1
+- Adjacent systems differ by 2 (equals 2ε) ✓
+- Reconciler must be within 1 of BOTH 0 and 2(n-1)
+- But [-1,1] ∩ [2n-3, 2n-1] = ∅ when n ≥ 3
+
+### Errors Fixed
+
+| Error | Location | Fix |
+|-------|----------|-----|
+| "unexpected token '/--'" | Lines 59, 125 | Change `/--` to `/-` for non-docstring comments |
+| `linarith` failure on `2 * ↑↑2` | Line 119 | Add `native_decide` for `(2 : Fin 3).val = 2` |
+| `abs_of_nonneg` pattern mismatch | Line 158 | Use `zero_sub` then `abs_neg` before `abs_of_nonneg` |
+
+### Build Status
+
+| Target | Status |
+|--------|--------|
+| `lake build Perspective.ImpossibilityStrong` | ✓ Success |
+| `grep -n "sorry" ImpossibilityStrong.lean` | ✓ No sorries |
+| `lake build` (full) | ✗ Pre-existing errors in Characterization.lean |
+
+### Corollaries Also Proven
+
+1. `hollow_triangle_is_special_case` - The n=3 case
+2. `obstruction_grows_with_n` - Gap formula: 2n - 4
+3. `large_n_very_impossible` - For n ≥ 100, gap ≥ 196
+
+### Files Modified
+
+- `Perspective/ImpossibilityStrong.lean` - Fixed 4 compilation errors

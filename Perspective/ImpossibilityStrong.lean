@@ -56,7 +56,7 @@ theorem pairwiseAlignable_symm (V₁ V₂ : ValueSystem S) (ε : ℚ) :
 
 /-! ## Part 2: The n = 3 Case (Foundation) -/
 
-/-- 
+/-
 For exactly 3 agents, we construct systems with values 0, 2, 4 at a fixed situation.
 
 Adjacent pairs (in a cycle):
@@ -100,8 +100,11 @@ theorem three_system_no_reconciler [Nonempty S] :
   have h1 := hR 1 s  -- |R(s) - 2| ≤ 1, so R(s) ∈ [1, 3]
   have h2 := hR 2 s  -- |R(s) - 4| ≤ 1, so R(s) ∈ [3, 5]
   -- Simplify the system values
-  simp only [threeSystemCounterexample, Fin.val_zero, Fin.val_one, 
+  simp only [threeSystemCounterexample, Fin.val_zero, Fin.val_one,
              Nat.cast_zero, Nat.cast_one, mul_zero, mul_one] at h0 h1 h2
+  -- Note: (2 : Fin 3).val = 2, so 2 * ↑↑2 = 2 * 2 = 4
+  have hval2 : ((2 : Fin 3).val : ℚ) = 2 := by native_decide
+  simp only [hval2] at h2
   -- h0: |R.values s - 0| ≤ 1, i.e., |R.values s| ≤ 1
   -- h1: |R.values s - 2| ≤ 1
   -- h2: |R.values s - 4| ≤ 1
@@ -116,13 +119,14 @@ theorem three_system_no_reconciler [Nonempty S] :
     linarith
   have h2' : R.values s ≥ 3 := by
     have := abs_le.mp h2
+    -- h2 is now |R.values s - 2 * 2| ≤ 1 = |R.values s - 4| ≤ 1
     linarith
   -- Now we have R.values s ≤ 1 and R.values s ≥ 3, contradiction
   linarith
 
 /-! ## Part 3: The General n ≥ 3 Case -/
 
-/-- 
+/-
 For n agents, we use values 0, 2, 4, ..., 2(n-1).
 
 The gap between first and last is 2(n-1).
@@ -148,15 +152,15 @@ theorem n_system_adjacent_diff (n : ℕ) (i : Fin n) (hi : i.val + 1 < n) (s : S
 
 /-- First and last systems differ by 2(n-1) -/
 theorem n_system_endpoint_diff (n : ℕ) (hn : n ≥ 1) (s : S) :
-    |(nSystemCounterexample n ⟨0, by omega⟩).values s - 
+    |(nSystemCounterexample n ⟨0, by omega⟩).values s -
       (nSystemCounterexample n ⟨n - 1, by omega⟩).values s| = 2 * (n - 1 : ℕ) := by
   simp only [nSystemCounterexample]
-  simp only [Nat.cast_zero, mul_zero, sub_zero]
+  simp only [Nat.cast_zero, mul_zero, zero_sub]
+  -- Now we have |-2 * ↑(n - 1)| = 2 * ↑(n - 1)
   have h_pos : (2 : ℚ) * ((n - 1 : ℕ) : ℚ) ≥ 0 := by
     apply mul_nonneg (by norm_num : (2 : ℚ) ≥ 0)
     simp
-  rw [abs_of_nonneg h_pos]
-  ring
+  rw [abs_neg, abs_of_nonneg h_pos]
 
 /-! ## Part 4: THE MAIN THEOREM -/
 

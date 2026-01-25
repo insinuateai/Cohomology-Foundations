@@ -1,9 +1,9 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["2618fb5522cb6ada.olean"],
-  "i": "72440f60564b0dee.ilean",
-  "c": "966b0883a7064596.c"},
+ {"o": ["8a27641c5cbdfc2a.olean"],
+  "i": "34f349167d872461.ilean",
+  "c": "d4f16b92524a8757.c"},
  "log":
  [{"message":
    ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.26.0/bin/lean /workspaces/Cohomology-Foundations/Perspective.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective.setup.json --json",
@@ -24,11 +24,15 @@
          "da071e1c594675c2"],
         ["Perspective.ValueComplex:importAllArts", "36777303cce086de"],
         ["Perspective.AlignmentEquivalence transitive imports (legacy)",
-         "a39ab9364713f8f8"],
+         "b976c21d17da7f6c"],
         ["Perspective.AlignmentEquivalence:importAllArts", "61ae0360fdcc6ab4"],
         ["Perspective.AlignmentTheorem transitive imports (legacy)",
          "0444858c64d49518"],
-        ["Perspective.AlignmentTheorem:importAllArts", "e115d66330e3ce9e"]]]]],
+        ["Perspective.AlignmentTheorem:importAllArts", "e115d66330e3ce9e"],
+        ["Perspective.ImpossibilityStrong transitive imports (legacy)",
+         "1e1344e5880ebda6"],
+        ["Perspective.ImpossibilityStrong:importAllArts",
+         "b0031752dc7fdf5e"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
@@ -36,9 +40,9 @@
       ["module plugins", "00000000000006bb"]]]]],
   ["Lean 4.26.0, commit d8204c9fd894f91bbb2cdfec5912ec8196fd8562",
    "9c9419104e9584f8"],
-  ["/workspaces/Cohomology-Foundations/Perspective.lean", "41ad008aa9ddce6a"],
+  ["/workspaces/Cohomology-Foundations/Perspective.lean", "0bca4345e50f3829"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "8ccdcb940c4d5783"}
+ "depHash": "f633ec6799c82520"}
