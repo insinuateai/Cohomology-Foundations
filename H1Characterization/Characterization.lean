@@ -207,95 +207,77 @@ theorem singleEdge_oneConnected_axiom :
   refine ⟨singleEdge, ⟨⟨0, hv0⟩⟩, ?_⟩
   -- Show one-connected: no cycles exist in a single-edge graph
   -- Key insight: singleEdge has only edge {0,1}
-  -- Any closed non-nil walk must traverse this edge at least twice, violating IsTrail
+  -- A cycle needs ≥ 3 edges, but singleEdge has only 1 edge
+  -- Any trail with ≥ 2 edges would repeat the only edge, violating IsTrail
   rw [oneConnected_iff_no_cycles]
   intro v p hp
-  obtain ⟨⟨htrail, hne_nil⟩, _hnodup⟩ := hp
-  -- Case analysis on walk structure
-  cases p with
-  | nil => exact hne_nil rfl
-  | cons h p' =>
-    -- h : Adj v w for some w, meaning edge {v.val, w.val} ∈ singleEdge.simplices
-    obtain ⟨hne_vw, hedge⟩ := h
-    -- The only 2-element simplex in singleEdge is {0,1}
-    have hedge_is_01 : ({v.val, w.val} : Finset ℕ) = {0, 1} := by
-      simp only [singleEdge] at hedge
-      simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hedge
-      rcases hedge with rfl | rfl | rfl | rfl
-      · have : v.val ∈ (∅ : Finset ℕ) := by rw [← hedge]; exact Finset.mem_insert_self v.val {w.val}
-        exact absurd this (Finset.not_mem_empty v.val)
-      · have hv_in : v.val ∈ ({0} : Finset ℕ) := by rw [← hedge]; exact Finset.mem_insert_self v.val {w.val}
-        have hw_in : w.val ∈ ({0} : Finset ℕ) := by rw [← hedge]; exact Finset.mem_insert_of_mem (Finset.mem_singleton_self w.val)
-        simp only [Finset.mem_singleton] at hv_in hw_in
-        exact absurd (hv_in.symm.trans hw_in) hne_vw
-      · have hv_in : v.val ∈ ({1} : Finset ℕ) := by rw [← hedge]; exact Finset.mem_insert_self v.val {w.val}
-        have hw_in : w.val ∈ ({1} : Finset ℕ) := by rw [← hedge]; exact Finset.mem_insert_of_mem (Finset.mem_singleton_self w.val)
-        simp only [Finset.mem_singleton] at hv_in hw_in
-        exact absurd (hv_in.symm.trans hw_in) hne_vw
-      · rfl
-    -- p' : Walk from w back to v
-    cases p' with
-    | nil =>
-      -- p' = nil means w = v, contradicting hne_vw
-      rename_i heq
-      have : v.val = w.val := congrArg Subtype.val heq
-      exact hne_vw this
-    | cons h' p'' =>
-      -- p' = cons h' p'' means another edge h' : Adj w w' for some w'
-      -- Since singleEdge only has edge {0,1}, both h and h' use this edge
-      -- This means edges of p contains s(v,w) and s(w,w') which are both s(0,1)
-      -- violating the trail condition (edges.Nodup)
-      rename_i w' h' p''
-      obtain ⟨hne', hedge'⟩ := h'
-      -- hedge' : {w.val, w'.val} ∈ singleEdge.simplices, must be {0,1}
-      have hedge'_is_01 : ({w.val, w'.val} : Finset ℕ) = {0, 1} := by
-        simp only [singleEdge] at hedge'
-        simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hedge'
-        rcases hedge' with rfl | rfl | rfl | rfl
-        · have : w.val ∈ (∅ : Finset ℕ) := by rw [← hedge']; exact Finset.mem_insert_self w.val {w'.val}
-          exact absurd this (Finset.not_mem_empty w.val)
-        · have hw_in : w.val ∈ ({0} : Finset ℕ) := by rw [← hedge']; exact Finset.mem_insert_self w.val {w'.val}
-          have hw'_in : w'.val ∈ ({0} : Finset ℕ) := by rw [← hedge']; exact Finset.mem_insert_of_mem (Finset.mem_singleton_self w'.val)
-          simp only [Finset.mem_singleton] at hw_in hw'_in
-          exact absurd (hw_in.symm.trans hw'_in) hne'
-        · have hw_in : w.val ∈ ({1} : Finset ℕ) := by rw [← hedge']; exact Finset.mem_insert_self w.val {w'.val}
-          have hw'_in : w'.val ∈ ({1} : Finset ℕ) := by rw [← hedge']; exact Finset.mem_insert_of_mem (Finset.mem_singleton_self w'.val)
-          simp only [Finset.mem_singleton] at hw_in hw'_in
-          exact absurd (hw_in.symm.trans hw'_in) hne'
-        · rfl
-      -- Both edges (v,w) and (w,w') have endpoints in {0,1} with distinct endpoints
-      -- Since {v,w} = {0,1} and {w,w'} = {0,1}, and v≠w and w≠w', the Sym2's are equal
-      have h_same_edge : Sym2.mk v w = Sym2.mk w w' := by
-        have h1 : v.val ∈ ({0, 1} : Finset ℕ) := by rw [← hedge_is_01]; exact Finset.mem_insert_self v.val _
-        have h2 : w.val ∈ ({0, 1} : Finset ℕ) := by rw [← hedge_is_01]; exact Finset.mem_insert_of_mem (Finset.mem_singleton_self w.val)
-        have h4 : w'.val ∈ ({0, 1} : Finset ℕ) := by rw [← hedge'_is_01]; exact Finset.mem_insert_of_mem (Finset.mem_singleton_self w'.val)
-        simp only [Finset.mem_insert, Finset.mem_singleton] at h1 h2 h4
-        -- v.val, w.val ∈ {0,1} and v.val ≠ w.val
-        -- w.val, w'.val ∈ {0,1} and w.val ≠ w'.val
-        -- So (v,w) and (w,w') both represent the edge {0,1}
-        rcases h1 with rfl | rfl <;> rcases h2 with hw | hw
-        · exact absurd hw hne_vw
-        · -- v.val = 0, w.val = 1, so w'.val must be 0
-          rcases h4 with hw' | hw'
-          · -- w'.val = 0: s(0,1) and s(1,0) are equal
-            simp only [Sym2.eq, Sym2.rel_iff']
-            right; exact ⟨hw, hw'⟩
-          · exact absurd hw'.symm hne'
-        · -- v.val = 1, w.val = 0, so w'.val must be 1
-          rcases h4 with hw' | hw'
-          · exact absurd hw'.symm hne'
-          · -- w'.val = 1: s(1,0) and s(0,1) are equal
-            simp only [Sym2.eq, Sym2.rel_iff']
-            right; exact ⟨hw, hw'⟩
-        · exact absurd hw hne_vw
-      -- The walk edges contain a duplicate, violating htrail
-      rw [SimpleGraph.Walk.isTrail_def] at htrail
-      rw [SimpleGraph.Walk.edges_cons, SimpleGraph.Walk.edges_cons] at htrail
-      have hdup : Sym2.mk v w ∈ (Sym2.mk w w' :: p''.edges) := by
-        rw [← h_same_edge]
-        exact List.mem_cons_self _ _
-      rw [List.nodup_cons] at htrail
-      exact htrail.1 hdup
+  -- A cycle needs at least 3 edges (length ≥ 3)
+  have h_cycle_len := hp.three_le_length
+  -- p.edges.length = p.length for walks
+  have h_edges_eq_len : p.edges.length = p.length := SimpleGraph.Walk.length_edges p
+  -- But singleEdge has only 1 edge, so any trail can use at most 1 edge
+  -- We show p.length ≤ 1, contradicting h_cycle_len
+  have h_at_most_one : p.length ≤ 1 := by
+    by_contra h_gt
+    push_neg at h_gt
+    have h_len : 2 ≤ p.length := h_gt
+    rw [← h_edges_eq_len] at h_len
+    have h_edge0 : 0 < p.edges.length := Nat.lt_of_lt_of_le (by norm_num : 0 < 2) h_len
+    have h_edge1 : 1 < p.edges.length := Nat.lt_of_lt_of_le (by norm_num : 1 < 2) h_len
+    let e0 := p.edges.get ⟨0, h_edge0⟩
+    let e1 := p.edges.get ⟨1, h_edge1⟩
+    have htrail := hp.1.1  -- IsTrail
+    rw [SimpleGraph.Walk.isTrail_def] at htrail
+    have h_ne_idx : (⟨0, h_edge0⟩ : Fin p.edges.length) ≠ ⟨1, h_edge1⟩ := by
+      intro h; exact absurd (Fin.ext_iff.mp h) (by norm_num : (0 : ℕ) ≠ 1)
+    have h_e0_mem : e0 ∈ p.edges := List.get_mem p.edges ⟨0, h_edge0⟩
+    have h_e1_mem : e1 ∈ p.edges := List.get_mem p.edges ⟨1, h_edge1⟩
+    -- Any Adj relation in singleEdge must be between vertices 0 and 1
+    -- so all edges in the walk are the same Sym2 element
+    have h_only_edge : ∀ (a b : singleEdge.vertexSet),
+        (oneSkeleton singleEdge).Adj a b → s(a, b) = s(⟨0, hv0⟩, ⟨1, hv1⟩) := by
+      intro a b hab
+      obtain ⟨hne, hmem⟩ := hab
+      simp only [singleEdge, Set.mem_insert_iff, Set.mem_singleton_iff] at hmem
+      rcases hmem with h_empty | h_0 | h_1 | h01
+      · exfalso; have : a.val ∈ (∅ : Finset ℕ) := by rw [← h_empty]; exact Finset.mem_insert_self _ _
+        exact Finset.not_mem_empty _ this
+      · exfalso
+        have ha : a.val = 0 := Finset.mem_singleton.mp (by rw [← h_0]; exact Finset.mem_insert_self _ _)
+        have hb : b.val = 0 := Finset.mem_singleton.mp (by rw [← h_0]; exact Finset.mem_insert_of_mem (Finset.mem_singleton_self _))
+        exact hne (ha.trans hb.symm)
+      · exfalso
+        have ha : a.val = 1 := Finset.mem_singleton.mp (by rw [← h_1]; exact Finset.mem_insert_self _ _)
+        have hb : b.val = 1 := Finset.mem_singleton.mp (by rw [← h_1]; exact Finset.mem_insert_of_mem (Finset.mem_singleton_self _))
+        exact hne (ha.trans hb.symm)
+      · have ha : a.val ∈ ({0, 1} : Finset ℕ) := by rw [← h01]; exact Finset.mem_insert_self _ _
+        have hb : b.val ∈ ({0, 1} : Finset ℕ) := by rw [← h01]; exact Finset.mem_insert_of_mem (Finset.mem_singleton_self _)
+        simp only [Finset.mem_insert, Finset.mem_singleton] at ha hb
+        rcases ha with ha0 | ha1 <;> rcases hb with hb0 | hb1
+        · exact absurd (ha0.trans hb0.symm) hne
+        · -- a.val = 0, b.val = 1: s(a,b) = s(0,1)
+          have heq_a : a = ⟨0, hv0⟩ := Subtype.ext ha0
+          have heq_b : b = ⟨1, hv1⟩ := Subtype.ext hb1
+          simp only [heq_a, heq_b]
+        · -- a.val = 1, b.val = 0: s(a,b) = s(1,0) = s(0,1)
+          have heq_a : a = ⟨1, hv1⟩ := Subtype.ext ha1
+          have heq_b : b = ⟨0, hv0⟩ := Subtype.ext hb0
+          simp only [heq_a, heq_b, Sym2.eq_swap]
+        · exact absurd (ha1.trans hb1.symm) hne
+    -- All edges in the walk equal s(⟨0,_⟩, ⟨1,_⟩)
+    have h_all_same : ∀ e ∈ p.edges, e = s(⟨0, hv0⟩, ⟨1, hv1⟩) := by
+      intro e he
+      -- Use induction on Sym2 to extract x, y such that e = s(x, y)
+      induction e using Sym2.inductionOn with
+      | hf x y =>
+        -- s(x, y) ∈ p.edges means x, y are adjacent in the walk
+        have hadj := SimpleGraph.Walk.adj_of_mem_edges p he
+        exact h_only_edge x y hadj
+    -- e0 = e1 since both equal the only edge
+    have h_eq : e0 = e1 := (h_all_same e0 h_e0_mem).trans (h_all_same e1 h_e1_mem).symm
+    -- But they're at different positions in a nodup list - contradiction
+    exact h_ne_idx (htrail.get_inj_iff.mp h_eq)
+  omega
 
 /-! ## Summary -/
 

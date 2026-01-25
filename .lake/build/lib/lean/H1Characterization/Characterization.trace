@@ -1,18 +1,24 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["06e4f2c4133bc54d.olean"],
-  "i": "968d01f93af8a412.ilean",
-  "c": "6769620f93a22fb7.c"},
+ {"o": ["d339ac14f44d126b.olean"],
+  "i": "38da0fdbf739a308.ilean",
+  "c": "e409037784704949.c"},
  "log":
  [{"message":
-   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/codespace/.elan/toolchains/leanprover--lean4---v4.26.0/bin/lean /workspaces/Cohomology-Foundations/H1Characterization/Characterization.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/H1Characterization/Characterization.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/H1Characterization/Characterization.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/H1Characterization/Characterization.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/H1Characterization/Characterization.setup.json --json",
+   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.26.0/bin/lean /workspaces/Cohomology-Foundations/H1Characterization/Characterization.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/H1Characterization/Characterization.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/H1Characterization/Characterization.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/H1Characterization/Characterization.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/H1Characterization/Characterization.setup.json --json",
    "level": "trace"},
   {"message":
    "H1Characterization/Characterization.lean:107:34: This simp argument is unused:\n  List.mem_singleton\n\nHint: Omit it from the simp argument list.\n  simp only [List.mem_cons,̵ ̵L̵i̵s̵t̵.̵m̵e̵m̵_̵s̵i̵n̵g̵l̵e̵t̵o̵n̵] at h\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
    "level": "warning"},
   {"message":
-   "H1Characterization/Characterization.lean:168:0: H1Characterization.h1_trivial_iff_oneConnected (K : SimplicialComplex) [Nonempty ↑K.vertexSet] :\n  H1Trivial K ↔ OneConnected K",
+   "H1Characterization/Characterization.lean:168:23: `Finset.not_mem_empty` has been deprecated: Use `Finset.notMem_empty` instead",
+   "level": "warning"},
+  {"message":
+   "H1Characterization/Characterization.lean:244:14: `Finset.not_mem_empty` has been deprecated: Use `Finset.notMem_empty` instead",
+   "level": "warning"},
+  {"message":
+   "H1Characterization/Characterization.lean:284:0: H1Characterization.h1_trivial_iff_oneConnected (K : SimplicialComplex) [Nonempty ↑K.vertexSet] :\n  H1Trivial K ↔ OneConnected K",
    "level": "info"}],
  "inputs":
  [["H1Characterization.Characterization:deps",
@@ -21,17 +27,17 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["H1Characterization.ForestCoboundary transitive imports (legacy)",
-         "8939a8cf6ad18f36"],
+         "28fb74c2cc6f8c1e"],
         ["H1Characterization.ForestCoboundary:importAllArts",
-         "ef4b9dceadd4aa81"],
+         "6e430eb231e11e30"],
         ["H1Characterization.CycleCochain.Definitions transitive imports (legacy)",
-         "a8709b353e7d2bcf"],
+         "72d3d24ba1b72c87"],
         ["H1Characterization.CycleCochain.Definitions:importAllArts",
-         "dd441fbfef7c89d5"],
+         "9c93975c8909cfde"],
         ["Perspective.AlignmentEquivalence transitive imports (legacy)",
-         "c7f074a84bf9bf9a"],
+         "b976c21d17da7f6c"],
         ["Perspective.AlignmentEquivalence:importAllArts",
-         "b66221d105529444"]]]]],
+         "61ae0360fdcc6ab4"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
@@ -40,9 +46,9 @@
   ["Lean 4.26.0, commit d8204c9fd894f91bbb2cdfec5912ec8196fd8562",
    "9c9419104e9584f8"],
   ["/workspaces/Cohomology-Foundations/H1Characterization/Characterization.lean",
-   "36fee5ac8a1861cf"],
+   "48ad299f1a206b2c"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "9539529fb83677b2"}
+ "depHash": "6b6621b071f3452b"}

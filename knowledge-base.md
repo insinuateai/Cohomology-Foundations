@@ -763,3 +763,186 @@ linarith  -- R.values s ≤ v₀ + ε and R.values s ≥ v_{n-1} - ε contradict
 ```
 
 **Use Case:** Strong Impossibility Theorem for n ≥ 3 agents with linear value spacing.
+
+---
+Added: 2026-01-25
+Source: LinearComplexity.lean, Characterization.lean fixes
+
+### Pattern: Walk.cons Implicit Variable Binding
+
+**Name:** Capturing Implicit Vertices in Walk Pattern Matching
+**Use when:** Pattern matching on `SimpleGraph.Walk.cons` and needing the target vertex
+
+**Problem:**
+When using `cases p with | cons h p' =>`, the intermediate vertex is implicit and not bound.
+
+**Solution:**
+Use `rename_i` to capture the implicit variable after the pattern match.
+
+**Code:**
+```lean
+cases p with
+| nil => exact hne_nil rfl
+| cons h p' =>
+  rename_i w  -- w is now the target vertex of the first edge
+  obtain ⟨hne_vw, hedge⟩ := h
+  -- Now w is available for use
+```
+
+**Context:**
+`Walk.cons : G.Adj u v → G.Walk v w → G.Walk u w`
+When matching `| cons h p' =>`, you get:
+- `h : G.Adj u v` (where v is implicit)
+- `p' : G.Walk v w`
+Use `rename_i v` to name the implicit vertex `v`.
+
+---
+### Pattern: Sym2.inductionOn Case Naming
+
+**Name:** Correct Case Name for Sym2 Induction
+**Use when:** Using `induction e using Sym2.inductionOn`
+
+**Correct:**
+```lean
+induction e using Sym2.inductionOn with
+| hf x y =>
+  -- e = s(x, y), prove goal for this case
+```
+
+**Wrong:**
+```lean
+induction e using Sym2.inductionOn with
+| mk x y =>  -- ERROR: Invalid alternative name `mk`: Expected `hf`
+```
+
+**Explanation:**
+The `Sym2.inductionOn` theorem has hypothesis named `hf : ∀ x y, f s(x, y)`, not `mk`.
+Always use `| hf x y =>` as the case name.
+
+---
+### Error: Mathlib Module Split
+
+**Message:** `bad import 'Mathlib.Combinatorics.SimpleGraph.Connectivity'`
+**Cause:** The Connectivity module was split into submodules in recent Mathlib
+
+**Fix:**
+```lean
+-- Old (broken):
+import Mathlib.Combinatorics.SimpleGraph.Connectivity
+
+-- New (correct):
+import Mathlib.Combinatorics.SimpleGraph.Connectivity.Connected
+import Mathlib.Combinatorics.SimpleGraph.Connectivity.WalkCounting
+```
+
+**Key submodules:**
+- `Connected` - Reachability, ConnectedComponent
+- `WalkCounting` - `Fintype G.ConnectedComponent` instance
+- `WalkDecomp` - Walk decomposition lemmas
+- `Subgraph` - Subgraph connectivity
+
+---
+### Error: connectedComponentFinset Not Found
+
+**Message:** `unknown identifier 'connectedComponentFinset'`
+**Fix:** Use `Fintype.card G.ConnectedComponent` instead
+
+**Old API:**
+```lean
+(oneSkeleton K).connectedComponentFinset.card  -- Not found
+```
+
+**New API:**
+```lean
+Fintype.card (oneSkeleton K).ConnectedComponent  -- Correct
+```
+
+**Note:** Requires `import Mathlib.Combinatorics.SimpleGraph.Connectivity.WalkCounting`
+for the `Fintype G.ConnectedComponent` instance.
+
+---
+### Error: Instance Requires noncomputable
+
+**Message:** `failed to compile definition, consider marking it as 'noncomputable'`
+**Cause:** Instance depends on noncomputable definitions (e.g., Fintype.card)
+
+**Fix:**
+```lean
+-- Wrong:
+instance foo_decidable : Decidable (foo K) := by ...
+
+-- Correct:
+noncomputable instance foo_decidable : Decidable (foo K) := by ...
+```
+
+**Common triggers:**
+- Depending on `Fintype.card`
+- Using `componentCount` or similar counting functions
+- Any instance using classical choice indirectly
+
+---
+### Pattern: Walk Edge Counting
+
+**Name:** Relating Walk Length to Edges List Length
+**Use when:** Proving properties about walk lengths
+
+**Key Lemma:**
+```lean
+SimpleGraph.Walk.length_edges : p.edges.length = p.length
+```
+
+**Usage:**
+```lean
+have h_edges_eq_len : p.edges.length = p.length := SimpleGraph.Walk.length_edges p
+-- Now can use omega to relate edges count to walk length
+```
+
+**Related lemmas:**
+- `Walk.length_support : p.support.length = p.length + 1`
+- `Walk.length_darts : p.darts.length = p.length`
+
+---
+### Pattern: List.Nodup Element Uniqueness
+
+**Name:** Using Nodup to Prove Elements at Different Indices Differ
+**Use when:** Proving two elements from a nodup list at different positions are equal implies position equality
+
+**Key Lemma:**
+```lean
+List.Nodup.get_inj_iff : h.get_inj_iff.mp : l.get i = l.get j → i = j
+```
+
+**Usage:**
+```lean
+have htrail := hp.1.1  -- IsTrail gives edges.Nodup
+rw [SimpleGraph.Walk.isTrail_def] at htrail
+-- htrail : p.edges.Nodup
+have h_eq : e0 = e1 := ...  -- Proved both equal some canonical edge
+exact h_ne_idx (htrail.get_inj_iff.mp h_eq)  -- Contradiction if indices differ
+```
+
+---
+### Strategy: Euler Formula for Forests
+
+**Name:** Forest Edge Count Formula
+**Use when:** Proving properties about acyclic graphs (forests)
+
+**The Formula:**
+For a forest (acyclic graph) with:
+- V vertices
+- c connected components
+- E edges
+
+**Result:** E = V - c (exactly, for forests)
+
+**Proof Sketch:**
+1. Each connected component of a forest is a tree
+2. A tree on n vertices has exactly n - 1 edges
+3. For c components with vertex counts n₁, ..., nₒ:
+   - Total vertices: V = Σnᵢ
+   - Total edges: E = Σ(nᵢ - 1) = V - c
+
+**Key Mathlib Lemmas:**
+- `SimpleGraph.IsTree.card_edgeFinset`: Tree on n vertices has n-1 edges
+- `SimpleGraph.IsAcyclic.isTree_connectedComponent`: Each component of forest is tree
+- `SimpleGraph.isTree_iff_connected_and_card`: Tree iff connected and |E| = |V| - 1
