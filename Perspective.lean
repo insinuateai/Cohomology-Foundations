@@ -4,3 +4,4 @@ import Perspective.ValueComplex
 import Perspective.AlignmentEquivalence
 import Perspective.AlignmentTheorem
 import Perspective.ImpossibilityStrong
+import Perspective.ConflictLocalization
