@@ -12,3 +12,4 @@ import Perspective.ObstructionClassification
 import Perspective.IncrementalUpdates
 import Perspective.HierarchicalAlignment
 import Perspective.MayerVietoris
+import Perspective.DimensionBound

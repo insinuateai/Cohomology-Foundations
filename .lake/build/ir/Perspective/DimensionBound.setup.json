@@ -1,6 +1,6 @@
 {"plugins": [],
  "options": {"pp.unicode.fun": true, "autoImplicit": false},
- "name": "Perspective",
+ "name": "Perspective.DimensionBound",
  "isModule": false,
  "importArts":
  {"Qq.Typ":
@@ -184,8 +184,6 @@
   ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/ImpossibilityStrong.olean"],
   "Perspective.HierarchicalAlignment":
   ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/HierarchicalAlignment.olean"],
-  "Perspective.DimensionBound":
-  ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/DimensionBound.olean"],
   "Perspective.ConflictResolution":
   ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/ConflictResolution.olean"],
   "Perspective.ConflictLocalization":
