@@ -1,0 +1,115 @@
+{"synthetic": false,
+ "schemaVersion": "2025-09-10",
+ "outputs":
+ {"o": ["78de0098de54522c.olean"],
+  "i": "ebd8de9302e51bee.ilean",
+  "c": "0fb61de3e45e4bed.c"},
+ "log":
+ [{"message":
+   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.26.0/bin/lean /workspaces/Cohomology-Foundations/Perspective/Persistence.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/Persistence.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/Persistence.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/Persistence.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/Persistence.setup.json --json",
+   "level": "trace"},
+  {"message":
+   "Perspective/Persistence.lean:93:0: automatically included section variable(s) unused in theorem `Persistence.filtration_nested`:\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/Persistence.lean:123:5: unused variable `f`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/Persistence.lean:123:41: unused variable `conflict_id`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/Persistence.lean:134:5: unused variable `f`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/Persistence.lean:134:41: unused variable `conflict_id`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/Persistence.lean:172:39: unused variable `systems`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/Persistence.lean:173:5: unused variable `thresholds`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/Persistence.lean:213:29: This simp argument is unused:\n  ↓reduceIte\n\nHint: Omit it from the simp argument list.\n  simp only [hp1, hp2, ↓̵r̵e̵d̵u̵c̵e̵I̵t̵e̵,̵ ̵List.length_cons]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/Persistence.lean:216:29: This simp argument is unused:\n  ↓reduceIte\n\nHint: Omit it from the simp argument list.\n  simp only [hp1, hp2, ↓̵r̵e̵d̵u̵c̵e̵I̵t̵e̵,̵ ̵List.length_cons]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/Persistence.lean:226:29: This simp argument is unused:\n  ↓reduceIte\n\nHint: Omit it from the simp argument list.\n  simp only [hp1, hp2,̵ ̵↓̵r̵e̵d̵u̵c̵e̵I̵t̵e̵]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/Persistence.lean:241:0: automatically included section variable(s) unused in theorem `Persistence.persistence_stability`:\n  [Fintype S]\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [Fintype S] [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/Persistence.lean:243:17: unused variable `hdelta`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/Persistence.lean:244:5: unused variable `h_close`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/Persistence.lean:245:5: unused variable `thresholds`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/Persistence.lean:259:0: automatically included section variable(s) unused in theorem `Persistence.real_conflicts_survive_perturbation`:\n  [Fintype S]\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [Fintype S] [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/Persistence.lean:261:17: unused variable `hdelta`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/Persistence.lean:262:5: unused variable `h_close`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/Persistence.lean:263:28: unused variable `hp`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/Persistence.lean:317:0: automatically included section variable(s) unused in theorem `Persistence.robust_aligned_no_significant`:\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/Persistence.lean:318:21: unused variable `hε`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/Persistence.lean:319:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/Persistence.lean:332:0: automatically included section variable(s) unused in theorem `Persistence.no_structural_implies_some_aligned`:\n  [Fintype S]\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [Fintype S] [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/Persistence.lean:332:52: unused variable `systems`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/Persistence.lean:333:21: unused variable `hε`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/Persistence.lean:334:5: unused variable `h_no_structural`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/Persistence.lean:361:42: unused variable `diag`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"}],
+ "inputs":
+ [["Perspective.Persistence:deps",
+   [["deps",
+     [["CohomologyFoundations/Perspective:extraDep",
+       [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
+      ["imports",
+       [["Perspective.DimensionBound transitive imports (legacy)",
+         "d3e8be31620c45f6"],
+        ["Perspective.DimensionBound:importAllArts", "781ea72f9352efdb"],
+        ["H1Characterization.Characterization transitive imports (legacy)",
+         "1ceb156b65f4c1d3"],
+        ["H1Characterization.Characterization:importAllArts",
+         "db91a8fda58a7315"]]]]],
+    ["libs",
+     [["import dynlibs", "00000000000006bb"],
+      ["package external libraries", "00000000000006bb"],
+      ["module dynlibs", "00000000000006bb"],
+      ["module plugins", "00000000000006bb"]]]]],
+  ["Lean 4.26.0, commit d8204c9fd894f91bbb2cdfec5912ec8196fd8562",
+   "9c9419104e9584f8"],
+  ["/workspaces/Cohomology-Foundations/Perspective/Persistence.lean",
+   "c58232ad7c653c00"],
+  ["options",
+   [["-Dpp.unicode.fun=true", "9b94070140457fab"],
+    ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
+  ["Module.leanArgs: #[]", "00000000000006bb"]],
+ "depHash": "b28a33c14f9a5b5e"}

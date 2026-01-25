@@ -90,15 +90,25 @@ THEOREM: Decreasing threshold gives subcomplex.
 
 K(ε₂) ⊆ K(ε₁) when ε₂ < ε₁
 -/
-theorem filtration_nested {n : ℕ} (systems : Fin n → ValueSystem S) 
+theorem filtration_nested {n : ℕ} (systems : Fin n → ValueSystem S)
     (ε₁ ε₂ : ℚ) (h : ε₂ < ε₁) [Nonempty S] :
-    IncrementalUpdates.IsSubcomplex 
-      (complexAtThreshold systems ε₂) 
+    IncrementalUpdates.IsSubcomplex
+      (complexAtThreshold systems ε₂)
       (complexAtThreshold systems ε₁) := by
   -- Smaller ε means stricter threshold
   -- Fewer pairs satisfy |v₁ - v₂| ≤ 2ε
   -- So fewer edges, hence subcomplex
-  sorry
+  unfold IncrementalUpdates.IsSubcomplex complexAtThreshold valueComplex
+  intro σ hσ
+  simp only [Set.mem_setOf_eq] at hσ ⊢
+  -- hσ says: for all pairs i < j in σ, there exists s with diff ≤ 2*ε₂
+  -- We need: for all pairs i < j in σ, there exists s with diff ≤ 2*ε₁
+  intro i j hi hj hij hi_lt hj_lt
+  obtain ⟨s, hs⟩ := hσ i j hi hj hij hi_lt hj_lt
+  use s
+  -- Since ε₂ < ε₁, we have 2*ε₂ < 2*ε₁, so the bound is satisfied
+  have h_2eps : 2 * ε₂ < 2 * ε₁ := by linarith
+  linarith
 
 /-! ## Part 2: Birth and Death of Conflicts -/
 
@@ -186,16 +196,35 @@ THEOREM: More restrictive lifetime threshold gives fewer conflicts.
 
 If we raise the bar for "significant", we get fewer significant conflicts.
 -/
-theorem significant_monotone (diag : PersistenceDiagram) 
+theorem significant_monotone (diag : PersistenceDiagram)
     (t₁ t₂ : ℚ) (h : t₁ ≤ t₂) :
     countSignificantConflicts diag t₂ ≤ countSignificantConflicts diag t₁ := by
   -- Higher threshold → fewer conflicts pass
+  -- We prove by induction that stricter predicate gives ≤ count
   unfold countSignificantConflicts
-  apply List.length_filter_le_length_filter
-  intro p hp
-  unfold isSignificantConflict at *
-  simp only [decide_eq_true_eq] at *
-  linarith
+  induction diag with
+  | nil => simp
+  | cons p ps ih =>
+    simp only [List.filter]
+    -- Check if p passes the threshold
+    by_cases hp1 : isSignificantConflict p t₁
+    · by_cases hp2 : isSignificantConflict p t₂
+      · -- Both pass
+        simp only [hp1, hp2, ↓reduceIte, List.length_cons]
+        exact Nat.succ_le_succ ih
+      · -- Only passes t₁, not t₂
+        simp only [hp1, hp2, ↓reduceIte, List.length_cons]
+        exact Nat.le_succ_of_le ih
+    · by_cases hp2 : isSignificantConflict p t₂
+      · -- p doesn't pass t₁ but passes t₂ - impossible since t₁ ≤ t₂
+        exfalso
+        unfold isSignificantConflict at hp1 hp2
+        simp only [decide_eq_true_eq, not_le] at hp1
+        simp only [decide_eq_true_eq] at hp2
+        linarith
+      · -- Neither passes
+        simp only [hp1, hp2, ↓reduceIte]
+        exact ih
 
 /-! ## Part 5: Stability Theorem -/
 
@@ -209,10 +238,10 @@ persistent homology, applied to our setting.
 Formally: If systems are perturbed by at most δ, then
 the bottleneck distance between persistence diagrams is at most δ.
 -/
-theorem persistence_stability {n : ℕ} 
+theorem persistence_stability {n : ℕ}
     (systems₁ systems₂ : Fin n → ValueSystem S)
-    (δ : ℚ) (hδ : δ > 0)
-    (h_close : ∀ i s, |(systems₁ i).values s - (systems₂ i).values s| ≤ δ)
+    (delta : ℚ) (hdelta : delta > 0)
+    (h_close : ∀ i s, |(systems₁ i).values s - (systems₂ i).values s| ≤ delta)
     (thresholds : List ℚ) [Nonempty S] :
     -- The persistence diagrams are close (in bottleneck distance)
     -- Bottleneck distance measures maximum displacement of points
@@ -229,13 +258,13 @@ Conflicts with lifetime > 2δ survive perturbation of size δ.
 -/
 theorem real_conflicts_survive_perturbation {n : ℕ}
     (systems₁ systems₂ : Fin n → ValueSystem S)
-    (δ : ℚ) (hδ : δ > 0)
-    (h_close : ∀ i s, |(systems₁ i).values s - (systems₂ i).values s| ≤ δ)
-    (p : PersistencePoint) (hp : p.lifetime > 2 * δ) :
+    (delta : ℚ) (hdelta : delta > 0)
+    (h_close : ∀ i s, |(systems₁ i).values s - (systems₂ i).values s| ≤ delta)
+    (p : PersistencePoint) (hp : p.lifetime > 2 * delta) :
     -- This conflict persists in the perturbed system
     True := by
-  -- By stability, the point moves by at most δ
-  -- Since lifetime > 2δ, it can't disappear
+  -- By stability, the point moves by at most delta
+  -- Since lifetime > 2*delta, it can't disappear
   trivial
 
 /-! ## Part 6: Conflict Classification -/
@@ -394,7 +423,24 @@ theorem persistence_analysis_product :
   · intro diag
     unfold totalPersistence
     -- Sum of non-negative values is non-negative
-    sorry
+    -- We prove by induction that foldl with + starting from 0 gives ≥ 0
+    -- when adding non-negative values
+    have h_lifetime_nonneg : ∀ p : PersistencePoint, p.lifetime ≥ 0 := by
+      intro p
+      unfold PersistencePoint.lifetime
+      linarith [p.birth_ge_death]
+    -- Prove that foldl preserves non-negativity
+    suffices h : ∀ (init : ℚ) (ps : List PersistencePoint),
+        init ≥ 0 → ps.foldl (fun acc p => acc + p.lifetime) init ≥ 0 by
+      exact h 0 diag (le_refl 0)
+    intro init ps hinit
+    induction ps generalizing init with
+    | nil => simp [hinit]
+    | cons p ps ih =>
+      simp only [List.foldl_cons]
+      apply ih
+      have : p.lifetime ≥ 0 := h_lifetime_nonneg p
+      linarith
   · exact significant_monotone
 
 /--
