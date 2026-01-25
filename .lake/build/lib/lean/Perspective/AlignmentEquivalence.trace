@@ -96,7 +96,7 @@
          "7c6d6a4c992a98d3"],
         ["Mathlib.Tactic.FieldSimp:importAllArts", "42b2aa78187730fc"],
         ["H1Characterization.ForestCoboundary transitive imports (legacy)",
-         "8d872e03a62ade68"],
+         "28fb74c2cc6f8c1e"],
         ["H1Characterization.ForestCoboundary:importAllArts",
          "cfd637be2d306991"]]]]],
     ["libs",
@@ -112,4 +112,4 @@
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "79c8634815c9099b"}
+ "depHash": "366d84c63f105eae"}

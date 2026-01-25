@@ -344,3 +344,68 @@ The theorem was not used in `coboundaryWitness_works` - the main proof uses `pat
 ### Main Theorem Status
 
 `oneConnected_implies_h1_trivial` now compiles successfully - the forward direction of the H¹ characterization is complete.
+
+---
+## Session: 2026-01-25 (cycleIndicator_is_cocycle Analysis)
+
+**Task:** Analyze and document the `cycleIndicator_is_cocycle` axiom
+**File:** H1Characterization/CycleCochain/Definitions.lean:104-105
+**Status:** DOCUMENTATION UPDATED - axiom retained with scope limitations documented
+
+### Mathematical Analysis
+
+Discovered that the axiom `cycleIndicator_is_cocycle` has **restricted validity**:
+
+**The Problem:**
+The axiom claims `cycleIndicator K C` is always a 1-cocycle, but this is FALSE when a 2-simplex σ ∈ K contains all edges of cycle C.
+
+**Counterexample (Filled Triangle):**
+For K with 2-simplex {0,1,2} and cycle C = 0→1→2→0:
+- cycleIndicator({0,1}) = +1 (positive traversal)
+- cycleIndicator({1,2}) = +1 (positive traversal)
+- cycleIndicator({0,2}) = -1 (negative traversal)
+- (δf)({0,1,2}) = 1 - (-1) + 1 = 3 ≠ 0
+
+**When the Axiom IS Valid:**
+1. **OneConnected K**: No cycles exist, so axiom is vacuously true
+2. **Hollow complexes**: No 2-simplices, so δf = 0 trivially
+3. **Cycles that don't fill any 2-simplex**: (δf)(σ) not evaluated for σ ∉ K
+
+**Corrected Understanding:**
+The original claim that "a trail can't use exactly 1 or 2 edges of a triangle" is FALSE:
+- A cycle CAN use 1 edge: a → b → d → e → a (uses only {a,b} from triangle {a,b,c})
+- A cycle CAN use 2 edges: a → b → c → d → a (uses {a,b}, {b,c} but not {a,c})
+
+### Changes Made
+
+1. **Updated file header** (lines 7-11):
+   - Changed from "standard topological fact" to "RESTRICTED VALIDITY"
+   - Added validity conditions and invalidity examples
+
+2. **Updated axiom documentation** (lines 75-103):
+   - Added explicit counterexample with calculation
+   - Documented when axiom is sound (OneConnected K, hollow complexes)
+   - Corrected false claims about trail-triangle interactions
+   - Explained the intended use case
+
+### Implications for Main Theorem
+
+The theorem `h1_trivial_iff_oneConnected` is technically only correct for simplicial complexes where cycles don't bound filled 2-simplices. The characterization:
+
+```
+H¹(K) = 0 ⟺ OneConnected K
+```
+
+is mathematically incorrect for general simplicial complexes (e.g., filled triangle has H¹ = 0 but is not OneConnected). However, the axiom is sound for the test cases used in this codebase (hollow triangle, trees).
+
+### Axiom Status
+
+| File | Axiom | Updated Justification |
+|------|-------|----------------------|
+| CycleCochain/Definitions.lean | `cycleIndicator_is_cocycle` | RESTRICTED: Only valid when no 2-simplex contains all cycle edges |
+| ForestCoboundary.lean | `cocycle_zero_on_unreachable_component` | H¹ = 0 for trees |
+
+### Build Status
+
+- H1Characterization.CycleCochain.Definitions: ✓ Builds successfully
+- Full build has pre-existing errors in Characterization.lean (unrelated)

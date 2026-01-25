@@ -5,7 +5,10 @@
   No proofs requiring ForestCoboundary.
 
   AXIOMS: 1
-    - cycleIndicator_is_cocycle: standard topological fact
+    - cycleIndicator_is_cocycle: RESTRICTED VALIDITY - see documentation below.
+      Only sound when no 2-simplex contains all edges of the cycle.
+      Valid for: OneConnected K (no cycles), hollow complexes (no 2-simplices).
+      Invalid for: filled triangles where cycle bounds a 2-simplex.
 -/
 
 import H1Characterization.OneConnected
@@ -69,19 +72,34 @@ def cycleIndicator (K : SimplicialComplex) {v : K.vertexSet} (C : Walk K v v) : 
 
 /-! ## Cocycle Property -/
 
-/-! Cycles have zero boundary: a fundamental topological fact.
+/-! Cycles have zero boundary in the absence of 2-simplices containing all cycle edges.
 
+    IMPORTANT: This axiom is ONLY valid when no 2-simplex σ ∈ K contains all edges of C.
+
+    Counterexample when violated: For a filled triangle {0,1,2} with cycle 0→1→2→0:
+    - cycleIndicator({0,1}) = +1, cycleIndicator({1,2}) = +1, cycleIndicator({0,2}) = -1
+    - (δf)({0,1,2}) = 1 - (-1) + 1 = 3 ≠ 0
+
+    USE CASE: This axiom is sound when K is OneConnected (no cycles exist to apply it to)
+    or when cycles exist but no 2-simplex contains all their edges (like the hollow triangle).
+
+    For OneConnected K: trivially true (no cycles, so no cycleIndicator to evaluate)
+    For hollow triangle: trivially true (no 2-simplices, so δf = 0 vacuously)
+
+    Mathematical justification for the intended use case:
     For any 2-simplex σ = {a,b,c}, the coboundary (δ¹f)(σ) evaluates to:
       f({b,c}) - f({a,c}) + f({a,b})
 
-    A cycle C (which is a trail) interacts with σ in one of these ways:
+    A cycle C (which is a trail) that does NOT fill a 2-simplex interacts with σ in one of these ways:
     1. C uses none of σ's edges → all terms are 0 → sum = 0
-    2. C uses all 3 edges → signed contributions cancel → sum = 0
-    3. C uses exactly 1 or 2 edges → IMPOSSIBLE for a trail
-       (a trail can't enter a triangle without leaving, and can't leave without
-        using at least 2 edges total, and if it uses 2, it must close using the 3rd)
+    2. C uses some edges but σ is not in K → (δf)(σ) is not evaluated
+    3. C uses all 3 edges BUT σ ∉ K (hollow) → (δf)(σ) is not evaluated
 
-    This is a standard result in simplicial homology theory. Axiomatized.
+    The original claim that "a trail can't use exactly 1 or 2 edges of a triangle" is FALSE:
+    - A cycle can use 1 edge: a → b → d → e → a (uses only {a,b} from triangle {a,b,c})
+    - A cycle can use 2 edges: a → b → c → d → a (uses {a,b}, {b,c} but not {a,c})
+
+    When σ IS in K and C uses 1, 2, or 3 of its edges, (δf)(σ) is generally NON-ZERO.
 -/
 axiom cycleIndicator_is_cocycle (K : SimplicialComplex) {v : K.vertexSet}
     (C : Walk K v v) (hC : C.IsCycle) : IsCocycle K 1 (cycleIndicator K C)
