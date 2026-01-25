@@ -1703,3 +1703,132 @@ def hasDisconnectedObstruction (K : SimplicialComplex)
     [DecidableRel (oneSkeleton K).Adj] : Prop :=
   Fintype.card (oneSkeleton K).ConnectedComponent > 1
 ```
+
+---
+## Batch 6: Incremental Updates Patterns
+Added: 2026-01-25
+
+### Pattern: Reserved Keywords in Lean 4
+
+**Name:** Avoiding Reserved Keywords in Inductive Types
+**Use when:** Defining inductive types with common names
+
+**Problem:**
+```lean
+inductive UpdateResult where
+  | safe
+  | unsafe      -- ERROR: 'unsafe' is a reserved keyword
+  | needsCheck
+```
+
+**Solution:**
+```lean
+inductive UpdateResult where
+  | safe
+  | wouldBreak  -- Renamed from 'unsafe'
+  | needsCheck
+```
+
+**Reserved keywords to avoid:** `unsafe`, `partial`, `private`, `protected`, `where`, etc.
+
+---
+### Pattern: Left-Associative Union Handling
+
+**Name:** Parsing and Proving with Multiple Unions
+**Use when:** Working with `A ∪ B ∪ C` set membership
+
+**Key Insight:** `A ∪ B ∪ C` parses as `(A ∪ B) ∪ C`
+
+**Membership after simp:** `t ∈ (A ∪ B) ∪ C` becomes `(t ∈ A ∨ t ∈ B) ∨ t ∈ C`
+
+**Code:**
+```lean
+-- For simplices := K.simplices ∪ {s} ∪ { t | t ⊆ s }
+simp only [Set.mem_union, Set.mem_singleton_iff, Set.mem_setOf] at ht ⊢
+rcases ht with (ht' | rfl) | ht'  -- Note: (ht' | rfl) | ht' for left-assoc
+· -- t ∈ K.simplices
+  left; left; ...
+· -- t = s (middle case)
+  right; ...   -- Goes to { t | t ⊆ s }
+· -- t ⊆ s
+  right; ...
+```
+
+**Alternative explicit approach:**
+```lean
+apply Set.mem_union_left
+apply Set.mem_union_right
+exact Set.mem_singleton_iff.mpr rfl
+```
+
+---
+### Pattern: SimpleGraph.IsAcyclic.comap
+
+**Name:** Proving Subgraph Acyclicity via Graph Homomorphism
+**Use when:** Showing a "smaller" graph is acyclic because the "larger" one is
+
+**Mathlib Lemma:**
+```lean
+lemma IsAcyclic.comap (f : G →g G') (hinj : Function.Injective f) (h : G'.IsAcyclic) :
+    G.IsAcyclic
+```
+
+**Application:** When K' is a subcomplex of K, show `oneSkeleton K'` is acyclic:
+
+```lean
+-- Construct embedding f : K'.vertexSet → K.vertexSet
+let f : K'.vertexSet → K.vertexSet := fun v => ⟨v.val, h_vertex_incl v⟩
+
+-- Prove f is injective
+have hf_inj : Function.Injective f := by
+  intro ⟨v₁, _⟩ ⟨v₂, _⟩ heq
+  simp only [Subtype.mk.injEq] at heq
+  exact Subtype.ext heq
+
+-- Prove f preserves adjacency (graph homomorphism)
+have hf_hom : ∀ v w, (oneSkeleton K').Adj v w → (oneSkeleton K).Adj (f v) (f w) := by
+  intro ⟨v, hv⟩ ⟨w, hw⟩ hadj
+  simp only [oneSkeleton_adj_iff] at hadj ⊢
+  constructor
+  · exact hadj.1  -- v ≠ w preserved
+  · -- Edge membership: K'.simplices ⊆ K.simplices
+    ...
+
+-- Construct homomorphism with implicit binders
+let φ : (oneSkeleton K') →g (oneSkeleton K) := ⟨f, fun {a} {b} => hf_hom a b⟩
+
+-- Apply IsAcyclic.comap
+exact h_K.comap φ hf_inj
+```
+
+**Key Point:** The `fun {a} {b} =>` is needed because `SimpleGraph.Hom` uses implicit binders.
+
+---
+### Pattern: Nonempty Instance for Subcomplex
+
+**Name:** Constructing Nonempty Witness for Modified Complexes
+**Use when:** A theorem requires `Nonempty K'.vertexSet` but K' is derived from K
+
+**Problem:** `removeSimplex K s` might change the vertex set
+
+**Solution:** Add hypothesis guaranteeing survival, then construct witness:
+
+```lean
+theorem foo (K : SimplicialComplex) [Nonempty K.vertexSet]
+    (h_nonempty : ∃ v ∈ K.vertexSet, ¬(s ⊆ {v})) :  -- Survival condition
+    ... (removeSimplex K s) ... := by
+  -- Construct Nonempty instance
+  have h_ne : Nonempty (removeSimplex K s).vertexSet := by
+    obtain ⟨v, hv, hns⟩ := h_nonempty
+    have hv' : v ∈ (removeSimplex K s).vertexSet := by
+      rw [SimplicialComplex.mem_vertexSet_iff]
+      simp only [removeSimplex, Set.mem_setOf]
+      constructor
+      · rw [SimplicialComplex.mem_vertexSet_iff] at hv; exact hv
+      · exact hns  -- ¬(s ⊆ {v})
+    exact ⟨⟨v, hv'⟩⟩
+  haveI : Nonempty (removeSimplex K s).vertexSet := h_ne
+  ...
+```
+
+**Key Insight:** The survival condition `¬(s ⊆ {v})` means s has elements other than v, so removing simplices containing s doesn't remove vertex v.

@@ -117,27 +117,27 @@ theorem starComplex_isSubcomplex (K : SimplicialComplex) (s : Simplex)
 /-! ## Part 4: Adding a Simplex -/
 
 /-- Add a simplex to a complex (with all its faces) -/
-def addSimplex (K : SimplicialComplex) (s : Simplex) 
+def addSimplex (K : SimplicialComplex) (s : Simplex)
     (h_faces : ∀ i : Fin s.card, s.face i ∈ K.simplices) : SimplicialComplex where
   simplices := K.simplices ∪ {s} ∪ { t | t ⊆ s }
   has_vertices := by
     intro t ht v hv
+    -- Union is left-associative: (K.simplices ∪ {s}) ∪ { t | t ⊆ s }
     simp only [Set.mem_union, Set.mem_singleton_iff, Set.mem_setOf] at ht ⊢
-    right; right
-    rcases ht with ht | rfl | ht
+    rcases ht with (ht' | rfl) | ht'
     · -- t ∈ K.simplices
-      left; left; exact K.has_vertices t ht v hv
+      left; left; exact K.has_vertices t ht' v hv
     · -- t = s
-      exact Finset.singleton_subset_iff.mpr hv
+      right; exact Finset.singleton_subset_iff.mpr hv
     · -- t ⊆ s
-      exact Finset.singleton_subset_iff.mpr (ht hv)
+      right; exact Finset.singleton_subset_iff.mpr (ht' hv)
   down_closed := by
     intro t ht i
     simp only [Set.mem_union, Set.mem_singleton_iff, Set.mem_setOf] at ht ⊢
-    rcases ht with ht | rfl | ht
-    · left; left; exact K.down_closed t ht i
-    · right; right; exact Simplex.face_subset s i
-    · right; right; exact Finset.Subset.trans (Simplex.face_subset t i) ht
+    rcases ht with (ht' | rfl) | ht'
+    · left; left; exact K.down_closed t ht' i
+    · right; exact Simplex.face_subset t i  -- t = s after rfl
+    · right; exact Finset.Subset.trans (Simplex.face_subset t i) ht'
 
 /-- Adding a simplex enlarges the complex -/
 theorem addSimplex_enlarges (K : SimplicialComplex) (s : Simplex)
@@ -151,8 +151,10 @@ theorem addSimplex_enlarges (K : SimplicialComplex) (s : Simplex)
 theorem simplex_mem_addSimplex (K : SimplicialComplex) (s : Simplex)
     (h_faces : ∀ i : Fin s.card, s.face i ∈ K.simplices) :
     s ∈ (addSimplex K s h_faces).simplices := by
-  simp only [addSimplex, Set.mem_union, Set.mem_singleton_iff]
-  left; right; rfl
+  -- s ∈ (K.simplices ∪ {s}) ∪ { t | t ⊆ s }
+  apply Set.mem_union_left
+  apply Set.mem_union_right
+  exact Set.mem_singleton_iff.mpr rfl
 
 /-! ## Part 5: Removing a Simplex -/
 
@@ -213,13 +215,30 @@ theorem incremental_add_vertex (K : SimplicialComplex) [Nonempty K.vertexSet]
     (h_K'_has_v : {v} ∈ K'.simplices)
     (h_K'_has_edges : ∀ u ∈ neighbors, {v, u} ∈ K'.simplices)
     -- Local condition: star of v is "tree-like"
-    (h_local : neighbors.length ≤ 1 ∨ 
-               ∀ u₁ u₂, u₁ ∈ neighbors → u₂ ∈ neighbors → u₁ ≠ u₂ → 
+    (h_local : neighbors.length ≤ 1 ∨
+               ∀ u₁ u₂, u₁ ∈ neighbors → u₂ ∈ neighbors → u₁ ≠ u₂ →
                         {u₁, u₂} ∉ K.simplices) :
     H1Trivial K' := by
-  -- Key insight: v is a "leaf" or connects to non-adjacent vertices
-  -- Either way, no new cycle is created
-  -- Therefore H¹ remains 0
+  -- PROOF STRATEGY:
+  -- H¹ = 0 ↔ 1-skeleton is acyclic (forest)
+  -- Adding vertex v with edges to neighbors creates a cycle iff:
+  --   v connects two vertices that were ALREADY path-connected in K
+  --
+  -- Case 1: neighbors.length ≤ 1
+  --   v is a leaf (at most 1 neighbor) - can't create a cycle
+  --   Forest + leaf = forest
+  --
+  -- Case 2: Neighbors are pairwise non-adjacent
+  --   If u₁, u₂ ∈ neighbors are distinct, then {u₁, u₂} ∉ K.simplices
+  --   In an acyclic graph, non-adjacent vertices are in different subtrees
+  --   So v connects different subtrees, not creating a cycle
+  --
+  -- Technical challenge: K' has different vertex set than K
+  -- The embedding K ⊆ₛ K' preserves acyclicity structure
+  -- A full proof requires constructing the walk correspondence
+  --
+  -- This is a standard result: adding a "tree-like" star to a forest
+  -- preserves the forest property.
   sorry
 
 /--
@@ -242,9 +261,21 @@ theorem incremental_add_edge (K : SimplicialComplex) [Nonempty K.vertexSet]
     (h_K'_extends : K ⊆ₛ K')
     (h_K'_has_edge : {u, v} ∈ K'.simplices) :
     H1Trivial K' := by
-  -- Adding an edge to a forest creates a cycle iff endpoints were connected
-  -- If they were in different components, still a forest
-  -- If same component, need to also add a triangle to "fill" the cycle
+  -- PROOF STRATEGY:
+  -- H¹ = 0 ↔ 1-skeleton is acyclic (forest)
+  -- Adding edge {u,v} creates a cycle iff u and v were already path-connected
+  --
+  -- The h_local hypothesis is simplified to True here.
+  -- A full version would require:
+  --   h_local : ¬(oneSkeleton K).Reachable ⟨u, hu⟩ ⟨v, hv⟩
+  --
+  -- With that hypothesis:
+  -- - u and v are in different connected components of K
+  -- - Adding edge {u,v} merges two trees into one tree
+  -- - Tree + tree = tree (still acyclic)
+  --
+  -- Without path-connectivity check, this theorem is not provable
+  -- as adding an edge between connected vertices DOES create a cycle.
   sorry
 
 /--
@@ -255,16 +286,65 @@ If K has H¹ = 0 and we remove anything, H¹ stays 0.
 -/
 theorem incremental_remove_preserves (K : SimplicialComplex) [Nonempty K.vertexSet]
     (h_K : H1Trivial K)
-    (s : Simplex) (hs : s ∈ K.simplices) :
+    (s : Simplex) (_hs : s ∈ K.simplices)
+    -- Need at least one vertex that survives removal (s doesn't fit in that vertex)
+    (h_nonempty : ∃ v ∈ K.vertexSet, ¬(s ⊆ {v})) :
     H1Trivial (removeSimplex K s) := by
+  -- First establish that removeSimplex K s has nonempty vertex set
+  have h_ne : Nonempty (removeSimplex K s).vertexSet := by
+    obtain ⟨v, hv, hns⟩ := h_nonempty
+    -- v ∈ (removeSimplex K s).vertexSet means {v} ∈ (removeSimplex K s).simplices
+    have hv' : v ∈ (removeSimplex K s).vertexSet := by
+      rw [Foundations.SimplicialComplex.mem_vertexSet_iff]
+      simp only [removeSimplex, Set.mem_setOf]
+      constructor
+      · rw [Foundations.SimplicialComplex.mem_vertexSet_iff] at hv
+        exact hv
+      · exact hns
+    exact ⟨⟨v, hv'⟩⟩
   -- H¹ = 0 means the 1-skeleton is a forest
   -- Removing simplices can only remove edges
   -- Forest minus edges = still a forest
   -- Therefore H¹ = 0 preserved
+  haveI : Nonempty (removeSimplex K s).vertexSet := h_ne
   rw [H1Characterization.h1_trivial_iff_oneConnected] at h_K ⊢
-  unfold OneConnected at *
-  -- Removing edges from an acyclic graph keeps it acyclic
-  sorry
+  -- Goal: (oneSkeleton (removeSimplex K s)).IsAcyclic
+  -- h_K: (oneSkeleton K).IsAcyclic
+  --
+  -- Use IsAcyclic.comap: construct embedding from (removeSimplex K s) to K
+  -- Key facts:
+  -- 1. Vertices of (removeSimplex K s) are a subset of vertices of K
+  -- 2. Edges in (removeSimplex K s) are edges in K (just with ¬(s ⊆ edge))
+  --
+  -- Construct the vertex embedding
+  have h_vertex_incl : ∀ v : (removeSimplex K s).vertexSet, v.val ∈ K.vertexSet := by
+    intro ⟨v, hv⟩
+    rw [Foundations.SimplicialComplex.mem_vertexSet_iff] at hv ⊢
+    simp only [removeSimplex, Set.mem_setOf] at hv
+    exact hv.1
+  -- Define the embedding function
+  let f : (removeSimplex K s).vertexSet → K.vertexSet := fun v => ⟨v.val, h_vertex_incl v⟩
+  -- Show f is injective
+  have hf_inj : Function.Injective f := by
+    intro ⟨v₁, _⟩ ⟨v₂, _⟩ heq
+    simp only [f, Subtype.mk.injEq] at heq
+    exact Subtype.ext heq
+  -- Show f is a graph homomorphism (preserves adjacency)
+  have hf_hom : ∀ v w : (removeSimplex K s).vertexSet,
+      (oneSkeleton (removeSimplex K s)).Adj v w → (oneSkeleton K).Adj (f v) (f w) := by
+    intro ⟨v, hv⟩ ⟨w, hw⟩ hadj
+    simp only [H1Characterization.oneSkeleton_adj_iff] at hadj ⊢
+    simp only [f]
+    constructor
+    · exact hadj.1
+    · -- Edge {v, w} ∈ (removeSimplex K s).simplices → {v, w} ∈ K.simplices
+      simp only [removeSimplex, Set.mem_setOf] at hadj
+      exact hadj.2.1
+  -- Construct the graph homomorphism
+  let φ : (oneSkeleton (removeSimplex K s)) →g (oneSkeleton K) :=
+    ⟨f, fun {a} {b} => hf_hom a b⟩
+  -- Apply IsAcyclic.comap
+  exact h_K.comap φ hf_inj
 
 /-! ## Part 7: Complexity Analysis -/
 
@@ -332,10 +412,10 @@ theorem incremental_enables_realtime :
 /-! ## Part 9: Practical Update Operations -/
 
 /-- Result of an incremental update check -/
-inductive UpdateResult
-  | safe : UpdateResult           -- Update preserves alignment
-  | unsafe : UpdateResult         -- Update would break alignment
-  | needsCheck : UpdateResult     -- Need deeper analysis
+inductive UpdateResult where
+  | safe            -- Update preserves alignment
+  | wouldBreak      -- Update would break alignment
+  | needsCheck      -- Need deeper analysis
   deriving DecidableEq, Repr
 
 /-- Check if adding a vertex is safe -/
@@ -374,10 +454,10 @@ This is the production API.
 theorem incremental_api_complete :
     -- All four operations have O(local) checks
     (∀ K v neighbors, checkAddVertex K v neighbors ∈ 
-      [UpdateResult.safe, UpdateResult.unsafe, UpdateResult.needsCheck]) ∧
+      [UpdateResult.safe, UpdateResult.wouldBreak, UpdateResult.needsCheck]) ∧
     (∀ K v, checkRemoveVertex K v = UpdateResult.safe) ∧
     (∀ K u v, checkAddEdge K u v ∈ 
-      [UpdateResult.safe, UpdateResult.unsafe, UpdateResult.needsCheck]) ∧
+      [UpdateResult.safe, UpdateResult.wouldBreak, UpdateResult.needsCheck]) ∧
     (∀ K u v, checkRemoveEdge K u v = UpdateResult.safe) := by
   constructor
   · intro K v neighbors
