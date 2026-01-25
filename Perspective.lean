@@ -3,5 +3,4 @@ import Perspective.Alignment
 import Perspective.ValueComplex
 import Perspective.AlignmentEquivalence
 import Perspective.AlignmentTheorem
-import Perspective.ImpossibilityResults
-import Perspective.LinearComplexity
+import Perspective.ImpossibilityStrong
