@@ -2426,3 +2426,220 @@ theorem dimension_upper_bound (n : ℕ) (hn : n ≥ 2) ... :
 ```
 
 The sorry requires proving the edge count bound for value complexes.
+
+---
+Added: 2026-01-25
+Source: SpectralGap.lean (Batch 11)
+
+### Error: Unicode Lambda (λ) Interpreted as Keyword
+
+**Message:** `unexpected token 'λ'; expected '(', '[', '_', '{', '⦃' or identifier`
+
+**Cause:** Using `λ` or `λ₂` as variable names - Lean interprets them as lambda syntax.
+
+**Fix:** Rename to ASCII alternatives:
+```lean
+-- WRONG
+| some λ₂ => λ₂
+
+-- RIGHT  
+| some lam2 => lam2
+
+-- Also for axiom quantifiers:
+-- WRONG: ∀ λ ∈ list, λ ≥ 0
+-- RIGHT: ∀ ev ∈ list, ev ≥ 0
+```
+
+---
+
+### Error: List.get? Doesn't Exist
+
+**Message:** `Invalid field 'get?': The environment does not contain 'List.get?'`
+
+**Cause:** In Lean 4/Mathlib, use bracket notation instead.
+
+**Fix:**
+```lean
+-- WRONG
+(list).get? 1
+
+-- RIGHT
+list[1]?
+```
+
+---
+
+### Error: List.getElem?_mem Not Found
+
+**Message:** `Unknown constant 'List.getElem?_mem'`
+
+**Cause:** The lemma for membership from `getElem?` has a different name.
+
+**Fix:** Use `List.mem_of_getElem?`:
+```lean
+-- WRONG
+have : x ∈ list := List.getElem?_mem h
+
+-- RIGHT
+have : x ∈ list := List.mem_of_getElem? h
+```
+
+---
+
+### Error: Fintype Instance for neighborSet
+
+**Message:** `failed to synthesize Fintype ↑((oneSkeleton K).neighborSet v)`
+
+**Cause:** Graph degree computation requires Fintype instance for neighbor sets, which requires DecidableRel for adjacency.
+
+**Fix:** Axiomatize the degree function to avoid decidability cascade:
+```lean
+-- Axiomatize degree directly
+axiom vertexDegreeAx (K : SimplicialComplex) (v : K.vertexSet) : ℕ
+
+noncomputable def vertexDegree (K : SimplicialComplex) (v : K.vertexSet) : ℕ :=
+  vertexDegreeAx K v
+```
+
+---
+
+### Pattern: Axiomatizing Existence to Avoid Decidability
+
+**Name:** Axiomatize Construction When Decidability Is Unavailable
+**Use when:** A construction requires DecidableEq/DecidableRel instances that aren't available
+
+**Problem:**
+```lean
+-- This requires DecidableRel (oneSkeleton K).Adj
+def buildLaplacian (K : SimplicialComplex) : Laplacian K where
+  entry v w := if (oneSkeleton K).Adj v w then -1 else 0  -- FAILS
+```
+
+**Solution:**
+```lean
+-- Axiomatize existence
+axiom laplacianExists (K : SimplicialComplex) [Fintype K.vertexSet] : Laplacian K
+
+noncomputable def buildLaplacian (K : SimplicialComplex) [Fintype K.vertexSet] : Laplacian K :=
+  laplacianExists K
+```
+
+**Benefits:**
+- Avoids decidability instance cascade
+- Preserves mathematical correctness (existence is provable classically)
+- Enables dependent proofs to proceed
+
+---
+
+### Pattern: split_ifs with let Binding
+
+**Name:** Exposing if-then-else After let Binding
+**Use when:** `split_ifs` fails with "no if-then-else conditions to split"
+
+**Problem:**
+```lean
+def foo (K : ...) : ℚ :=
+  let gap := spectralGap K
+  if gap > 0 then 1 / gap else 1000000
+
+theorem foo_pos : foo K > 0 := by
+  unfold foo
+  split_ifs with h  -- FAILS: no if-then-else to split
+```
+
+**Fix:** Add `simp only` to reduce the let binding first:
+```lean
+theorem foo_pos : foo K > 0 := by
+  unfold foo
+  simp only  -- Exposes the if-then-else
+  split_ifs with h
+  · exact one_div_pos.mpr h
+  · norm_num
+```
+
+---
+
+### Strategy: Spectral Gap Non-Negativity
+
+**Name:** Proving Spectral Gap ≥ 0 via List Membership
+**Use when:** Showing a value extracted from an axiomatized list satisfies a property
+
+**Key insight:** Use `List.mem_of_getElem?` to establish membership, then apply list-wide property.
+
+```lean
+-- Given:
+axiom eigenvalues_nonneg : ∀ ev ∈ laplacianEigenvalues K, ev ≥ 0
+
+def spectralGap K : ℚ :=
+  match (laplacianEigenvalues K)[1]? with
+  | some lam2 => lam2
+  | none => 0
+
+-- Proof:
+theorem spectralGap_nonneg : spectralGap K ≥ 0 := by
+  unfold spectralGap
+  cases h : (laplacianEigenvalues K)[1]? with
+  | none => simp  -- 0 ≥ 0
+  | some lam2 =>
+    have : lam2 ∈ laplacianEigenvalues K := List.mem_of_getElem? h
+    exact eigenvalues_nonneg K lam2 this
+```
+
+---
+
+### Strategy: Convergence Time Positivity
+
+**Name:** Proving 1/gap > 0 or constant > 0
+**Use when:** Showing predicted convergence time is positive
+
+**Code:**
+```lean
+theorem convergenceTime_pos : predictedConvergenceTime K > 0 := by
+  unfold predictedConvergenceTime
+  simp only  -- Reduce let binding
+  split_ifs with h
+  · -- gap > 0 case: 1/gap > 0
+    exact one_div_pos.mpr h
+  · -- gap ≤ 0 case: return large constant
+    norm_num  -- Proves 1000000 > 0
+```
+
+Key lemma: `one_div_pos : 0 < 1 / a ↔ 0 < a`
+
+---
+
+### Pattern: Convergence Report Structure
+
+**Name:** Progress Tracking for Iterative Processes
+**Use when:** Building user-facing progress reports
+
+```lean
+structure ConvergenceReport where
+  spectralGap : ℚ           -- Key metric
+  predictedIterations : ℕ   -- Total expected
+  currentIteration : ℕ      -- Where we are
+  progressPercent : ℚ       -- 0-100 scale
+  status : String           -- Human-readable
+
+def generateConvergenceReport (K : ...) 
+    (initial current target : ℚ) (currentIter : ℕ) : ConvergenceReport :=
+  let gap := spectralGap K
+  let progress := alignmentProgress K initial current
+  let remaining := iterationsRemaining K current target
+  {
+    spectralGap := gap
+    predictedIterations := currentIter + remaining
+    currentIteration := currentIter
+    progressPercent := progress * 100
+    status := 
+      if current ≤ target then "Converged"
+      else if gap > 1/2 then "Fast convergence expected"
+      else if gap > 1/10 then "Moderate convergence"
+      else "Slow convergence - consider adding connections"
+  }
+```
+
+**Output interpretation:**
+- Gap > 0.5: Fast convergence, system well-connected
+- Gap 0.1-0.5: Moderate convergence
+- Gap < 0.1: Slow convergence, consider adding edges

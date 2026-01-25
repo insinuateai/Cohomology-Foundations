@@ -14,3 +14,4 @@ import Perspective.HierarchicalAlignment
 import Perspective.MayerVietoris
 import Perspective.DimensionBound
 import Perspective.Persistence
+import Perspective.SpectralGap
