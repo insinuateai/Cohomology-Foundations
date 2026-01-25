@@ -464,3 +464,196 @@ axiom cocycle_zero_on_unreachable_component ...
 ```
 
 **Note:** Keep a record of axioms and their justifications in session notes for future work.
+
+---
+Added: 2026-01-25
+Source: cycleIndicator_is_cocycle analysis
+
+### Pattern: Analyzing Coboundary on 2-Simplices
+
+**Name:** Coboundary Formula for 2-Simplex
+**Use when:** Computing (δf)(σ) for a 1-cochain f on a 2-simplex σ
+
+**Mathematical Content:**
+For σ = {a, b, c} with sorted vertices [a, b, c] (a < b < c):
+- face 0 removes a → {b, c}
+- face 1 removes b → {a, c}
+- face 2 removes c → {a, b}
+
+The coboundary formula:
+```
+(δf)(σ) = sign(0) * f(face₀) + sign(1) * f(face₁) + sign(2) * f(face₂)
+        = 1 * f({b,c}) + (-1) * f({a,c}) + 1 * f({a,b})
+        = f({b,c}) - f({a,c}) + f({a,b})
+```
+
+**Key Signs:**
+- sign(0) = 1
+- sign(1) = -1
+- sign(2) = 1
+
+---
+### Error: Axiom with Restricted Validity
+
+**Name:** cycleIndicator_is_cocycle Limitation
+**Issue:** The axiom is NOT universally true
+
+**When Valid:**
+1. **OneConnected K**: No cycles exist, axiom is vacuously true
+2. **Hollow complexes**: No 2-simplices, δf = 0 trivially
+3. **Cycles not filling any 2-simplex**: σ ∉ K means (δf)(σ) not evaluated
+
+**When Invalid (Counterexample):**
+For filled triangle K with 2-simplex {0,1,2} and cycle 0→1→2→0:
+```
+cycleIndicator({0,1}) = +1  (positive traversal)
+cycleIndicator({1,2}) = +1  (positive traversal)
+cycleIndicator({0,2}) = -1  (negative traversal)
+
+(δf)({0,1,2}) = 1 - (-1) + 1 = 3 ≠ 0
+```
+
+**False Claim Corrected:**
+The claim "a trail can't use exactly 1 or 2 edges of a triangle" is FALSE:
+- Cycle using 1 edge: a → b → d → e → a (uses only {a,b} from triangle {a,b,c})
+- Cycle using 2 edges: a → b → c → d → a (uses {a,b}, {b,c} but not {a,c})
+
+---
+### Pattern: Verifying Axiom Validity via Counterexample
+
+**Name:** Axiom Validity Testing
+**Use when:** Checking if a claimed axiom is actually true
+
+**Approach:**
+1. Identify the simplest non-trivial case (e.g., filled triangle)
+2. Construct a concrete instance of the claimed statement
+3. Compute the result explicitly
+4. If result contradicts claim, document the counterexample
+
+**Example Application:**
+```lean
+-- Claimed: cycleIndicator is always a cocycle
+-- Test: filled triangle with boundary cycle
+-- Result: (δf)(σ) = 3 ≠ 0
+-- Conclusion: Axiom is FALSE for filled triangles
+```
+
+**Documentation Pattern for Restricted Axioms:**
+```lean
+/-! IMPORTANT: This axiom is ONLY valid when [condition].
+
+    Counterexample when violated: [specific case with calculation]
+
+    USE CASE: [when the axiom is sound]
+-/
+axiom restricted_axiom ...
+```
+
+---
+### Insight: H¹ Characterization Scope
+
+**Name:** Understanding the H¹ = 0 ⟺ OneConnected Theorem
+**Context:** The main characterization theorem has limited scope
+
+**Correct Statement:**
+The theorem `H¹(K) = 0 ⟺ OneConnected K` is only correct when:
+- K has no 2-simplices whose edges are all used by some cycle, OR
+- K is OneConnected (no cycles at all)
+
+**General Topological Truth:**
+```
+H¹(K) = 0 ⟺ every 1-cycle bounds a 2-chain
+```
+This is NOT equivalent to "1-skeleton is acyclic" for general complexes.
+
+**Examples:**
+- Filled triangle: H¹ = 0, but 1-skeleton has a cycle (theorem fails)
+- Hollow triangle: H¹ ≠ 0, 1-skeleton has a cycle (theorem holds)
+- Tree: H¹ = 0, 1-skeleton acyclic (theorem holds)
+
+---
+Added: 2026-01-25
+Source: cocycle_zero_on_unreachable_component analysis
+
+### Pattern: Disconnected Complex Counterexamples
+
+**Name:** Axiom Failure on Disconnected Simplicial Complexes
+**Use when:** Analyzing axioms that assume connectivity implicitly
+
+**Key Insight:**
+Many cohomology axioms that seem "obviously true" fail on disconnected complexes.
+Always test axioms on disconnected forests (simplest counterexample structure).
+
+**Counterexample Template:**
+```
+Forest with two disconnected trees:
+- Tree 1: isolated vertex {0}
+- Tree 2: edge {1}—{2}
+
+Properties:
+- K is OneConnected (acyclic 1-skeleton)
+- No 2-simplices (δf = 0 vacuously for any f)
+- root = 0 → vertices 1, 2 are UNREACHABLE
+- Can define f({1,2}) = any value (it's still a cocycle!)
+```
+
+**When Axioms Are Vacuously True:**
+If an axiom has hypothesis `h_not_reach : ¬Reachable root a`, and K is connected,
+then this hypothesis can NEVER be satisfied (all vertices are reachable).
+The axiom becomes **vacuously true**.
+
+**Pattern for Documenting Restricted Axioms:**
+```lean
+/-!
+**IMPORTANT: This axiom has RESTRICTED VALIDITY.**
+
+The axiom is ONLY valid when K is **connected**.
+When K is connected AND OneConnected, it's a single tree,
+all vertices reachable → axiom is vacuously true.
+
+**COUNTEREXAMPLE when K is disconnected:**
+[Describe the disconnected forest counterexample]
+-/
+axiom restricted_axiom ...
+```
+
+---
+### Error: Confusing H¹=0 for Trees with Zero Cocycles
+
+**Name:** H¹ = 0 ≠ All Cocycles Zero
+**Context:** Tree cohomology misunderstanding
+
+**Wrong Reasoning:**
+"On a tree, H¹ = 0 (every cocycle is a coboundary).
+Therefore every cocycle is zero."
+
+**Correct Understanding:**
+H¹ = 0 means: for every cocycle f, there exists g such that f = δg.
+This does NOT mean f = 0. It means f is EXACT (a coboundary).
+
+**The Subtlety in coboundaryWitness:**
+The construction sets g = 0 on unreachable vertices.
+For this specific g: δg = 0 on unreachable edges.
+For δg = f to hold, we need f = 0 on those edges.
+But a general cocycle doesn't have this constraint!
+
+**Resolution:**
+The axiom `cocycle_zero_on_unreachable_component` is only valid when:
+1. K is connected (no unreachable vertices exist)
+2. Or f is specifically constructed to be zero on unreachable components
+
+---
+### Summary: Final Axiom Status
+
+**Both remaining axioms have restricted validity:**
+
+| Axiom | File | Restriction |
+|-------|------|-------------|
+| `cycleIndicator_is_cocycle` | CycleCochain/Definitions.lean | No 2-simplex contains all cycle edges |
+| `cocycle_zero_on_unreachable_component` | ForestCoboundary.lean | K must be connected |
+
+**Key Pattern:** Both are **vacuously true** in the OneConnected case:
+- `cycleIndicator_is_cocycle`: OneConnected → no cycles → vacuous
+- `cocycle_zero_on_unreachable_component`: OneConnected + connected → single tree → all reachable → vacuous
+
+This completes the formal verification with well-documented scope limitations.

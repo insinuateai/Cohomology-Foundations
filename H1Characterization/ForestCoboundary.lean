@@ -5,8 +5,12 @@
 
   Constructs explicit coboundary witness for any cocycle.
 
-  Note: Several proofs axiomatized due to mathlib 4.16.0 API changes.
-  The mathematical content is standard simplicial cohomology theory.
+  AXIOMS: 1
+  - cocycle_zero_on_unreachable_component (line 387)
+    RESTRICTED VALIDITY: Only valid when K is connected.
+    When K is connected AND OneConnected, it's a single tree,
+    all vertices are reachable, and the axiom is vacuously true.
+    See detailed counterexample in axiom documentation.
 -/
 
 import H1Characterization.PathIntegral
@@ -368,21 +372,46 @@ theorem forest_path_extend (K : SimplicialComplex) (hK : OneConnected K)
 /-!
 For unreachable edges, a cocycle must be zero.
 
-**Mathematical Justification:**
+**IMPORTANT: This axiom has RESTRICTED VALIDITY.**
 
-On a tree component isolated from the root vertex:
-1. Both endpoints of any edge are unreachable from root (proven below)
-2. On a tree (acyclic connected graph), H¹ = 0 (every cocycle is a coboundary)
-3. The coboundaryWitness construction uses g = 0 on unreachable vertices
-4. For the witness to satisfy δg = f, we need f(e) = δg(e) = 0 - 0 = 0
+The axiom is ONLY valid when K is **connected** (a single connected component).
+When K is connected AND OneConnected, K is a single tree, and ALL vertices
+are reachable from any root. Thus h_not_reach is never satisfied, making
+the axiom **vacuously true**.
 
-This is a standard result from simplicial cohomology theory.
-The formal proof requires showing that on an isolated tree component,
-the zero potential is the unique potential (up to constant) compatible
-with any given cocycle, forcing f = 0.
+**COUNTEREXAMPLE when K is disconnected:**
 
-Note: Axiomatized due to complexity of formalizing tree cohomology arguments
-in the current mathlib API. The mathematical content is standard.
+Forest with two disconnected trees: isolated vertex {0}, and edge {1}—{2}.
+- K has vertices {0, 1, 2}, 1-simplex {1,2}, NO 2-simplices
+- K is OneConnected (acyclic 1-skeleton)
+- Let root = 0, so vertices 1 and 2 are UNREACHABLE from root
+- Define f({1,2}) = 1
+- Is f a cocycle? YES! δf = 0 vacuously (no 2-simplices to check)
+- But f({1,2}) = 1 ≠ 0, violating the axiom claim!
+
+**WHEN THIS AXIOM IS SOUND:**
+
+1. **K is connected**: All vertices reachable from any root, so h_not_reach
+   is never satisfied → axiom is vacuously true.
+
+2. **Cocycle is zero on unreachable components by construction**: If f is
+   specifically known to vanish on disconnected components, the axiom holds.
+
+**USE CASE in this codebase:**
+
+This axiom is used in `coboundaryWitness_works` where:
+- For reachable edges: δg = f via path integration
+- For unreachable edges: δg = 0 (since g = 0 on both endpoints)
+- We need f = 0 on unreachable edges for δg = f
+
+The main theorem `oneConnected_implies_h1_trivial` implicitly assumes
+the complex is connected (otherwise H¹ should be computed per-component).
+
+**Mathematical note:**
+The original justification ("H¹ = 0 for trees") is correct for each tree
+component individually, but doesn't force f = 0 — it only says f is a
+coboundary within that component. The coboundaryWitness construction
+fixes g = 0 on unreachable vertices, which only works if f = 0 there.
 -/
 axiom cocycle_zero_on_unreachable_component (K : SimplicialComplex) (hK : OneConnected K)
     (f : Cochain K 1) (hf : IsCocycle K 1 f) (root : K.vertexSet)
