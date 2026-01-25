@@ -1,0 +1,76 @@
+{"synthetic": false,
+ "schemaVersion": "2025-09-10",
+ "outputs":
+ {"o": ["cd776ff38584a1b5.olean"],
+  "i": "8c534138afc8dd15.ilean",
+  "c": "33a6ea82b7fce700.c"},
+ "log":
+ [{"message":
+   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.26.0/bin/lean /workspaces/Cohomology-Foundations/H1Characterization/CycleCochain/Definitions.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/H1Characterization/CycleCochain/Definitions.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/H1Characterization/CycleCochain/Definitions.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/H1Characterization/CycleCochain/Definitions.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/H1Characterization/CycleCochain/Definitions.setup.json --json",
+   "level": "trace"},
+  {"message":
+   "H1Characterization/CycleCochain/Definitions.lean:160:62: This simp argument is unused:\n  or_comm\n\nHint: Omit it from the simp argument list.\n  simp [Finset.mem_insert, Finset.mem_singleton,̵ ̵o̵r̵_̵c̵o̵m̵m̵]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "H1Characterization/CycleCochain/Definitions.lean:166:60: This simp argument is unused:\n  List.getElem_cons_zero\n\nHint: Omit it from the simp argument list.\n  simp only [Simplex.face, h_sort, List.get_eq_getElem,̵ ̵L̵i̵s̵t̵.̵g̵e̵t̵E̵l̵e̵m̵_̵c̵o̵n̵s̵_̵z̵e̵r̵o̵]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "H1Characterization/CycleCochain/Definitions.lean:167:42: This simp argument is unused:\n  Finset.mem_insert\n\nHint: Omit it from the simp argument list.\n  simp only [Finset.mem_erase, F̵i̵n̵s̵e̵t̵.̵m̵e̵m̵_̵i̵n̵s̵e̵r̵t̵,̵ ̵Finset.mem_singleton]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "H1Characterization/CycleCochain/Definitions.lean:177:60: This simp argument is unused:\n  List.getElem_cons_succ\n\nHint: Omit it from the simp argument list.\n  simp only [Simplex.face, h_sort, List.get_eq_getElem, List.getElem_cons_s̵u̵c̵c̵,̵\n  ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵L̵i̵s̵t̵.̵g̵e̵t̵E̵l̵e̵m̵_̵c̵o̵n̵s̵_̵zero]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "H1Characterization/CycleCochain/Definitions.lean:178:17: This simp argument is unused:\n  List.getElem_cons_zero\n\nHint: Omit it from the simp argument list.\n  simp only [Simplex.face, h_sort, List.get_eq_getElem, List.getElem_cons_succ,̵\n  ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵L̵i̵s̵t̵.̵g̵e̵t̵E̵l̵e̵m̵_̵c̵o̵n̵s̵_̵z̵e̵r̵o̵]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "H1Characterization/CycleCochain/Definitions.lean:179:42: This simp argument is unused:\n  Finset.mem_insert\n\nHint: Omit it from the simp argument list.\n  simp only [Finset.mem_erase, F̵i̵n̵s̵e̵t̵.̵m̵e̵m̵_̵i̵n̵s̵e̵r̵t̵,̵ ̵Finset.mem_singleton]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "H1Characterization/CycleCochain/Definitions.lean:229:60: This simp argument is unused:\n  List.getElem_cons_zero\n\nHint: Omit it from the simp argument list.\n  simp only [Simplex.face, h_sort, List.get_eq_getElem,̵ ̵L̵i̵s̵t̵.̵g̵e̵t̵E̵l̵e̵m̵_̵c̵o̵n̵s̵_̵z̵e̵r̵o̵]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "H1Characterization/CycleCochain/Definitions.lean:230:42: This simp argument is unused:\n  Finset.mem_insert\n\nHint: Omit it from the simp argument list.\n  simp only [Finset.mem_erase, F̵i̵n̵s̵e̵t̵.̵m̵e̵m̵_̵i̵n̵s̵e̵r̵t̵,̵ ̵Finset.mem_singleton]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "H1Characterization/CycleCochain/Definitions.lean:240:60: This simp argument is unused:\n  List.getElem_cons_succ\n\nHint: Omit it from the simp argument list.\n  simp only [Simplex.face, h_sort, List.get_eq_getElem, List.getElem_cons_s̵u̵c̵c̵,̵\n  ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵L̵i̵s̵t̵.̵g̵e̵t̵E̵l̵e̵m̵_̵c̵o̵n̵s̵_̵zero]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "H1Characterization/CycleCochain/Definitions.lean:241:17: This simp argument is unused:\n  List.getElem_cons_zero\n\nHint: Omit it from the simp argument list.\n  simp only [Simplex.face, h_sort, List.get_eq_getElem, List.getElem_cons_succ,̵\n  ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵L̵i̵s̵t̵.̵g̵e̵t̵E̵l̵e̵m̵_̵c̵o̵n̵s̵_̵z̵e̵r̵o̵]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "H1Characterization/CycleCochain/Definitions.lean:242:42: This simp argument is unused:\n  Finset.mem_insert\n\nHint: Omit it from the simp argument list.\n  simp only [Finset.mem_erase, F̵i̵n̵s̵e̵t̵.̵m̵e̵m̵_̵i̵n̵s̵e̵r̵t̵,̵ ̵Finset.mem_singleton]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "H1Characterization/CycleCochain/Definitions.lean:322:27: unused variable `hcd`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "H1Characterization/CycleCochain/Definitions.lean:407:22: This simp argument is unused:\n  ite_false\n\nHint: Omit it from the simp argument list.\n  simp only [hqa,̵ ̵i̵t̵e̵_̵f̵a̵l̵s̵e̵]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "H1Characterization/CycleCochain/Definitions.lean:413:24: This simp argument is unused:\n  ite_false\n\nHint: Omit it from the simp argument list.\n  simp only [hpa,̵ ̵i̵t̵e̵_̵f̵a̵l̵s̵e̵]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"}],
+ "inputs":
+ [["H1Characterization.CycleCochain.Definitions:deps",
+   [["deps",
+     [["CohomologyFoundations/H1Characterization:extraDep",
+       [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
+      ["imports",
+       [["H1Characterization.OneConnected transitive imports (legacy)",
+         "32c972ab303520d0"],
+        ["H1Characterization.OneConnected:importAllArts",
+         "bd61ef003b4d9679"]]]]],
+    ["libs",
+     [["import dynlibs", "00000000000006bb"],
+      ["package external libraries", "00000000000006bb"],
+      ["module dynlibs", "00000000000006bb"],
+      ["module plugins", "00000000000006bb"]]]]],
+  ["Lean 4.26.0, commit d8204c9fd894f91bbb2cdfec5912ec8196fd8562",
+   "9c9419104e9584f8"],
+  ["/workspaces/Cohomology-Foundations/H1Characterization/CycleCochain/Definitions.lean",
+   "8389fda1444e7bb7"],
+  ["options",
+   [["-Dpp.unicode.fun=true", "9b94070140457fab"],
+    ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
+  ["Module.leanArgs: #[]", "00000000000006bb"]],
+ "depHash": "111bc899e85679d7"}
