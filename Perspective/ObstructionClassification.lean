@@ -45,6 +45,8 @@ namespace ObstructionClassification
 open Foundations (Cochain IsCocycle IsCoboundary H1Trivial coboundary Simplex SimplicialComplex Vertex)
 open H1Characterization (OneConnected oneSkeleton)
 open Perspective (ValueSystem Reconciles valueComplex ConflictWitness)
+open Classical in
+attribute [local instance] propDecidable
 
 variable {S : Type*} [Fintype S] [DecidableEq S]
 
@@ -76,10 +78,10 @@ def hasCyclicObstruction (K : SimplicialComplex) [Nonempty K.vertexSet] : Prop :
   ¬(oneSkeleton K).IsAcyclic
 
 /-- Check if the complex is disconnected -/
-def hasDisconnectedObstruction (K : SimplicialComplex) 
-    [Fintype K.vertexSet] [DecidableEq K.vertexSet] 
+def hasDisconnectedObstruction (K : SimplicialComplex)
+    [Fintype K.vertexSet] [DecidableEq K.vertexSet]
     [DecidableRel (oneSkeleton K).Adj] : Prop :=
-  (oneSkeleton K).connectedComponentFinset.card > 1
+  Fintype.card (oneSkeleton K).ConnectedComponent > 1
 
 /-- Check if there's a dimensional obstruction (H¹ ≠ 0 but no cycle) -/
 def hasDimensionalObstruction (K : SimplicialComplex) [Nonempty K.vertexSet] : Prop :=
@@ -146,7 +148,7 @@ def CyclicObstructionWitness.involvedAgents {K : SimplicialComplex} [Nonempty K.
     (w : CyclicObstructionWitness K) : List K.vertexSet :=
   w.cycle.involvedVertices
 
-/-- 
+/--
 THEOREM: Cyclic obstructions involve at least 3 agents.
 
 A cycle needs at least 3 vertices.
@@ -154,8 +156,13 @@ A cycle needs at least 3 vertices.
 theorem cyclic_obstruction_min_size (K : SimplicialComplex) [Nonempty K.vertexSet]
     (w : CyclicObstructionWitness K) :
     w.cycle.size ≥ 3 := by
-  -- A cycle has length ≥ 3
-  exact w.cycle.nontrivial
+  -- A cycle has length ≥ 3 (by definition of IsCycle in Mathlib)
+  have h := w.cycle.is_cycle
+  have hlen := SimpleGraph.Walk.IsCycle.three_le_length h
+  -- support.length = length + 1 for a walk
+  have hsup := SimpleGraph.Walk.length_support w.cycle.cycle
+  unfold ConflictWitness.size
+  omega
 
 /-! ## Part 5: Disconnection Analysis -/
 
@@ -172,7 +179,7 @@ structure DisconnectionWitness (K : SimplicialComplex)
 def countComponents (K : SimplicialComplex)
     [Fintype K.vertexSet] [DecidableEq K.vertexSet]
     [DecidableRel (oneSkeleton K).Adj] : ℕ :=
-  (oneSkeleton K).connectedComponentFinset.card
+  Fintype.card (oneSkeleton K).ConnectedComponent
 
 /--
 THEOREM: Disconnection means ≥2 components.
@@ -218,15 +225,17 @@ def diagnose (t : ObstructionType) (agents : List ℕ) : ObstructionDiagnosis :=
 
 /-! ## Part 7: Classification Algorithm -/
 
-/-- 
+/--
 Classify the obstruction type for a given complex.
 
 Returns the type and relevant diagnostic information.
+
+Note: Uses classical reasoning since checking IsAcyclic is not decidable in general.
 -/
-def classifyObstruction (K : SimplicialComplex)
+noncomputable def classifyObstruction (K : SimplicialComplex)
     [Nonempty K.vertexSet] [Fintype K.vertexSet]
     [DecidableEq K.vertexSet] [DecidableRel (oneSkeleton K).Adj]
-    (h : ¬H1Trivial K) : ObstructionType :=
+    (_h : ¬H1Trivial K) : ObstructionType :=
   if hasCyclicObstruction K then
     ObstructionType.cyclic
   else if hasDisconnectedObstruction K then
@@ -244,24 +253,18 @@ theorem classifyObstruction_correct (K : SimplicialComplex)
     (t = ObstructionType.disconnected → hasDisconnectedObstruction K) ∧
     (t = ObstructionType.dimensional → hasDimensionalObstruction K) := by
   simp only [classifyObstruction]
-  constructor
-  · intro ht
-    split_ifs at ht with hc hd
-    · exact hc
-    · contradiction
-    · contradiction
-  constructor
-  · intro ht
-    split_ifs at ht with hc hd
-    · contradiction
-    · exact hd
-    · contradiction
-  · intro ht
-    split_ifs at ht with hc hd
-    · contradiction
-    · contradiction
-    · unfold hasDimensionalObstruction
-      exact ⟨h, hc⟩
+  split_ifs with hc hd
+  · -- Case: hasCyclicObstruction K is true
+    refine ⟨fun _ => hc, ?_, ?_⟩ <;> intro h' <;> cases h'
+  · -- Case: hasCyclicObstruction K is false, hasDisconnectedObstruction K is true
+    refine ⟨?_, fun _ => hd, ?_⟩ <;> intro h' <;> cases h'
+  · -- Case: both false (dimensional)
+    -- hc : ¬hasCyclicObstruction K = ¬¬(oneSkeleton K).IsAcyclic
+    -- Need to convert to (oneSkeleton K).IsAcyclic
+    have hac : (oneSkeleton K).IsAcyclic := by
+      unfold hasCyclicObstruction at hc
+      exact not_not.mp hc
+    refine ⟨?_, ?_, fun _ => ⟨h, hac⟩⟩ <;> intro h' <;> cases h'
 
 /-! ## Part 8: Resolution Strategies by Type -/
 
@@ -333,7 +336,7 @@ theorem complete_diagnostic_pipeline (K : SimplicialComplex)
   let t := classifyObstruction K h
   use diagnose t []
   unfold diagnose ObstructionType.severity
-  cases t <;> simp <;> omega
+  cases t <;> simp
 
 /--
 MARKETING THEOREM: "Complete Taxonomy of Alignment Failures"

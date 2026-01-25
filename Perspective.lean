@@ -8,3 +8,4 @@ import Perspective.ConflictLocalization
 import Perspective.ConflictResolution
 import Perspective.AgentCoordination
 import Perspective.Stability
+import Perspective.ObstructionClassification

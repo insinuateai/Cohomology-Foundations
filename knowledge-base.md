@@ -1564,3 +1564,142 @@ def computeMonitoringStatus (systems : Fin n → ValueSystem S) (ε : ℚ)
 **Business Value:**
 - One-time check: "Is it aligned?" → single sale
 - Monitoring: "How aligned? When will it break?" → subscription revenue
+
+---
+Added: 2026-01-25
+Source: ObstructionClassification.lean (Batch 5)
+
+### Pattern: Classical Decidability for Non-Decidable Props
+
+**Name:** Using Classical.propDecidable for if-then-else
+**Use when:** You need to use `if p then ... else ...` where `p` is not decidable
+
+**Problem:**
+```lean
+def classify (K : SimplicialComplex) : ObstructionType :=
+  if hasCyclicObstruction K then ...  -- ERROR: Decidable instance not found
+```
+
+**Fix:**
+```lean
+open Classical in
+attribute [local instance] propDecidable
+
+noncomputable def classify (K : SimplicialComplex) : ObstructionType :=
+  if hasCyclicObstruction K then ...  -- OK
+```
+
+**Note:** Must mark the definition `noncomputable` since Classical.propDecidable uses choice.
+
+---
+### Pattern: Double Negation for hasCyclicObstruction
+
+**Name:** Converting ¬¬IsAcyclic to IsAcyclic
+**Use when:** After classical `if` on `hasCyclicObstruction`, the false branch gives `¬hasCyclicObstruction K`
+
+**Problem:**
+```lean
+split_ifs with hc hd
+· -- Case: hc : hasCyclicObstruction K
+· -- Case: hc : ¬hasCyclicObstruction K (need IsAcyclic!)
+  exact ⟨h, hc⟩  -- ERROR: hc has type ¬hasCyclicObstruction K, not IsAcyclic
+```
+
+**Fix:**
+```lean
+have hac : (oneSkeleton K).IsAcyclic := by
+  unfold hasCyclicObstruction at hc
+  -- hc : ¬¬(oneSkeleton K).IsAcyclic
+  exact not_not.mp hc
+refine ⟨h, hac⟩
+```
+
+**Explanation:**
+`hasCyclicObstruction K` is defined as `¬(oneSkeleton K).IsAcyclic`.
+So `¬hasCyclicObstruction K = ¬¬IsAcyclic`, which requires `not_not.mp` to eliminate.
+
+---
+### Pattern: Walk Support Length for Cycle Size
+
+**Name:** Proving cycle.support.length ≥ 3 from IsCycle
+**Use when:** Proving minimum size of cycles using support
+
+**Problem:**
+```lean
+theorem cyclic_obstruction_min_size (w : CyclicObstructionWitness K) :
+    w.cycle.size ≥ 3 := by  -- size = support.length
+  exact w.cycle.nontrivial  -- ERROR: nontrivial gives length > 0, not support.length ≥ 3
+```
+
+**Fix:**
+```lean
+theorem cyclic_obstruction_min_size (w : CyclicObstructionWitness K) :
+    w.cycle.size ≥ 3 := by
+  have h := w.cycle.is_cycle
+  have hlen := SimpleGraph.Walk.IsCycle.three_le_length h  -- length ≥ 3
+  have hsup := SimpleGraph.Walk.length_support w.cycle.cycle  -- support.length = length + 1
+  unfold ConflictWitness.size
+  omega  -- support.length = length + 1 ≥ 3 + 1 = 4 ≥ 3
+```
+
+**Key Lemmas:**
+- `Walk.IsCycle.three_le_length : p.IsCycle → 3 ≤ p.length`
+- `Walk.length_support : p.support.length = p.length + 1`
+
+---
+### Strategy: Obstruction Classification Trichotomy
+
+**Name:** Complete Classification of H¹ Obstructions
+**Use when:** Proving that any cohomology obstruction falls into one of three categories
+
+**Mathematical Content:**
+When H¹(K) ≠ 0, the obstruction can be classified as:
+1. **Cyclic:** 1-skeleton has a cycle (most common)
+2. **Disconnected:** 1-skeleton has multiple components with incompatible boundaries
+3. **Dimensional:** H¹ ≠ 0 but 1-skeleton is acyclic (rare, higher-order)
+
+**Proof Pattern:**
+```lean
+theorem obstruction_trichotomy (K : SimplicialComplex) (h : ¬H1Trivial K) :
+    hasCyclicObstruction K ∨ hasDisconnectedObstruction K ∨ hasDimensionalObstruction K := by
+  by_cases hc : hasCyclicObstruction K
+  · left; exact hc
+  · right
+    by_cases hd : hasDisconnectedObstruction K
+    · left; exact hd
+    · right
+      -- Dimensional: H¹ ≠ 0 but acyclic
+      exact ⟨h, not_not.mp hc⟩
+```
+
+**Key Insight:** The dimensional case is defined as the complement of the first two:
+`hasDimensionalObstruction K := ¬H1Trivial K ∧ (oneSkeleton K).IsAcyclic`
+
+---
+### Pattern: Fintype.card for Connected Components
+
+**Name:** Counting Connected Components in Mathlib 4
+**Use when:** Checking if a graph has multiple connected components
+
+**Old API (doesn't exist):**
+```lean
+(oneSkeleton K).connectedComponentFinset.card  -- ERROR: not found
+```
+
+**Current API:**
+```lean
+Fintype.card (oneSkeleton K).ConnectedComponent  -- Correct
+```
+
+**Required import:**
+```lean
+import Mathlib.Combinatorics.SimpleGraph.Connectivity.WalkCounting
+```
+
+**Usage:**
+```lean
+def hasDisconnectedObstruction (K : SimplicialComplex)
+    [Fintype K.vertexSet] [DecidableEq K.vertexSet]
+    [DecidableRel (oneSkeleton K).Adj] : Prop :=
+  Fintype.card (oneSkeleton K).ConnectedComponent > 1
+```

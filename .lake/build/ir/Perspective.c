@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Perspective
-// Imports: public import Init public import Perspective.ValueSystem public import Perspective.Alignment public import Perspective.ValueComplex public import Perspective.AlignmentEquivalence public import Perspective.AlignmentTheorem public import Perspective.ImpossibilityStrong public import Perspective.ConflictLocalization public import Perspective.ConflictResolution public import Perspective.AgentCoordination public import Perspective.Stability
+// Imports: public import Init public import Perspective.ValueSystem public import Perspective.Alignment public import Perspective.ValueComplex public import Perspective.AlignmentEquivalence public import Perspective.AlignmentTheorem public import Perspective.ImpossibilityStrong public import Perspective.ConflictLocalization public import Perspective.ConflictResolution public import Perspective.AgentCoordination public import Perspective.Stability public import Perspective.ObstructionClassification
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -24,6 +24,7 @@ lean_object* initialize_Perspective_ConflictLocalization(uint8_t builtin);
 lean_object* initialize_Perspective_ConflictResolution(uint8_t builtin);
 lean_object* initialize_Perspective_AgentCoordination(uint8_t builtin);
 lean_object* initialize_Perspective_Stability(uint8_t builtin);
+lean_object* initialize_Perspective_ObstructionClassification(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Perspective(uint8_t builtin) {
 lean_object * res;
@@ -60,6 +61,9 @@ res = initialize_Perspective_AgentCoordination(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Perspective_Stability(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Perspective_ObstructionClassification(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
