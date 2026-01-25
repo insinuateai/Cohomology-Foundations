@@ -1,6 +1,6 @@
 {"plugins": [],
  "options": {"pp.unicode.fun": true, "autoImplicit": false},
- "name": "Perspective",
+ "name": "Perspective.MayerVietoris",
  "isModule": false,
  "importArts":
  {"Qq.Typ":
@@ -176,8 +176,6 @@
   ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/Stability.olean"],
   "Perspective.ObstructionClassification":
   ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/ObstructionClassification.olean"],
-  "Perspective.MayerVietoris":
-  ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/MayerVietoris.olean"],
   "Perspective.IncrementalUpdates":
   ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/IncrementalUpdates.olean"],
   "Perspective.ImpossibilityStrong":
