@@ -24,8 +24,8 @@
          "da071e1c594675c2"],
         ["Perspective.ValueComplex:importAllArts", "36777303cce086de"],
         ["Perspective.AlignmentEquivalence transitive imports (legacy)",
-         "d70b4c5ff9639a67"],
-        ["Perspective.AlignmentEquivalence:importAllArts", "7b6b836cb5fddccc"],
+         "a7e569e6f7571dd8"],
+        ["Perspective.AlignmentEquivalence:importAllArts", "fc1d4c63b9e40604"],
         ["Perspective.AlignmentTheorem transitive imports (legacy)",
          "0444858c64d49518"],
         ["Perspective.AlignmentTheorem:importAllArts", "e115d66330e3ce9e"]]]]],
@@ -41,4 +41,4 @@
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "a8f9630152db0ff1"}
+ "depHash": "fef18edf297abf07"}

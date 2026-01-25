@@ -1,8 +1,8 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["7c3640a7600d7793.olean"],
-  "i": "fa1c0f4194310c31.ilean",
+ {"o": ["854963b479f67d68.olean"],
+  "i": "debe384e3ad08504.ilean",
   "c": "1f5073286381d5b4.c"},
  "log":
  [{"message":
@@ -45,19 +45,22 @@
    "Perspective/AlignmentEquivalence.lean:815:47: unused variable `hε`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/AlignmentEquivalence.lean:990:0: automatically included section variable(s) unused in theorem `Perspective.reconciliation_implies_h1_zero_simple_case`:\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "Perspective/AlignmentEquivalence.lean:924:8: declaration uses 'sorry'",
    "level": "warning"},
   {"message":
-   "Perspective/AlignmentEquivalence.lean:990:60: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/AlignmentEquivalence.lean:1020:0: automatically included section variable(s) unused in theorem `Perspective.reconciliation_implies_h1_zero_simple_case`:\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
    "level": "warning"},
   {"message":
-   "Perspective/AlignmentEquivalence.lean:991:47: unused variable `hε`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/AlignmentEquivalence.lean:1020:60: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/AlignmentEquivalence.lean:992:25: unused variable `hR`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/AlignmentEquivalence.lean:1021:47: unused variable `hε`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/AlignmentEquivalence.lean:1006:0: automatically included section variable(s) unused in theorem `Perspective.three_system_path_alignable`:\n  [Fintype S]\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [Fintype S] [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "Perspective/AlignmentEquivalence.lean:1022:25: unused variable `hR`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/AlignmentEquivalence.lean:1036:0: automatically included section variable(s) unused in theorem `Perspective.three_system_path_alignable`:\n  [Fintype S]\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [Fintype S] [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
    "level": "warning"}],
  "inputs":
  [["Perspective.AlignmentEquivalence:deps",
@@ -95,7 +98,7 @@
         ["H1Characterization.ForestCoboundary transitive imports (legacy)",
          "8d872e03a62ade68"],
         ["H1Characterization.ForestCoboundary:importAllArts",
-         "42322add7a772b49"]]]]],
+         "cfd637be2d306991"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
@@ -104,9 +107,9 @@
   ["Lean 4.26.0, commit d8204c9fd894f91bbb2cdfec5912ec8196fd8562",
    "9c9419104e9584f8"],
   ["/workspaces/Cohomology-Foundations/Perspective/AlignmentEquivalence.lean",
-   "957157b89310b28b"],
+   "fce3ac144d00f9dc"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "f820f98bb1774e9d"}
+ "depHash": "79c8634815c9099b"}
