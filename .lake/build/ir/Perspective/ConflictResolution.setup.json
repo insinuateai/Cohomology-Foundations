@@ -1,6 +1,6 @@
 {"plugins": [],
  "options": {"pp.unicode.fun": true, "autoImplicit": false},
- "name": "Perspective",
+ "name": "Perspective.ConflictResolution",
  "isModule": false,
  "importArts":
  {"Qq.Typ":
@@ -174,8 +174,6 @@
   ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/ValueComplex.olean"],
   "Perspective.ImpossibilityStrong":
   ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/ImpossibilityStrong.olean"],
-  "Perspective.ConflictResolution":
-  ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/ConflictResolution.olean"],
   "Perspective.ConflictLocalization":
   ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/ConflictLocalization.olean"],
   "Perspective.AlignmentTheorem":

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Perspective
-// Imports: public import Init public import Perspective.ValueSystem public import Perspective.Alignment public import Perspective.ValueComplex public import Perspective.AlignmentEquivalence public import Perspective.AlignmentTheorem public import Perspective.ImpossibilityStrong public import Perspective.ConflictLocalization
+// Imports: public import Init public import Perspective.ValueSystem public import Perspective.Alignment public import Perspective.ValueComplex public import Perspective.AlignmentEquivalence public import Perspective.AlignmentTheorem public import Perspective.ImpossibilityStrong public import Perspective.ConflictLocalization public import Perspective.ConflictResolution
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -21,6 +21,7 @@ lean_object* initialize_Perspective_AlignmentEquivalence(uint8_t builtin);
 lean_object* initialize_Perspective_AlignmentTheorem(uint8_t builtin);
 lean_object* initialize_Perspective_ImpossibilityStrong(uint8_t builtin);
 lean_object* initialize_Perspective_ConflictLocalization(uint8_t builtin);
+lean_object* initialize_Perspective_ConflictResolution(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Perspective(uint8_t builtin) {
 lean_object * res;
@@ -48,6 +49,9 @@ res = initialize_Perspective_ImpossibilityStrong(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Perspective_ConflictLocalization(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Perspective_ConflictResolution(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
