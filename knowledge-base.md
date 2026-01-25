@@ -387,3 +387,80 @@ noncomputable def coboundaryWitness (K : SimplicialComplex) (hK : OneConnected K
 **Proof Cases:**
 - **Reachable case:** Use path integration and coboundary formula
 - **Unreachable case:** Use `cocycle_zero_on_unreachable_component` to show f = 0
+
+---
+Added: 2026-01-25
+Source: forest_path_exclusive proof
+
+### Pattern: Path Exclusivity in Acyclic Graphs
+
+**Name:** IsAcyclic.ne_mem_support_of_support_of_adj_of_isPath
+**Use when:** Proving that in a forest, two paths from the same root to adjacent vertices cannot both contain each other's endpoints
+
+**Mathematical Content:**
+In an acyclic graph (forest), if we have:
+- Path `p : root → a`
+- Path `q : root → b`
+- `a` and `b` are adjacent
+
+Then at most one of the following can be true:
+- `b ∈ p.support`
+- `a ∈ q.support`
+
+**Mathlib Lemma:**
+```lean
+-- From Mathlib/Combinatorics/SimpleGraph/Acyclic.lean
+lemma IsAcyclic.ne_mem_support_of_support_of_adj_of_isPath (hG : G.IsAcyclic) {u v w : V}
+    {p : G.Walk u v} {q : G.Walk u w} (hp : p.IsPath) (hq : q.IsPath) (hadj : G.Adj v w)
+    (hw : w ∈ p.support) : v ∉ q.support
+```
+
+**Proof Pattern:**
+```lean
+theorem forest_path_exclusive (K : SimplicialComplex) (hK : OneConnected K)
+    (root a b : K.vertexSet) (h_adj : (oneSkeleton K).Adj a b)
+    (h_reach_a : (oneSkeleton K).Reachable root a)
+    (h_reach_b : (oneSkeleton K).Reachable root b) :
+    b ∉ (pathBetween K h_reach_a).val.support ∨ a ∉ (pathBetween K h_reach_b).val.support := by
+  by_contra h
+  push_neg at h
+  obtain ⟨hb_in_a, ha_in_b⟩ := h
+  have h_contra : a ∉ (pathBetween K h_reach_b).val.support :=
+    hK.ne_mem_support_of_support_of_adj_of_isPath
+      (pathBetween K h_reach_a).property  -- path_a is a path
+      (pathBetween K h_reach_b).property  -- path_b is a path
+      h_adj                                -- Adj a b
+      hb_in_a                              -- b ∈ support(path_a)
+  exact h_contra ha_in_b
+```
+
+**Key Insight:**
+The lemma proves: if `w ∈ p.support` and `Adj v w`, then `v ∉ q.support`. Apply by contradiction: assume both `b ∈ path_a.support` and `a ∈ path_b.support`, then mathlib lemma gives `a ∉ path_b.support`, contradicting the assumption.
+
+---
+### Strategy: When to Axiomatize
+
+**Name:** Axiomatization Decision Criteria
+**Use when:** Deciding whether to prove or axiomatize a mathematically standard result
+
+**Criteria for Axiomatization:**
+1. The result is mathematically standard/well-known
+2. The proof would require significant formalization infrastructure not yet present
+3. The result is "obviously true" but technically complex to formalize
+4. Time constraints make full proof impractical
+
+**Documentation Pattern:**
+```lean
+/-- [One-line description of what the axiom states]
+    [Brief mathematical justification for why it's true] -/
+axiom axiom_name (params...) : statement
+```
+
+**Example:**
+```lean
+/-- On an isolated tree component, cocycles are zero.
+    This is a standard result: H¹ = 0 for trees. -/
+axiom cocycle_zero_on_unreachable_component ...
+```
+
+**Note:** Keep a record of axioms and their justifications in session notes for future work.

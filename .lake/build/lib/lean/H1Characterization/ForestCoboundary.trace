@@ -1,8 +1,8 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["fc4637efd4bc4a6d.olean"],
-  "i": "3d0c644f895ad173.ilean",
+ {"o": ["d50c725f8378da04.olean"],
+  "i": "24738369d572e958.ilean",
   "c": "7cacf4da22101fee.c"},
  "log":
  [{"message":
@@ -45,13 +45,10 @@
    "H1Characterization/ForestCoboundary.lean:312:13: This simp argument is unused:\n  Subtype.coe_mk\n\nHint: Omit it from the simp argument list.\n  simp only [̵S̵u̵b̵t̵y̵p̵e̵.̵c̵o̵e̵_̵m̵k̵]̵ ̵at h_eq\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
    "level": "warning"},
   {"message":
-   "H1Characterization/ForestCoboundary.lean:342:8: declaration uses 'sorry'",
+   "H1Characterization/ForestCoboundary.lean:448:37: This simp argument is unused:\n  pathIntegral_well_defined K hK f\n\nHint: Omit it from the simp argument list.\n  simp only [dif_pos h_reach_a',̵ ̵p̵a̵t̵h̵I̵n̵t̵e̵g̵r̵a̵l̵_̵w̵e̵l̵l̵_̵d̵e̵f̵i̵n̵e̵d̵ ̵K̵ ̵h̵K̵ ̵f̵]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
    "level": "warning"},
   {"message":
-   "H1Characterization/ForestCoboundary.lean:398:8: declaration uses 'sorry'",
-   "level": "warning"},
-  {"message":
-   "H1Characterization/ForestCoboundary.lean:522:8: declaration uses 'sorry'",
+   "H1Characterization/ForestCoboundary.lean:452:37: This simp argument is unused:\n  pathIntegral_well_defined K hK f\n\nHint: Omit it from the simp argument list.\n  simp only [dif_pos h_reach_b',̵ ̵p̵a̵t̵h̵I̵n̵t̵e̵g̵r̵a̵l̵_̵w̵e̵l̵l̵_̵d̵e̵f̵i̵n̵e̵d̵ ̵K̵ ̵h̵K̵ ̵f̵]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
    "level": "warning"}],
  "inputs":
  [["H1Characterization.ForestCoboundary:deps",
@@ -74,9 +71,9 @@
   ["Lean 4.26.0, commit d8204c9fd894f91bbb2cdfec5912ec8196fd8562",
    "9c9419104e9584f8"],
   ["/workspaces/Cohomology-Foundations/H1Characterization/ForestCoboundary.lean",
-   "5f54e9d54268d44c"],
+   "8c4e9133b86ab1eb"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "0b802fa73a8f58c9"}
+ "depHash": "efe07ded17379755"}
