@@ -1,0 +1,73 @@
+{"synthetic": false,
+ "schemaVersion": "2025-09-10",
+ "outputs":
+ {"o": ["16e1eabe3728c10e.olean"],
+  "i": "7653d4c9c5829440.ilean",
+  "c": "3099bd0b7b15dbd9.c"},
+ "log":
+ [{"message":
+   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.26.0/bin/lean /workspaces/Cohomology-Foundations/Perspective/InformationBound.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/InformationBound.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/InformationBound.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/InformationBound.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/InformationBound.setup.json --json",
+   "level": "trace"},
+  {"message":
+   "Perspective/InformationBound.lean:78:0: automatically included section variable(s) unused in theorem `InformationBound.absCorrelation_nonneg`:\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/InformationBound.lean:82:0: automatically included section variable(s) unused in theorem `InformationBound.absCorrelation_symm`:\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/InformationBound.lean:122:0: automatically included section variable(s) unused in theorem `InformationBound.sharedInfo_nonneg`:\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/InformationBound.lean:125:8: This simp argument is unused:\n  le_min_iff\n\nHint: Omit it from the simp argument list.\n  simp [le_mi̵n̵_̵i̵f̵f̵,̵ ̵l̵e̵_̵m̵ax_iff]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/InformationBound.lean:125:20: This simp argument is unused:\n  le_max_iff\n\nHint: Omit it from the simp argument list.\n  simp [le_min_iff,̵ ̵l̵e̵_̵m̵a̵x̵_̵i̵f̵f̵]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/InformationBound.lean:128:0: automatically included section variable(s) unused in theorem `InformationBound.sharedInfo_le_one`:\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/InformationBound.lean:178:24: This simp argument is unused:\n  le_max_iff\n\nHint: Omit it from the simp argument list.\n  simp [̵l̵e̵_̵m̵a̵x̵_̵i̵f̵f̵,̵ ̵l̵e̵_̵m̵i̵n̵_̵i̵f̵f̵]̵[̲l̲e̲_̲m̲i̲n̲_̲i̲f̲f̲]̲\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/InformationBound.lean:178:36: This simp argument is unused:\n  le_min_iff\n\nHint: Omit it from the simp argument list.\n  simp [le_max_iff,̵ ̵l̵e̵_̵m̵i̵n̵_̵i̵f̵f̵]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/InformationBound.lean:193:8: declaration uses 'sorry'",
+   "level": "warning"},
+  {"message":
+   "Perspective/InformationBound.lean:228:0: automatically included section variable(s) unused in theorem `InformationBound.informationGap_nonneg`:\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/InformationBound.lean:232:0: automatically included section variable(s) unused in theorem `InformationBound.zero_gap_implies_feasible`:\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/InformationBound.lean:299:38: unused variable `S'`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"}],
+ "inputs":
+ [["Perspective.InformationBound:deps",
+   [["deps",
+     [["CohomologyFoundations/Perspective:extraDep",
+       [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
+      ["imports",
+       [["Perspective.SpectralGap transitive imports (legacy)",
+         "b340528730b073ea"],
+        ["Perspective.SpectralGap:importAllArts", "65fb91ca29755635"],
+        ["H1Characterization.Characterization transitive imports (legacy)",
+         "1ceb156b65f4c1d3"],
+        ["H1Characterization.Characterization:importAllArts",
+         "db91a8fda58a7315"]]]]],
+    ["libs",
+     [["import dynlibs", "00000000000006bb"],
+      ["package external libraries", "00000000000006bb"],
+      ["module dynlibs", "00000000000006bb"],
+      ["module plugins", "00000000000006bb"]]]]],
+  ["Lean 4.26.0, commit d8204c9fd894f91bbb2cdfec5912ec8196fd8562",
+   "9c9419104e9584f8"],
+  ["/workspaces/Cohomology-Foundations/Perspective/InformationBound.lean",
+   "1e0156a97664c91b"],
+  ["options",
+   [["-Dpp.unicode.fun=true", "9b94070140457fab"],
+    ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
+  ["Module.leanArgs: #[]", "00000000000006bb"]],
+ "depHash": "38b8afaccafabcd5"}

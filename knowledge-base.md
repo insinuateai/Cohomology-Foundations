@@ -2643,3 +2643,183 @@ def generateConvergenceReport (K : ...)
 - Gap > 0.5: Fast convergence, system well-connected
 - Gap 0.1-0.5: Moderate convergence
 - Gap < 0.1: Slow convergence, consider adding edges
+
+---
+Added: 2026-01-25
+Source: Batch 12 - InformationBound.lean
+
+### Pattern: Absolute Correlation Symmetry
+
+**Name:** Proving Symmetry via Multiplication Commutativity
+**Use when:** Showing correlation(V₁, V₂) = correlation(V₂, V₁)
+
+**Code:**
+```lean
+theorem absCorrelation_symm (V₁ V₂ : ValueSystem S) :
+    absCorrelation V₁ V₂ = absCorrelation V₂ V₁ := by
+  unfold absCorrelation valueCorrelation
+  simp only []
+  congr 1
+  congr 1
+  have h : ∀ s : S, V₁.values s * V₂.values s = V₂.values s * V₁.values s := 
+    fun s => mul_comm _ _
+  simp only [h]
+```
+
+**Key insight:** Use `congr` to reduce to sum equality, then `simp only [mul_comm]`.
+
+---
+
+### Pattern: Clamped Value Bounds
+
+**Name:** Proving `min 1 (max 0 x) ∈ [0, 1]`
+**Use when:** Working with clamped/normalized values
+
+**Code:**
+```lean
+-- Lower bound
+theorem clamped_nonneg (x : ℚ) : 0 ≤ min 1 (max 0 x) := by
+  simp [le_min_iff, le_max_iff]
+
+-- Upper bound
+theorem clamped_le_one (x : ℚ) : min 1 (max 0 x) ≤ 1 := 
+  min_le_left 1 _
+```
+
+---
+
+### Pattern: Information Gap Definition
+
+**Name:** Gap as Clamped Difference
+**Use when:** Measuring deficit between required and current values
+
+**Code:**
+```lean
+noncomputable def informationGap (V₁ V₂ : ValueSystem S) (epsilon valueRange : ℚ) : ℚ :=
+  let current := sharedInformation V₁ V₂
+  let required := informationThreshold epsilon valueRange
+  max 0 (required - current)
+
+-- Non-negativity is immediate
+theorem informationGap_nonneg : informationGap V₁ V₂ epsilon valueRange ≥ 0 := 
+  le_max_left 0 _
+```
+
+---
+
+### Pattern: Zero Gap Implies Feasibility
+
+**Name:** Extracting Bound from max 0 (r - c) = 0
+**Use when:** Proving that zero gap means current ≥ required
+
+**Code:**
+```lean
+theorem zero_gap_implies_feasible (V₁ V₂ : ValueSystem S) (epsilon valueRange : ℚ)
+    (h_zero : informationGap V₁ V₂ epsilon valueRange = 0) :
+    sharedInformation V₁ V₂ ≥ informationThreshold epsilon valueRange := by
+  unfold informationGap at h_zero
+  have h := max_eq_left_iff.mp h_zero  -- max 0 x = 0 iff x ≤ 0
+  linarith
+```
+
+**Key lemma:** `max_eq_left_iff : max a b = a ↔ b ≤ a`
+
+---
+
+### Strategy: Multi-Case Information Threshold
+
+**Name:** Handling Edge Cases in Threshold Definition
+**Use when:** Defining functions that should be bounded for all inputs
+
+**Code:**
+```lean
+def informationThreshold (epsilon : ℚ) (valueRange : ℚ) : ℚ :=
+  if valueRange > 0 ∧ epsilon ≥ 0 then
+    max 0 (min 1 (1 - epsilon / valueRange))  -- Normal case
+  else if epsilon < 0 then 1                   -- Negative ε = impossible
+  else 0                                        -- Zero/negative range
+
+-- Proving bounds
+theorem informationThreshold_bounded (epsilon : ℚ) (valueRange : ℚ) :
+    0 ≤ informationThreshold epsilon valueRange ∧
+    informationThreshold epsilon valueRange ≤ 1 := by
+  unfold informationThreshold
+  constructor
+  · split_ifs <;> simp [le_max_iff, le_min_iff]
+  · split_ifs with h1 h2
+    · calc max 0 (min 1 (1 - epsilon / valueRange))
+          ≤ max 0 1 := max_le_max_left 0 (min_le_left 1 _)
+        _ = 1 := max_eq_right (by norm_num)
+    · norm_num
+    · norm_num
+```
+
+---
+
+### Structure: Information Status Report
+
+**Name:** Multi-Agent Information Analysis
+**Use when:** Reporting shared context status across multiple agents
+
+```lean
+structure InformationStatus where
+  averageShared : ℚ      -- Average pairwise shared info
+  minimumShared : ℚ      -- Bottleneck pair's shared info
+  requiredThreshold : ℚ  -- What's needed for alignment
+  gap : ℚ                -- Deficit (0 if sufficient)
+  feasible : Bool        -- Is alignment information-feasible?
+
+noncomputable def computeInformationStatus {n : ℕ} (hn : n ≥ 2)
+    (systems : Fin n → ValueSystem S) (epsilon valueRange : ℚ) : InformationStatus :=
+  let avg := totalSharedInformation systems
+  let minPair := (Finset.univ : Finset (Fin n × Fin n)).inf'
+    ⟨(⟨0, by omega⟩, ⟨1, by omega⟩), Finset.mem_univ _⟩
+    fun (i, j) =>
+      if i.val < j.val then sharedInformation (systems i) (systems j) else 1
+  let threshold := informationThreshold epsilon valueRange
+  let gap := max 0 (threshold - minPair)
+  { averageShared := avg, minimumShared := minPair,
+    requiredThreshold := threshold, gap := gap,
+    feasible := minPair ≥ threshold }
+```
+
+---
+
+### Error: Finset.argmin Doesn't Exist
+
+**Message:** `Invalid field 'argmin': The environment does not contain 'Finset.argmin'`
+
+**Fix:** Use a simplified approach or manual minimization:
+```lean
+-- Instead of:
+(Finset.univ : Finset (Fin n × Fin n)).argmin f |>.getD default
+
+-- Use:
+-- Option 1: Return default (simplified)
+(⟨0, by omega⟩, ⟨1, by omega⟩)
+
+-- Option 2: Use Finset.inf' with nonemptiness proof
+Finset.univ.inf' ⟨default, Finset.mem_univ _⟩ f
+```
+
+---
+
+### Connection: Information Theory ↔ Alignment Topology
+
+**Key Insight:** Shared information predicts cohomological obstructions
+
+| Information Level | Expected H¹ | Alignment Status |
+|-------------------|-------------|------------------|
+| High (≥ threshold) | Likely trivial | Feasible |
+| Low (< threshold) | Likely non-trivial | Gap exists |
+
+**Intuition:** 
+- Mutual information measures correlation between value systems
+- Correlated values mean agreement on many situations
+- Agreement enables edge presence in value complex
+- More edges → more likely connected → H¹ = 0
+
+**The Bridge:**
+```
+Shannon Information → Correlation → Edge Existence → H¹ Triviality
+```
