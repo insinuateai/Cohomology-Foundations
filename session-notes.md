@@ -754,6 +754,128 @@ H1Characterization/
 8. **Euler Formula for Forests** - E = V - c with Mathlib lemma references
 
 ---
+## Session: 2026-01-25 (ConflictResolution - BATCH 2B)
+
+**Task:** Build and fix Perspective.ConflictResolution (Conflict Resolution)
+**File:** Perspective/ConflictResolution.lean
+**Status:** COMPLETED - 3 sorries remaining (meets success criteria), builds successfully
+
+### What This Proves
+
+Once we know WHERE the conflict is, we prove HOW to FIX it:
+
+| Strategy | What It Does | When To Use |
+|----------|--------------|-------------|
+| **Fill Triangle** | Add a mediating relationship | Best option - adds info, no loss |
+| **Remove Edge** | Drop one relationship | Good option - minimal loss |
+| **Remove Agent** | Exclude one agent entirely | Last resort - loses the most |
+
+### Work Done
+
+1. **Updated Perspective.lean** to add `import Perspective.ConflictResolution`
+
+2. **Fixed namespace issues:**
+   - Moved `removeEdge`, `addTriangle`, `removeVertex` to `Foundations.SimplicialComplex` namespace
+   - This allows dot-notation like `K.removeEdge e` to work properly
+
+3. **Proved `removeEdge` structure lemmas** (originally 2 sorries):
+   - `has_vertices`: Cardinality argument - vertex has card 1, edge has card ≥ 2
+   - `down_closed`: Face subset argument with maximality condition
+   - Added hypotheses: `he : e.card ≥ 2` and `h_maximal` for proper face checking
+
+4. **Proved `addTriangle` structure lemmas:**
+   - Full proofs using explicit `cases` on union membership
+   - Handled three cases: simplex from K, simplex equals t, simplex is subset of t
+
+5. **Proved `removeVertex` structure lemmas:**
+   - Filtering simplices that don't contain vertex v
+   - Used `Finset.mem_singleton.mp` for vertex equality
+
+6. **Fixed `fill_triangle_resolves` type issues:**
+   - Added distinctness hypotheses: `hab_ne`, `hbc_ne`, `hac_ne`
+   - Proved `{a, b, c}.card = 3` using `Finset.card_insert_of_notMem`
+
+7. **Fixed `resolution_exists` type issues:**
+   - Updated existential to include `he_card` and `h_max` proofs
+
+### Errors Fixed
+
+| Error | Location | Fix |
+|-------|----------|-----|
+| `Invalid field 'removeEdge'` | Multiple | Move defs to `Foundations.SimplicialComplex` namespace |
+| `simp made no progress` on card proof | Line 196 | Use explicit `rw` with `Finset.card_insert_of_notMem` |
+| `rcases failed: not inductive datatype` | addTriangle | Use `cases hs with \| inl => \| inr =>` instead |
+| `Tactic 'left' failed` | addTriangle | Structure goal correctly before applying left/right |
+| `Unknown identifier 't'` after subst | down_closed | Use `rw [← hs_eq]` instead of `subst hs_eq` |
+
+### Remaining Sorries (3 total - meets success criteria)
+
+1. **Line 184** (`remove_edge_resolves`):
+   - Removing edge from single cycle makes H¹ = 0
+   - Requires proving edge removal → acyclicity → OneConnected → H¹ = 0
+
+2. **Line 216** (`fill_triangle_resolves`):
+   - Filling hollow triangle makes H¹ = 0
+   - Core mathematical insight: cycle becomes a boundary
+
+3. **Line 238** (`resolution_exists`):
+   - Every conflict has at least one resolution
+   - Uses `conflict_witness_exists` from Batch 2A
+
+### Key Theorems
+
+| Theorem | Description | Status |
+|---------|-------------|--------|
+| `removeEdge` | Remove edge from complex | ✓ Fully proved |
+| `addTriangle` | Add 2-simplex to complex | ✓ Fully proved |
+| `removeVertex` | Remove vertex and incident simplices | ✓ Fully proved |
+| `remove_edge_resolves` | Edge removal restores H¹ = 0 | sorry |
+| `fill_triangle_resolves` | Triangle fill restores H¹ = 0 | sorry |
+| `resolution_exists` | Some resolution always exists | sorry |
+| `conflict_resolution_pipeline` | Full pipeline from conflict to fix | ✓ Fully proved |
+
+### Build Status
+
+| Target | Status |
+|--------|--------|
+| `lake build Perspective.ConflictResolution` | ✓ Success (1263 jobs) |
+| `lake build Perspective` | ✓ Success |
+| Sorries count | 3 (meets ≤3 criteria) |
+
+### Files Modified
+
+- `Perspective.lean` - Added import for ConflictResolution
+- `Perspective/ConflictResolution.lean` - Fixed namespace, proofs, types
+
+### Module Structure After This Batch
+
+```
+Perspective/
+├── ValueSystem.lean
+├── Alignment.lean
+├── ValueComplex.lean
+├── AlignmentEquivalence.lean
+├── AlignmentTheorem.lean
+├── ImpossibilityStrong.lean      ← Batch 1A
+├── ConflictLocalization.lean     ← Batch 2A
+└── ConflictResolution.lean       ← NEW (Batch 2B)
+```
+
+### Key Mathematical Insight
+
+**Why does filling a triangle work?**
+The hollow triangle {a,b,c} with edges but no face has H¹ ≠ 0 because:
+- The "cycle indicator" f assigns +1 or -1 to each edge based on orientation
+- This f is a cocycle (δf = 0 vacuously - no 2-simplices to check!)
+- But f is NOT a coboundary (can't write f = δg for any g)
+
+When we ADD the 2-simplex {a,b,c}:
+- Now δf must be checked on {a,b,c}
+- δf({a,b,c}) = f({b,c}) - f({a,c}) + f({a,b}) = the cycle sum
+- For a proper cycle indicator, this equals ±3, not 0
+- So f is no longer a cocycle! The obstruction disappears.
+
+---
 ## Session: 2026-01-25 (ConflictLocalization - BATCH 2A)
 
 **Task:** Build and fix Perspective.ConflictLocalization (Conflict Localization)

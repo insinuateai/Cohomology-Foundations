@@ -1076,3 +1076,222 @@ theorem alignment_conflict_localization [Nonempty S] (n : ℕ) (hn : n ≥ 3)
 **Key Insight:**
 The `no_local_reconciler` condition is easy: since `agents` contains all indices,
 `∀ a ∈ agents, P a` is equivalent to `∀ i : Fin n, P i`.
+
+---
+Added: 2026-01-25
+Source: ConflictResolution.lean (Batch 2B)
+
+### Pattern: Namespace Organization for Dot Notation
+
+**Name:** Placing Definitions in Correct Namespace for Method Syntax
+**Use when:** Defining operations on a type that should be callable with dot notation
+
+**Problem:**
+Definitions in the wrong namespace don't enable dot notation:
+```lean
+-- In namespace Perspective.SimplicialComplex
+def removeEdge (K : SimplicialComplex) ... := ...
+
+-- Usage fails:
+K.removeEdge e he h_max  -- ERROR: invalid field 'removeEdge'
+```
+
+**Fix:**
+Place the definition in the type's actual namespace:
+```lean
+namespace Foundations.SimplicialComplex
+
+def removeEdge (K : SimplicialComplex) ... := ...
+
+end Foundations.SimplicialComplex
+
+-- Now works:
+K.removeEdge e he h_max  -- OK
+```
+
+**Rule:** For dot notation `x.method`, the `method` must be in the namespace of `x`'s type.
+If `K : SimplicialComplex` and `SimplicialComplex` is in `Foundations`, put `removeEdge` in `Foundations.SimplicialComplex`.
+
+---
+### Pattern: Union Membership Case Analysis
+
+**Name:** Cases vs Rcases for Union Membership
+**Use when:** Destructuring `s ∈ A ∪ B ∪ C` after simp
+
+**Problem:**
+After simp on union membership, using `rcases` or `obtain` may fail:
+```lean
+simp only [Set.mem_union, Set.mem_singleton_iff] at hs
+rcases hs with h1 | h2 | h3  -- ERROR: rcases failed: not inductive datatype
+```
+
+**Fix:**
+Use `cases` with explicit alternative patterns:
+```lean
+simp only [Set.mem_union, Set.mem_singleton_iff, Set.mem_setOf_eq] at hs
+cases hs with
+| inl hs_left =>
+  cases hs_left with
+  | inl hs_in_K => -- s ∈ K.simplices
+  | inr hs_eq => -- s = triangle
+| inr hs_sub => -- s ⊆ triangle
+```
+
+**Explanation:**
+After simp, the type is a nested `Or` structure. `cases` handles this better than `rcases` when the structure isn't recognized as an inductive datatype pattern.
+
+---
+### Pattern: Finset Cardinality with Distinctness
+
+**Name:** Proving {a, b, c}.card = 3 with Explicit Rewrites
+**Use when:** simp can't prove finset cardinality automatically
+
+**Problem:**
+```lean
+have h_card : ({a, b, c} : Finset V).card = 3 := by simp
+-- ERROR: simp made no progress
+```
+
+**Fix:**
+Use explicit rewrites with `Finset.card_insert_of_notMem` and distinctness hypotheses:
+```lean
+have h_card : ({a, b, c} : Finset V).card = 3 := by
+  have hab : a ≠ b := ...
+  have hac : a ≠ c := ...
+  have hbc : b ≠ c := ...
+  rw [Finset.card_insert_of_notMem (by simp [hab, hac])]  -- a ∉ {b, c}
+  rw [Finset.card_insert_of_notMem (by simp [hbc])]       -- b ∉ {c}
+  rw [Finset.card_singleton]
+```
+
+**Key Lemma:**
+```lean
+Finset.card_insert_of_notMem : a ∉ s → (insert a s).card = s.card + 1
+```
+
+**Tip:** The distinctness hypotheses (hab, hac, hbc) are essential for the `simp` to prove the non-membership conditions.
+
+---
+### Pattern: Face Subset for down_closed Proofs
+
+**Name:** Proving Faces Belong to SimplicialComplex
+**Use when:** Proving `down_closed` property for new simplicial complex constructions
+
+**Problem:**
+When constructing a new SimplicialComplex, you need to prove that all faces of simplices are included:
+```lean
+down_closed := by
+  intro s hs t ht_sub
+  -- Need to show: t ∈ new_simplices
+```
+
+**Strategy for Union-Based Constructions:**
+```lean
+down_closed := by
+  intro s hs t ht_sub
+  simp only [Set.mem_union, ...] at hs ⊢
+  cases hs with
+  | inl hs_in_original =>
+    left
+    exact original_complex.down_closed s hs_in_original t ht_sub
+  | inr hs_is_new =>
+    -- Show t is either in original OR is a face of the new simplex
+    by_cases hcard : t.card = new_simplex.card
+    · right; ... -- t equals new_simplex
+    · left; ... -- t is a proper face, show it's in original
+```
+
+**Key Insight:**
+For a simplicial complex K ∪ {σ}, the down_closed property follows from:
+1. K.down_closed (for faces from K)
+2. Faces of σ are either σ itself or are already in K (by triangle construction)
+
+---
+### Error: Subst Removes Variables from Scope
+
+**Name:** Using rw Instead of subst to Preserve Variables
+**Use when:** You need to substitute an equality but still use the original variable
+
+**Problem:**
+```lean
+have hs_eq : s = t := ...
+subst hs_eq
+-- Now 't' is no longer in scope!
+exact some_lemma_about_t  -- ERROR: unknown identifier 't'
+```
+
+**Fix:**
+Use `rw` with symmetric equality instead:
+```lean
+have hs_eq : s = t := ...
+rw [← hs_eq]  -- Rewrites t to s in the goal, keeps t in scope
+-- or
+rw [hs_eq]    -- Rewrites s to t in the goal
+```
+
+**When to use which:**
+- `subst h` when you want to completely eliminate a variable
+- `rw [h]` when you need the variable to remain accessible
+- `rw [← h]` when the equality direction needs reversal
+
+---
+### Pattern: Singleton Membership from Finset.mem_singleton
+
+**Name:** Converting Finset Singleton Membership to Equality
+**Use when:** You have `v ∈ ({x} : Finset V)` and need `v = x`
+
+**Code:**
+```lean
+have h_mem : v ∈ ({x} : Finset V) := ...
+have h_eq : v = x := Finset.mem_singleton.mp h_mem
+```
+
+**Related lemmas:**
+- `Finset.mem_singleton : a ∈ ({b} : Finset α) ↔ a = b`
+- `Finset.singleton_subset_iff : {a} ⊆ s ↔ a ∈ s`
+
+**Use case in removeVertex proofs:**
+When a simplex contains a single vertex and you need to identify that vertex.
+
+---
+### Strategy: Resolution Strategies for H¹ Conflicts
+
+**Name:** Three Approaches to Resolving H¹ ≠ 0
+**Use when:** Designing conflict resolution for cohomology obstructions
+
+**The Three Strategies:**
+
+1. **Fill Triangle (Add 2-simplex)**
+   - When: Three vertices form a hollow triangle (cycle of length 3)
+   - Action: Add the 2-simplex {a, b, c}
+   - Effect: The cycle becomes a boundary, so it's now trivial in H¹
+
+2. **Remove Edge (Remove 1-simplex)**
+   - When: An edge is part of a cycle but no larger simplices depend on it
+   - Action: Remove the edge from the complex
+   - Effect: Breaks the cycle, potentially making 1-skeleton acyclic
+
+3. **Remove Vertex (Remove 0-simplex and all incident)**
+   - When: A vertex is central to multiple conflicts
+   - Action: Remove vertex and all simplices containing it
+   - Effect: Most drastic; removes all incident structure
+
+**Formalization Pattern:**
+```lean
+structure ResolutionStrategy (K : SimplicialComplex) where
+  /-- The resulting complex after resolution -/
+  result : SimplicialComplex
+  /-- The resolution actually fixes the problem -/
+  resolves : H1Trivial result
+
+inductive StrategyKind
+  | fillTriangle : Vertex → Vertex → Vertex → StrategyKind
+  | removeEdge : Simplex → StrategyKind
+  | removeAgent : Vertex → StrategyKind
+```
+
+**Key Insight:**
+Each strategy trades off different things:
+- fillTriangle adds structure (may affect other properties)
+- removeEdge is minimal but requires maximality check
+- removeAgent is aggressive but always works
