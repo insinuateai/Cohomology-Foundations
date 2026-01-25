@@ -44,7 +44,7 @@ open Foundations (Cochain IsCocycle IsCoboundary H1Trivial coboundary Simplex Si
 open H1Characterization (OneConnected oneSkeleton)
 open Perspective (ValueSystem Reconciles valueComplex)
 
-variable {S : Type*} [Fintype S] [DecidableEq S]
+variable {S : Type*} [Fintype S] [DecidableEq S] [Nonempty S]
 
 /-! ## Part 1: Perturbation Definition -/
 
@@ -57,16 +57,20 @@ theorem valueDistance_symm (V₁ V₂ : ValueSystem S) :
     valueDistance V₁ V₂ = valueDistance V₂ V₁ := by
   unfold valueDistance
   congr 1
-  ext s
+  funext s
   rw [abs_sub_comm]
 
 /-- Value distance is non-negative -/
 theorem valueDistance_nonneg (V₁ V₂ : ValueSystem S) :
     valueDistance V₁ V₂ ≥ 0 := by
   unfold valueDistance
-  apply Finset.le_sup'
-  · exact Finset.mem_univ (Classical.arbitrary S)
-  · exact abs_nonneg _
+  have s₀ : S := Classical.arbitrary S
+  have hs : s₀ ∈ Finset.univ := Finset.mem_univ s₀
+  have h1 : 0 ≤ |V₁.values s₀ - V₂.values s₀| := abs_nonneg _
+  have h2 : |V₁.values s₀ - V₂.values s₀| ≤
+            Finset.univ.sup' Finset.univ_nonempty (fun s => |V₁.values s - V₂.values s|) :=
+    Finset.le_sup' (f := fun s => |V₁.values s - V₂.values s|) hs
+  linarith
 
 /-- Value distance is zero iff systems are equal -/
 theorem valueDistance_eq_zero_iff (V₁ V₂ : ValueSystem S) :
@@ -74,23 +78,25 @@ theorem valueDistance_eq_zero_iff (V₁ V₂ : ValueSystem S) :
   constructor
   · intro h
     unfold valueDistance at h
-    ext s
-    have hs : |V₁.values s - V₂.values s| ≤ 0 := by
-      calc |V₁.values s - V₂.values s| 
-          ≤ Finset.univ.sup' Finset.univ_nonempty fun s => |V₁.values s - V₂.values s| := 
-            Finset.le_sup' _ (Finset.mem_univ s)
-        _ = 0 := h
-    have := abs_nonneg (V₁.values s - V₂.values s)
-    have h_eq : |V₁.values s - V₂.values s| = 0 := le_antisymm hs this
-    exact sub_eq_zero.mp (abs_eq_zero.mp h_eq)
+    have h_all_zero : ∀ s : S, V₁.values s = V₂.values s := fun s => by
+      have hle : |V₁.values s - V₂.values s| ≤ 0 := by
+        have hbound := Finset.le_sup' (fun t => |V₁.values t - V₂.values t|) (Finset.mem_univ s)
+        simp only [h] at hbound
+        exact hbound
+      have hnn := abs_nonneg (V₁.values s - V₂.values s)
+      have h_eq : |V₁.values s - V₂.values s| = 0 := le_antisymm hle hnn
+      exact sub_eq_zero.mp (abs_eq_zero.mp h_eq)
+    cases V₁ with | mk v₁ => cases V₂ with | mk v₂ =>
+    simp only [ValueSystem.mk.injEq]
+    funext s
+    exact h_all_zero s
   · intro h
     subst h
-    unfold valueDistance
-    simp only [sub_self, abs_zero, Finset.sup'_const]
+    simp only [valueDistance, sub_self, abs_zero, Finset.sup'_const]
 
 /-- A perturbation of a value system collection -/
-def isPerturbation {n : ℕ} (original perturbed : Fin n → ValueSystem S) (δ : ℚ) : Prop :=
-  ∀ i : Fin n, valueDistance (original i) (perturbed i) ≤ δ
+def isPerturbation {n : ℕ} (original perturbed : Fin n → ValueSystem S) (delta : ℚ) : Prop :=
+  ∀ i : Fin n, valueDistance (original i) (perturbed i) ≤ delta
 
 /-! ## Part 2: Edge Stability -/
 
@@ -102,18 +108,33 @@ def edgeSlack (V₁ V₂ : ValueSystem S) (ε : ℚ) : ℚ :=
 def hasEdge (V₁ V₂ : ValueSystem S) (ε : ℚ) : Prop :=
   ∃ s : S, |V₁.values s - V₂.values s| ≤ 2 * ε
 
-/-- Edge slack is positive iff edge exists -/
-theorem edgeSlack_pos_iff_hasEdge (V₁ V₂ : ValueSystem S) (ε : ℚ) (hε : ε > 0) :
-    edgeSlack V₁ V₂ ε > 0 ↔ hasEdge V₁ V₂ ε := by
+/-- Edge slack positive implies edge exists (forward direction) -/
+theorem edgeSlack_pos_imp_hasEdge (V₁ V₂ : ValueSystem S) (ε : ℚ) (hε : ε > 0) :
+    edgeSlack V₁ V₂ ε > 0 → hasEdge V₁ V₂ ε := by
   unfold edgeSlack hasEdge
-  constructor
-  · intro h
-    -- If slack > 0, then inf of distances < 2ε, so ∃ s with distance ≤ 2ε
-    sorry
-  · intro ⟨s, hs⟩
-    -- If ∃ s with distance ≤ 2ε, then inf ≤ 2ε, so slack ≥ 0
-    -- Need strict inequality, which requires inf < 2ε
-    sorry
+  intro h
+  -- If slack = 2ε - inf > 0, then inf < 2ε
+  -- The infimum is achieved at some element (finite set), call it s₀
+  -- Then |V₁.values s₀ - V₂.values s₀| = inf < 2ε
+  -- Actually for finite sets, inf' returns the minimum, not just infimum
+  have h_inf_lt : Finset.univ.inf' Finset.univ_nonempty (fun s => |V₁.values s - V₂.values s|) < 2 * ε := by
+    linarith
+  -- For finite nonempty sets, the inf' is achieved at some element
+  have ⟨s₀, _, hs₀⟩ := Finset.exists_mem_eq_inf' Finset.univ_nonempty (fun s => |V₁.values s - V₂.values s|)
+  use s₀
+  rw [hs₀] at h_inf_lt
+  linarith
+
+/-- Edge exists implies edge slack non-negative (weaker backward direction) -/
+theorem hasEdge_imp_edgeSlack_nonneg (V₁ V₂ : ValueSystem S) (ε : ℚ) :
+    hasEdge V₁ V₂ ε → edgeSlack V₁ V₂ ε ≥ 0 := by
+  unfold edgeSlack hasEdge
+  intro ⟨s, hs⟩
+  -- If ∃ s with |diff| ≤ 2ε, then inf ≤ |diff| ≤ 2ε
+  have h_inf_le : Finset.univ.inf' Finset.univ_nonempty (fun t => |V₁.values t - V₂.values t|) ≤
+                  |V₁.values s - V₂.values s| :=
+    Finset.inf'_le _ (Finset.mem_univ s)
+  linarith
 
 /-! ## Part 3: Stability Margin -/
 
@@ -145,15 +166,15 @@ theorem stability_of_h1_trivial {n : ℕ} (hn : n ≥ 2)
     [Nonempty S]
     (h_aligned : H1Trivial (valueComplex systems ε))
     (perturbed : Fin n → ValueSystem S)
-    (δ : ℚ) (hδ : δ > 0) (hδ_small : δ < stabilityMarginSimple systems ε)
-    (h_pert : isPerturbation systems perturbed δ) :
+    (delta : ℚ) (hdelta : delta > 0) (hdelta_small : delta < stabilityMarginSimple systems ε)
+    (h_pert : isPerturbation systems perturbed delta) :
     H1Trivial (valueComplex perturbed ε) := by
   -- Strategy:
   -- 1. H¹ = 0 means the complex is OneConnected (forest)
   -- 2. Small perturbations can only:
   --    a. Remove edges (if systems drift apart) - keeps forest property
   --    b. Add edges (if systems drift together) - might create cycle
-  -- 3. But if δ < margin, no edges are added, so forest property preserved
+  -- 3. But if delta < margin, no edges are added, so forest property preserved
   -- 4. Therefore H¹ = 0 is preserved
   sorry
 
@@ -166,11 +187,11 @@ theorem stability_margin_is_safe {n : ℕ} (hn : n ≥ 2)
     (h_aligned : H1Trivial (valueComplex systems ε)) :
     -- Any perturbation smaller than the margin preserves alignment
     ∀ perturbed : Fin n → ValueSystem S,
-    ∀ δ : ℚ, δ > 0 → δ < stabilityMarginSimple systems ε →
-    isPerturbation systems perturbed δ →
+    ∀ delta : ℚ, delta > 0 → delta < stabilityMarginSimple systems ε →
+    isPerturbation systems perturbed delta →
     H1Trivial (valueComplex perturbed ε) := by
-  intro perturbed δ hδ hδ_small h_pert
-  exact stability_of_h1_trivial hn systems ε hε h_aligned perturbed δ hδ hδ_small h_pert
+  intro perturbed delta hdelta hdelta_small h_pert
+  exact stability_of_h1_trivial hn systems ε hε h_aligned perturbed delta hdelta hdelta_small h_pert
 
 /-! ## Part 5: Margin Computation -/
 
@@ -288,8 +309,7 @@ theorem monitoring_product_enabled {n : ℕ} (hn : n ≥ 2)
     [Nonempty S] :
     -- We can compute all monitoring data
     ∃ status : MonitoringStatus, True := by
-  use computeMonitoringStatus systems ε true none 50
-  trivial
+  exact ⟨computeMonitoringStatus systems ε true none 50, trivial⟩
 
 /--
 BUSINESS THEOREM: Stability creates recurring revenue.
@@ -309,15 +329,15 @@ theorem stability_enables_subscription :
 /-- 
 THEOREM: Alignment is robust to small errors.
 
-Even if our measurements have error ≤ δ, if δ < margin,
+Even if our measurements have error ≤ delta, if delta < margin,
 the alignment assessment is still correct.
 -/
 theorem alignment_robust_to_measurement_error {n : ℕ} (hn : n ≥ 2)
     (true_systems measured_systems : Fin n → ValueSystem S) (ε : ℚ) (hε : ε > 0)
-    (δ : ℚ)
+    (delta : ℚ)
     [Nonempty S]
-    (h_error : isPerturbation true_systems measured_systems δ)
-    (hδ : δ < stabilityMarginSimple true_systems ε)
+    (h_error : isPerturbation true_systems measured_systems delta)
+    (hdelta : delta < stabilityMarginSimple true_systems ε)
     (h_measured_aligned : H1Trivial (valueComplex measured_systems ε)) :
     -- True system is also aligned (measurement didn't miss a conflict)
     H1Trivial (valueComplex true_systems ε) := by
@@ -333,7 +353,6 @@ then the system really is aligned.
 -/
 theorem assessment_reliable {n : ℕ} (hn : n ≥ 2)
     (systems : Fin n → ValueSystem S) (ε : ℚ) (hε : ε > 0)
-    [Nonempty S]
     (h_aligned : H1Trivial (valueComplex systems ε))
     (margin : ℚ) (hm : margin = stabilityMarginSimple systems ε) :
     -- Any measurement within margin/2 error gives correct answer
@@ -341,9 +360,10 @@ theorem assessment_reliable {n : ℕ} (hn : n ≥ 2)
     isPerturbation systems measured (margin / 2) →
     H1Trivial (valueComplex measured ε) := by
   intro measured h_pert
+  have hm_eq : margin = ε := hm  -- since stabilityMarginSimple returns ε
   apply stability_of_h1_trivial hn systems ε hε h_aligned measured (margin / 2)
-  · linarith [hε]
-  · rw [hm]; linarith [hε]
+  · rw [hm_eq]; linarith
+  · rw [hm_eq]; linarith
   · exact h_pert
 
 end Stability

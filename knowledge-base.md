@@ -1408,3 +1408,159 @@ def agentComplex (N : AgentNetwork S) : SimplicialComplex :=
 - Memory Consistency Checker: Do AI memories contradict?
 - Agent Coordination Checker: Will agents deadlock?
 Same H¹ cohomology. Same O(n) complexity. Same guarantees.
+
+---
+Added: 2026-01-25
+Source: Stability.lean (Batch 4)
+
+### Error: Greek Letter Encoding Issues
+
+**Message:** `unexpected token 'δ'; expected '_' or identifier`
+**Cause:** Unicode Greek letters sometimes cause parsing issues despite being valid Lean 4 identifiers
+
+**Problem:**
+```lean
+theorem foo (δ : ℚ) (hδ : δ > 0) : ... -- ERROR: unexpected token 'δ'
+```
+
+**Fix:**
+```lean
+theorem foo (delta : ℚ) (hdelta : delta > 0) : ... -- Works
+```
+
+**When this happens:**
+- Copy-pasted Greek characters may have different Unicode points
+- Some editor/terminal combinations mangle Greek letters
+- Safe to use ASCII equivalents: `delta` for δ, `epsilon` for ε
+
+---
+### Pattern: Finset.exists_mem_eq_inf' for Minimum Witnesses
+
+**Name:** Finite Set Minimum Witness Extraction
+**Use when:** You need to prove existence of an element achieving the infimum
+
+**Mathematical Content:**
+For finite nonempty sets with a linear order, the infimum is actually a minimum - achieved by some element.
+
+**Code:**
+```lean
+-- If you have: inf' < bound
+-- Get the witness:
+have ⟨s₀, hs₀_mem, hs₀_eq⟩ := Finset.exists_mem_eq_inf' Finset.univ_nonempty f
+-- s₀ : S
+-- hs₀_mem : s₀ ∈ Finset.univ
+-- hs₀_eq : f s₀ = Finset.univ.inf' ... f
+use s₀
+rw [hs₀_eq] at h_inf_lt  -- Now have: f s₀ < bound
+```
+
+**Key Lemma:**
+```lean
+Finset.exists_mem_eq_inf' : s.Nonempty → ∃ a ∈ s, f a = s.inf' H f
+```
+
+**Note:** Similarly `Finset.exists_mem_eq_sup'` for supremum.
+
+---
+### Pattern: Explicit Function Parameter for le_sup'/inf'_le
+
+**Name:** Disambiguating Finset Lattice Operations
+**Use when:** Type mismatch errors with `Finset.le_sup'` or `Finset.inf'_le`
+
+**Problem:**
+```lean
+have h2 := Finset.le_sup' _ hs  -- ERROR: Type mismatch, couldn't infer function
+```
+
+**Fix:**
+```lean
+have h2 := Finset.le_sup' (f := fun s => |V₁.values s - V₂.values s|) hs  -- Works
+```
+
+**Explanation:**
+The lemma signature is:
+```lean
+Finset.le_sup' (f : α → β) {a : α} (ha : a ∈ s) : f a ≤ s.sup' H f
+```
+When the function can't be inferred from context, provide it explicitly with `(f := ...)`.
+
+---
+### Pattern: ValueSystem Extensionality
+
+**Name:** Proving ValueSystem Equality
+**Use when:** Proving two ValueSystems are equal
+
+**Problem:**
+```lean
+ext s  -- ERROR: No applicable extensionality theorem found
+```
+
+**Fix:**
+```lean
+cases V₁ with | mk v₁ => cases V₂ with | mk v₂ =>
+simp only [ValueSystem.mk.injEq]
+funext s
+exact h_all_zero s
+```
+
+**Explanation:**
+ValueSystem is a single-field structure. Destruct both, then use `funext` on the underlying functions.
+
+---
+### Strategy: Stability Theorem Proof Approach
+
+**Name:** Proving Small Perturbations Preserve H¹ = 0
+**Use when:** Proving robustness of alignment under perturbations
+
+**Mathematical Content:**
+H¹ = 0 means the 1-skeleton is a forest (no cycles).
+
+Small perturbations can:
+1. **Remove edges** (systems drift apart) → Forest - edge = forest ✓
+2. **Add edges** (systems drift together) → Forest + edge = might have cycle ✗
+
+**Key Insight:**
+If perturbation δ < margin, no new edges are added because:
+- Edge exists when `∃ s, |V₁(s) - V₂(s)| ≤ 2ε`
+- If systems were far apart (distance > 2ε), after perturbation < ε on each,
+  distance can decrease by at most 2δ < 2ε
+- So systems that were > 2ε apart stay > 0 apart (no new edge)
+
+**Proof Outline:**
+```lean
+theorem stability_of_h1_trivial ... :
+    H1Trivial (valueComplex perturbed ε) := by
+  -- 1. Get OneConnected from h_aligned via h1_trivial_iff_oneConnected
+  -- 2. Show no new edges: distance decrease bounded by 2δ < 2ε
+  -- 3. Forest - edges = forest, so perturbed is still OneConnected
+  -- 4. Apply oneConnected_implies_h1_trivial
+```
+
+---
+### Pattern: Monitoring Status Structure
+
+**Name:** Alignment Health Dashboard Data
+**Use when:** Building monitoring products on top of alignment verification
+
+**Code:**
+```lean
+structure MonitoringStatus where
+  aligned : Bool
+  margin : ℚ
+  marginPercent : ℚ
+  timeToFailure : Option ℚ
+  alertThreshold : ℚ
+  shouldAlert : Bool
+
+def computeMonitoringStatus (systems : Fin n → ValueSystem S) (ε : ℚ)
+    (aligned : Bool) (driftRate : Option ℚ) (alertThreshold : ℚ) : MonitoringStatus :=
+  let margin := if aligned then stabilityMarginSimple systems ε else 0
+  let marginPercent := if ε > 0 then margin / ε * 100 else 0
+  let ttf := driftRate.bind fun r => if r > 0 then some (margin / r) else none
+  { aligned, margin, marginPercent, timeToFailure := ttf, alertThreshold,
+    shouldAlert := marginPercent < alertThreshold }
+```
+
+**Business Value:**
+- One-time check: "Is it aligned?" → single sale
+- Monitoring: "How aligned? When will it break?" → subscription revenue
