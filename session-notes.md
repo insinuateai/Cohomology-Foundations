@@ -1468,3 +1468,154 @@ Perspective/
 > For 1000 agents with 100 changes/minute:
 > - Without incremental: 100,000 checks/minute (unusable)
 > - With incremental: ~1,000 checks/minute (production-ready)"
+
+---
+## Session: 2026-01-25 (Batch 7 - Hierarchical Alignment)
+
+**File:** Perspective/HierarchicalAlignment.lean
+**Status:** COMPLETED - 1 sorry remaining (meets ≤1 criteria)
+
+### Overview
+
+Implemented hierarchical alignment for multi-level organizational decomposition. This allows checking alignment level-by-level (teams → departments → divisions → company) rather than globally.
+
+### Work Done
+
+1. **Updated Perspective.lean** - Added import for `HierarchicalAlignment`
+
+2. **Fixed `CrossLevelCompatible` definition** - Changed from placeholder `True` to meaningful condition:
+   ```lean
+   def CrossLevelCompatible {K : SimplicialComplex} {n : ℕ}
+       (assign : LevelAssignment K n) : Prop :=
+     -- Any cycle must stay within a single level
+     ∀ (v : K.vertexSet) (p : (oneSkeleton K).Walk v v), p.IsCycle →
+       ∀ w ∈ p.support, assign.level w = assign.level v
+   ```
+   This encodes: "any cycle in K must have all vertices at the same level."
+
+3. **Proved `global_implies_levels`** (lines 350-422):
+   - Used `IsAcyclic.comap` technique (same as Batch 6)
+   - Constructs graph homomorphism from level subcomplex to K
+   - Injectivity transfers acyclicity from K to level subcomplex
+
+4. **Proved `hierarchical_implies_global`** (lines 158-342):
+   - Proof by contradiction: assume K has a cycle
+   - By `CrossLevelCompatible`, all vertices in cycle are at same level l
+   - But level l is acyclic (by `AllLevelsAligned`)
+   - **1 sorry** for walk transfer lemma (mapping cycles between complexes)
+
+5. **Fixed simp/rewrite issues:**
+   - `Simplex.vertex` needs explicit unfolding: `simp only [Foundations.Simplex.vertex, Finset.mem_singleton]`
+   - Use `Finset.mem_singleton.mp hw` instead of `simp` + `subst` pattern
+   - Removed unused `Set.sep_mem_eq` from simp calls
+
+### Key Definitions
+
+| Definition | Description |
+|------------|-------------|
+| `LevelAssignment` | Partition vertices into n levels |
+| `levelSubcomplex` | Subcomplex induced by one level |
+| `LevelAligned` | H¹ = 0 for a level's subcomplex |
+| `AllLevelsAligned` | All levels have H¹ = 0 |
+| `CrossLevelCompatible` | Cycles stay within single level |
+
+### Key Theorems
+
+| Theorem | Description | Status |
+|---------|-------------|--------|
+| `levelSubcomplex_isSubcomplex` | Level subcomplex ⊆ K | ✓ Proved |
+| `hierarchical_implies_global` | All levels aligned → global aligned | 1 sorry |
+| `global_implies_levels` | Global aligned → all levels aligned | ✓ **Proved** |
+| `two_level_decomposition` | Special case for 2 levels | ✓ Proved |
+| `enterprise_decomposition` | Special case for 4 levels | ✓ Proved |
+
+### Proof Pattern: `global_implies_levels`
+
+Same pattern as `incremental_remove_preserves` from Batch 6:
+
+```lean
+-- Construct embedding f : (levelSubcomplex assign l).vertexSet → K.vertexSet
+let f := fun v => ⟨v.val, h_vertex_incl v⟩
+
+-- Show f preserves adjacency
+have hf_hom : ∀ v w, (oneSkeleton (levelSubcomplex assign l)).Adj v w →
+                     (oneSkeleton K).Adj (f v) (f w)
+
+-- Construct graph homomorphism and apply IsAcyclic.comap
+let φ : (oneSkeleton (levelSubcomplex assign l)) →g (oneSkeleton K) := ⟨f, hf_hom⟩
+exact h_global.comap φ hf_inj
+```
+
+### Proof Structure: `hierarchical_implies_global`
+
+```lean
+-- 1. Assume K has a cycle (by_contra)
+by_contra h_not_acyclic
+obtain ⟨v, p, hp⟩ := h_not_acyclic  -- p is cycle at v
+
+-- 2. By CrossLevelCompatible, all vertices at same level
+let l := assign.level v
+have h_all_same_level : ∀ w ∈ p.support, assign.level w = l := h_cross v p hp
+
+-- 3. Level l is acyclic
+have h_l_aligned : LevelAligned assign l := h_levels l
+
+-- 4. Cycle p should restrict to level l subcomplex
+-- But level l is acyclic - contradiction!
+-- [sorry for walk transfer lemma]
+```
+
+### Remaining Sorry (1)
+
+| Sorry | Line | Description |
+|-------|------|-------------|
+| `hierarchical_implies_global` | 342 | Walk transfer lemma: mapping cycle from K to level subcomplex |
+
+The mathematical argument is complete. The technical gap is constructing the walk restriction using `Walk.map` or similar infrastructure.
+
+### Build Status
+
+| Target | Status |
+|--------|--------|
+| `lake build Perspective.HierarchicalAlignment` | ✓ Success |
+| `lake build Perspective` | ✓ Success (1272 jobs) |
+| Sorries count | 1 (meets ≤1 criteria) |
+
+### Module Structure After Batch 7
+
+```
+Perspective/
+├── ValueSystem.lean
+├── Alignment.lean
+├── ValueComplex.lean
+├── AlignmentEquivalence.lean
+├── AlignmentTheorem.lean
+├── ImpossibilityStrong.lean          ← Batch 1A
+├── ConflictLocalization.lean         ← Batch 2A
+├── ConflictResolution.lean           ← Batch 2B
+├── AgentCoordination.lean            ← Batch 3
+├── Stability.lean                    ← Batch 4
+├── ObstructionClassification.lean    ← Batch 5
+├── IncrementalUpdates.lean           ← Batch 6
+└── HierarchicalAlignment.lean        ← NEW (Batch 7) ✓
+```
+
+### Patterns Added to Knowledge Base
+
+1. **Simplex.vertex unfolding** - Use `simp only [Foundations.Simplex.vertex, Finset.mem_singleton]`
+2. **CrossLevelCompatible encoding** - Cycles staying within levels as a sufficient condition
+3. **Level subcomplex construction** - Filtering simplices by vertex level membership
+4. **Reusing IsAcyclic.comap** - Same pattern works for level subcomplexes as for removed simplices
+
+### The Marketing Claim
+
+> "Our system understands organizational hierarchy.
+>
+> For an enterprise with 10,000 agents across 4 levels:
+> - Check 100 teams in parallel (Level 0)
+> - Check 20 departments in parallel (Level 1)
+> - Check 5 divisions in parallel (Level 2)
+> - Check company-wide (Level 3)
+>
+> Report alignment status at EACH level:
+> 'Teams: 98/100 aligned. Department Marketing has internal conflict.'"

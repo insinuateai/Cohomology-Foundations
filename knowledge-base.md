@@ -1832,3 +1832,132 @@ theorem foo (K : SimplicialComplex) [Nonempty K.vertexSet]
 ```
 
 **Key Insight:** The survival condition `¬(s ⊆ {v})` means s has elements other than v, so removing simplices containing s doesn't remove vertex v.
+
+---
+### Pattern: Simplex.vertex Membership
+
+**Name:** Proving Membership in Singleton Simplex
+**Use when:** Goal involves `w ∈ Simplex.vertex v` or `w ∈ {v}` in simplex context
+
+**Problem:** `simp only [Finset.mem_singleton]` may not work when `Simplex.vertex v` appears
+
+**Reason:** `Simplex.vertex v` is `({v} : Finset Vertex)`, but type aliasing can block pattern matching
+
+**Solution:** Unfold `Simplex.vertex` explicitly:
+
+```lean
+-- BAD: May fail with "rewrite failed: pattern not found"
+simp only [Finset.mem_singleton] at hw
+subst hw
+
+-- GOOD: Unfold Simplex.vertex first
+simp only [Foundations.Simplex.vertex, Finset.mem_singleton] at hw
+rw [hw]
+exact ...
+
+-- ALTERNATIVE: Use .mp explicitly
+have heq : w = v := Finset.mem_singleton.mp hw
+subst heq
+exact ...
+```
+
+**Key Insight:** When `Simplex` is a type alias for `Finset Vertex`, membership lemmas need the alias unfolded.
+
+---
+### Pattern: Level Subcomplex Construction
+
+**Name:** Building Subcomplexes by Vertex Level Partition
+**Use when:** Decomposing a simplicial complex by level assignment
+
+**Structure:**
+```lean
+structure LevelAssignment (K : SimplicialComplex) (numLevels : ℕ) where
+  level : K.vertexSet → Fin numLevels
+  levels_nonempty : ∀ l : Fin numLevels, ∃ v : K.vertexSet, level v = l
+
+def levelSubcomplex (assign : LevelAssignment K n) (l : Fin n) : SimplicialComplex where
+  simplices := { s ∈ K.simplices | ∀ v ∈ s, ∃ (hv : v ∈ K.vertexSet), assign.level ⟨v, hv⟩ = l }
+  has_vertices := by
+    intro s hs v hv
+    simp only [Set.mem_setOf] at hs ⊢
+    constructor
+    · exact K.has_vertices s hs.1 v hv
+    · intro w hw
+      simp only [Foundations.Simplex.vertex, Finset.mem_singleton] at hw
+      rw [hw]
+      exact hs.2 v hv
+  down_closed := by
+    intro s hs i
+    simp only [Set.mem_setOf] at hs ⊢
+    constructor
+    · exact K.down_closed s hs.1 i
+    · intro v hv
+      exact hs.2 v (Simplex.face_subset s i hv)
+```
+
+**Key Points:**
+- Filter simplices where ALL vertices are at the target level
+- Use `levels_nonempty` to construct `Nonempty` witnesses
+- Level subcomplex is automatically a subcomplex of K
+
+---
+### Pattern: CrossLevelCompatible Encoding
+
+**Name:** Encoding "Cycles Stay Within Levels" as a Condition
+**Use when:** Proving hierarchical decomposition theorems
+
+**Mathematical Insight:** If vertices are partitioned into levels and each level is acyclic, the global complex is acyclic IFF cycles can't span multiple levels.
+
+**Definition:**
+```lean
+def CrossLevelCompatible {K : SimplicialComplex} {n : ℕ}
+    (assign : LevelAssignment K n) : Prop :=
+  ∀ (v : K.vertexSet) (p : (oneSkeleton K).Walk v v), p.IsCycle →
+    ∀ w ∈ p.support, assign.level w = assign.level v
+```
+
+**Usage in hierarchical_implies_global:**
+```lean
+-- If K has a cycle, by CrossLevelCompatible all vertices are at same level
+have h_all_same_level : ∀ w ∈ p.support, assign.level w = l := h_cross v p hp
+
+-- But that level is acyclic (by AllLevelsAligned) - contradiction!
+```
+
+**Why Not Just `True`?** A `True` placeholder makes the theorem unprovable. Consider:
+- Level 0: vertices a, c (no edges within level)
+- Level 1: vertices b, d (no edges within level)
+- Edges: {a,b}, {b,c}, {c,d}, {d,a} (a 4-cycle spanning levels)
+
+Each level is H¹=0 (no edges), but global has a cycle. CrossLevelCompatible rules this out.
+
+---
+### Pattern: Reusing IsAcyclic.comap for Level Subcomplexes
+
+**Name:** Proving Level Subcomplex Acyclicity
+**Use when:** Proving `global_implies_levels` (if K is acyclic, each level is acyclic)
+
+**Application:** Same pattern as `incremental_remove_preserves`:
+
+```lean
+theorem global_implies_levels (h_global : H1Trivial K) : AllLevelsAligned assign := by
+  intro l
+  -- Construct Nonempty witness using levels_nonempty
+  obtain ⟨v, hv_level⟩ := assign.levels_nonempty l
+  have h_ne : Nonempty (levelSubcomplex assign l).vertexSet := ...
+  haveI := h_ne
+
+  -- Convert to acyclicity
+  rw [H1Characterization.h1_trivial_iff_oneConnected] at h_global ⊢
+
+  -- Construct embedding (same as removeSimplex pattern)
+  let f : (levelSubcomplex assign l).vertexSet → K.vertexSet :=
+    fun v => ⟨v.val, h_vertex_incl v⟩
+
+  -- Build homomorphism and apply comap
+  let φ : (oneSkeleton (levelSubcomplex assign l)) →g (oneSkeleton K) :=
+    ⟨f, fun {a} {b} => hf_hom a b⟩
+  exact h_global.comap φ hf_inj
+```
+
+**Key Insight:** The `IsAcyclic.comap` pattern works for ANY subcomplex construction, not just removal.
