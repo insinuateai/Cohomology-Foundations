@@ -1,5 +1,0 @@
-import Perspective.ValueSystem
-import Perspective.Alignment
-import Perspective.ValueComplex
-import Perspective.AlignmentEquivalence
-import Perspective.AlignmentTheorem
