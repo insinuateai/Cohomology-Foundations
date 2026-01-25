@@ -946,3 +946,133 @@ For a forest (acyclic graph) with:
 - `SimpleGraph.IsTree.card_edgeFinset`: Tree on n vertices has n-1 edges
 - `SimpleGraph.IsAcyclic.isTree_connectedComponent`: Each component of forest is tree
 - `SimpleGraph.isTree_iff_connected_and_card`: Tree iff connected and |E| = |V| - 1
+
+---
+Added: 2026-01-25
+Source: ConflictLocalization.lean (Batch 2A)
+
+### Pattern: Double Negation from IsAcyclic Simp
+
+**Name:** Eliminating Double Negation after IsAcyclic Simp
+**Use when:** After `simp [SimpleGraph.IsAcyclic, not_forall]` produces `¬¬p.IsCycle`
+
+**Problem:**
+When unfolding `IsAcyclic` and simplifying:
+```lean
+unfold OneConnected at h
+simp only [SimpleGraph.IsAcyclic, not_forall] at h
+obtain ⟨v, p, hp⟩ := h
+-- hp : ¬¬p.IsCycle (double negation!)
+```
+
+**Fix:**
+```lean
+have hp' : p.IsCycle := not_not.mp hp
+-- Now use hp' instead of hp
+```
+
+**Explanation:**
+`SimpleGraph.IsAcyclic` is defined as `∀ v, ∀ p : Walk v v, ¬p.IsCycle`.
+After `not_forall` twice, we get `∃ v, ∃ p, ¬¬p.IsCycle`.
+The inner `¬¬` requires classical double negation elimination via `not_not.mp`.
+
+---
+### Pattern: List.Nodup.length_le_card for Bounded Lists
+
+**Name:** Bounding List Length by Fintype Cardinality
+**Use when:** Proving a nodup list of Fin n elements has length ≤ n
+
+**Code:**
+```lean
+theorem max_conflict_size (n : ℕ) (systems : Fin n → ValueSystem S) (ε : ℚ)
+    (c : AlignmentConflict n systems ε) : c.agents.length ≤ n := by
+  have h := c.agents_nodup  -- agents.Nodup
+  have : c.agents.length ≤ Fintype.card (Fin n) := List.Nodup.length_le_card h
+  simp only [Fintype.card_fin] at this
+  exact this
+```
+
+**Key Lemma:**
+```lean
+List.Nodup.length_le_card : l.Nodup → l.length ≤ Fintype.card α
+```
+
+**Use Case:** When you need to prove a list can't have more elements than the type it's drawn from.
+
+---
+### Pattern: Explicit Nat.mod_lt for Omega
+
+**Name:** Providing Modulo Bounds Explicitly
+**Use when:** Omega can't prove `i % n < n` automatically in structure fields
+
+**Problem:**
+In a structure definition:
+```lean
+let next := agents.get ⟨(i.val + 1) % agents.length, by omega⟩
+-- Error: omega could not prove the goal
+```
+
+**Fix:**
+Provide the proof explicitly using `Nat.mod_lt`:
+```lean
+let next := agents.get ⟨(i.val + 1) % agents.length,
+  Nat.mod_lt _ (Nat.lt_of_lt_of_le (Nat.zero_lt_succ 2) min_size)⟩
+```
+
+**Explanation:**
+`Nat.mod_lt a (h : b > 0) : a % b < b`
+To use it, prove `agents.length > 0` from `min_size : agents.length ≥ 3`.
+
+---
+### Pattern: List.length_finRange Usage
+
+**Name:** Correct Usage of List.length_finRange
+**Use when:** Proving `(List.finRange n).length = n`
+
+**Wrong:**
+```lean
+have h : agents.length = n := List.length_finRange n  -- Error: not a function
+```
+
+**Correct:**
+```lean
+have h : agents.length = n := List.length_finRange
+-- Type inference determines n from context
+```
+
+**Related lemmas:**
+- `List.nodup_finRange : (List.finRange n).Nodup`
+- `List.mem_finRange : i ∈ List.finRange n` (for all `i : Fin n`)
+
+---
+### Strategy: Conflict Localization Fallback
+
+**Name:** Using All Agents as Trivial Conflict
+**Use when:** Proving conflict existence without finding minimal conflict
+
+**Mathematical Content:**
+If global alignment fails for n agents, we can always take ALL n agents as the conflict.
+This is "trivially correct" (the subset that fails is the whole set) but not minimal.
+
+**Code Pattern:**
+```lean
+theorem alignment_conflict_localization [Nonempty S] (n : ℕ) (hn : n ≥ 3)
+    (systems : Fin n → ValueSystem S) (ε : ℚ) (hε : ε > 0)
+    (h_no_global : ¬∃ R, ∀ i, Reconciles R (systems i) ε) :
+    ∃ conflict : AlignmentConflict n systems ε, True := by
+  let agents := List.finRange n
+  refine ⟨{
+    agents := agents
+    agents_nodup := List.nodup_finRange n
+    min_size := by simp [List.length_finRange]; exact hn
+    forms_cycle := by sorry  -- Would need pairwise alignability hypothesis
+    no_local_reconciler := by
+      intro ⟨R, hR⟩
+      apply h_no_global
+      exact ⟨R, fun i => hR i (List.mem_finRange i)⟩
+  }, trivial⟩
+```
+
+**Key Insight:**
+The `no_local_reconciler` condition is easy: since `agents` contains all indices,
+`∀ a ∈ agents, P a` is equivalent to `∀ i : Fin n, P i`.
