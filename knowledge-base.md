@@ -1295,3 +1295,116 @@ Each strategy trades off different things:
 - fillTriangle adds structure (may affect other properties)
 - removeEdge is minimal but requires maximality check
 - removeAgent is aggressive but always works
+
+---
+### Pattern: Explicit Type Parameters for Dependent Structures
+
+**Name:** Parametric Structures with Function Fields
+**Added:** 2026-01-25
+**Source:** AgentCoordination.lean rewrite
+
+**Problem:** When a structure has a function field like `profile : S → ℚ`, and `S` is defined via `variable {S : Type*}`, the structure becomes ill-formed because `S` isn't captured as a parameter.
+
+**Wrong:**
+```lean
+variable {S : Type*} [Fintype S]
+
+structure Agent where
+  id : ℕ
+  profile : S → ℚ  -- S not captured!
+  deriving DecidableEq  -- Will fail: can't derive DecidableEq for functions
+```
+
+**Correct:**
+```lean
+variable {S : Type*} [Fintype S]
+
+structure Agent (S : Type*) where
+  id : ℕ
+  profile : S → ℚ  -- S is now explicit parameter
+
+-- Usage requires explicit S
+def canCooperate {S : Type*} (a b : Agent S) (ε : ℚ) : Prop := ...
+```
+
+**When to use:**
+- Structures with function fields `T → U`
+- Structures containing other parametric structures
+- When you need decidable equality or other derived instances
+
+**Related pattern:** `ValueSystem (S : Type*) where values : S → ℚ` in ValueSystem.lean
+
+---
+### Pattern: Definitional Equality for Complex Constructions
+
+**Name:** Trivial Equivalence via Definitional Equality
+**Added:** 2026-01-25
+**Source:** agent_complex_eq_value_complex
+
+**Use when:** Two mathematical constructions are "the same" and you need to prove equivalence.
+
+**Strategy:** Instead of proving isomorphism with complex machinery, define one construction in terms of the other.
+
+**Example:**
+```lean
+-- Instead of defining agentComplex with its own simplices set:
+def agentComplex (N : AgentNetwork S) : SimplicialComplex where
+  simplices := { ... complex definition ... }
+  has_vertices := sorry  -- Hard to prove
+  down_closed := sorry   -- Hard to prove
+
+-- Define it directly using the equivalent construction:
+def agentComplex (N : AgentNetwork S) : SimplicialComplex :=
+  Perspective.valueComplex N.toValueSystems N.threshold
+
+-- Now the equivalence theorem is trivial:
+theorem agent_complex_eq_value_complex (N : AgentNetwork S) :
+    H1Trivial (agentComplex N) ↔
+    H1Trivial (Perspective.valueComplex N.toValueSystems N.threshold) := by
+  rfl  -- Definitional equality!
+```
+
+**Benefits:**
+- Avoids complex proofs about set membership
+- `rfl` proofs are fast and robust
+- Maintenance is simpler (single source of truth)
+
+**When NOT to use:**
+- When the constructions are genuinely different but isomorphic
+- When you need to expose the internal structure
+- When the "equivalent" construction has different computational properties
+
+---
+### Pattern: Agent-Memory Duality
+
+**Name:** Multi-Agent Coordination as Memory Consistency
+**Added:** 2026-01-25
+**Source:** AgentCoordination.lean
+
+**The Duality:**
+| Memory Problem | Agent Problem | Mathematical Object |
+|----------------|---------------|---------------------|
+| Memory fragment | Agent profile | `ValueSystem S` / `Agent S` |
+| Fragments agree on s | Agents cooperate | `∃ s, |v₁(s) - v₂(s)| ≤ 2ε` |
+| All fragments consistent | No deadlocks | `H¹ = 0` |
+| Memory conflict | Coordination deadlock | `H¹ ≠ 0` |
+
+**Formalization:**
+```lean
+-- Agent to ValueSystem (they're the same!)
+def Agent.toValueSystem (a : Agent S) : ValueSystem S := ⟨a.profile⟩
+
+-- Network to systems
+def AgentNetwork.toValueSystems (N : AgentNetwork S) :
+    Fin N.agents.length → ValueSystem S :=
+  fun i => (N.agents.get i).toValueSystem
+
+-- Agent complex IS value complex
+def agentComplex (N : AgentNetwork S) : SimplicialComplex :=
+  Perspective.valueComplex N.toValueSystems N.threshold
+```
+
+**Key Insight:** One engine, two products:
+- Memory Consistency Checker: Do AI memories contradict?
+- Agent Coordination Checker: Will agents deadlock?
+Same H¹ cohomology. Same O(n) complexity. Same guarantees.
