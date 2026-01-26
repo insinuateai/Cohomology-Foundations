@@ -67,17 +67,13 @@ def expectedAlignment {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S)
 /--
 Alignment variance: expected squared deviation from mean.
 -/
-def alignmentVariance {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S)
-    (epsilon : ℚ) [Nonempty S] : ℚ :=
+def alignmentVariance {n : ℕ} [NeZero n] (_systems : Fin n → ValueSystem S)
+    (_epsilon : ℚ) [Nonempty S] : ℚ :=
   -- Variance depends on system size and diversity
   -- Larger systems have more sources of variation
-  let nAgents := n
-  let nSituations := Fintype.card S
   -- Simplified model: variance ∝ 1/(n × |S|)
-  if nAgents * nSituations > 0 then
-    1 / (4 * nAgents * nSituations)
-  else
-    1/100
+  -- Note: n > 0 (NeZero) and Fintype.card S > 0 (Nonempty), so denominator is always positive
+  1 / (4 * (n : ℚ) * (Fintype.card S : ℚ))
 
 /--
 Standard deviation of alignment.
@@ -120,7 +116,13 @@ theorem deviation_probability_bounded {n : ℕ} [NeZero n]
       · norm_num
       · apply div_nonneg
         · unfold alignmentVariance
-          split_ifs <;> norm_num
+          apply div_nonneg
+          · norm_num
+          · apply mul_nonneg
+            apply mul_nonneg
+            · norm_num
+            · exact le_of_lt (Nat.cast_pos.mpr (NeZero.pos n))
+            · exact le_of_lt (Nat.cast_pos.mpr Fintype.card_pos)
         · apply mul_nonneg <;> linarith
     · norm_num
   · split_ifs with h
@@ -204,32 +206,32 @@ theorem large_system_small_fluctuations {n : ℕ} [NeZero n]
     [Nonempty S] (hn : n ≥ 10) :
     alignmentVariance systems epsilon ≤ 1/40 := by
   unfold alignmentVariance
-  split_ifs with h
-  · have h1 : (n : ℚ) ≥ 10 := by exact Nat.cast_le.mpr hn
-    have h2 : (Fintype.card S : ℚ) ≥ 1 := by
-      have := Fintype.card_pos (α := S)
-      exact Nat.one_le_cast.mpr this
-    calc 1 / (4 * n * Fintype.card S)
-        ≤ 1 / (4 * 10 * 1) := by
-          apply div_le_div_of_nonneg_left
-          · norm_num
-          · apply mul_pos
-            apply mul_pos
-            · norm_num
-            · linarith
-            · linarith
-          · apply mul_le_mul
-            apply mul_le_mul
-            · norm_num
-            · exact h1
-            · norm_num
-            · norm_num
-            · exact h2
-            · apply mul_nonneg
-              norm_num
-              linarith
-      _ = 1/40 := by norm_num
-  · norm_num
+  have h1 : (n : ℚ) ≥ 10 := Nat.cast_le.mpr hn
+  have h2 : (Fintype.card S : ℚ) ≥ 1 := by
+    have := Fintype.card_pos (α := S)
+    exact Nat.one_le_cast.mpr this
+  have hn_pos : (n : ℚ) > 0 := Nat.cast_pos.mpr (NeZero.pos n)
+  have hs_pos : (Fintype.card S : ℚ) > 0 := Nat.cast_pos.mpr Fintype.card_pos
+  have h_denom_pos : 4 * (n : ℚ) * (Fintype.card S : ℚ) > 0 := by
+    apply mul_pos
+    apply mul_pos
+    · norm_num
+    · exact hn_pos
+    · exact hs_pos
+  have h_denom_bound : 4 * (n : ℚ) * (Fintype.card S : ℚ) ≥ 4 * 10 * 1 := by
+    have : 4 * (n : ℚ) ≥ 4 * 10 := mul_le_mul_of_nonneg_left h1 (by norm_num : (0 : ℚ) ≤ 4)
+    calc 4 * (n : ℚ) * (Fintype.card S : ℚ) ≥ 4 * 10 * (Fintype.card S : ℚ) := by
+           apply mul_le_mul_of_nonneg_right this (le_of_lt hs_pos)
+         _ ≥ 4 * 10 * 1 := by
+           apply mul_le_mul_of_nonneg_left h2
+           apply mul_nonneg <;> norm_num
+  calc 1 / (4 * (n : ℚ) * (Fintype.card S : ℚ))
+      ≤ 1 / (4 * 10 * 1) := by
+        apply div_le_div_of_nonneg_left
+        · norm_num
+        · norm_num
+        · exact h_denom_bound
+    _ = 1/40 := by norm_num
 
 /--
 THEOREM: Variance is always positive.
@@ -239,17 +241,15 @@ theorem variance_positive {n : ℕ} [NeZero n]
     [Nonempty S] :
     alignmentVariance systems epsilon > 0 := by
   unfold alignmentVariance
-  split_ifs with h
-  · apply div_pos
-    · norm_num
-    · have h1 : (n : ℚ) > 0 := Nat.cast_pos.mpr (NeZero.pos n)
-      have h2 : (Fintype.card S : ℚ) > 0 := Nat.cast_pos.mpr Fintype.card_pos
-      apply mul_pos
-      apply mul_pos
-      · norm_num
-      · exact h1
-      · exact h2
+  have h1 : (n : ℚ) > 0 := Nat.cast_pos.mpr (NeZero.pos n)
+  have h2 : (Fintype.card S : ℚ) > 0 := Nat.cast_pos.mpr Fintype.card_pos
+  apply div_pos
   · norm_num
+  · apply mul_pos
+    apply mul_pos
+    · norm_num
+    · exact h1
+    · exact h2
 
 /-! ## Part 5: Alert Thresholds -/
 
@@ -313,8 +313,8 @@ def detectTrend (measurements : List ℚ) : AlignmentTrend :=
 /--
 Chi-squared test statistic for alignment distribution.
 -/
-def chiSquaredStatistic {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S)
-    (epsilon : ℚ) (observed expected : List ℚ) [Nonempty S] : ℚ :=
+def chiSquaredStatistic {n : ℕ} [NeZero n] (_systems : Fin n → ValueSystem S)
+    (_epsilon : ℚ) (observed expected : List ℚ) [Nonempty S] : ℚ :=
   -- χ² = Σ (observed - expected)² / expected
   let pairs := observed.zip expected
   pairs.foldl (fun acc (o, e) =>
@@ -381,8 +381,8 @@ structure FluctuationReport (n : ℕ) where
   recommendation : String
 
 /-- Generate a fluctuation report -/
-def generateFluctuationReport {n : ℕ} [NeZero n] (hn : n ≥ 1)
-    (systems : Fin n → ValueSystem S) (epsilon measured : ℚ) (hε : epsilon > 0)
+def generateFluctuationReport {n : ℕ} [NeZero n] (_hn : n ≥ 1)
+    (systems : Fin n → ValueSystem S) (epsilon measured : ℚ) (_hε : epsilon > 0)
     [Nonempty S] : FluctuationReport n :=
   let exp := expectedAlignment systems epsilon
   let std := alignmentStdDev systems epsilon
@@ -390,7 +390,7 @@ def generateFluctuationReport {n : ℕ} [NeZero n] (hn : n ≥ 1)
   let sev := anomalySeverity systems epsilon measured
   let lvl := classifyAnomaly systems epsilon measured
   let alert := shouldAlert systems epsilon measured
-  let rec := match lvl with
+  let recommend := match lvl with
     | .normal => "Normal fluctuation. No action needed."
     | .mild => "Slightly unusual. Continue monitoring."
     | .significant => "Significant deviation. Investigate cause."
@@ -403,7 +403,7 @@ def generateFluctuationReport {n : ℕ} [NeZero n] (hn : n ≥ 1)
     severity := sev
     level := lvl
     shouldAlert := alert
-    recommendation := rec
+    recommendation := recommend
   }
 
 /-! ## Part 10: The Product Theorem -/
@@ -421,7 +421,7 @@ We provide:
 This enables STATISTICAL monitoring of alignment.
 -/
 theorem fluctuation_product {n : ℕ} [NeZero n]
-    (systems : Fin n → ValueSystem S) (epsilon : ℚ) (hε : epsilon > 0)
+    (systems : Fin n → ValueSystem S) (epsilon : ℚ) (_hε : epsilon > 0)
     [Nonempty S] :
     -- Fluctuation framework is well-defined
     alignmentVariance systems epsilon > 0 ∧

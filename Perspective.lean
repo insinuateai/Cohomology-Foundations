@@ -28,3 +28,4 @@ import Perspective.AttractorBasins
 import Perspective.EscapeTime
 import Perspective.Recurrence
 import Perspective.EntropyProduction
+import Perspective.FluctuationBounds
