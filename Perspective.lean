@@ -17,3 +17,4 @@ import Perspective.Persistence
 import Perspective.SpectralGap
 import Perspective.InformationBound
 import Perspective.OptimalRepair
+import Perspective.Compositional

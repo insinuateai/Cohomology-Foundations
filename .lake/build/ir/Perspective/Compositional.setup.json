@@ -1,6 +1,6 @@
 {"plugins": [],
  "options": {"pp.unicode.fun": true, "autoImplicit": false},
- "name": "Perspective",
+ "name": "Perspective.Compositional",
  "isModule": false,
  "importArts":
  {"Qq.Typ":
@@ -198,8 +198,6 @@
   ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/ConflictResolution.olean"],
   "Perspective.ConflictLocalization":
   ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/ConflictLocalization.olean"],
-  "Perspective.Compositional":
-  ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/Compositional.olean"],
   "Perspective.AlignmentTheorem":
   ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/AlignmentTheorem.olean"],
   "Perspective.AlignmentEquivalence":
