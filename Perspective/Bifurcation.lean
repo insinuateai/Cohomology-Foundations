@@ -52,20 +52,20 @@ variable {S : Type*} [Fintype S] [DecidableEq S]
 /--
 The alignment status as a function of the tolerance parameter ε.
 -/
-def alignmentStatus {n : ℕ} (systems : Fin n → ValueSystem S)
+def alignmentStatus {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S)
     (epsilon : ℚ) [Nonempty S] : Bool :=
   -- Simplified: check if max disagreement ≤ 2ε
-  let maxDisagree := Finset.univ.sup' 
-    ⟨(⟨0, by omega⟩, ⟨0, by omega⟩), Finset.mem_univ _⟩
-    fun (i, j) : Fin n × Fin n =>
+  let maxDisagree := Finset.univ.sup'
+    ⟨(0, 0), Finset.mem_univ _⟩
+    (fun p : Fin n × Fin n =>
       Finset.univ.sup' ⟨Classical.arbitrary S, Finset.mem_univ _⟩ fun s =>
-        |(systems i).values s - (systems j).values s|
+        |(systems p.1).values s - (systems p.2).values s|)
   maxDisagree ≤ 2 * epsilon
 
 /--
 Number of connected components as a function of ε.
 -/
-def componentCount {n : ℕ} (systems : Fin n → ValueSystem S)
+def componentCount {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S)
     (epsilon : ℚ) [Nonempty S] : ℕ :=
   -- Count how many groups of mutually-agreeing agents exist
   -- Simplified: return 1 if aligned, n otherwise
@@ -74,13 +74,21 @@ def componentCount {n : ℕ} (systems : Fin n → ValueSystem S)
 /--
 H¹ dimension as a function of ε.
 -/
-def h1Dimension {n : ℕ} (systems : Fin n → ValueSystem S)
+def h1Dimension {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S)
     (epsilon : ℚ) [Nonempty S] : ℕ :=
   -- β₁ = |E| - |V| + c for the value complex
   -- Simplified
   if alignmentStatus systems epsilon then 0 else 1
 
 /-! ## Part 2: Bifurcation Points -/
+
+/-- Types of bifurcations -/
+inductive BifurcationType
+  | componentSplit : BifurcationType     -- Connected → Disconnected
+  | componentMerge : BifurcationType     -- Disconnected → Connected
+  | cohomologyChange : BifurcationType   -- H¹ changes dimension
+  | stabilityChange : BifurcationType    -- Stable ↔ Unstable
+  deriving DecidableEq, Repr
 
 /--
 A bifurcation point is a value of ε where the qualitative behavior changes.
@@ -98,25 +106,17 @@ structure BifurcationPoint where
   /-- Severity (how much changes) -/
   severity : ℚ
 
-/-- Types of bifurcations -/
-inductive BifurcationType
-  | componentSplit : BifurcationType     -- Connected → Disconnected
-  | componentMerge : BifurcationType     -- Disconnected → Connected
-  | cohomologyChange : BifurcationType   -- H¹ changes dimension
-  | stabilityChange : BifurcationType    -- Stable ↔ Unstable
-  deriving DecidableEq, Repr
-
 /--
 The critical epsilon: smallest ε where alignment fails.
 -/
-def criticalEpsilon {n : ℕ} (systems : Fin n → ValueSystem S) 
+def criticalEpsilon {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S)
     [Nonempty S] : ℚ :=
   -- ε_crit = max disagreement / 2
-  let maxDisagree := Finset.univ.sup' 
-    ⟨(⟨0, by omega⟩, ⟨0, by omega⟩), Finset.mem_univ _⟩
-    fun (i, j) : Fin n × Fin n =>
+  let maxDisagree := Finset.univ.sup'
+    ⟨(0, 0), Finset.mem_univ _⟩
+    (fun p : Fin n × Fin n =>
       Finset.univ.sup' ⟨Classical.arbitrary S, Finset.mem_univ _⟩ fun s =>
-        |(systems i).values s - (systems j).values s|
+        |(systems p.1).values s - (systems p.2).values s|)
   maxDisagree / 2
 
 /--
@@ -124,7 +124,7 @@ THEOREM: Critical epsilon is a bifurcation point.
 
 At ε = criticalEpsilon, the system transitions from aligned to misaligned.
 -/
-theorem critical_epsilon_is_bifurcation {n : ℕ} (hn : n ≥ 2)
+theorem critical_epsilon_is_bifurcation {n : ℕ} [NeZero n] (hn : n ≥ 2)
     (systems : Fin n → ValueSystem S) [Nonempty S] :
     let εc := criticalEpsilon systems
     (∀ ε > εc, alignmentStatus systems ε = true) ∧
@@ -138,7 +138,7 @@ theorem critical_epsilon_is_bifurcation {n : ℕ} (hn : n ≥ 2)
 /--
 Distance to nearest bifurcation point.
 -/
-def distanceToBifurcation {n : ℕ} (systems : Fin n → ValueSystem S)
+def distanceToBifurcation {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S)
     (epsilon : ℚ) [Nonempty S] : ℚ :=
   let εc := criticalEpsilon systems
   |epsilon - εc|
@@ -146,7 +146,7 @@ def distanceToBifurcation {n : ℕ} (systems : Fin n → ValueSystem S)
 /--
 Safety margin: how far from bifurcation (as fraction of ε).
 -/
-def safetyMargin {n : ℕ} (systems : Fin n → ValueSystem S)
+def safetyMargin {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S)
     (epsilon : ℚ) [Nonempty S] : ℚ :=
   let dist := distanceToBifurcation systems epsilon
   if epsilon > 0 then dist / epsilon else 0
@@ -156,7 +156,7 @@ THEOREM: Large safety margin implies robustness.
 
 If safety margin > δ, then perturbations of size < δ·ε won't cause bifurcation.
 -/
-theorem safety_margin_robustness {n : ℕ} (hn : n ≥ 1)
+theorem safety_margin_robustness {n : ℕ} [NeZero n] (hn : n ≥ 1)
     (systems : Fin n → ValueSystem S) (epsilon delta : ℚ)
     (hε : epsilon > 0) (hδ : delta > 0)
     [Nonempty S]
@@ -200,10 +200,10 @@ def BifurcationClass.description : BifurcationClass → String
 /--
 A change is CATASTROPHIC if a small parameter change causes large state change.
 -/
-def isCatastrophic {n : ℕ} (systems : Fin n → ValueSystem S)
+def isCatastrophic {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S)
     (epsilon1 epsilon2 : ℚ) [Nonempty S] : Bool :=
   let paramChange := |epsilon2 - epsilon1|
-  let statusChange := alignmentStatus systems epsilon1 ≠ alignmentStatus systems epsilon2
+  let statusChange := alignmentStatus systems epsilon1 != alignmentStatus systems epsilon2
   statusChange && paramChange < 1/10
 
 /--
@@ -211,17 +211,17 @@ THEOREM: Bifurcations are catastrophic.
 
 Crossing a bifurcation point always causes a qualitative (catastrophic) change.
 -/
-theorem bifurcation_is_catastrophic {n : ℕ} (hn : n ≥ 2)
+theorem bifurcation_is_catastrophic {n : ℕ} [NeZero n] (hn : n ≥ 2)
     (systems : Fin n → ValueSystem S) [Nonempty S] :
     let εc := criticalEpsilon systems
-    ∀ δ > 0, alignmentStatus systems (εc + δ) ≠ alignmentStatus systems (εc - δ) := by
+    ∀ delta > 0, alignmentStatus systems (εc + delta) ≠ alignmentStatus systems (εc - delta) := by
   -- By definition, behavior is different on either side of bifurcation
   sorry
 
 /--
 Sensitivity to parameter changes near bifurcation.
 -/
-def parameterSensitivity {n : ℕ} (systems : Fin n → ValueSystem S)
+def parameterSensitivity {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S)
     (epsilon : ℚ) [Nonempty S] : ℚ :=
   -- Higher sensitivity near bifurcation
   let dist := distanceToBifurcation systems epsilon
@@ -232,7 +232,7 @@ def parameterSensitivity {n : ℕ} (systems : Fin n → ValueSystem S)
 /--
 With multiple parameters (ε and value adjustments), we get bifurcation SURFACES.
 -/
-def bifurcationSurface {n : ℕ} (systems : Fin n → ValueSystem S)
+def bifurcationSurface {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S)
     [Nonempty S] : Set (ℚ × (Fin n → S → ℚ)) :=
   -- The set of (ε, adjustment) pairs at bifurcation
   { p | let (ε, adj) := p
@@ -268,7 +268,7 @@ THEOREM: Alignment bifurcations are reversible (no hysteresis).
 Unlike some physical systems, alignment status is determined purely
 by current parameters, not history.
 -/
-theorem alignment_no_hysteresis {n : ℕ} (hn : n ≥ 1)
+theorem alignment_no_hysteresis {n : ℕ} [NeZero n] (hn : n ≥ 1)
     (systems : Fin n → ValueSystem S) (epsilon : ℚ)
     [Nonempty S] :
     -- Status depends only on current ε, not history
@@ -280,7 +280,7 @@ theorem alignment_no_hysteresis {n : ℕ} (hn : n ≥ 1)
 /--
 A bifurcation diagram shows how the system state changes with parameters.
 -/
-structure BifurcationDiagram (n : ℕ) where
+structure BifurcationDiagram (n : ℕ) : Type where
   /-- Range of epsilon values analyzed -/
   epsilonRange : ℚ × ℚ
   /-- Bifurcation points found -/
@@ -293,14 +293,14 @@ structure BifurcationDiagram (n : ℕ) where
 /--
 Generate a bifurcation diagram.
 -/
-def generateBifurcationDiagram {n : ℕ} (hn : n ≥ 1)
+def generateBifurcationDiagram {n : ℕ} [NeZero n] (hn : n ≥ 1)
     (systems : Fin n → ValueSystem S) (epsilonMin epsilonMax : ℚ)
     [Nonempty S] : BifurcationDiagram n :=
   let εc := criticalEpsilon systems
-  let bif := { epsilon := εc, bifType := .componentSplit, severity := 1 : BifurcationPoint }
+  let bifPoint := { epsilon := εc, bifType := .componentSplit, severity := 1 : BifurcationPoint }
   {
     epsilonRange := (epsilonMin, epsilonMax)
-    bifurcations := if epsilonMin < εc ∧ εc < epsilonMax then [bif] else []
+    bifurcations := if epsilonMin < εc ∧ εc < epsilonMax then [bifPoint] else []
     stableRegions := if εc < epsilonMax then [(εc, epsilonMax)] else []
     unstableRegions := if epsilonMin < εc then [(epsilonMin, εc)] else []
   }
@@ -327,7 +327,7 @@ structure BifurcationReport (n : ℕ) where
   warning : Option String
 
 /-- Generate a bifurcation report -/
-def generateBifurcationReport {n : ℕ} (hn : n ≥ 1)
+def generateBifurcationReport {n : ℕ} [NeZero n] (hn : n ≥ 1)
     (systems : Fin n → ValueSystem S) (epsilon : ℚ) (hε : epsilon > 0)
     [Nonempty S] : BifurcationReport n :=
   let εc := criticalEpsilon systems
@@ -365,21 +365,31 @@ We provide:
 
 This enables PREDICTIVE management of alignment stability.
 -/
-theorem bifurcation_product {n : ℕ} (hn : n ≥ 1)
+theorem bifurcation_product {n : ℕ} [NeZero n] (hn : n ≥ 1)
     (systems : Fin n → ValueSystem S) (epsilon : ℚ) (hε : epsilon > 0)
     [Nonempty S] :
     -- Bifurcation framework is well-defined
     criticalEpsilon systems ≥ 0 ∧
     distanceToBifurcation systems epsilon ≥ 0 := by
   constructor
-  · unfold criticalEpsilon
-    apply div_nonneg
-    · apply Finset.sup'_nonneg
-      intro x _
-      apply Finset.sup'_nonneg
-      intro s _
-      exact abs_nonneg _
-    · norm_num
+  · -- criticalEpsilon = maxDisagree / 2 where maxDisagree ≥ 0
+    unfold criticalEpsilon
+    apply div_nonneg _ (by norm_num : (0 : ℚ) ≤ 2)
+    -- sup' of abs values is ≥ 0: use transitivity through a single element
+    have i0 : Fin n := 0
+    have s0 : S := Classical.arbitrary S
+    -- The outer sup' is ≥ 0 because it contains abs values
+    -- Pick any element and show it's ≥ 0
+    let outerFn : Fin n × Fin n → ℚ := fun p =>
+      Finset.univ.sup' ⟨s0, Finset.mem_univ _⟩
+        (fun s => |(systems p.1).values s - (systems p.2).values s|)
+    have h1 : outerFn (i0, i0) ≥ 0 := by
+      apply le_trans (abs_nonneg _)
+      exact Finset.le_sup' (f := fun s => |(systems i0).values s - (systems i0).values s|) (Finset.mem_univ s0)
+    calc (0 : ℚ)
+      _ ≤ outerFn (i0, i0) := h1
+      _ ≤ Finset.univ.sup' ⟨(i0, i0), Finset.mem_univ _⟩ outerFn :=
+          Finset.le_sup' (f := outerFn) (Finset.mem_univ (i0, i0))
   · unfold distanceToBifurcation
     exact abs_nonneg _
 

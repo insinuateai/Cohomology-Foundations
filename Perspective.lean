@@ -22,3 +22,4 @@ import Perspective.Barrier
 import Perspective.Geodesic
 import Perspective.Curvature
 import Perspective.CriticalPoints
+import Perspective.Bifurcation
