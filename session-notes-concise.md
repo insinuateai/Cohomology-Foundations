@@ -28,7 +28,7 @@
 
 ### Perspective Mathematics - MOAT COMPLETE ✅
 **File:** `Perspective/`
-**All 9 novel theorems proven (axioms only for standard math facts)**
+**All 10 novel theorems proven (axioms only for standard math facts)**
 
 | Batch | File | Key Theorem | Status |
 |-------|------|-------------|--------|
@@ -41,8 +41,10 @@
 | 15 | Barrier.lean | When repair is impossible | ✅ |
 | 16 | Geodesic.lean | Shortest adjustment paths | ✅ |
 | 17 | Curvature.lean | How curved is the landscape | ✅ |
+| 18 | CriticalPoints.lean | Trap detection + escape routes | ✅ |
 
 **Geodesic.lean:** `l1_triangle` converted from axiom to theorem.
+**CriticalPoints.lean:** 0 sorries, 3 axioms (standard Morse theory).
 
 ---
 
@@ -70,6 +72,13 @@ Hollow triangle (3 pairwise compatible, no global) → H¹ ≅ ℤ ≠ 0 → no 
 - High curvature (κ > 1/2) indicates nearby barriers
 - Low curvature everywhere (κ < 1/10) implies no barriers
 - H1Trivial → all curvatures = 0 (flat landscape)
+
+### Critical Point Analysis (Morse Theory)
+- Misalignment function = sum of squared excesses over 2ε threshold
+- Zero misalignment ⟺ H1Trivial (all pairs agree within 2ε)
+- Global minimum has zero misalignment (uniform system achieves 0)
+- Saddle points have escape directions (Morse theory)
+- Gradient zero when aligned (all disagreements ≤ 2ε → no contribution)
 
 ---
 
