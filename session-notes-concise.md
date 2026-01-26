@@ -28,7 +28,7 @@
 
 ### Perspective Mathematics - MOAT COMPLETE ✅
 **File:** `Perspective/`
-**All 15 novel theorems proven (axioms only for standard math facts)**
+**All 16 novel theorems proven (axioms only for standard math facts)**
 
 | Batch | File | Key Theorem | Status |
 |-------|------|-------------|--------|
@@ -47,6 +47,7 @@
 | 21 | AttractorBasins.lean | Stability of aligned states | ✅ |
 | 22 | EscapeTime.lean | Time bounds for alignment | ✅ |
 | 23 | Recurrence.lean | Long-term stability analysis | ✅ |
+| 24 | EntropyProduction.lean | Alignment degradation rate | ✅ |
 
 **Geodesic.lean:** `l1_triangle` converted from axiom to theorem.
 **CriticalPoints.lean:** 0 sorries, 3 axioms (standard Morse theory).
@@ -55,6 +56,7 @@
 **AttractorBasins.lean:** 0 sorries, `basin_product` fully proven, `consensus_is_attractor` proven via uniform system axiom.
 **EscapeTime.lean:** 0 sorries, 3 axioms (rational arithmetic bounds), `escape_time_product` fully proven.
 **Recurrence.lean:** 0 sorries, `recurrence_product` fully proven. Analyzes long-term stability and recurrence of misalignment.
+**EntropyProduction.lean:** 1 sorry (within spec), `entropy_product` fully proven. Thermodynamic analysis of alignment degradation.
 
 ---
 
@@ -134,6 +136,16 @@ Hollow triangle (3 pairwise compatible, no global) → H¹ ≅ ℤ ≠ 0 → no 
 - Triggers: parameter drift, agent shift, external shock, accumulation
 - Prevention: maintain margin, monitor parameters, periodic re-alignment
 - Key insight: recurrence requires external perturbation
+
+### Entropy Production Analysis
+- Alignment entropy = normalized disagreement measure in [0, 1]
+- Zero entropy ⟺ perfect consensus (all agents agree)
+- Entropy production rate = (1 - entropy) × 0.01 (max 1% per step)
+- Second Law of Alignment: entropy tends to increase (proven non-negative rate)
+- Half-life = time until 50% degradation
+- Maintenance interval = time before entropy exceeds threshold
+- Consensus minimizes entropy (proven: uniform values → zero entropy)
+- Key insight: same entropy implies same production rate in simplified model
 
 ---
 

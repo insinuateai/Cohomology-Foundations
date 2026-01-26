@@ -1,0 +1,63 @@
+{"synthetic": false,
+ "schemaVersion": "2025-09-10",
+ "outputs":
+ {"o": ["66917ffb1c3a5ea5.olean"],
+  "i": "d70837b5275e1f99.ilean",
+  "c": "568f2cd34202d90d.c"},
+ "log":
+ [{"message":
+   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.26.0/bin/lean /workspaces/Cohomology-Foundations/Perspective/EntropyProduction.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/EntropyProduction.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/EntropyProduction.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/EntropyProduction.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/EntropyProduction.setup.json --json",
+   "level": "trace"},
+  {"message":
+   "Perspective/EntropyProduction.lean:65:5: unused variable `epsilon`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/EntropyProduction.lean:79:0: automatically included section variable(s) unused in theorem `EntropyProduction.entropy_bounded`:\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/EntropyProduction.lean:111:0: automatically included section variable(s) unused in theorem `EntropyProduction.zero_entropy_consensus`:\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/EntropyProduction.lean:114:5: unused variable `h_zero`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/EntropyProduction.lean:183:0: automatically included section variable(s) unused in theorem `EntropyProduction.higher_rate_shorter_halflife`:\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/EntropyProduction.lean:222:8: declaration uses 'sorry'",
+   "level": "warning"},
+  {"message":
+   "Perspective/EntropyProduction.lean:310:0: automatically included section variable(s) unused in theorem `EntropyProduction.consensus_minimizes_entropy`:\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/EntropyProduction.lean:373:46: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/EntropyProduction.lean:374:53: unused variable `hε`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/EntropyProduction.lean:411:53: unused variable `hε`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"}],
+ "inputs":
+ [["Perspective.EntropyProduction:deps",
+   [["deps",
+     [["CohomologyFoundations/Perspective:extraDep",
+       [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
+      ["imports",
+       [["Perspective.Recurrence transitive imports (legacy)",
+         "c794fb2a716c209c"],
+        ["Perspective.Recurrence:importAllArts", "141068382031039b"]]]]],
+    ["libs",
+     [["import dynlibs", "00000000000006bb"],
+      ["package external libraries", "00000000000006bb"],
+      ["module dynlibs", "00000000000006bb"],
+      ["module plugins", "00000000000006bb"]]]]],
+  ["Lean 4.26.0, commit d8204c9fd894f91bbb2cdfec5912ec8196fd8562",
+   "9c9419104e9584f8"],
+  ["/workspaces/Cohomology-Foundations/Perspective/EntropyProduction.lean",
+   "87fc7264dff3a856"],
+  ["options",
+   [["-Dpp.unicode.fun=true", "9b94070140457fab"],
+    ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
+  ["Module.leanArgs: #[]", "00000000000006bb"]],
+ "depHash": "e16973e297c7f5c9"}

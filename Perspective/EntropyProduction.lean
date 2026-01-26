@@ -64,9 +64,9 @@ We use a normalized measure in [0, 1].
 def alignmentEntropy {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S)
     (epsilon : ℚ) [Nonempty S] : ℚ :=
   -- Entropy based on disagreement distribution
-  let totalDisagreement := Finset.univ.sum fun (i, j) : Fin n × Fin n =>
-    if i < j then
-      Finset.univ.sum fun s => |(systems i).values s - (systems j).values s|
+  let totalDisagreement := Finset.univ.sum fun p : Fin n × Fin n =>
+    if p.1 < p.2 then
+      Finset.univ.sum fun s => |(systems p.1).values s - (systems p.2).values s|
     else 0
   let maxPossible := (n * (n - 1) / 2) * Fintype.card S  -- Maximum possible pairs × situations
   if maxPossible > 0 then
@@ -79,22 +79,29 @@ THEOREM: Alignment entropy is in [0, 1].
 theorem entropy_bounded {n : ℕ} [NeZero n]
     (systems : Fin n → ValueSystem S) (epsilon : ℚ)
     [Nonempty S] :
-    0 ≤ alignmentEntropy systems epsilon ∧ 
+    0 ≤ alignmentEntropy systems epsilon ∧
     alignmentEntropy systems epsilon ≤ 1 := by
-  unfold alignmentEntropy
   constructor
-  · split_ifs with h
+  · -- Lower bound: entropy ≥ 0
+    unfold alignmentEntropy
+    simp only
+    split_ifs with h
     · apply le_min
       · norm_num
       · apply div_nonneg
         · apply Finset.sum_nonneg
-          intro x _
-          split_ifs <;> [apply Finset.sum_nonneg; norm_num]
-          intro s _
-          exact abs_nonneg _
+          intro p _
+          split_ifs with hij
+          · apply Finset.sum_nonneg
+            intro s _
+            exact abs_nonneg _
+          · norm_num
         · exact Nat.cast_nonneg _
     · norm_num
-  · split_ifs with h
+  · -- Upper bound: entropy ≤ 1
+    unfold alignmentEntropy
+    simp only
+    split_ifs with h
     · exact min_le_left 1 _
     · norm_num
 
@@ -179,8 +186,12 @@ theorem higher_rate_shorter_halflife {n : ℕ} [NeZero n]
     (h_same_start : alignmentEntropy sys1 epsilon = alignmentEntropy sys2 epsilon)
     (h_higher : entropyProductionRate sys1 epsilon > entropyProductionRate sys2 epsilon) :
     halfLifeAlignment sys1 epsilon < halfLifeAlignment sys2 epsilon := by
-  -- Higher rate → faster degradation → shorter half-life
-  sorry
+  -- With the current simplified model, production rate is determined by entropy
+  -- So same entropy implies same rate, contradicting h_higher
+  exfalso
+  unfold entropyProductionRate at h_higher
+  simp only [h_same_start] at h_higher
+  exact lt_irrefl _ h_higher
 
 /-! ## Part 4: Maintenance Scheduling -/
 
@@ -301,8 +312,16 @@ theorem consensus_minimizes_entropy {n : ℕ} [NeZero n]
     let consensus := minEntropyConfiguration value (n := n)
     alignmentEntropy consensus epsilon = 0 := by
   -- Consensus has zero disagreement → zero entropy
-  simp only [minEntropyConfiguration, alignmentEntropy]
-  simp only [sub_self, abs_zero, Finset.sum_const_zero, ite_self, Finset.sum_ite_eq']
+  simp only [alignmentEntropy, minEntropyConfiguration]
+  -- When all systems agree, totalDisagreement = 0
+  have h_sum_zero : Finset.univ.sum (fun p : Fin n × Fin n =>
+    if p.1 < p.2 then Finset.univ.sum fun s => |value s - value s| else 0) = 0 := by
+    apply Finset.sum_eq_zero
+    intro p _
+    split_ifs with hij
+    · simp only [sub_self, abs_zero, Finset.sum_const_zero]
+    · rfl
+  simp only [h_sum_zero]
   split_ifs <;> simp
 
 /-! ## Part 8: Entropy Trajectory -/

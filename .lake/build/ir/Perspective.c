@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Perspective
-// Imports: public import Init public import Perspective.ValueSystem public import Perspective.Alignment public import Perspective.ValueComplex public import Perspective.AlignmentEquivalence public import Perspective.AlignmentTheorem public import Perspective.ImpossibilityStrong public import Perspective.ConflictLocalization public import Perspective.ConflictResolution public import Perspective.AgentCoordination public import Perspective.Stability public import Perspective.ObstructionClassification public import Perspective.IncrementalUpdates public import Perspective.HierarchicalAlignment public import Perspective.MayerVietoris public import Perspective.DimensionBound public import Perspective.Persistence public import Perspective.SpectralGap public import Perspective.InformationBound public import Perspective.OptimalRepair public import Perspective.Compositional public import Perspective.Barrier public import Perspective.Geodesic public import Perspective.Curvature public import Perspective.CriticalPoints public import Perspective.Bifurcation public import Perspective.Hysteresis public import Perspective.AttractorBasins public import Perspective.EscapeTime public import Perspective.Recurrence
+// Imports: public import Init public import Perspective.ValueSystem public import Perspective.Alignment public import Perspective.ValueComplex public import Perspective.AlignmentEquivalence public import Perspective.AlignmentTheorem public import Perspective.ImpossibilityStrong public import Perspective.ConflictLocalization public import Perspective.ConflictResolution public import Perspective.AgentCoordination public import Perspective.Stability public import Perspective.ObstructionClassification public import Perspective.IncrementalUpdates public import Perspective.HierarchicalAlignment public import Perspective.MayerVietoris public import Perspective.DimensionBound public import Perspective.Persistence public import Perspective.SpectralGap public import Perspective.InformationBound public import Perspective.OptimalRepair public import Perspective.Compositional public import Perspective.Barrier public import Perspective.Geodesic public import Perspective.Curvature public import Perspective.CriticalPoints public import Perspective.Bifurcation public import Perspective.Hysteresis public import Perspective.AttractorBasins public import Perspective.EscapeTime public import Perspective.Recurrence public import Perspective.EntropyProduction
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -43,6 +43,7 @@ lean_object* initialize_Perspective_Hysteresis(uint8_t builtin);
 lean_object* initialize_Perspective_AttractorBasins(uint8_t builtin);
 lean_object* initialize_Perspective_EscapeTime(uint8_t builtin);
 lean_object* initialize_Perspective_Recurrence(uint8_t builtin);
+lean_object* initialize_Perspective_EntropyProduction(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Perspective(uint8_t builtin) {
 lean_object * res;
@@ -136,6 +137,9 @@ res = initialize_Perspective_EscapeTime(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Perspective_Recurrence(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Perspective_EntropyProduction(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
