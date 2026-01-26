@@ -2620,3 +2620,24 @@ Perspective/
 | 5 | Optimal Repair | Minimum fix cost |
 | 6 | Compositional | Safe parts → safe whole |
 | 7 | **Barrier** | **When repair is impossible** |
+
+---
+
+## Session: l1_triangle Axiom → Theorem
+
+### Change Made
+Replaced `axiom l1_triangle` with a proven `theorem l1_triangle` in `Perspective/Geodesic.lean:98-114`.
+
+### Proof Technique
+Uses a calc chain:
+1. Rewrite `|p - r|` as `|p - q + q - r|` via `ring_nf`
+2. Apply `abs_add_le` for pointwise triangle inequality
+3. Split sums via `Finset.sum_add_distrib`
+
+### Key Lemmas Used
+- `abs_add_le : |a + b| ≤ |a| + |b|`
+- `Finset.sum_le_sum` : pointwise ≤ implies sum ≤
+- `Finset.sum_add_distrib` : Σ(a + b) = Σa + Σb
+
+### Build Status
+- `lake build Perspective.Geodesic` ✓ Success

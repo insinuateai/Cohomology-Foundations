@@ -3238,3 +3238,37 @@ def StructuralChange.cost (sc : StructuralChange) : ℕ :=
   | .addAgent _ => 5
   | .splitIntoSubsystems _ => 20
 ```
+
+---
+### Pattern: L1 Triangle Inequality Proof
+
+**For:** Proving triangle inequality for sum-based metrics
+**File:** `Perspective/Geodesic.lean:98-114`
+
+**Strategy:**
+1. Rewrite difference as sum: `p - r = (p - q) + (q - r)`
+2. Apply pointwise `abs_add_le`
+3. Distribute sum via `Finset.sum_add_distrib`
+
+**Code:**
+```lean
+theorem l1_triangle {n : ℕ} (p q r : ValuePoint n S) :
+    l1Distance p r ≤ l1Distance p q + l1Distance q r := by
+  unfold l1Distance
+  calc (Finset.univ.sum fun i => Finset.univ.sum fun s => |p i s - r i s|)
+      = (Finset.univ.sum fun i => Finset.univ.sum fun s =>
+           |p i s - q i s + (q i s - r i s)|) := by
+        congr 1; ext i; congr 1; ext s; ring_nf
+    _ ≤ (Finset.univ.sum fun i => Finset.univ.sum fun s =>
+          (|p i s - q i s| + |q i s - r i s|)) := by
+        apply Finset.sum_le_sum; intro i _
+        apply Finset.sum_le_sum; intro s _
+        exact abs_add_le (p i s - q i s) (q i s - r i s)
+    _ = (Finset.univ.sum fun i => Finset.univ.sum fun s => |p i s - q i s|) +
+        (Finset.univ.sum fun i => Finset.univ.sum fun s => |q i s - r i s|) := by
+        rw [← Finset.sum_add_distrib]
+        congr 1; ext i
+        rw [← Finset.sum_add_distrib]
+```
+
+**Note:** Use `abs_add_le` not `abs_add` (Mathlib naming convention)
