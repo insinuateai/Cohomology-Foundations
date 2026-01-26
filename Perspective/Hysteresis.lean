@@ -69,7 +69,7 @@ structure ParameterPath where
 
 /-- Start of the path -/
 def ParameterPath.start (p : ParameterPath) : ℚ :=
-  p.values.head (List.ne_nil_of_ne_nil p.nonempty)
+  p.values.head p.nonempty
 
 /-- End of the path -/
 def ParameterPath.finish (p : ParameterPath) : ℚ :=
@@ -91,7 +91,7 @@ In the simplest model, state depends only on current ε.
 -/
 def stateAlongPath {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S)
     (path : ParameterPath) [Nonempty S] : List Bool :=
-  path.values.map (alignmentStatus systems)
+  path.values.map (fun ε => alignmentStatus systems ε)
 
 /--
 Final state after following a path.
@@ -257,14 +257,17 @@ With no hysteresis, all paths are equivalent.
 With hysteresis, some paths avoid getting stuck.
 -/
 def optimalPath {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S)
-    (startEps endEps : ℚ) [Nonempty S] : ParameterPath :=
+    (startEps endEps : ℚ) (h1 : startEps > 0) (h2 : endEps > 0)
+    [Nonempty S] : ParameterPath :=
   -- Without hysteresis, direct path is optimal
   { values := [startEps, endEps]
     nonempty := by simp
     positive := by
       intro ε hε
-      simp at hε
-      sorry }  -- Need positivity assumptions
+      simp only [List.mem_cons, List.mem_nil_iff, or_false] at hε
+      rcases hε with rfl | rfl
+      · exact h1
+      · exact h2 }
 
 /--
 THEOREM: Direct path is optimal without hysteresis.

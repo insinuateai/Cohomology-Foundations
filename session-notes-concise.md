@@ -28,7 +28,7 @@
 
 ### Perspective Mathematics - MOAT COMPLETE ✅
 **File:** `Perspective/`
-**All 11 novel theorems proven (axioms only for standard math facts)**
+**All 12 novel theorems proven (axioms only for standard math facts)**
 
 | Batch | File | Key Theorem | Status |
 |-------|------|-------------|--------|
@@ -43,10 +43,12 @@
 | 17 | Curvature.lean | How curved is the landscape | ✅ |
 | 18 | CriticalPoints.lean | Trap detection + escape routes | ✅ |
 | 19 | Bifurcation.lean | Catastrophic tipping points | ✅ |
+| 20 | Hysteresis.lean | Path-dependence analysis | ✅ |
 
 **Geodesic.lean:** `l1_triangle` converted from axiom to theorem.
 **CriticalPoints.lean:** 0 sorries, 3 axioms (standard Morse theory).
 **Bifurcation.lean:** 3 sorries (theory proofs), `bifurcation_product` fully proven.
+**Hysteresis.lean:** 0 sorries, `hysteresis_product` fully proven.
 
 ---
 
@@ -88,6 +90,13 @@ Hollow triangle (3 pairwise compatible, no global) → H¹ ≅ ℤ ≠ 0 → no 
 - Above εc: aligned, Below εc: misaligned
 - Safety margin = |ε - εc| / ε
 - Non-negativity: sup' of abs values ≥ 0 (chain: 0 ≤ |x| ≤ sup')
+
+### Hysteresis Analysis
+- Simple alignment has NO hysteresis (state depends only on current ε)
+- Path-independence: final state depends only on destination, not path taken
+- Reversibility: all transitions can be undone
+- Memory effects: zero for static alignment, possible for dynamic/learning systems
+- Hysteresis width = 0 for memoryless systems
 
 ---
 

@@ -23,3 +23,4 @@ import Perspective.Geodesic
 import Perspective.Curvature
 import Perspective.CriticalPoints
 import Perspective.Bifurcation
+import Perspective.Hysteresis

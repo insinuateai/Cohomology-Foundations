@@ -1,6 +1,6 @@
 {"plugins": [],
  "options": {"pp.unicode.fun": true, "autoImplicit": false},
- "name": "Perspective",
+ "name": "Perspective.Hysteresis",
  "isModule": false,
  "importArts":
  {"Qq.Typ":
@@ -190,8 +190,6 @@
   ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/IncrementalUpdates.olean"],
   "Perspective.ImpossibilityStrong":
   ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/ImpossibilityStrong.olean"],
-  "Perspective.Hysteresis":
-  ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/Hysteresis.olean"],
   "Perspective.HierarchicalAlignment":
   ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/HierarchicalAlignment.olean"],
   "Perspective.Geodesic":
