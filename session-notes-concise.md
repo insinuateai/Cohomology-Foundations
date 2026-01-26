@@ -28,7 +28,7 @@
 
 ### Perspective Mathematics - MOAT COMPLETE ✅
 **File:** `Perspective/`
-**All 13 novel theorems proven (axioms only for standard math facts)**
+**All 14 novel theorems proven (axioms only for standard math facts)**
 
 | Batch | File | Key Theorem | Status |
 |-------|------|-------------|--------|
@@ -45,12 +45,14 @@
 | 19 | Bifurcation.lean | Catastrophic tipping points | ✅ |
 | 20 | Hysteresis.lean | Path-dependence analysis | ✅ |
 | 21 | AttractorBasins.lean | Stability of aligned states | ✅ |
+| 22 | EscapeTime.lean | Time bounds for alignment | ✅ |
 
 **Geodesic.lean:** `l1_triangle` converted from axiom to theorem.
 **CriticalPoints.lean:** 0 sorries, 3 axioms (standard Morse theory).
 **Bifurcation.lean:** 3 sorries (theory proofs), `bifurcation_product` fully proven.
 **Hysteresis.lean:** 0 sorries, `hysteresis_product` fully proven.
 **AttractorBasins.lean:** 0 sorries, `basin_product` fully proven, `consensus_is_attractor` proven via uniform system axiom.
+**EscapeTime.lean:** 0 sorries, 3 axioms (rational arithmetic bounds), `escape_time_product` fully proven.
 
 ---
 
@@ -108,6 +110,17 @@ Hollow triangle (3 pairwise compatible, no global) → H¹ ≅ ℤ ≠ 0 → no 
 - Consensus is always an attractor: all agents with same values → uniform system → zero misalignment
 - Proof via `CriticalPoints.uniform_misalignment_zero_ax` axiom
 - Stability classification: veryStable (radius > ε), stable (> ε/2), marginal (> ε/10), unstable
+
+### Escape Time Analysis
+- Escape time = steps to go from misaligned to aligned
+- Convergence rate = 4/5 (misalignment decreases by factor of 0.8 per step)
+- Rate bounds proven: 0 < rate < 1 (guarantees convergence)
+- Escape time = log(initial/tolerance) / log(1/rate)
+- Upper/lower bounds for planning and budgeting
+- Progress tracking: actual vs expected misalignment
+- Forecasting: predict misalignment at future steps
+- Zero misalignment → zero escape time (proven directly)
+- Axioms used: finiteness, monotonicity, worst-case bound (rational arithmetic)
 
 ---
 

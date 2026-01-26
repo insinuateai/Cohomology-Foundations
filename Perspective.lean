@@ -24,3 +24,5 @@ import Perspective.Curvature
 import Perspective.CriticalPoints
 import Perspective.Bifurcation
 import Perspective.Hysteresis
+import Perspective.AttractorBasins
+import Perspective.EscapeTime
