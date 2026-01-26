@@ -18,3 +18,4 @@ import Perspective.SpectralGap
 import Perspective.InformationBound
 import Perspective.OptimalRepair
 import Perspective.Compositional
+import Perspective.Barrier

@@ -3158,3 +3158,83 @@ theorem tree_interface_safe ... (h_tree : I.connections.length < M₁.numAgents 
   have h_acyclic : interfaceIsAcyclic M₁ M₂ I := trivial
   exact acyclic_interface_preserves M₁ M₂ I h₁ h₂ h_compat h_acyclic
 ```
+
+---
+Added: 2026-01-26
+Source: Batch 15 - Barrier Theorem
+
+### Pattern: Barrier Detection via Cohomology
+
+**Name:** Hollow Triangle Barrier
+**Use when:** Detecting when value adjustment cannot achieve alignment
+
+**Concept:**
+- Three agents pairwise compatible but no global solution ⇒ H¹ ≅ ℤ ≠ 0
+- This is the simplest barrier (hollow triangle in nerve)
+- No value adjustment can fix it - structural change required
+
+**Code:**
+```lean
+axiom hollow_triangle_barrier_ax (agents : Finset (Fin 3))
+    (h_three : agents.card = 3)
+    (h_pairwise : ∀ i j, i ∈ agents → j ∈ agents → i ≠ j → 
+                  pairwiseCompatible i j)
+    (h_no_global : ¬∃ v, ∀ i ∈ agents, agentAccepts i v) :
+    HasBarrier agents systems ε
+```
+
+---
+### Pattern: Case Analysis on Finset.card
+
+**Name:** Small Cardinality Exhaustion
+**Use when:** Proving properties for small sets (≤2 or ≤3 elements)
+
+**Code:**
+```lean
+theorem barrier_needs_three (agents : Finset α) (h : agents.card < 3) :
+    NoBarrier agents systems ε := by
+  interval_cases agents.card
+  · exact no_barrier_empty_ax
+  · exact no_barrier_singleton_ax agents (card_eq_one.mp (by omega))
+  · exact no_barrier_pair_ax agents (by omega)
+```
+
+**Note:** `interval_cases` handles 0, 1, 2 automatically when `h : n < 3`
+
+---
+### Strategy: Barrier vs Expensive Distinction
+
+**For:** Proving impossibility (barrier) differs from high cost (expensive)
+**Key insight:** Barrier means H¹ ≠ 0; expensive means finite cost but high
+
+**Code:**
+```lean
+theorem barrier_vs_expensive :
+    HasBarrier agents systems ε ↔ 
+    (¬∃ (adj : ValueAdjustment agents), achievesAlignment adj ∧ adj.totalCost < ⊤) := by
+  constructor
+  · intro h_barrier ⟨adj, h_aligned, _⟩
+    exact h_barrier.no_adjustment_works adj h_aligned
+  · intro h_no_finite
+    exact ⟨fun adj h_aligned => h_no_finite ⟨adj, h_aligned, adj.totalCost.lt_top⟩⟩
+```
+
+---
+### Pattern: Structural Change Costs
+
+**Name:** Agent Modification Cost Model
+**Use when:** Computing minimum structural fix for barriers
+
+**Values:**
+- Remove agent: cost 10 (high - loses capability)
+- Add agent: cost 5 (medium - adds mediation)
+- Split system: cost 20 (very high - architectural change)
+
+**Code:**
+```lean
+def StructuralChange.cost (sc : StructuralChange) : ℕ :=
+  match sc with
+  | .removeAgent _ => 10
+  | .addAgent _ => 5
+  | .splitIntoSubsystems _ => 20
+```
