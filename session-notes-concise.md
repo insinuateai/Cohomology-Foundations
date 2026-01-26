@@ -1,0 +1,94 @@
+# Tenured Lean 4 Project Status
+
+## Current State (2026-01-26)
+
+### H1 Characterization - NEARLY COMPLETE
+**File:** `H1Characterization/`
+**Goal:** Prove H¹ = 0 ⟺ OneConnected
+
+| Item | Status | Notes |
+|------|--------|-------|
+| `oriented_edge_coboundary` | ✅ Done | Case split on src < tgt |
+| `singleEdge_oneConnected_axiom` | ✅ Done | Walk structure analysis |
+| `cycleIndicator_not_coboundary` | ✅ Done | Walk sum contradiction |
+| `cycleIndicator_self_contribution` | ✅ Done | Trail uniqueness + countP |
+| `cycleIndicator_sum_length` | ✅ Fixed | Rewrote to avoid `List.map_eq_replicate_iff` |
+| `cycleIndicator_is_cocycle` | Axiom | Keep (standard topological fact) |
+
+**Remaining sorries in ForestCoboundary.lean:**
+| Line | Name | Approach |
+|------|------|----------|
+| ~375 | `pathIntegral_difference_on_edge` | Path uniqueness in forests |
+| ~424 | `cocycle_zero_on_unreachable_component` | Isolated tree argument |
+| ~477 | `coboundaryWitness_works` | Uses pathIntegral_difference_on_edge |
+
+**Dependencies:** pathIntegral_difference_on_edge → coboundaryWitness_works
+
+---
+
+### Perspective Mathematics - MOAT COMPLETE ✅
+**File:** `Perspective/`
+**All 7 novel theorems proven (axioms only for standard math facts)**
+
+| Batch | File | Key Theorem | Status |
+|-------|------|-------------|--------|
+| 9 | DimensionBound.lean | How severe is misalignment | ✅ |
+| 10 | Persistence.lean | Which conflicts are real | ✅ |
+| 11 | SpectralGap.lean | How fast to converge | ✅ |
+| 12 | InformationBound.lean | Why can't they align | ✅ |
+| 13 | OptimalRepair.lean | Minimum fix cost | ✅ |
+| 14 | Compositional.lean | Safe parts → safe whole | ✅ |
+| 15 | Barrier.lean | When repair is impossible | ✅ |
+
+**Geodesic.lean:** `l1_triangle` converted from axiom to theorem.
+
+---
+
+## Key Proof Strategies Learned
+
+### Cycle Contradiction (single edge graphs)
+Any closed walk must traverse the only edge twice → violates IsTrail.
+
+### Non-Coboundary via Walk Sum
+1. Walk sum of coboundary on closed walk = 0 (telescopes)
+2. Walk sum of cycle indicator = cycle length ≥ 3
+3. Contradiction
+
+### Trail Uniqueness for Counting
+In a trail, each edge appears once → `countP (edge eq) = 1` → prove uniqueness.
+
+### Compositional Verification
+Two forests + ≤1 connecting edge = still a forest → H¹ = 0 preserved.
+
+### Barrier Detection
+Hollow triangle (3 pairwise compatible, no global) → H¹ ≅ ℤ ≠ 0 → no value adjustment works.
+
+---
+
+## Build Commands
+```bash
+lake build H1Characterization
+lake build Perspective
+lake build  # full project
+```
+
+---
+
+## Import Constraints
+- `Definitions.lean` cannot import `ForestCoboundary.lean` (circular via PathIntegral)
+- Self-contained proofs needed for anything in Definitions
+
+---
+
+## Structure Reference
+
+### AlignmentModule
+```lean
+structure AlignmentModule (S : Type*) [Fintype S] where
+  numAgents : ℕ
+  systems : Fin numAgents → ValueSystem S
+  epsilon : ℝ
+```
+
+### Key Type Classes Needed
+`[Fintype S] [DecidableEq S] [Nonempty S]` for most alignment proofs.
