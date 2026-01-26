@@ -87,7 +87,20 @@ theorem consensus_is_attractor {n : ℕ} [NeZero n] (hn : n ≥ 1)
     let systems := fromValuePoint (consensusAttractor value (n := n))
     isAttractor systems epsilon = true := by
   -- Consensus has zero disagreement, so misalignment = 0
-  sorry
+  simp only [isAttractor]
+  -- Need to show decide (misalignment systems = 0) = true
+  -- Which requires misalignment systems = 0
+  -- Consensus systems: all agents have the same values (value s for all s)
+  -- So fromValuePoint (consensusAttractor value) i = { values := fun s => value s }
+  -- This is exactly the uniform system with baseVal = value
+  have h_uniform : (fromValuePoint (consensusAttractor value (n := n))) =
+                   (fun _ : Fin n => (⟨value⟩ : ValueSystem S)) := by
+    funext i
+    simp only [fromValuePoint, consensusAttractor, ValueSystem.mk.injEq]
+  rw [h_uniform]
+  -- Now apply the axiom that uniform systems have zero misalignment
+  have h_zero := CriticalPoints.uniform_misalignment_zero_ax (n := n) epsilon value
+  simp only [h_zero, decide_eq_true_eq]
 
 /-! ## Part 2: Basin of Attraction -/
 
@@ -153,10 +166,12 @@ theorem inside_basin_positive_distance {n : ℕ} [NeZero n]
     (epsilon : ℚ) (hε : epsilon > 0) [Nonempty S]
     (h_inside : l1Distance point attractor.point < basinRadius attractor epsilon) :
     distanceToBoundary point attractor epsilon > 0 := by
-  unfold distanceToBoundary basinRadius
-  simp only [ge_iff_le, le_max_iff, sub_nonneg]
-  left
-  linarith
+  unfold distanceToBoundary basinRadius at *
+  -- Need to show max 0 (epsilon - l1Distance point attractor.point) > 0
+  -- Since h_inside : l1Distance point attractor.point < epsilon
+  -- We have epsilon - l1Distance point attractor.point > 0
+  have h_pos : epsilon - l1Distance point attractor.point > 0 := by linarith
+  exact lt_max_of_lt_right h_pos
 
 /-! ## Part 4: Multiple Attractors -/
 

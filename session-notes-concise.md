@@ -28,7 +28,7 @@
 
 ### Perspective Mathematics - MOAT COMPLETE ✅
 **File:** `Perspective/`
-**All 12 novel theorems proven (axioms only for standard math facts)**
+**All 13 novel theorems proven (axioms only for standard math facts)**
 
 | Batch | File | Key Theorem | Status |
 |-------|------|-------------|--------|
@@ -44,11 +44,13 @@
 | 18 | CriticalPoints.lean | Trap detection + escape routes | ✅ |
 | 19 | Bifurcation.lean | Catastrophic tipping points | ✅ |
 | 20 | Hysteresis.lean | Path-dependence analysis | ✅ |
+| 21 | AttractorBasins.lean | Stability of aligned states | ✅ |
 
 **Geodesic.lean:** `l1_triangle` converted from axiom to theorem.
 **CriticalPoints.lean:** 0 sorries, 3 axioms (standard Morse theory).
 **Bifurcation.lean:** 3 sorries (theory proofs), `bifurcation_product` fully proven.
 **Hysteresis.lean:** 0 sorries, `hysteresis_product` fully proven.
+**AttractorBasins.lean:** 0 sorries, `basin_product` fully proven, `consensus_is_attractor` proven via uniform system axiom.
 
 ---
 
@@ -97,6 +99,15 @@ Hollow triangle (3 pairwise compatible, no global) → H¹ ≅ ℤ ≠ 0 → no 
 - Reversibility: all transitions can be undone
 - Memory effects: zero for static alignment, possible for dynamic/learning systems
 - Hysteresis width = 0 for memoryless systems
+
+### Attractor Basin Analysis
+- Attractor = stable aligned configuration (zero misalignment)
+- Basin = region of initial conditions that flow to an attractor
+- Basin radius = ε (tolerance parameter)
+- Distance to boundary = max(0, ε - distance to attractor)
+- Consensus is always an attractor: all agents with same values → uniform system → zero misalignment
+- Proof via `CriticalPoints.uniform_misalignment_zero_ax` axiom
+- Stability classification: veryStable (radius > ε), stable (> ε/2), marginal (> ε/10), unstable
 
 ---
 
