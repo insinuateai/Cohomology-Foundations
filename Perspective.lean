@@ -20,3 +20,4 @@ import Perspective.OptimalRepair
 import Perspective.Compositional
 import Perspective.Barrier
 import Perspective.Geodesic
+import Perspective.Curvature

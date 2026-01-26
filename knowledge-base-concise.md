@@ -117,6 +117,35 @@ import Mathlib.Combinatorics.SimpleGraph.Walk
 import Mathlib.Topology.SimplicialComplex
 ```
 
+### Finset.sup' Non-negativity
+```lean
+-- Proving sup' of abs values ≥ 0
+have s0 : S := Classical.arbitrary S
+have h1 : f_inner default_pair ≤ maxDisagreement := Finset.le_sup' f_inner (Finset.mem_univ _)
+have h2 : f_abs s0 ≤ f_inner default_pair := Finset.le_sup' f_abs (Finset.mem_univ s0)
+have h3 : (0 : ℚ) ≤ f_abs s0 := abs_nonneg _
+linarith
+```
+
+### Division Bounds
+```lean
+-- (a - c) / d₁ ≤ b / d₂ when a ≤ b and d₁ ≥ d₂ > 0
+have h_pos1 : (0 : ℚ) ≤ 4 * epsilon + 1 := by linarith
+have h_pos2 : (2 : ℚ) * epsilon + 1 > 0 := by linarith
+calc (disagreement - 2 * epsilon) / (4 * epsilon + 1)
+    ≤ maxDisagreement / (4 * epsilon + 1) := div_le_div_of_nonneg_right h_num h_pos1
+  _ ≤ maxDisagreement / (2 * epsilon + 1) := div_le_div_of_nonneg_left h_max_nn h_pos2 h_denom
+```
+
+### Finset.sup'_le Pattern
+```lean
+-- Prove sup' ≤ bound by showing each element ≤ bound
+have h_sup_le : Finset.univ.sup' ⟨default, Finset.mem_univ _⟩ f ≤ bound := by
+  apply Finset.sup'_le
+  intro s _
+  exact h_bounded s
+```
+
 ## Error Quick Fixes
 
 | Error | Fix |
@@ -125,5 +154,7 @@ import Mathlib.Topology.SimplicialComplex
 | `Walk.noConfusion` type mismatch | Pattern: `fun h => Walk.noConfusion h` |
 | Sym2 edge equality | Case split on both orderings |
 | `Invalid field 'foo'` on def | Use `Namespace.foo x` not `x.foo` |
-| `toList` noncomputable | Use `Finset.sum` directly |
+| `toList` noncomputable | Use `Finset.sum` directly or mark def `noncomputable` |
 | omega fails on ℚ | Convert via `Nat.cast_injective` |
+| `Fin n × Fin n` type inference | Use explicit `let default_pair : Fin n × Fin n := ...` |
+| `split_ifs` fails on let binding | Add `simp only` before `split_ifs` |

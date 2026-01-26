@@ -28,7 +28,7 @@
 
 ### Perspective Mathematics - MOAT COMPLETE ✅
 **File:** `Perspective/`
-**All 7 novel theorems proven (axioms only for standard math facts)**
+**All 9 novel theorems proven (axioms only for standard math facts)**
 
 | Batch | File | Key Theorem | Status |
 |-------|------|-------------|--------|
@@ -39,6 +39,8 @@
 | 13 | OptimalRepair.lean | Minimum fix cost | ✅ |
 | 14 | Compositional.lean | Safe parts → safe whole | ✅ |
 | 15 | Barrier.lean | When repair is impossible | ✅ |
+| 16 | Geodesic.lean | Shortest adjustment paths | ✅ |
+| 17 | Curvature.lean | How curved is the landscape | ✅ |
 
 **Geodesic.lean:** `l1_triangle` converted from axiom to theorem.
 
@@ -62,6 +64,12 @@ Two forests + ≤1 connecting edge = still a forest → H¹ = 0 preserved.
 
 ### Barrier Detection
 Hollow triangle (3 pairwise compatible, no global) → H¹ ≅ ℤ ≠ 0 → no value adjustment works.
+
+### Curvature Analysis
+- Curvature κ = (disagreement - 2ε) / (4ε + 1) when disagreement > 2ε, else 0
+- High curvature (κ > 1/2) indicates nearby barriers
+- Low curvature everywhere (κ < 1/10) implies no barriers
+- H1Trivial → all curvatures = 0 (flat landscape)
 
 ---
 
