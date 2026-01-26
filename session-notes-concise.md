@@ -28,7 +28,7 @@
 
 ### Perspective Mathematics - MOAT COMPLETE ✅
 **File:** `Perspective/`
-**All 14 novel theorems proven (axioms only for standard math facts)**
+**All 15 novel theorems proven (axioms only for standard math facts)**
 
 | Batch | File | Key Theorem | Status |
 |-------|------|-------------|--------|
@@ -46,6 +46,7 @@
 | 20 | Hysteresis.lean | Path-dependence analysis | ✅ |
 | 21 | AttractorBasins.lean | Stability of aligned states | ✅ |
 | 22 | EscapeTime.lean | Time bounds for alignment | ✅ |
+| 23 | Recurrence.lean | Long-term stability analysis | ✅ |
 
 **Geodesic.lean:** `l1_triangle` converted from axiom to theorem.
 **CriticalPoints.lean:** 0 sorries, 3 axioms (standard Morse theory).
@@ -53,6 +54,7 @@
 **Hysteresis.lean:** 0 sorries, `hysteresis_product` fully proven.
 **AttractorBasins.lean:** 0 sorries, `basin_product` fully proven, `consensus_is_attractor` proven via uniform system axiom.
 **EscapeTime.lean:** 0 sorries, 3 axioms (rational arithmetic bounds), `escape_time_product` fully proven.
+**Recurrence.lean:** 0 sorries, `recurrence_product` fully proven. Analyzes long-term stability and recurrence of misalignment.
 
 ---
 
@@ -121,6 +123,17 @@ Hollow triangle (3 pairwise compatible, no global) → H¹ ≅ ℤ ≠ 0 → no 
 - Forecasting: predict misalignment at future steps
 - Zero misalignment → zero escape time (proven directly)
 - Axioms used: finiteness, monotonicity, worst-case bound (rational arithmetic)
+
+### Recurrence Analysis
+- Recurrence = returning to misalignment after being aligned
+- Recurrence probability based on distance to basin boundary
+- Large margin (> ε) → low recurrence risk (5%)
+- Small margin (< ε/5) → high recurrence risk (25%)
+- No perturbation → no recurrence (alignment is permanent)
+- Gradient descent is dissipative, not Poincaré recurrent
+- Triggers: parameter drift, agent shift, external shock, accumulation
+- Prevention: maintain margin, monitor parameters, periodic re-alignment
+- Key insight: recurrence requires external perturbation
 
 ---
 

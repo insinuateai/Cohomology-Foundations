@@ -61,11 +61,12 @@ def hasRecurrence {n : ℕ} [NeZero n] (trajectory : List (Fin n → ValueSystem
     (epsilon : ℚ) [Nonempty S] : Prop :=
   -- There exist times t1 < t2 < t3 where:
   -- t1: misaligned, t2: aligned, t3: misaligned again
-  ∃ (t1 t2 t3 : ℕ), t1 < t2 ∧ t2 < t3 ∧
-    t1 < trajectory.length ∧ t2 < trajectory.length ∧ t3 < trajectory.length ∧
-    misalignment (trajectory.get ⟨t1, by omega⟩) epsilon > 0 ∧
-    misalignment (trajectory.get ⟨t2, by omega⟩) epsilon = 0 ∧
-    misalignment (trajectory.get ⟨t3, by omega⟩) epsilon > 0
+  ∃ (t1 t2 t3 : ℕ) (h1 : t1 < trajectory.length) (h2 : t2 < trajectory.length)
+    (h3 : t3 < trajectory.length),
+    t1 < t2 ∧ t2 < t3 ∧
+    misalignment (trajectory.get ⟨t1, h1⟩) epsilon > 0 ∧
+    misalignment (trajectory.get ⟨t2, h2⟩) epsilon = 0 ∧
+    misalignment (trajectory.get ⟨t3, h3⟩) epsilon > 0
 
 /--
 The recurrence time: how long until misalignment returns.
@@ -381,9 +382,20 @@ theorem recurrence_product {n : ℕ} [NeZero n]
     recurrenceProbability systems epsilon ≥ 0 ∧
     recurrenceProbability systems epsilon ≤ 1 := by
   unfold recurrenceProbability
+  simp only [ge_iff_le, le_refl, and_self]
   constructor
-  · split_ifs <;> norm_num
-  · split_ifs <;> norm_num
+  · -- All branches are ≥ 0
+    split_ifs
+    · norm_num
+    · norm_num
+    · norm_num
+    · norm_num
+  · -- All branches are ≤ 1
+    split_ifs
+    · norm_num
+    · norm_num
+    · norm_num
+    · norm_num
 
 /--
 NOVELTY CLAIM: First Recurrence Theory for Alignment
