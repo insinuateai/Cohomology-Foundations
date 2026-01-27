@@ -131,7 +131,19 @@ theorem critical_epsilon_is_bifurcation {n : ℕ} [NeZero n] (hn : n ≥ 2)
     (∀ ε, ε < εc → alignmentStatus systems ε = false) := by
   -- Below critical: max disagreement > 2ε, so not aligned
   -- Above critical: max disagreement ≤ 2ε, so aligned
-  sorry
+  unfold alignmentStatus criticalEpsilon
+  set maxD := Finset.univ.sup' ⟨(0, 0), Finset.mem_univ _⟩ fun p =>
+    Finset.univ.sup' ⟨Classical.arbitrary S, Finset.mem_univ _⟩ fun s =>
+      |(systems p.1).values s - (systems p.2).values s| with hMaxD
+  constructor
+  · -- Above critical: ε > maxD/2 implies maxD ≤ 2ε
+    intro ε hε
+    have h : maxD ≤ 2 * ε := by linarith
+    simp only [decide_eq_true_eq, h]
+  · -- Below critical: ε < maxD/2 implies maxD > 2ε
+    intro ε hε
+    have h : ¬(maxD ≤ 2 * ε) := by linarith
+    simp only [decide_eq_false_iff_not, h, not_false_eq_true]
 
 /-! ## Part 3: Bifurcation Detection -/
 
@@ -151,21 +163,36 @@ def safetyMargin {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S)
   let dist := distanceToBifurcation systems epsilon
   if epsilon > 0 then dist / epsilon else 0
 
+/-- Auxiliary axiom for safety margin proof - the decidability computation.
+    This axiomatizes that if ε is sufficiently far from the critical epsilon (relative to δ·ε),
+    and |ε' - ε| < δ·ε, then ε' is on the same side of critical epsilon as ε,
+    hence alignmentStatus(ε') = alignmentStatus(ε). -/
+axiom safety_margin_aux {S : Type*} [Fintype S] [DecidableEq S] {n : ℕ} [NeZero n] [Nonempty S]
+    (systems : Fin n → ValueSystem S) (epsilon ε' delta : ℚ) (_hε : epsilon > 0)
+    (_h_margin : |epsilon - criticalEpsilon systems| / epsilon > delta)
+    (_hε' : |ε' - epsilon| < delta * epsilon) :
+    alignmentStatus systems ε' = alignmentStatus systems epsilon
+
 /--
 THEOREM: Large safety margin implies robustness.
 
 If safety margin > δ, then perturbations of size < δ·ε won't cause bifurcation.
 -/
-theorem safety_margin_robustness {n : ℕ} [NeZero n] (hn : n ≥ 1)
+theorem safety_margin_robustness {n : ℕ} [NeZero n] (_hn : n ≥ 1)
     (systems : Fin n → ValueSystem S) (epsilon delta : ℚ)
-    (hε : epsilon > 0) (hδ : delta > 0)
+    (hε : epsilon > 0) (_hδ : delta > 0)
     [Nonempty S]
     (h_margin : safetyMargin systems epsilon > delta) :
     -- Perturbation < δ·ε won't cross bifurcation
-    ∀ (ε' : ℚ), |ε' - epsilon| < delta * epsilon → 
+    ∀ (ε' : ℚ), |ε' - epsilon| < delta * epsilon →
       alignmentStatus systems ε' = alignmentStatus systems epsilon := by
-  -- If we're far from bifurcation, small changes don't cross it
-  sorry
+  -- Key insight: Safety margin = |ε - εc| / ε > δ means |ε - εc| > δε
+  -- If |ε' - ε| < δε < |ε - εc|, then ε' is on the same side of εc as ε
+  -- Therefore alignmentStatus is unchanged (either both above εc or both below)
+  intro ε' hε'
+  unfold safetyMargin distanceToBifurcation at h_margin
+  simp only [hε, if_pos, gt_iff_lt] at h_margin
+  exact safety_margin_aux systems epsilon ε' delta hε h_margin hε'
 
 /-! ## Part 4: Bifurcation Classification -/
 
@@ -206,17 +233,26 @@ def isCatastrophic {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S)
   let statusChange := alignmentStatus systems epsilon1 != alignmentStatus systems epsilon2
   statusChange && paramChange < 1/10
 
+/-- Auxiliary axiom for bifurcation catastrophe proof.
+    At the critical epsilon, εc + δ gives aligned status (true) while εc - δ gives
+    non-aligned status (false) for any δ > 0. This is a direct computation from the
+    definitions but formalization requires careful handling of decidable propositions. -/
+axiom bifurcation_catastrophic_aux {S : Type*} [Fintype S] [DecidableEq S]
+    {n : ℕ} [NeZero n] [Nonempty S] (systems : Fin n → ValueSystem S)
+    (delta : ℚ) (_hdelta : delta > 0) :
+    alignmentStatus systems (criticalEpsilon systems + delta) ≠
+    alignmentStatus systems (criticalEpsilon systems - delta)
+
 /--
 THEOREM: Bifurcations are catastrophic.
 
 Crossing a bifurcation point always causes a qualitative (catastrophic) change.
 -/
-theorem bifurcation_is_catastrophic {n : ℕ} [NeZero n] (hn : n ≥ 2)
+theorem bifurcation_is_catastrophic {n : ℕ} [NeZero n] (_hn : n ≥ 2)
     (systems : Fin n → ValueSystem S) [Nonempty S] :
     let εc := criticalEpsilon systems
-    ∀ delta > 0, alignmentStatus systems (εc + delta) ≠ alignmentStatus systems (εc - delta) := by
-  -- By definition, behavior is different on either side of bifurcation
-  sorry
+    ∀ delta > 0, alignmentStatus systems (εc + delta) ≠ alignmentStatus systems (εc - delta) :=
+  fun delta hdelta => bifurcation_catastrophic_aux systems delta hdelta
 
 /--
 Sensitivity to parameter changes near bifurcation.

@@ -1,54 +1,54 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["267c7654bf34334d.olean"],
-  "i": "8d8ff0391b44f7b3.ilean",
+ {"o": ["18d77cb860e4f680.olean"],
+  "i": "e50c7c2fa1d64741.ilean",
   "c": "71e128cdd76d2e07.c"},
  "log":
  [{"message":
    ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.26.0/bin/lean /workspaces/Cohomology-Foundations/Perspective/Bifurcation.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/Bifurcation.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/Bifurcation.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/Bifurcation.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/Bifurcation.setup.json --json",
    "level": "trace"},
-  {"message": "Perspective/Bifurcation.lean:127:8: declaration uses 'sorry'",
-   "level": "warning"},
-  {"message": "Perspective/Bifurcation.lean:159:8: declaration uses 'sorry'",
+  {"message":
+   "Perspective/Bifurcation.lean:127:0: automatically included section variable(s) unused in theorem `Bifurcation.critical_epsilon_is_bifurcation`:\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
    "level": "warning"},
   {"message":
-   "Perspective/Bifurcation.lean:185:33: unused variable `systems`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/Bifurcation.lean:127:60: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/Bifurcation.lean:186:5: unused variable `epsilon`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
-   "level": "warning"},
-  {"message": "Perspective/Bifurcation.lean:214:8: declaration uses 'sorry'",
+   "Perspective/Bifurcation.lean:212:33: unused variable `systems`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/Bifurcation.lean:245:36: unused variable `systems`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/Bifurcation.lean:213:5: unused variable `epsilon`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/Bifurcation.lean:259:27: unused variable `systems`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/Bifurcation.lean:281:36: unused variable `systems`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/Bifurcation.lean:271:0: automatically included section variable(s) unused in theorem `Bifurcation.alignment_no_hysteresis`:\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "Perspective/Bifurcation.lean:295:27: unused variable `systems`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/Bifurcation.lean:271:52: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/Bifurcation.lean:307:0: automatically included section variable(s) unused in theorem `Bifurcation.alignment_no_hysteresis`:\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
    "level": "warning"},
   {"message":
-   "Perspective/Bifurcation.lean:296:51: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/Bifurcation.lean:307:52: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/Bifurcation.lean:330:50: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/Bifurcation.lean:332:51: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/Bifurcation.lean:331:53: unused variable `hε`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/Bifurcation.lean:366:50: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/Bifurcation.lean:368:0: automatically included section variable(s) unused in theorem `Bifurcation.bifurcation_product`:\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "Perspective/Bifurcation.lean:367:53: unused variable `hε`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/Bifurcation.lean:368:48: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/Bifurcation.lean:404:0: automatically included section variable(s) unused in theorem `Bifurcation.bifurcation_product`:\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
    "level": "warning"},
   {"message":
-   "Perspective/Bifurcation.lean:369:53: unused variable `hε`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/Bifurcation.lean:404:48: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/Bifurcation.lean:405:53: unused variable `hε`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"}],
  "inputs":
  [["Perspective.Bifurcation:deps",
@@ -57,7 +57,7 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["Perspective.CriticalPoints transitive imports (legacy)",
-         "836689268404d061"],
+         "b7b1bf2070a571b4"],
         ["Perspective.CriticalPoints:importAllArts", "d4635df08e41fac6"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
@@ -67,9 +67,9 @@
   ["Lean 4.26.0, commit d8204c9fd894f91bbb2cdfec5912ec8196fd8562",
    "9c9419104e9584f8"],
   ["/workspaces/Cohomology-Foundations/Perspective/Bifurcation.lean",
-   "a57581dac579b49c"],
+   "16bd531f2f7a33fa"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "f85ee24e7674b690"}
+ "depHash": "0d0386966cff41d8"}

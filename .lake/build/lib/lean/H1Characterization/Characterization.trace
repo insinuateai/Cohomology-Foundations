@@ -37,7 +37,7 @@
         ["Perspective.AlignmentEquivalence transitive imports (legacy)",
          "b976c21d17da7f6c"],
         ["Perspective.AlignmentEquivalence:importAllArts",
-         "61ae0360fdcc6ab4"]]]]],
+         "1361b024eddaa784"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
@@ -51,4 +51,4 @@
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "6b6621b071f3452b"}
+ "depHash": "be0ff30337ffc544"}

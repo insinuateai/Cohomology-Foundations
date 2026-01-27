@@ -96,7 +96,7 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["Perspective.Geodesic transitive imports (legacy)",
-         "3185c4b3681b36b0"],
+         "203a69d0f19e09f8"],
         ["Perspective.Geodesic:importAllArts", "664dc597a8b1dcce"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
@@ -111,4 +111,4 @@
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "43bf20dd0eef5dae"}
+ "depHash": "861ae0298ef17083"}

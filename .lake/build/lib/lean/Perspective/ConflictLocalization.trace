@@ -1,33 +1,30 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["82c0cbe12ca5c673.olean"],
-  "i": "51d61842cf7cea5c.ilean",
+ {"o": ["dbb0908856d16872.olean"],
+  "i": "5a025552360bc52b.ilean",
   "c": "73805d786817dea1.c"},
  "log":
  [{"message":
    ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.26.0/bin/lean /workspaces/Cohomology-Foundations/Perspective/ConflictLocalization.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/ConflictLocalization.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/ConflictLocalization.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/ConflictLocalization.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/ConflictLocalization.setup.json --json",
    "level": "trace"},
   {"message":
-   "Perspective/ConflictLocalization.lean:80:6: unused variable `w`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/ConflictLocalization.lean:87:6: unused variable `w`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/ConflictLocalization.lean:129:8: declaration uses 'sorry'",
+   "Perspective/ConflictLocalization.lean:139:6: unused variable `conflict`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/ConflictLocalization.lean:191:8: declaration uses 'sorry'",
+   "Perspective/ConflictLocalization.lean:218:0: automatically included section variable(s) unused in theorem `Perspective.min_conflict_size`:\n  [Fintype S]\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [Fintype S] [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
    "level": "warning"},
   {"message":
-   "Perspective/ConflictLocalization.lean:206:0: automatically included section variable(s) unused in theorem `Perspective.min_conflict_size`:\n  [Fintype S]\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [Fintype S] [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "Perspective/ConflictLocalization.lean:227:0: automatically included section variable(s) unused in theorem `Perspective.max_conflict_size`:\n  [Fintype S]\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [Fintype S] [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
    "level": "warning"},
   {"message":
-   "Perspective/ConflictLocalization.lean:215:0: automatically included section variable(s) unused in theorem `Perspective.max_conflict_size`:\n  [Fintype S]\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [Fintype S] [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "Perspective/ConflictLocalization.lean:243:38: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/ConflictLocalization.lean:231:38: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
-   "level": "warning"},
-  {"message":
-   "Perspective/ConflictLocalization.lean:282:45: This simp argument is unused:\n  List.length_map\n\nHint: Omit it from the simp argument list.\n  simp only [AlignmentConflict.toDiagnostic,̵ ̵L̵i̵s̵t̵.̵l̵e̵n̵g̵t̵h̵_̵m̵a̵p̵]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "Perspective/ConflictLocalization.lean:294:45: This simp argument is unused:\n  List.length_map\n\nHint: Omit it from the simp argument list.\n  simp only [AlignmentConflict.toDiagnostic,̵ ̵L̵i̵s̵t̵.̵l̵e̵n̵g̵t̵h̵_̵m̵a̵p̵]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
    "level": "warning"}],
  "inputs":
  [["Perspective.ConflictLocalization:deps",
@@ -37,12 +34,12 @@
       ["imports",
        [["Perspective.AlignmentEquivalence transitive imports (legacy)",
          "b976c21d17da7f6c"],
-        ["Perspective.AlignmentEquivalence:importAllArts", "61ae0360fdcc6ab4"],
+        ["Perspective.AlignmentEquivalence:importAllArts", "1361b024eddaa784"],
         ["Perspective.ImpossibilityStrong transitive imports (legacy)",
-         "1e1344e5880ebda6"],
+         "84e836a5b8ee83ad"],
         ["Perspective.ImpossibilityStrong:importAllArts", "b0031752dc7fdf5e"],
         ["H1Characterization.Characterization transitive imports (legacy)",
-         "1ceb156b65f4c1d3"],
+         "6a3156e1fd725140"],
         ["H1Characterization.Characterization:importAllArts",
          "db91a8fda58a7315"],
         ["H1Characterization.CycleCochain.Definitions transitive imports (legacy)",
@@ -57,9 +54,9 @@
   ["Lean 4.26.0, commit d8204c9fd894f91bbb2cdfec5912ec8196fd8562",
    "9c9419104e9584f8"],
   ["/workspaces/Cohomology-Foundations/Perspective/ConflictLocalization.lean",
-   "23fceaee6c4e8102"],
+   "f99fea1db86943c4"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "5753f0704d23c78c"}
+ "depHash": "80cc77ed2efdb007"}

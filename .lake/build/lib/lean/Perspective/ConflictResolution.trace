@@ -1,8 +1,8 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["9985ce5acefea8e8.olean"],
-  "i": "123c69e684079fe9.ilean",
+ {"o": ["26a6b52fe6647135.olean"],
+  "i": "7e5245ec10d56ea8.ilean",
   "c": "f3c1ee35eaccd14a.c"},
  "log":
  [{"message":
@@ -12,43 +12,61 @@
    "Perspective/ConflictResolution.lean:86:5: unused variable `ht`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/ConflictResolution.lean:175:19: unused variable `he`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/ConflictResolution.lean:169:21: unused variable `he`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/ConflictResolution.lean:176:5: unused variable `h_in_cycle`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/ConflictResolution.lean:199:19: unused variable `he`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/ConflictResolution.lean:189:8: declaration uses 'sorry'",
+   "Perspective/ConflictResolution.lean:200:5: unused variable `h_in_cycle`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/ConflictResolution.lean:210:8: declaration uses 'sorry'",
+   "Perspective/ConflictResolution.lean:214:5: unused variable `h_single_cycle`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/ConflictResolution.lean:242:18: unused variable `hv`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/ConflictResolution.lean:214:25: unused variable `c`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/ConflictResolution.lean:243:5: unused variable `h_in_cycle`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/ConflictResolution.lean:217:5: unused variable `h_in_cycle`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/ConflictResolution.lean:261:8: declaration uses 'sorry'",
+   "Perspective/ConflictResolution.lean:241:5: unused variable `hab`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/ConflictResolution.lean:280:0: automatically included section variable(s) unused in theorem `Perspective.alignment_resolution_exists`:\n  [Fintype S]\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [Fintype S] [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "Perspective/ConflictResolution.lean:242:5: unused variable `hbc`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/ConflictResolution.lean:281:47: unused variable `hε`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/ConflictResolution.lean:243:5: unused variable `hac`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/ConflictResolution.lean:282:5: unused variable `h_no_global`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/ConflictResolution.lean:244:5: unused variable `h_not_filled`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/ConflictResolution.lean:283:6: unused variable `r`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/ConflictResolution.lean:284:18: unused variable `hv`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/ConflictResolution.lean:345:38: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/ConflictResolution.lean:285:5: unused variable `h_in_cycle`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/ConflictResolution.lean:346:5: unused variable `hcs`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/ConflictResolution.lean:306:22: unused variable `he`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/ConflictResolution.lean:322:0: automatically included section variable(s) unused in theorem `Perspective.alignment_resolution_exists`:\n  [Fintype S]\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [Fintype S] [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/ConflictResolution.lean:323:47: unused variable `hε`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/ConflictResolution.lean:324:5: unused variable `h_no_global`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/ConflictResolution.lean:325:6: unused variable `r`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/ConflictResolution.lean:387:38: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/ConflictResolution.lean:388:5: unused variable `hcs`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"}],
  "inputs":
  [["Perspective.ConflictResolution:deps",
@@ -57,10 +75,10 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["Perspective.ConflictLocalization transitive imports (legacy)",
-         "6f6b20b3db685cdb"],
-        ["Perspective.ConflictLocalization:importAllArts", "1296aa1b5d642c38"],
+         "79bc09b53a67c9ba"],
+        ["Perspective.ConflictLocalization:importAllArts", "891678313a2db301"],
         ["H1Characterization.Characterization transitive imports (legacy)",
-         "1ceb156b65f4c1d3"],
+         "6a3156e1fd725140"],
         ["H1Characterization.Characterization:importAllArts",
          "db91a8fda58a7315"]]]]],
     ["libs",
@@ -71,9 +89,9 @@
   ["Lean 4.26.0, commit d8204c9fd894f91bbb2cdfec5912ec8196fd8562",
    "9c9419104e9584f8"],
   ["/workspaces/Cohomology-Foundations/Perspective/ConflictResolution.lean",
-   "d4f6b4ee579a422a"],
+   "37fd6be4954adcb9"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "3c4a8f29f143417f"}
+ "depHash": "c70974ce66472a57"}

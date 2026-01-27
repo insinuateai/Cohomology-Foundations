@@ -66,10 +66,10 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["Perspective.HierarchicalAlignment transitive imports (legacy)",
-         "8117a0cf2ef562a8"],
-        ["Perspective.HierarchicalAlignment:importAllArts", "8837decdbe9ac524"],
+         "ff0fc10bc7e0739f"],
+        ["Perspective.HierarchicalAlignment:importAllArts", "a3b5c462cb618e17"],
         ["H1Characterization.Characterization transitive imports (legacy)",
-         "1ceb156b65f4c1d3"],
+         "6a3156e1fd725140"],
         ["H1Characterization.Characterization:importAllArts",
          "db91a8fda58a7315"]]]]],
     ["libs",
@@ -85,4 +85,4 @@
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "031dfcf46d701f64"}
+ "depHash": "3aef00e2e927050d"}

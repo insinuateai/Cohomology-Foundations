@@ -1,9 +1,9 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["5aa23b2ee000d4a2.olean"],
-  "i": "3512aafabd9f7c3b.ilean",
-  "c": "85e163364a4886e7.c"},
+ {"o": ["bbeaa105441c5f39.olean"],
+  "i": "f1bea9dca2a96ac2.ilean",
+  "c": "da71d8d404a1a9aa.c"},
  "log":
  [{"message":
    ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.26.0/bin/lean /workspaces/Cohomology-Foundations/Perspective/Stability.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/Stability.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/Stability.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/Stability.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/Stability.setup.json --json",
@@ -18,58 +18,58 @@
    "Perspective/Stability.lean:76:0: automatically included section variable(s) unused in theorem `Stability.valueDistance_eq_zero_iff`:\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
    "level": "warning"},
   {"message":
-   "Perspective/Stability.lean:112:0: automatically included section variable(s) unused in theorem `Stability.edgeSlack_pos_imp_hasEdge`:\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "Perspective/Stability.lean:131:0: automatically included section variable(s) unused in theorem `Stability.edgeSlack_pos_imp_hasEdge`:\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
    "level": "warning"},
   {"message":
-   "Perspective/Stability.lean:112:67: unused variable `hε`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/Stability.lean:131:67: unused variable `hε`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/Stability.lean:129:0: automatically included section variable(s) unused in theorem `Stability.hasEdge_imp_edgeSlack_nonneg`:\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
-   "level": "warning"},
-  {"message": "Perspective/Stability.lean:143:4: declaration uses 'sorry'",
+   "Perspective/Stability.lean:148:0: automatically included section variable(s) unused in theorem `Stability.hasEdge_imp_edgeSlack_nonneg`:\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
    "level": "warning"},
   {"message":
-   "Perspective/Stability.lean:151:35: unused variable `systems`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
-   "level": "warning"},
-  {"message": "Perspective/Stability.lean:164:8: declaration uses 'sorry'",
+   "Perspective/Stability.lean:170:35: unused variable `systems`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/Stability.lean:184:0: automatically included section variable(s) unused in theorem `Stability.stability_margin_is_safe`:\n  [Nonempty S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [Nonempty S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "Perspective/Stability.lean:183:0: automatically included section variable(s) unused in theorem `Stability.stability_of_h1_trivial`:\n  [Nonempty S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [Nonempty S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
    "level": "warning"},
   {"message":
-   "Perspective/Stability.lean:209:0: automatically included section variable(s) unused in theorem `Stability.margin_from_edge_slacks`:\n  [Fintype S]\n  [DecidableEq S]\n  [Nonempty S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [Fintype S] [DecidableEq S] [Nonempty S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "Perspective/Stability.lean:203:0: automatically included section variable(s) unused in theorem `Stability.stability_margin_is_safe`:\n  [Nonempty S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [Nonempty S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
    "level": "warning"},
   {"message":
-   "Perspective/Stability.lean:215:27: unused variable `systems`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/Stability.lean:228:0: automatically included section variable(s) unused in theorem `Stability.margin_from_edge_slacks`:\n  [Fintype S]\n  [DecidableEq S]\n  [Nonempty S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [Fintype S] [DecidableEq S] [Nonempty S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
    "level": "warning"},
   {"message":
-   "Perspective/Stability.lean:246:0: automatically included section variable(s) unused in theorem `Stability.alignment_safe_until`:\n  [DecidableEq S]\n  [Nonempty S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq S] [Nonempty S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "Perspective/Stability.lean:234:27: unused variable `systems`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/Stability.lean:246:38: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/Stability.lean:265:0: automatically included section variable(s) unused in theorem `Stability.alignment_safe_until`:\n  [DecidableEq S]\n  [Nonempty S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq S] [Nonempty S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
    "level": "warning"},
   {"message":
-   "Perspective/Stability.lean:247:47: unused variable `hε`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/Stability.lean:265:38: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/Stability.lean:249:5: unused variable `h_aligned`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/Stability.lean:266:47: unused variable `hε`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/Stability.lean:250:33: unused variable `hd`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/Stability.lean:268:5: unused variable `h_aligned`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/Stability.lean:307:0: automatically included section variable(s) unused in theorem `Stability.monitoring_product_enabled`:\n  [Fintype S]\n  [DecidableEq S]\n  [Nonempty S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [Fintype S] [DecidableEq S] [Nonempty S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "Perspective/Stability.lean:269:33: unused variable `hd`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/Stability.lean:307:44: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/Stability.lean:326:0: automatically included section variable(s) unused in theorem `Stability.monitoring_product_enabled`:\n  [Fintype S]\n  [DecidableEq S]\n  [Nonempty S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [Fintype S] [DecidableEq S] [Nonempty S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
    "level": "warning"},
   {"message":
-   "Perspective/Stability.lean:308:47: unused variable `hε`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/Stability.lean:326:44: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/Stability.lean:311:6: unused variable `status`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/Stability.lean:327:47: unused variable `hε`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
-  {"message": "Perspective/Stability.lean:335:8: declaration uses 'sorry'",
+  {"message":
+   "Perspective/Stability.lean:330:6: unused variable `status`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/Stability.lean:354:0: automatically included section variable(s) unused in theorem `Stability.alignment_robust_to_measurement_error`:\n  [Nonempty S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [Nonempty S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
    "level": "warning"}],
  "inputs":
  [["Perspective.Stability:deps",
@@ -78,14 +78,14 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["Perspective.AgentCoordination transitive imports (legacy)",
-         "66cbdb3ff9f4027f"],
-        ["Perspective.AgentCoordination:importAllArts", "50b8d3b77b067993"],
+         "2f0823a3d05e7d1f"],
+        ["Perspective.AgentCoordination:importAllArts", "d607d37e61437f3a"],
         ["H1Characterization.Characterization transitive imports (legacy)",
-         "1ceb156b65f4c1d3"],
+         "6a3156e1fd725140"],
         ["H1Characterization.Characterization:importAllArts",
          "db91a8fda58a7315"],
         ["H1Characterization.LinearComplexity transitive imports (legacy)",
-         "6a9d625cae87da31"],
+         "ef8f374bd5570712"],
         ["H1Characterization.LinearComplexity:importAllArts",
          "96c6eab73611e2eb"]]]]],
     ["libs",
@@ -96,9 +96,9 @@
   ["Lean 4.26.0, commit d8204c9fd894f91bbb2cdfec5912ec8196fd8562",
    "9c9419104e9584f8"],
   ["/workspaces/Cohomology-Foundations/Perspective/Stability.lean",
-   "c6c240558ec31170"],
+   "a3ab4f56cbd70cb4"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "cf4b2f25c1ab2aa6"}
+ "depHash": "896c10c778cf5ead"}

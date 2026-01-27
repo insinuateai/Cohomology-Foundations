@@ -1,8 +1,8 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["d0afdc6662d33f31.olean"],
-  "i": "725f1f16bba3b867.ilean",
+ {"o": ["a6e7cc64a0cb58a6.olean"],
+  "i": "16310d3c8e5f9d9b.ilean",
   "c": "d56616f0783052f9.c"},
  "log":
  [{"message":
@@ -12,22 +12,13 @@
    "Perspective/AgentCoordination.lean:181:5: unused variable `N`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/AgentCoordination.lean:194:8: declaration uses 'sorry'",
+   "Perspective/AgentCoordination.lean:290:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/AgentCoordination.lean:254:8: declaration uses 'sorry'",
+   "Perspective/AgentCoordination.lean:341:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/AgentCoordination.lean:278:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
-   "level": "warning"},
-  {"message":
-   "Perspective/AgentCoordination.lean:296:8: declaration uses 'sorry'",
-   "level": "warning"},
-  {"message":
-   "Perspective/AgentCoordination.lean:318:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
-   "level": "warning"},
-  {"message":
-   "Perspective/AgentCoordination.lean:320:5: unused variable `h_hub`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/AgentCoordination.lean:343:5: unused variable `h_hub`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"}],
  "inputs":
  [["Perspective.AgentCoordination:deps",
@@ -36,10 +27,10 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["Perspective.ConflictResolution transitive imports (legacy)",
-         "e2675bfbff0a412f"],
-        ["Perspective.ConflictResolution:importAllArts", "19ac7e7b348be955"],
+         "b7f7e5a448eae416"],
+        ["Perspective.ConflictResolution:importAllArts", "97d84990eaec4335"],
         ["H1Characterization.Characterization transitive imports (legacy)",
-         "1ceb156b65f4c1d3"],
+         "6a3156e1fd725140"],
         ["H1Characterization.Characterization:importAllArts",
          "db91a8fda58a7315"]]]]],
     ["libs",
@@ -50,9 +41,9 @@
   ["Lean 4.26.0, commit d8204c9fd894f91bbb2cdfec5912ec8196fd8562",
    "9c9419104e9584f8"],
   ["/workspaces/Cohomology-Foundations/Perspective/AgentCoordination.lean",
-   "801c0b1ce9c154fc"],
+   "454b467865850a59"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "ed0a4d3eb9c061b3"}
+ "depHash": "654c0c777b32b41e"}

@@ -1,33 +1,30 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["e3635899965db4b1.olean"],
-  "i": "2962eeffa37b6689.ilean",
+ {"o": ["de1c1a9c2986000b.olean"],
+  "i": "f471e556ed59918a.ilean",
   "c": "01264dfd080b84fc.c"},
  "log":
  [{"message":
    ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.26.0/bin/lean /workspaces/Cohomology-Foundations/Perspective/HierarchicalAlignment.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/HierarchicalAlignment.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/HierarchicalAlignment.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/HierarchicalAlignment.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/HierarchicalAlignment.setup.json --json",
    "level": "trace"},
   {"message":
-   "Perspective/HierarchicalAlignment.lean:158:8: declaration uses 'sorry'",
+   "Perspective/HierarchicalAlignment.lean:269:40: unused variable `assign`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/HierarchicalAlignment.lean:430:40: unused variable `assign`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/HierarchicalAlignment.lean:272:40: unused variable `assign`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/HierarchicalAlignment.lean:433:40: unused variable `assign`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/HierarchicalAlignment.lean:363:43: unused variable `hk`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/HierarchicalAlignment.lean:524:43: unused variable `hk`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/HierarchicalAlignment.lean:363:56: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/HierarchicalAlignment.lean:524:56: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/HierarchicalAlignment.lean:372:26: unused variable `n`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/HierarchicalAlignment.lean:533:26: unused variable `n`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
-   "level": "warning"},
-  {"message":
-   "Perspective/HierarchicalAlignment.lean:533:36: unused variable `hk`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/HierarchicalAlignment.lean:372:36: unused variable `hk`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"}],
  "inputs":
  [["Perspective.HierarchicalAlignment:deps",
@@ -36,10 +33,10 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["Perspective.IncrementalUpdates transitive imports (legacy)",
-         "ebd13f19ce1d9f02"],
-        ["Perspective.IncrementalUpdates:importAllArts", "611094376500d892"],
+         "4cca5e637b0e72f5"],
+        ["Perspective.IncrementalUpdates:importAllArts", "e337daa641d37cb6"],
         ["H1Characterization.Characterization transitive imports (legacy)",
-         "1ceb156b65f4c1d3"],
+         "6a3156e1fd725140"],
         ["H1Characterization.Characterization:importAllArts",
          "db91a8fda58a7315"]]]]],
     ["libs",
@@ -50,9 +47,9 @@
   ["Lean 4.26.0, commit d8204c9fd894f91bbb2cdfec5912ec8196fd8562",
    "9c9419104e9584f8"],
   ["/workspaces/Cohomology-Foundations/Perspective/HierarchicalAlignment.lean",
-   "245ac152a00a15a1"],
+   "f2ea56b4b160a86e"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "58f58f9c6866f4e4"}
+ "depHash": "34f565b68c3e5a78"}

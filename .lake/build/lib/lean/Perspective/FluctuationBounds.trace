@@ -24,8 +24,8 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["Perspective.EntropyProduction transitive imports (legacy)",
-         "227b1cf2ec623fa1"],
-        ["Perspective.EntropyProduction:importAllArts", "b1c6199d5fb95d30"]]]]],
+         "dd07eaee7d6714fc"],
+        ["Perspective.EntropyProduction:importAllArts", "8f2ce38f3ab98535"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
@@ -39,4 +39,4 @@
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "fe448e5cc5568d53"}
+ "depHash": "4acf45c1bd4bbb60"}

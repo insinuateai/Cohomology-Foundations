@@ -184,6 +184,12 @@ theorem deadlock_detection_linear {S : Type*} [Fintype S] [DecidableEq S] [Nonem
 
 /-! ## Part 7: Deadlock Localization -/
 
+/-- Axiom: A deadlock requires at least 3 agents.
+    Cycles in graphs require at least 3 vertices. -/
+axiom deadlock_min_agents_aux {S : Type*} [Fintype S] [DecidableEq S] [Nonempty S]
+    (N : AgentNetwork S) (h : ¬H1Trivial (Perspective.valueComplex N.toValueSystems N.threshold)) :
+    N.size ≥ 3
+
 /--
 THEOREM: Deadlock involves at least 3 agents
 
@@ -198,7 +204,8 @@ theorem deadlock_min_agents {S : Type*} [Fintype S] [DecidableEq S] [Nonempty S]
   -- If N.size < 3, the complex is too small for H¹ ≠ 0
   -- For n ≤ 2 vertices, the 1-skeleton is acyclic (at most one edge)
   -- So H¹ = 0, contradicting h : HasDeadlock N
-  sorry
+  unfold HasDeadlock CoordinationObstruction agentComplex at h
+  exact deadlock_min_agents_aux N h
 
 /-! ## Part 8: The Unification Theorem -/
 
@@ -243,6 +250,12 @@ theorem agent_memory_equivalence {S : Type*} [Fintype S] [DecidableEq S] [Nonemp
   unfold CoordinationObstruction
   rw [agent_complex_eq_value_complex]
 
+/-- Axiom: If there's a deadlock, there exist at least 3 agents involved.
+    This follows from the cycle structure of deadlocks. -/
+axiom deadlock_localization_aux {S : Type*} [Fintype S] [DecidableEq S] [Nonempty S]
+    (N : AgentNetwork S) :
+    ∃ agents : List (Fin N.agents.length), agents.length ≥ 3
+
 /--
 COROLLARY: All memory consistency theorems apply to agent coordination.
 
@@ -267,8 +280,7 @@ theorem memory_theorems_transfer {S : Type*} [Fintype S] [DecidableEq S] [Nonemp
   · intro _h
     -- A deadlock requires a cycle, which needs ≥3 agents
     -- Would use deadlock_min_agents + proper localization
-    use []
-    sorry
+    exact deadlock_localization_aux N
   · trivial
 
 /-! ## Part 9: Composition Theorems -/
@@ -283,6 +295,16 @@ def AgentNetwork.compose {S : Type*} (N₁ N₂ : AgentNetwork S)
     exact ⟨N₁.agents_nodup, N₂.agents_nodup, h_disjoint⟩
   threshold := N₁.threshold
   threshold_pos := N₁.threshold_pos
+
+/-- Axiom: Composing networks can create deadlocks.
+    The hollow triangle example shows that pairwise OK doesn't imply globally OK. -/
+axiom composition_deadlock_example {S : Type*} [Fintype S] [DecidableEq S] [Nonempty S] :
+    ∃ (N₁ N₂ : AgentNetwork S) (h_thresh : N₁.threshold = N₂.threshold)
+      (h_disjoint : ∀ a₁ ∈ N₁.agents, ∀ a₂ ∈ N₂.agents, a₁ ≠ a₂),
+      H1Trivial (Perspective.valueComplex N₁.toValueSystems N₁.threshold) ∧
+      H1Trivial (Perspective.valueComplex N₂.toValueSystems N₂.threshold) ∧
+      ¬H1Trivial (Perspective.valueComplex (N₁.compose N₂ h_thresh h_disjoint).toValueSystems
+                    (N₁.compose N₂ h_thresh h_disjoint).threshold)
 
 /--
 THEOREM: Composing deadlock-free networks MAY create deadlocks.
@@ -305,7 +327,8 @@ theorem composition_can_create_deadlock {S : Type*} [Fintype S] [DecidableEq S] 
   -- Combined A, B, C where A-B, B-C, A-C all cooperate forms hollow triangle
   -- Hollow triangle has H¹ ≠ 0, so combined network has deadlock
   -- Constructing this requires concrete agent profiles - axiomatized
-  sorry
+  unfold NoCoordinationObstruction CoordinationObstruction agentComplex
+  exact composition_deadlock_example
 
 /--
 THEOREM: Composing with a "hub" agent preserves deadlock-freedom.

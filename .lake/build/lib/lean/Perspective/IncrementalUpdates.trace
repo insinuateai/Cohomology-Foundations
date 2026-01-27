@@ -1,66 +1,90 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["ac37b2a15d70bb31.olean"],
-  "i": "13c0dfd729291b8d.ilean",
+ {"o": ["8ebe6f2f6c19a9db.olean"],
+  "i": "9100b670e4419e85.ilean",
   "c": "e6dc6eda75bb8b4c.c"},
  "log":
  [{"message":
    ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.26.0/bin/lean /workspaces/Cohomology-Foundations/Perspective/IncrementalUpdates.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/IncrementalUpdates.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/IncrementalUpdates.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/IncrementalUpdates.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/IncrementalUpdates.setup.json --json",
    "level": "trace"},
   {"message":
-   "Perspective/IncrementalUpdates.lean:91:55: unused variable `hs`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/IncrementalUpdates.lean:103:55: unused variable `hs`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/IncrementalUpdates.lean:166:30: This simp argument is unused:\n  Set.sep_mem_eq\n\nHint: Omit it from the simp argument list.\n  simp only [Set.mem_setOf,̵ ̵S̵e̵t̵.̵s̵e̵p̵_̵m̵e̵m̵_̵e̵q̵] at ht ⊢\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "Perspective/IncrementalUpdates.lean:178:30: This simp argument is unused:\n  Set.sep_mem_eq\n\nHint: Omit it from the simp argument list.\n  simp only [Set.mem_setOf,̵ ̵S̵e̵t̵.̵s̵e̵p̵_̵m̵e̵m̵_̵e̵q̵] at ht ⊢\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
    "level": "warning"},
   {"message":
-   "Perspective/IncrementalUpdates.lean:179:30: This simp argument is unused:\n  Set.sep_mem_eq\n\nHint: Omit it from the simp argument list.\n  simp only [Set.mem_setOf,̵ ̵S̵e̵t̵.̵s̵e̵p̵_̵m̵e̵m̵_̵e̵q̵] at ht ⊢\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "Perspective/IncrementalUpdates.lean:191:30: This simp argument is unused:\n  Set.sep_mem_eq\n\nHint: Omit it from the simp argument list.\n  simp only [Set.mem_setOf,̵ ̵S̵e̵t̵.̵s̵e̵p̵_̵m̵e̵m̵_̵e̵q̵] at ht ⊢\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
    "level": "warning"},
   {"message":
-   "Perspective/IncrementalUpdates.lean:191:43: This simp argument is unused:\n  Set.sep_mem_eq\n\nHint: Omit it from the simp argument list.\n  simp only [removeSimplex, Set.mem_setOf,̵ ̵S̵e̵t̵.̵s̵e̵p̵_̵m̵e̵m̵_̵e̵q̵] at ht\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "Perspective/IncrementalUpdates.lean:203:43: This simp argument is unused:\n  Set.sep_mem_eq\n\nHint: Omit it from the simp argument list.\n  simp only [removeSimplex, Set.mem_setOf,̵ ̵S̵e̵t̵.̵s̵e̵p̵_̵m̵e̵m̵_̵e̵q̵] at ht\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
    "level": "warning"},
   {"message":
-   "Perspective/IncrementalUpdates.lean:208:8: declaration uses 'sorry'",
+   "Perspective/IncrementalUpdates.lean:222:18: unused variable `hv`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/IncrementalUpdates.lean:254:8: declaration uses 'sorry'",
+   "Perspective/IncrementalUpdates.lean:224:5: unused variable `h_neighbors`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/IncrementalUpdates.lean:360:42: unused variable `hd`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/IncrementalUpdates.lean:227:5: unused variable `h_K'_has_v`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/IncrementalUpdates.lean:368:41: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/IncrementalUpdates.lean:228:5: unused variable `h_K'_has_edges`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/IncrementalUpdates.lean:422:20: unused variable `K`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/IncrementalUpdates.lean:230:5: unused variable `h_local`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/IncrementalUpdates.lean:422:44: unused variable `v`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/IncrementalUpdates.lean:268:20: unused variable `hu`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/IncrementalUpdates.lean:430:23: unused variable `K`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/IncrementalUpdates.lean:268:43: unused variable `hv`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/IncrementalUpdates.lean:430:47: unused variable `v`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/IncrementalUpdates.lean:269:5: unused variable `h_no_edge`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/IncrementalUpdates.lean:434:18: unused variable `K`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/IncrementalUpdates.lean:271:5: unused variable `h_local`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/IncrementalUpdates.lean:434:42: unused variable `u`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/IncrementalUpdates.lean:274:5: unused variable `h_K'_has_edge`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/IncrementalUpdates.lean:372:42: unused variable `hd`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/IncrementalUpdates.lean:380:41: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/IncrementalUpdates.lean:434:20: unused variable `K`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
    "Perspective/IncrementalUpdates.lean:434:44: unused variable `v`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/IncrementalUpdates.lean:439:21: unused variable `K`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/IncrementalUpdates.lean:442:23: unused variable `K`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/IncrementalUpdates.lean:439:45: unused variable `u`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/IncrementalUpdates.lean:442:47: unused variable `v`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/IncrementalUpdates.lean:439:47: unused variable `v`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/IncrementalUpdates.lean:446:18: unused variable `K`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/IncrementalUpdates.lean:446:42: unused variable `u`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/IncrementalUpdates.lean:446:44: unused variable `v`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/IncrementalUpdates.lean:451:21: unused variable `K`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/IncrementalUpdates.lean:451:45: unused variable `u`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/IncrementalUpdates.lean:451:47: unused variable `v`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"}],
  "inputs":
  [["Perspective.IncrementalUpdates:deps",
@@ -69,11 +93,11 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["Perspective.ObstructionClassification transitive imports (legacy)",
-         "9d618507efad6e22"],
+         "c75898f5aec78f25"],
         ["Perspective.ObstructionClassification:importAllArts",
          "6c3e00ffb353c008"],
         ["H1Characterization.Characterization transitive imports (legacy)",
-         "1ceb156b65f4c1d3"],
+         "6a3156e1fd725140"],
         ["H1Characterization.Characterization:importAllArts",
          "db91a8fda58a7315"]]]]],
     ["libs",
@@ -84,9 +108,9 @@
   ["Lean 4.26.0, commit d8204c9fd894f91bbb2cdfec5912ec8196fd8562",
    "9c9419104e9584f8"],
   ["/workspaces/Cohomology-Foundations/Perspective/IncrementalUpdates.lean",
-   "3000caf9be7be669"],
+   "1f39e80b316686eb"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "b19396fb568ba9a4"}
+ "depHash": "5fd365151c91e3ec"}

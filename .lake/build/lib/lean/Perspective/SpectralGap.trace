@@ -1,15 +1,13 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["27209578685d5f1b.olean"],
-  "i": "56793c39d0895ce5.ilean",
+ {"o": ["3633a1fad7e97db0.olean"],
+  "i": "d28bcb8a495d7a4b.ilean",
   "c": "d076f355ec5f102c.c"},
  "log":
  [{"message":
    ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.26.0/bin/lean /workspaces/Cohomology-Foundations/Perspective/SpectralGap.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/SpectralGap.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/SpectralGap.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/SpectralGap.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/SpectralGap.setup.json --json",
-   "level": "trace"},
-  {"message": "Perspective/SpectralGap.lean:455:8: declaration uses 'sorry'",
-   "level": "warning"}],
+   "level": "trace"}],
  "inputs":
  [["Perspective.SpectralGap:deps",
    [["deps",
@@ -17,10 +15,10 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["Perspective.Persistence transitive imports (legacy)",
-         "afcce041b8a4dd92"],
+         "c80a3d89532c497e"],
         ["Perspective.Persistence:importAllArts", "182186f3ebcb9f07"],
         ["H1Characterization.Characterization transitive imports (legacy)",
-         "1ceb156b65f4c1d3"],
+         "6a3156e1fd725140"],
         ["H1Characterization.Characterization:importAllArts",
          "db91a8fda58a7315"]]]]],
     ["libs",
@@ -31,9 +29,9 @@
   ["Lean 4.26.0, commit d8204c9fd894f91bbb2cdfec5912ec8196fd8562",
    "9c9419104e9584f8"],
   ["/workspaces/Cohomology-Foundations/Perspective/SpectralGap.lean",
-   "4ec917cff1835098"],
+   "d5bfde970dac4da7"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "007056d5ee5a3060"}
+ "depHash": "790da5f494ef087b"}

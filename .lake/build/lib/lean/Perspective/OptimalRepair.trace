@@ -75,10 +75,10 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["Perspective.InformationBound transitive imports (legacy)",
-         "dd3d9c32c2965831"],
-        ["Perspective.InformationBound:importAllArts", "cbb885dc9e09816c"],
+         "1ad8ffbf4a691695"],
+        ["Perspective.InformationBound:importAllArts", "0c880bcc7acfd3ee"],
         ["H1Characterization.Characterization transitive imports (legacy)",
-         "1ceb156b65f4c1d3"],
+         "6a3156e1fd725140"],
         ["H1Characterization.Characterization:importAllArts",
          "db91a8fda58a7315"]]]]],
     ["libs",
@@ -94,4 +94,4 @@
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "ea9ca384badc7fce"}
+ "depHash": "07147f2ee74f3f45"}

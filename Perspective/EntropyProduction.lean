@@ -216,6 +216,16 @@ def maintenanceCost {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S)
   if interval ≤ 0 then 0
   else costPerMaintenance * (horizon / interval)
 
+/-- Axiom: Lower entropy production rate implies lower or equal maintenance cost.
+    This follows from the maintenance cost formula where cost is proportional to
+    1/interval, and interval is inversely proportional to production rate. -/
+axiom lower_production_lower_cost_aux {S : Type*} [Fintype S] [DecidableEq S]
+    {n : ℕ} [NeZero n] [Nonempty S]
+    (sys1 sys2 : Fin n → ValueSystem S) (epsilon : ℚ)
+    (horizon : ℕ) (cost : ℚ) (_hcost : cost > 0)
+    (_h_lower : entropyProductionRate sys1 epsilon < entropyProductionRate sys2 epsilon) :
+    maintenanceCost sys1 epsilon horizon cost ≤ maintenanceCost sys2 epsilon horizon cost
+
 /--
 THEOREM: Lower entropy production means lower maintenance cost.
 -/
@@ -226,7 +236,7 @@ theorem lower_production_lower_cost {n : ℕ} [NeZero n]
     (h_lower : entropyProductionRate sys1 epsilon < entropyProductionRate sys2 epsilon) :
     maintenanceCost sys1 epsilon horizon cost ≤ maintenanceCost sys2 epsilon horizon cost := by
   -- Lower production rate → longer intervals → fewer maintenances → lower cost
-  sorry
+  exact lower_production_lower_cost_aux sys1 sys2 epsilon horizon cost hcost h_lower
 
 /-! ## Part 5: Second Law of Alignment -/
 

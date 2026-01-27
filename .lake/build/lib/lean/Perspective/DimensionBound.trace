@@ -1,8 +1,8 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["badfc922b86b8019.olean"],
-  "i": "74f0c3a514b2b3f9.ilean",
+ {"o": ["dd06af27089938ec.olean"],
+  "i": "8739099c1c2af3f1.ilean",
   "c": "270fdef950bc0d5c.c"},
  "log":
  [{"message":
@@ -11,30 +11,20 @@
   {"message":
    "Perspective/DimensionBound.lean:66:17: unused variable `K`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
-  {"message": "Perspective/DimensionBound.lean:94:8: declaration uses 'sorry'",
-   "level": "warning"},
-  {"message": "Perspective/DimensionBound.lean:132:8: declaration uses 'sorry'",
+  {"message":
+   "Perspective/DimensionBound.lean:169:44: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/DimensionBound.lean:150:44: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
-   "level": "warning"},
-  {"message": "Perspective/DimensionBound.lean:199:8: declaration uses 'sorry'",
-   "level": "warning"},
-  {"message": "Perspective/DimensionBound.lean:270:8: declaration uses 'sorry'",
-   "level": "warning"},
-  {"message": "Perspective/DimensionBound.lean:294:8: declaration uses 'sorry'",
+   "Perspective/DimensionBound.lean:390:19: unused variable `he`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/DimensionBound.lean:344:19: unused variable `he`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/DimensionBound.lean:390:37: unused variable `he_new`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/DimensionBound.lean:344:37: unused variable `he_new`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/DimensionBound.lean:405:19: unused variable `he`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/DimensionBound.lean:359:19: unused variable `he`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
-   "level": "warning"},
-  {"message":
-   "Perspective/DimensionBound.lean:359:37: unused variable `he_in`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/DimensionBound.lean:405:37: unused variable `he_in`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"}],
  "inputs":
  [["Perspective.DimensionBound:deps",
@@ -43,10 +33,10 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["Perspective.MayerVietoris transitive imports (legacy)",
-         "21b9e14fee61df84"],
+         "6cf047a698e48ed3"],
         ["Perspective.MayerVietoris:importAllArts", "731e668899e0ad15"],
         ["H1Characterization.Characterization transitive imports (legacy)",
-         "1ceb156b65f4c1d3"],
+         "6a3156e1fd725140"],
         ["H1Characterization.Characterization:importAllArts",
          "db91a8fda58a7315"]]]]],
     ["libs",
@@ -57,9 +47,9 @@
   ["Lean 4.26.0, commit d8204c9fd894f91bbb2cdfec5912ec8196fd8562",
    "9c9419104e9584f8"],
   ["/workspaces/Cohomology-Foundations/Perspective/DimensionBound.lean",
-   "2bc146271a0a8d61"],
+   "b7cc9e7136c5bfdb"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "fdae047b849a5082"}
+ "depHash": "a074a66c8ffa2363"}

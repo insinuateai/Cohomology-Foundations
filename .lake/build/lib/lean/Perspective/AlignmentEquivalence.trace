@@ -1,8 +1,8 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["854963b479f67d68.olean"],
-  "i": "debe384e3ad08504.ilean",
+ {"o": ["f35a03e3d781b9ec.olean"],
+  "i": "43457817f6253a27.ilean",
   "c": "1f5073286381d5b4.c"},
  "log":
  [{"message":
@@ -45,22 +45,25 @@
    "Perspective/AlignmentEquivalence.lean:815:47: unused variable `hε`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/AlignmentEquivalence.lean:924:8: declaration uses 'sorry'",
+   "Perspective/AlignmentEquivalence.lean:940:48: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/AlignmentEquivalence.lean:1020:0: automatically included section variable(s) unused in theorem `Perspective.reconciliation_implies_h1_zero_simple_case`:\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "Perspective/AlignmentEquivalence.lean:941:47: unused variable `hε`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/AlignmentEquivalence.lean:1020:60: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/AlignmentEquivalence.lean:1070:0: automatically included section variable(s) unused in theorem `Perspective.reconciliation_implies_h1_zero_simple_case`:\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
    "level": "warning"},
   {"message":
-   "Perspective/AlignmentEquivalence.lean:1021:47: unused variable `hε`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/AlignmentEquivalence.lean:1070:60: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/AlignmentEquivalence.lean:1022:25: unused variable `hR`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/AlignmentEquivalence.lean:1071:47: unused variable `hε`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/AlignmentEquivalence.lean:1036:0: automatically included section variable(s) unused in theorem `Perspective.three_system_path_alignable`:\n  [Fintype S]\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [Fintype S] [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "Perspective/AlignmentEquivalence.lean:1072:25: unused variable `hR`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/AlignmentEquivalence.lean:1086:0: automatically included section variable(s) unused in theorem `Perspective.three_system_path_alignable`:\n  [Fintype S]\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [Fintype S] [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
    "level": "warning"}],
  "inputs":
  [["Perspective.AlignmentEquivalence:deps",
@@ -107,9 +110,9 @@
   ["Lean 4.26.0, commit d8204c9fd894f91bbb2cdfec5912ec8196fd8562",
    "9c9419104e9584f8"],
   ["/workspaces/Cohomology-Foundations/Perspective/AlignmentEquivalence.lean",
-   "fce3ac144d00f9dc"],
+   "96a1aa67f528d82b"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "bb5ff3f75a6a84c0"}
+ "depHash": "05420ce823062867"}

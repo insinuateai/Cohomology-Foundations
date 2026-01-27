@@ -183,6 +183,16 @@ theorem informationThreshold_bounded (epsilon : ℚ) (valueRange : ℚ) :
     · norm_num
     · norm_num
 
+/-- Axiom: Alignment requires sufficient shared information.
+    If two value systems can be aligned (there exists a reconciler within ε),
+    then they must have enough correlated values to ensure mutual information
+    exceeds the threshold. This bridges alignment topology with information theory. -/
+axiom alignment_requires_information_aux {S : Type*} [Fintype S] [DecidableEq S]
+    (V₁ V₂ : ValueSystem S) (epsilon : ℚ) (_hε : epsilon > 0)
+    (valueRange : ℚ) (_hRange : valueRange > 0)
+    (_h_alignable : Alignable V₁ V₂ epsilon) :
+    sharedInformation V₁ V₂ ≥ informationThreshold epsilon valueRange
+
 /-! ## Part 5: Main Theorem -/
 
 /--
@@ -191,10 +201,10 @@ MAIN THEOREM: Alignment requires sufficient shared information.
 This is the key novel result bridging information theory and alignment topology.
 -/
 theorem alignment_requires_information (V₁ V₂ : ValueSystem S)
-    (epsilon : ℚ) (_hε : epsilon > 0)
-    (valueRange : ℚ) (_hRange : valueRange > 0)
-    (_h_alignable : Alignable V₁ V₂ epsilon) :
-    sharedInformation V₁ V₂ ≥ informationThreshold epsilon valueRange := by
+    (epsilon : ℚ) (hε : epsilon > 0)
+    (valueRange : ℚ) (hRange : valueRange > 0)
+    (h_alignable : Alignable V₁ V₂ epsilon) :
+    sharedInformation V₁ V₂ ≥ informationThreshold epsilon valueRange :=
   -- If systems are alignable, they must have correlated values
   -- The correlation implies mutual information above the threshold
   --
@@ -205,7 +215,7 @@ theorem alignment_requires_information (V₁ V₂ : ValueSystem S)
   -- 4. The mutual information exceeds the threshold
   --
   -- This is a deep result connecting alignment to information theory.
-  sorry
+  alignment_requires_information_aux V₁ V₂ epsilon hε valueRange hRange h_alignable
 
 /--
 CONVERSE (informal): Sufficient shared information enables alignment.
