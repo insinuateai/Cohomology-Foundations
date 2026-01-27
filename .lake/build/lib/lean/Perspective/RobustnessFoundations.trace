@@ -1,0 +1,33 @@
+{"synthetic": false,
+ "schemaVersion": "2025-09-10",
+ "outputs":
+ {"o": ["61ca95d41cbac680.olean"],
+  "i": "cc4c1f425bfa133b.ilean",
+  "c": "040acfaa52b004d6.c"},
+ "log":
+ [{"message":
+   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.26.0/bin/lean /workspaces/Cohomology-Foundations/Perspective/RobustnessFoundations.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/RobustnessFoundations.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/RobustnessFoundations.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/RobustnessFoundations.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/RobustnessFoundations.setup.json --json",
+   "level": "trace"}],
+ "inputs":
+ [["Perspective.RobustnessFoundations:deps",
+   [["deps",
+     [["CohomologyFoundations/Perspective:extraDep",
+       [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
+      ["imports",
+       [["Perspective.FairnessSynthesis transitive imports (legacy)",
+         "e68badcea3ad6cef"],
+        ["Perspective.FairnessSynthesis:importAllArts", "53344729a361d418"]]]]],
+    ["libs",
+     [["import dynlibs", "00000000000006bb"],
+      ["package external libraries", "00000000000006bb"],
+      ["module dynlibs", "00000000000006bb"],
+      ["module plugins", "00000000000006bb"]]]]],
+  ["Lean 4.26.0, commit d8204c9fd894f91bbb2cdfec5912ec8196fd8562",
+   "9c9419104e9584f8"],
+  ["/workspaces/Cohomology-Foundations/Perspective/RobustnessFoundations.lean",
+   "631f0d2cebcaf903"],
+  ["options",
+   [["-Dpp.unicode.fun=true", "9b94070140457fab"],
+    ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
+  ["Module.leanArgs: #[]", "00000000000006bb"]],
+ "depHash": "a0589c8c42069170"}

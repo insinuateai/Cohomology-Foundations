@@ -1,6 +1,6 @@
 {"plugins": [],
  "options": {"pp.unicode.fun": true, "autoImplicit": false},
- "name": "Perspective",
+ "name": "Perspective.FairnessSynthesis",
  "isModule": false,
  "importArts":
  {"Qq.Typ":
@@ -176,8 +176,6 @@
   ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/Stability.olean"],
   "Perspective.SpectralGap":
   ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/SpectralGap.olean"],
-  "Perspective.RobustnessFoundations":
-  ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/RobustnessFoundations.olean"],
   "Perspective.Recurrence":
   ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/Recurrence.olean"],
   "Perspective.Proportionality":
@@ -212,8 +210,6 @@
   ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/Geodesic.olean"],
   "Perspective.FluctuationBounds":
   ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/FluctuationBounds.olean"],
-  "Perspective.FairnessSynthesis":
-  ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/FairnessSynthesis.olean"],
   "Perspective.FairnessPersistence":
   ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/FairnessPersistence.olean"],
   "Perspective.FairnessLearning":
