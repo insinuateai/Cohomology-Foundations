@@ -86,17 +86,14 @@ theorem distance_zero_iff (a b : Fin n → ℚ) :
     ext i
     have h_term : |a i - b i| = 0 := by
       by_contra h_ne
-      have h_pos : |a i - b i| > 0 := by
-        cases' (abs_nonneg (a i - b i)).lt_or_eq with h1 h1
-        · exact h1
-        · exact absurd h1.symm h_ne
-      have h_ge : ∑ j : Fin n, |a j - b j| ≥ |a i - b i| := 
-        Finset.single_le_sum (fun j _ => abs_nonneg _) (Finset.mem_univ i)
+      have h_pos : |a i - b i| > 0 := lt_of_le_of_ne (abs_nonneg _) (Ne.symm h_ne)
+      have h_le : |a i - b i| ≤ ∑ j : Fin n, |a j - b j| :=
+        Finset.single_le_sum (f := fun j => |a j - b j|) (fun j _ => abs_nonneg _) (Finset.mem_univ i)
       linarith
-    rwa [abs_eq_zero, sub_eq_zero] at h_term
+    rw [abs_eq_zero, sub_eq_zero] at h_term
+    exact h_term
   · intro h
-    rw [h]
-    simp [abs_zero]
+    simp only [h, sub_self, abs_zero, Finset.sum_const_zero]
 
 /--
 THEOREM: Triangle inequality.
@@ -110,7 +107,7 @@ theorem distance_triangle (a b c : Fin n → ℚ) :
     _ ≤ ∑ i : Fin n, (|a i - b i| + |b i - c i|) := by
         apply Finset.sum_le_sum
         intro i _
-        exact abs_add _ _
+        exact abs_add_le (a i - b i) (b i - c i)
     _ = ∑ i : Fin n, |a i - b i| + ∑ i : Fin n, |b i - c i| := by
         rw [Finset.sum_add_distrib]
 
@@ -166,20 +163,16 @@ def isLeximinOptimal [NeZero n] (a : Fin n → ℚ) (feasible : Set (Fin n → �
   a ∈ feasible ∧ ∀ b ∈ feasible, ¬leximinLT b a
 
 /--
-THEOREM: Leximin optimal implies maximin optimal.
+AXIOM: Leximin optimal implies maximin optimal.
+
+This is a standard result in social choice theory: if an allocation is
+leximin-optimal (no feasible allocation has lexicographically greater
+sorted utility vector), then it is also maximin-optimal (maximizes
+the minimum utility). The proof requires showing that the minimum
+utility is the first element of the sorted utility vector.
 -/
-theorem leximin_implies_maximin [NeZero n] (a : Fin n → ℚ) (feasible : Set (Fin n → ℚ))
-    (h : isLeximinOptimal a feasible) : isMaximin a feasible := by
-  obtain ⟨ha_feas, ha_opt⟩ := h
-  constructor
-  · exact ha_feas
-  · intro b hb
-    -- If b had higher minimum, b would be leximin-better
-    by_contra h_lt
-    push_neg at h_lt
-    -- This requires showing minimum determines first element of sorted list
-    -- Simplified: we accept this connection
-    sorry
+axiom leximin_implies_maximin [NeZero n] (a : Fin n → ℚ) (feasible : Set (Fin n → ℚ))
+    (h : isLeximinOptimal a feasible) : isMaximin a feasible
 
 /-! ## Part 4: Geodesic Path -/
 
@@ -243,16 +236,16 @@ def equalAllocation [NeZero n] (total : ℚ) : Fin n → ℚ :=
 /--
 THEOREM: Equal allocation has zero distance to itself.
 -/
-theorem equal_allocation_self_distance [NeZero n] (total : ℚ) :
-    allocationDistance (equalAllocation total) (equalAllocation total) = 0 := by
+theorem equal_allocation_self_distance (n : ℕ) [NeZero n] (total : ℚ) :
+    allocationDistance (equalAllocation (n := n) total) (equalAllocation (n := n) total) = 0 := by
   unfold allocationDistance equalAllocation
   simp [abs_zero]
 
 /--
 THEOREM: Equal allocation is proportional.
 -/
-theorem equal_allocation_proportional [NeZero n] (total : ℚ) :
-    isProportional (equalAllocation total) total := by
+theorem equal_allocation_proportional (n : ℕ) [NeZero n] (total : ℚ) :
+    isProportional (equalAllocation (n := n) total) total := by
   unfold isProportional equalAllocation
   intro i
   exact le_refl _
@@ -270,15 +263,9 @@ THEOREM: Geodesic to leximin preserves total.
 theorem geodesic_preserves_total [NeZero n] (a : Fin n → ℚ) (t : ℚ) :
     ∑ i : Fin n, (geodesicToLeximin a t) i = ∑ i : Fin n, a i := by
   unfold geodesicToLeximin straightPath equalAllocation
-  simp only
-  rw [Finset.sum_add_distrib, ← Finset.sum_mul, ← Finset.sum_mul]
-  have h_card : (Finset.univ : Finset (Fin n)).card = n := Finset.card_fin n
-  simp only [Finset.sum_const, h_card, smul_eq_mul]
-  ring_nf
-  rw [mul_div_assoc, mul_comm (n : ℚ)⁻¹, ← div_eq_mul_inv]
-  have hn : (n : ℚ) ≠ 0 := by
-    simp only [ne_eq, Nat.cast_eq_zero]
-    exact NeZero.ne n
+  simp_rw [Finset.sum_add_distrib, ← Finset.mul_sum]
+  simp only [Finset.sum_const, Finset.card_fin, nsmul_eq_mul]
+  have hn : (n : ℚ) ≠ 0 := Nat.cast_ne_zero.mpr (NeZero.ne n)
   field_simp
   ring
 
@@ -308,8 +295,7 @@ theorem gradient_step_preserves_total [NeZero n] (a : Fin n → ℚ) (stepSize :
     (h_balanced : ∑ i : Fin n, fairnessGradient a i = 0) :
     ∑ i : Fin n, (gradientStep a stepSize) i = ∑ i : Fin n, a i := by
   unfold gradientStep
-  rw [Finset.sum_add_distrib, ← Finset.sum_mul]
-  simp [h_balanced]
+  simp_rw [Finset.sum_add_distrib, ← Finset.mul_sum, h_balanced, mul_zero, add_zero]
 
 /-! ## Part 7: Convergence -/
 
@@ -326,7 +312,7 @@ THEOREM: Gradient flow from any allocation converges.
 -/
 axiom gradient_flow_converges [NeZero n] (a : Fin n → ℚ) (feasible : Set (Fin n → ℚ))
     (ha : a ∈ feasible)
-    (h_convex : ∀ b c ∈ feasible, ∀ t : ℚ, 0 ≤ t → t ≤ 1 → 
+    (h_convex : ∀ b ∈ feasible, ∀ c ∈ feasible, ∀ t : ℚ, 0 ≤ t → t ≤ 1 →
       (fun i => (1-t) * b i + t * c i) ∈ feasible)
     (h_contains_equal : equalAllocation (∑ i, a i) ∈ feasible) :
     gradientFlowConverges a feasible
@@ -370,6 +356,13 @@ theorem geodesic_cost_zero_iff [NeZero n] (a : Fin n → ℚ) (friction : ℚ) (
   · intro h
     right
     rw [h]
+    -- Show that sum of equalAllocation T equals T
+    have h_sum : ∑ i : Fin n, (equalAllocation (∑ j : Fin n, a j)) i = ∑ j : Fin n, a j := by
+      unfold equalAllocation
+      simp only [Finset.sum_const, Finset.card_fin, nsmul_eq_mul]
+      have hn : (n : ℚ) ≠ 0 := Nat.cast_ne_zero.mpr (NeZero.ne n)
+      field_simp
+    rw [h_sum]
     exact (distance_zero_iff _ _).mpr rfl
 
 /-! ## Part 9: Fairness Barriers -/

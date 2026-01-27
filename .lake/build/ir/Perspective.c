@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Perspective
-// Imports: public import Init public import Perspective.ValueSystem public import Perspective.Alignment public import Perspective.ValueComplex public import Perspective.AlignmentEquivalence public import Perspective.AlignmentTheorem public import Perspective.ImpossibilityStrong public import Perspective.ConflictLocalization public import Perspective.ConflictResolution public import Perspective.AgentCoordination public import Perspective.Stability public import Perspective.ObstructionClassification public import Perspective.IncrementalUpdates public import Perspective.HierarchicalAlignment public import Perspective.MayerVietoris public import Perspective.DimensionBound public import Perspective.Persistence public import Perspective.SpectralGap public import Perspective.InformationBound public import Perspective.OptimalRepair public import Perspective.Compositional public import Perspective.Barrier public import Perspective.Geodesic public import Perspective.Curvature public import Perspective.CriticalPoints public import Perspective.Bifurcation public import Perspective.Hysteresis public import Perspective.AttractorBasins public import Perspective.EscapeTime public import Perspective.Recurrence public import Perspective.EntropyProduction public import Perspective.FluctuationBounds public import Perspective.FairnessFoundations public import Perspective.ParetoTopology public import Perspective.EnvyFreeness public import Perspective.Proportionality public import Perspective.FairnessAlignmentTradeoff
+// Imports: public import Init public import Perspective.ValueSystem public import Perspective.Alignment public import Perspective.ValueComplex public import Perspective.AlignmentEquivalence public import Perspective.AlignmentTheorem public import Perspective.ImpossibilityStrong public import Perspective.ConflictLocalization public import Perspective.ConflictResolution public import Perspective.AgentCoordination public import Perspective.Stability public import Perspective.ObstructionClassification public import Perspective.IncrementalUpdates public import Perspective.HierarchicalAlignment public import Perspective.MayerVietoris public import Perspective.DimensionBound public import Perspective.Persistence public import Perspective.SpectralGap public import Perspective.InformationBound public import Perspective.OptimalRepair public import Perspective.Compositional public import Perspective.Barrier public import Perspective.Geodesic public import Perspective.Curvature public import Perspective.CriticalPoints public import Perspective.Bifurcation public import Perspective.Hysteresis public import Perspective.AttractorBasins public import Perspective.EscapeTime public import Perspective.Recurrence public import Perspective.EntropyProduction public import Perspective.FluctuationBounds public import Perspective.FairnessFoundations public import Perspective.ParetoTopology public import Perspective.EnvyFreeness public import Perspective.Proportionality public import Perspective.FairnessAlignmentTradeoff public import Perspective.LeximinGeodesics public import Perspective.FairnessBarriers
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -50,6 +50,8 @@ lean_object* initialize_Perspective_ParetoTopology(uint8_t builtin);
 lean_object* initialize_Perspective_EnvyFreeness(uint8_t builtin);
 lean_object* initialize_Perspective_Proportionality(uint8_t builtin);
 lean_object* initialize_Perspective_FairnessAlignmentTradeoff(uint8_t builtin);
+lean_object* initialize_Perspective_LeximinGeodesics(uint8_t builtin);
+lean_object* initialize_Perspective_FairnessBarriers(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Perspective(uint8_t builtin) {
 lean_object * res;
@@ -164,6 +166,12 @@ res = initialize_Perspective_Proportionality(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Perspective_FairnessAlignmentTradeoff(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Perspective_LeximinGeodesics(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Perspective_FairnessBarriers(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

@@ -34,3 +34,5 @@ import Perspective.ParetoTopology
 import Perspective.EnvyFreeness
 import Perspective.Proportionality
 import Perspective.FairnessAlignmentTradeoff
+import Perspective.LeximinGeodesics
+import Perspective.FairnessBarriers
