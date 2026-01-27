@@ -1,0 +1,36 @@
+{"synthetic": false,
+ "schemaVersion": "2025-09-10",
+ "outputs":
+ {"o": ["4ccc7fcdac20f640.olean"],
+  "i": "39006d61df522ebf.ilean",
+  "c": "12439a0b4d63ad0f.c"},
+ "log":
+ [{"message":
+   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.26.0/bin/lean /workspaces/Cohomology-Foundations/Perspective/GroupFairness.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/GroupFairness.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/GroupFairness.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/GroupFairness.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/GroupFairness.setup.json --json",
+   "level": "trace"},
+  {"message":
+   "Perspective/GroupFairness.lean:304:19: `Finset.not_mem_empty` has been deprecated: Use `Finset.notMem_empty` instead",
+   "level": "warning"}],
+ "inputs":
+ [["Perspective.GroupFairness:deps",
+   [["deps",
+     [["CohomologyFoundations/Perspective:extraDep",
+       [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
+      ["imports",
+       [["Perspective.FairnessBarriers transitive imports (legacy)",
+         "90acaf7b7eff48e8"],
+        ["Perspective.FairnessBarriers:importAllArts", "840340c70eccfdf7"]]]]],
+    ["libs",
+     [["import dynlibs", "00000000000006bb"],
+      ["package external libraries", "00000000000006bb"],
+      ["module dynlibs", "00000000000006bb"],
+      ["module plugins", "00000000000006bb"]]]]],
+  ["Lean 4.26.0, commit d8204c9fd894f91bbb2cdfec5912ec8196fd8562",
+   "9c9419104e9584f8"],
+  ["/workspaces/Cohomology-Foundations/Perspective/GroupFairness.lean",
+   "721193d5fb452cc4"],
+  ["options",
+   [["-Dpp.unicode.fun=true", "9b94070140457fab"],
+    ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
+  ["Module.leanArgs: #[]", "00000000000006bb"]],
+ "depHash": "5ed355b785cbe0e6"}

@@ -1,15 +1,24 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["688681ffb1003fd0.olean"],
-  "i": "18811c2f761402c3.ilean",
-  "c": "cecbd68ce5a57496.c"},
+ {"o": ["dd5309fb0f6645e9.olean"],
+  "i": "8d415b88079fd192.ilean",
+  "c": "6f2b480fc7f32cf4.c"},
  "log":
  [{"message":
    ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.26.0/bin/lean /workspaces/Cohomology-Foundations/Perspective/FairnessBarriers.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/FairnessBarriers.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/FairnessBarriers.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/FairnessBarriers.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/FairnessBarriers.setup.json --json",
    "level": "trace"},
   {"message":
-   "Perspective/FairnessBarriers.lean:376:32: This simp argument is unused:\n  beq_iff_eq\n\nHint: Omit it from the simp argument list.\n  simp only [List.mem_filter, b̵e̵q̵_̵i̵f̵f̵_̵e̵q̵,̵ ̵decide_eq_true_eq] at hr\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "Perspective/FairnessBarriers.lean:103:30: unused variable `b`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/FairnessBarriers.lean:169:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/FairnessBarriers.lean:280:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/FairnessBarriers.lean:305:7: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"}],
  "inputs":
  [["Perspective.FairnessBarriers:deps",
@@ -28,9 +37,9 @@
   ["Lean 4.26.0, commit d8204c9fd894f91bbb2cdfec5912ec8196fd8562",
    "9c9419104e9584f8"],
   ["/workspaces/Cohomology-Foundations/Perspective/FairnessBarriers.lean",
-   "08e84d9a406969fd"],
+   "aedc2036951de28f"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "34ae6781ea9d948a"}
+ "depHash": "0d1e20c1c1b193cd"}

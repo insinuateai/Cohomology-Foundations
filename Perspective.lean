@@ -36,3 +36,5 @@ import Perspective.Proportionality
 import Perspective.FairnessAlignmentTradeoff
 import Perspective.LeximinGeodesics
 import Perspective.FairnessBarriers
+import Perspective.GroupFairness
+import Perspective.IndividualFairness
