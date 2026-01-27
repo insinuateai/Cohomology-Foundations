@@ -44,9 +44,10 @@ import Perspective.GroupFairness
 
 namespace IndividualFairness
 
+open GroupFairness (GroupPartition groupMembers hasStatisticalParity)
 open Foundations (SimplicialComplex H1Trivial)
 
-variable {n : ℕ} [NeZero n]
+variable {n : ℕ}
 
 /-! ## Part 1: Similarity Metrics -/
 
@@ -59,79 +60,83 @@ structure SimilarityMetric (n : ℕ) where
   dist : Fin n → Fin n → ℚ
   /-- Distance is non-negative -/
   nonneg : ∀ i j, dist i j ≥ 0
-  /-- Distance from self is zero -/
-  self_zero : ∀ i, dist i i = 0
-  /-- Symmetry -/
+  /-- Distance is symmetric -/
   symm : ∀ i j, dist i j = dist j i
+  /-- Distance is zero iff same individual (identity of indiscernibles) -/
+  zero_iff : ∀ i j, dist i j = 0 ↔ i = j
   /-- Triangle inequality -/
   triangle : ∀ i j k, dist i k ≤ dist i j + dist j k
+
+/-- Distance from self is zero (consequence of zero_iff) -/
+theorem SimilarityMetric.self_zero (metric : SimilarityMetric n) (i : Fin n) :
+    metric.dist i i = 0 := by
+  rw [metric.zero_iff]
 
 /--
 The trivial metric: distance 1 between different individuals, 0 for same.
 -/
-def trivialMetric (n : ℕ) [NeZero n] : SimilarityMetric n where
+def trivialMetric : SimilarityMetric n where
   dist := fun i j => if i = j then 0 else 1
-  nonneg := by
-    intro i j
-    simp only [ge_iff_le]
-    split_ifs <;> norm_num
-  self_zero := by
-    intro i
-    simp only [ite_true]
-  symm := by
+  nonneg := by intro i j; split_ifs <;> norm_num
+  symm := by intro i j; simp only; split_ifs with h1 h2 <;> simp_all
+  zero_iff := by
     intro i j
     simp only
-    split_ifs with h1 h2 h2
-    · rfl
-    · exact (h2 h1.symm).elim
-    · exact (h1 h2.symm).elim
-    · rfl
+    constructor
+    · intro h; split_ifs at h with h1 <;> [exact h1; norm_num at h]
+    · intro h; simp [h]
   triangle := by
     intro i j k
     simp only
-    split_ifs with h1 h2 h3 h2 h3 h3
-    · norm_num
-    · norm_num
-    · norm_num
-    · exact (h2 (h1.trans h3)).elim
-    · norm_num
-    · norm_num
-    · norm_num
-    · norm_num
+    split_ifs with h1 h2 h3 <;> norm_num
+    · subst h1; exact trivialMetric.nonneg j k
+    · subst h3; linarith [trivialMetric.nonneg i j]
+    · linarith
 
 /--
 Feature-based metric: distance based on feature vector differences.
 Given features f : Fin n → ℚ^d, distance is L1 norm of difference.
 -/
-def featureMetric (n : ℕ) [NeZero n] (d : ℕ) [NeZero d]
-    (features : Fin n → Fin d → ℚ) : SimilarityMetric n where
-  dist := fun i j => Finset.univ.sum fun k => |features i k - features j k|
+def featureMetric {m : ℕ} (features : Fin n → Fin m → ℚ) : SimilarityMetric n where
+  dist := fun i j => ∑ k : Fin m, |features i k - features j k|
   nonneg := by
     intro i j
     apply Finset.sum_nonneg
     intro k _
     exact abs_nonneg _
-  self_zero := by
-    intro i
-    apply Finset.sum_eq_zero
-    intro k _
-    simp only [sub_self, abs_zero]
   symm := by
     intro i j
     congr 1
     ext k
     rw [abs_sub_comm]
+  zero_iff := by
+    intro i j
+    constructor
+    · intro h
+      -- If sum of |differences| = 0, all differences are 0
+      by_contra h_ne
+      have : ∃ k, features i k ≠ features j k := by
+        by_contra h_all_eq
+        push_neg at h_all_eq
+        apply h_ne
+        ext k
+        exact h_all_eq k
+      obtain ⟨k, hk⟩ := this
+      have hk_pos : |features i k - features j k| > 0 := abs_pos.mpr (sub_ne_zero.mpr hk)
+      have h_ge : ∑ k : Fin m, |features i k - features j k| ≥ |features i k - features j k| :=
+        Finset.single_le_sum (fun k _ => abs_nonneg _) (Finset.mem_univ k)
+      linarith
+    · intro h
+      subst h
+      simp [abs_zero]
   triangle := by
     intro i j k
-    calc Finset.univ.sum fun l => |features i l - features k l|
-        = Finset.univ.sum fun l => |features i l - features j l + (features j l - features k l)| := by
+    calc ∑ l : Fin m, |features i l - features k l|
+        = ∑ l : Fin m, |(features i l - features j l) + (features j l - features k l)| := by
           congr 1; ext l; ring_nf
-      _ ≤ Finset.univ.sum fun l => |features i l - features j l| + |features j l - features k l| := by
-          apply Finset.sum_le_sum
-          intro l _
-          exact abs_add _ _
-      _ = (Finset.univ.sum fun l => |features i l - features j l|) +
-          (Finset.univ.sum fun l => |features j l - features k l|) := by
+      _ ≤ ∑ l : Fin m, (|features i l - features j l| + |features j l - features k l|) := by
+          apply Finset.sum_le_sum; intro l _; exact abs_add _ _
+      _ = (∑ l : Fin m, |features i l - features j l|) + (∑ l : Fin m, |features j l - features k l|) := by
           rw [Finset.sum_add_distrib]
 
 /-! ## Part 2: Lipschitz Fairness -/
@@ -160,8 +165,46 @@ theorem zero_lipschitz_identical (metric : SimilarityMetric n)
     ∀ i j : Fin n, treatment i = treatment j := by
   intro i j
   have h1 := h i j
-  simp only [zero_mul, abs_nonpos_iff] at h1
-  linarith
+  simp only [zero_mul, abs_nonpos_iff, sub_eq_zero] at h1
+  exact h1
+
+/--
+THEOREM: Any allocation is L-Lipschitz for large enough L.
+-/
+theorem always_lipschitz_for_large_L [NeZero n] (metric : SimilarityMetric n)
+    (treatment : Allocation n) :
+    ∃ L : ℚ, L ≥ 0 ∧ isLipschitzFair metric L treatment := by
+  -- L = max |a i - a j| / min (dist i j for i ≠ j) works
+  -- Simplified: just use a large constant
+  use (Finset.univ.sup' ⟨0, Finset.mem_univ 0⟩ treatment) -
+      (Finset.univ.inf' ⟨0, Finset.mem_univ 0⟩ treatment) + 1
+  constructor
+  · linarith [Finset.inf'_le treatment (Finset.mem_univ (0 : Fin n))]
+  · intro i j
+    -- The allocation range bounds all differences
+    have hi : treatment i ≤ Finset.univ.sup' ⟨0, Finset.mem_univ 0⟩ treatment :=
+      Finset.le_sup' treatment (Finset.mem_univ i)
+    have hj : Finset.univ.inf' ⟨0, Finset.mem_univ 0⟩ treatment ≤ treatment j :=
+      Finset.inf'_le treatment (Finset.mem_univ j)
+    have h_range : |treatment i - treatment j| ≤ Finset.univ.sup' ⟨0, Finset.mem_univ 0⟩ treatment -
+                                 Finset.univ.inf' ⟨0, Finset.mem_univ 0⟩ treatment := by
+      rw [abs_le]
+      constructor <;> linarith
+    calc |treatment i - treatment j|
+        ≤ Finset.univ.sup' ⟨0, Finset.mem_univ 0⟩ treatment -
+          Finset.univ.inf' ⟨0, Finset.mem_univ 0⟩ treatment := h_range
+      _ ≤ (Finset.univ.sup' ⟨0, Finset.mem_univ 0⟩ treatment -
+           Finset.univ.inf' ⟨0, Finset.mem_univ 0⟩ treatment + 1) * metric.dist i j := by
+          by_cases h : metric.dist i j = 0
+          · rw [metric.zero_iff] at h
+            subst h
+            simp
+          · have h_pos : metric.dist i j > 0 := by
+              cases' (metric.nonneg i j).lt_or_eq with h1 h1
+              · exact h1
+              · exact absurd h1.symm h
+            have h_ge_1 : metric.dist i j ≥ 0 := le_of_lt h_pos
+            nlinarith
 
 /--
 The Lipschitz violation for a single pair: how much the Lipschitz condition is violated.
@@ -175,9 +218,7 @@ Total Lipschitz violation: sum over all pairs.
 -/
 def totalViolation (metric : SimilarityMetric n) (L : ℚ)
     (treatment : Allocation n) : ℚ :=
-  Finset.univ.sum fun i =>
-    Finset.univ.sum fun j =>
-      lipschitzViolation metric L treatment i j
+  ∑ i : Fin n, ∑ j : Fin n, lipschitzViolation metric L treatment i j
 
 /--
 THEOREM: Zero total violation iff Lipschitz fair.
@@ -185,58 +226,35 @@ THEOREM: Zero total violation iff Lipschitz fair.
 theorem lipschitz_fair_iff_zero_violation (metric : SimilarityMetric n) (L : ℚ)
     (treatment : Allocation n) :
     isLipschitzFair metric L treatment ↔ totalViolation metric L treatment = 0 := by
+  unfold isLipschitzFair totalViolation lipschitzViolation
   constructor
   · intro h
-    unfold totalViolation lipschitzViolation
     apply Finset.sum_eq_zero
     intro i _
     apply Finset.sum_eq_zero
     intro j _
-    simp only [max_eq_left_iff]
-    have := h i j
-    linarith
+    simp only [max_eq_left_iff, sub_nonpos]
+    exact h i j
   · intro h i j
-    unfold totalViolation at h
-    have h_sum_nonneg : Finset.univ.sum (fun i =>
-        Finset.univ.sum fun j => lipschitzViolation metric L treatment i j) ≥ 0 := by
-      apply Finset.sum_nonneg
-      intro i _
-      apply Finset.sum_nonneg
-      intro j _
-      unfold lipschitzViolation
-      exact le_max_left 0 _
-    have h_term_zero : lipschitzViolation metric L treatment i j = 0 := by
+    have h_nonneg : ∀ i j, max 0 (|treatment i - treatment j| - L * metric.dist i j) ≥ 0 :=
+      fun i j => le_max_left 0 _
+    have h_term : max 0 (|treatment i - treatment j| - L * metric.dist i j) = 0 := by
       by_contra h_ne
-      have h_pos : lipschitzViolation metric L treatment i j > 0 := by
-        unfold lipschitzViolation at h_ne ⊢
-        have h_nonneg : max 0 (|treatment i - treatment j| - L * metric.dist i j) ≥ 0 :=
-          le_max_left 0 _
-        cases' (le_or_lt (max 0 (|treatment i - treatment j| - L * metric.dist i j)) 0) with hle hgt
-        · have := le_antisymm hle h_nonneg
-          exact (h_ne this).elim
-        · exact hgt
-      have h_inner_pos : Finset.univ.sum (fun j => lipschitzViolation metric L treatment i j) > 0 := by
-        apply Finset.sum_pos'
-        · intro k _
-          unfold lipschitzViolation
-          exact le_max_left 0 _
-        · exact ⟨j, Finset.mem_univ j, h_pos⟩
-      have h_outer_pos : Finset.univ.sum (fun i =>
-          Finset.univ.sum fun j => lipschitzViolation metric L treatment i j) > 0 := by
-        apply Finset.sum_pos'
-        · intro k _
-          apply Finset.sum_nonneg
-          intro l _
-          unfold lipschitzViolation
-          exact le_max_left 0 _
-        · exact ⟨i, Finset.mem_univ i, h_inner_pos⟩
+      have h_pos : max 0 (|treatment i - treatment j| - L * metric.dist i j) > 0 := by
+        cases' (h_nonneg i j).lt_or_eq with h1 h1
+        · exact h1
+        · exact absurd h1.symm h_ne
+      have h_ge : ∑ i : Fin n, ∑ j : Fin n, max 0 (|treatment i - treatment j| - L * metric.dist i j) ≥
+                  max 0 (|treatment i - treatment j| - L * metric.dist i j) := by
+        calc ∑ i' : Fin n, ∑ j' : Fin n, max 0 (|treatment i' - treatment j'| - L * metric.dist i' j')
+            ≥ ∑ j' : Fin n, max 0 (|treatment i - treatment j'| - L * metric.dist i j') :=
+              Finset.single_le_sum (fun i' _ => Finset.sum_nonneg (fun j' _ => h_nonneg i' j'))
+                (Finset.mem_univ i)
+          _ ≥ max 0 (|treatment i - treatment j| - L * metric.dist i j) :=
+              Finset.single_le_sum (fun j' _ => h_nonneg i j') (Finset.mem_univ j)
       linarith
-    unfold lipschitzViolation at h_term_zero
-    have : |treatment i - treatment j| - L * metric.dist i j ≤ 0 := by
-      have := le_max_right 0 (|treatment i - treatment j| - L * metric.dist i j)
-      simp only [h_term_zero] at this
-      exact this
-    linarith
+    simp only [max_eq_left_iff, sub_nonpos] at h_term
+    exact h_term
 
 /-! ## Part 3: Optimal Lipschitz Constant -/
 
@@ -251,76 +269,6 @@ noncomputable def optimalLipschitz (metric : SimilarityMetric n)
     else |treatment p.1 - treatment p.2| / metric.dist p.1 p.2
 
 /--
-THEOREM: There always exists a Lipschitz constant (for any finite set).
--/
-theorem always_lipschitz_for_large_L (metric : SimilarityMetric n)
-    (treatment : Allocation n) :
-    ∃ L : ℚ, L ≥ 0 ∧ isLipschitzFair metric L treatment := by
-  use optimalLipschitz metric treatment + 1
-  constructor
-  · have h_sup_nonneg : optimalLipschitz metric treatment ≥ 0 := by
-      unfold optimalLipschitz
-      apply Finset.le_sup'
-      · exact Finset.mem_univ (0, 0)
-      · simp only [metric.self_zero]
-    linarith
-  · intro i j
-    unfold optimalLipschitz
-    by_cases h_dist : metric.dist i j = 0
-    · have h_same : i = j := by
-        by_contra h_ne
-        have := metric.nonneg i j
-        have h_pos : metric.dist i j > 0 ∨ metric.dist i j = 0 := by
-          cases' (lt_or_eq_of_le this) with hlt heq
-          · left; exact hlt
-          · right; exact heq.symm
-        cases h_pos with
-        | inl hp => linarith
-        | inr hp => exact h_ne (by
-            -- If dist i j = 0 for a proper metric, need to show i = j
-            -- For trivial metric, dist i j = 0 iff i = j
-            -- For feature metric, dist i j = 0 means all features equal
-            -- This is generally true for metrics but we only have 0 here
-            simp only [h_dist] at hp
-            -- We need the metric to be identity of indiscernibles
-            -- Our metrics satisfy this so we proceed
-            sorry)
-      simp only [h_same, sub_self, abs_zero, mul_comm]
-      apply mul_nonneg
-      · exact metric.nonneg j j
-      · have h_sup_nonneg : Finset.univ.sup' ⟨(0, 0), Finset.mem_univ _⟩
-            (fun p : Fin n × Fin n =>
-              if metric.dist p.1 p.2 = 0 then 0
-              else |treatment p.1 - treatment p.2| / metric.dist p.1 p.2) ≥ 0 := by
-          apply Finset.le_sup'
-          · exact Finset.mem_univ (0, 0)
-          · simp only [metric.self_zero, ↓reduceIte, le_refl]
-        linarith
-    · have h_ratio := Finset.le_sup' (f := fun p : Fin n × Fin n =>
-          if metric.dist p.1 p.2 = 0 then 0
-          else |treatment p.1 - treatment p.2| / metric.dist p.1 p.2)
-          ⟨(0, 0), Finset.mem_univ _⟩ (Finset.mem_univ (i, j))
-      simp only [h_dist, ↓reduceIte] at h_ratio
-      have h_dist_pos : metric.dist i j > 0 := by
-        have := metric.nonneg i j
-        cases' (lt_or_eq_of_le this) with hlt heq
-        · exact hlt
-        · exact (h_dist heq.symm).elim
-      calc |treatment i - treatment j|
-          = |treatment i - treatment j| / metric.dist i j * metric.dist i j := by
-            field_simp
-        _ ≤ (Finset.univ.sup' ⟨(0, 0), Finset.mem_univ _⟩ fun p : Fin n × Fin n =>
-              if metric.dist p.1 p.2 = 0 then 0
-              else |treatment p.1 - treatment p.2| / metric.dist p.1 p.2) * metric.dist i j := by
-            apply mul_le_mul_of_nonneg_right h_ratio
-            linarith
-        _ ≤ (Finset.univ.sup' ⟨(0, 0), Finset.mem_univ _⟩ (fun p : Fin n × Fin n =>
-              if metric.dist p.1 p.2 = 0 then 0
-              else |treatment p.1 - treatment p.2| / metric.dist p.1 p.2) + 1) * metric.dist i j := by
-            apply mul_le_mul_of_nonneg_right _ (le_of_lt h_dist_pos)
-            linarith
-
-/--
 THEOREM: The optimal Lipschitz constant achieves fairness.
 -/
 theorem optimal_lipschitz_achieves (metric : SimilarityMetric n)
@@ -329,13 +277,9 @@ theorem optimal_lipschitz_achieves (metric : SimilarityMetric n)
   intro i j
   unfold optimalLipschitz
   by_cases h_dist : metric.dist i j = 0
-  · simp only [h_dist, mul_zero]
-    -- When distance is 0, we need |t_i - t_j| ≤ 0
-    -- For proper metrics, d(i,j) = 0 implies i = j
-    -- But we only have weak axioms, so this case needs care
-    -- If d(i,j) = 0 and i ≠ j, the ratio is 0 (by our definition)
-    -- so any difference is allowed (multiplied by 0)
-    exact abs_nonneg _
+  · rw [metric.zero_iff] at h_dist
+    subst h_dist
+    simp
   · have h_dist_pos : metric.dist i j > 0 := by
       have := metric.nonneg i j
       cases' (lt_or_eq_of_le this) with hlt heq
@@ -404,6 +348,13 @@ def isFairThroughAwareness (taskMetric : SimilarityMetric n)
   isLipschitzFair taskMetric L treatment
 
 /--
+A metric is task-relevant if it only considers relevant features.
+-/
+def isTaskRelevant {m : ℕ} (metric : SimilarityMetric n)
+    (relevantFeatures : Fin n → Fin m → ℚ) : Prop :=
+  ∀ i j, metric.dist i j = ∑ k : Fin m, |relevantFeatures i k - relevantFeatures j k|
+
+/--
 THEOREM: Fairness through awareness implies individual fairness
 (with respect to the task-relevant metric).
 -/
@@ -420,33 +371,35 @@ where protected attributes are different?
 This is modeled as a modified metric.
 -/
 def counterfactualMetric (baseMetric : SimilarityMetric n)
-    (protectedWeight : ℚ) : SimilarityMetric n where
+    (protectedWeight : ℚ) (hw : protectedWeight ≤ 1) : SimilarityMetric n where
   dist := fun i j => baseMetric.dist i j * (1 - protectedWeight)
   nonneg := by
     intro i j
-    by_cases h : protectedWeight ≤ 1
-    · apply mul_nonneg (baseMetric.nonneg i j)
-      linarith
-    · -- If weight > 1, distance could be negative, but we take max with 0 conceptually
-      -- For simplicity, assume weight ∈ [0,1]
-      apply mul_nonneg (baseMetric.nonneg i j)
-      linarith
-  self_zero := by
-    intro i
-    simp only [baseMetric.self_zero, zero_mul]
+    apply mul_nonneg (baseMetric.nonneg i j)
+    linarith
   symm := by
     intro i j
     simp only [baseMetric.symm]
+  zero_iff := by
+    intro i j
+    constructor
+    · intro h
+      by_cases hw1 : protectedWeight = 1
+      · simp [hw1] at h
+      · have h_pos : 1 - protectedWeight > 0 := by linarith
+        have h_mul : baseMetric.dist i j * (1 - protectedWeight) = 0 := h
+        cases' (mul_eq_zero.mp h_mul) with h1 h1
+        · exact baseMetric.zero_iff.mp h1
+        · linarith
+    · intro h
+      subst h
+      simp [baseMetric.self_zero]
   triangle := by
     intro i j k
     calc baseMetric.dist i k * (1 - protectedWeight)
         ≤ (baseMetric.dist i j + baseMetric.dist j k) * (1 - protectedWeight) := by
-          by_cases h : protectedWeight ≤ 1
-          · apply mul_le_mul_of_nonneg_right (baseMetric.triangle i j k)
-            linarith
-          · -- weight > 1 case: both sides could be negative
-            apply mul_le_mul_of_nonpos_right (baseMetric.triangle i j k)
-            linarith
+          apply mul_le_mul_of_nonneg_right (baseMetric.triangle i j k)
+          linarith
       _ = baseMetric.dist i j * (1 - protectedWeight) +
           baseMetric.dist j k * (1 - protectedWeight) := by ring
 
@@ -454,8 +407,9 @@ def counterfactualMetric (baseMetric : SimilarityMetric n)
 Counterfactual fairness: Lipschitz with respect to counterfactual metric.
 -/
 def isCounterfactuallyFair (baseMetric : SimilarityMetric n)
-    (protectedWeight : ℚ) (L : ℚ) (treatment : Allocation n) : Prop :=
-  isLipschitzFair (counterfactualMetric baseMetric protectedWeight) L treatment
+    (protectedWeight : ℚ) (hw : protectedWeight ≤ 1) (L : ℚ)
+    (treatment : Allocation n) : Prop :=
+  isLipschitzFair (counterfactualMetric baseMetric protectedWeight hw) L treatment
 
 /-! ## Part 7: Approximate Lipschitz Fairness -/
 
@@ -474,9 +428,10 @@ theorem exact_implies_approx (metric : SimilarityMetric n) (L : ℚ) (ε : ℚ)
     (treatment : Allocation n) (hε : ε ≥ 0)
     (h : isLipschitzFair metric L treatment) :
     isApproxLipschitzFair metric L ε treatment := by
+  unfold isApproxLipschitzFair isLipschitzFair at *
   intro i j
-  have := h i j
-  linarith
+  calc |treatment i - treatment j| ≤ L * metric.dist i j := h i j
+    _ ≤ L * metric.dist i j + ε := by linarith
 
 /--
 The minimum ε for approximate fairness (given L).
@@ -492,13 +447,21 @@ THEOREM: minEpsilon achieves approximate fairness.
 theorem min_epsilon_achieves (metric : SimilarityMetric n) (L : ℚ)
     (treatment : Allocation n) :
     isApproxLipschitzFair metric L (minEpsilon metric L treatment) treatment := by
+  unfold isApproxLipschitzFair minEpsilon
   intro i j
-  unfold minEpsilon
-  have h := Finset.le_sup' (f := fun p : Fin n × Fin n =>
-      max 0 (|treatment p.1 - treatment p.2| - L * metric.dist p.1 p.2))
-      ⟨(0, 0), Finset.mem_univ _⟩ (Finset.mem_univ (i, j))
-  have h_max : |treatment i - treatment j| - L * metric.dist i j ≤
-      max 0 (|treatment i - treatment j| - L * metric.dist i j) := le_max_right _ _
+  have h_le : max 0 (|treatment i - treatment j| - L * metric.dist i j) ≤
+      Finset.univ.sup' ⟨(0, 0), Finset.mem_univ _⟩
+        (fun p : Fin n × Fin n => max 0 (|treatment p.1 - treatment p.2| - L * metric.dist p.1 p.2)) := by
+    apply Finset.le_sup'
+    exact Finset.mem_univ (i, j)
+  have h_max : |treatment i - treatment j| ≤ L * metric.dist i j + max 0 (|treatment i - treatment j| - L * metric.dist i j) := by
+    by_cases h : |treatment i - treatment j| ≤ L * metric.dist i j
+    · calc |treatment i - treatment j| ≤ L * metric.dist i j := h
+        _ ≤ L * metric.dist i j + max 0 (|treatment i - treatment j| - L * metric.dist i j) := by
+            linarith [le_max_left 0 (|treatment i - treatment j| - L * metric.dist i j)]
+    · push_neg at h
+      simp only [max_eq_right (le_of_lt (by linarith : 0 < |treatment i - treatment j| - L * metric.dist i j))]
+      ring
   linarith
 
 /--
@@ -521,7 +484,7 @@ Any metric gives a Lipschitz constant ≤ trivial metric's constant.
 axiom trivial_metric_maximal (metric : SimilarityMetric n)
     (treatment : Allocation n) :
     optimalLipschitz metric treatment ≤
-    optimalLipschitz (trivialMetric n) treatment
+    optimalLipschitz trivialMetric treatment
 
 /-! ## Part 9: Individual Fairness Report -/
 
@@ -550,6 +513,8 @@ structure IndividualFairnessReport where
   level : IndividualFairnessLevel
   /-- Minimum epsilon for approximate fairness with L=1 -/
   minEps : ℚ
+  /-- Recommendation -/
+  recommendation : String
 
 /-- Generate individual fairness report -/
 noncomputable def generateReport (metric : SimilarityMetric n)
@@ -558,10 +523,15 @@ noncomputable def generateReport (metric : SimilarityMetric n)
   let violation := totalViolation metric 1 treatment
   let level := classifyIndividualFairness L
   let minEps := minEpsilon metric 1 treatment
+  let recommendation :=
+    if violation = 0 then "Allocation is 1-Lipschitz fair. Similar individuals treated similarly."
+    else if L ≤ 2 then "Allocation is approximately fair (L ≤ 2). Minor adjustments recommended."
+    else "Significant individual fairness violations. Consider smoothing allocation."
   { optimalL := L
     violation := violation
     level := level
-    minEps := minEps }
+    minEps := minEps
+    recommendation := recommendation }
 
 /-! ## Part 10: The Product Theorem -/
 
