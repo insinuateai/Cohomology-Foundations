@@ -1,6 +1,6 @@
 {"plugins": [],
  "options": {"pp.unicode.fun": true, "autoImplicit": false},
- "name": "Perspective",
+ "name": "Perspective.ParetoTopology",
  "isModule": false,
  "importArts":
  {"Qq.Typ":
@@ -180,8 +180,6 @@
   ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/Recurrence.olean"],
   "Perspective.Persistence":
   ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/Persistence.olean"],
-  "Perspective.ParetoTopology":
-  ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/ParetoTopology.olean"],
   "Perspective.OptimalRepair":
   ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/OptimalRepair.olean"],
   "Perspective.ObstructionClassification":
@@ -206,8 +204,6 @@
   ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/FairnessFoundations.olean"],
   "Perspective.EscapeTime":
   ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/EscapeTime.olean"],
-  "Perspective.EnvyFreeness":
-  ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/EnvyFreeness.olean"],
   "Perspective.EntropyProduction":
   ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/EntropyProduction.olean"],
   "Perspective.DimensionBound":

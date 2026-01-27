@@ -1,6 +1,6 @@
 {"plugins": [],
  "options": {"pp.unicode.fun": true, "autoImplicit": false},
- "name": "Perspective",
+ "name": "Perspective.EnvyFreeness",
  "isModule": false,
  "importArts":
  {"Qq.Typ":
@@ -206,8 +206,6 @@
   ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/FairnessFoundations.olean"],
   "Perspective.EscapeTime":
   ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/EscapeTime.olean"],
-  "Perspective.EnvyFreeness":
-  ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/EnvyFreeness.olean"],
   "Perspective.EntropyProduction":
   ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/EntropyProduction.olean"],
   "Perspective.DimensionBound":

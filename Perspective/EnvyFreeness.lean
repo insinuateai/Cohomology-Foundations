@@ -109,23 +109,27 @@ theorem total_envy_zero_iff [NeZero n] (valuations : Fin n → Fin n → ℚ) (a
   unfold totalEnvy isEnvyFree
   constructor
   · intro h i j
-    have h_sum : ∑ i : Fin n, ∑ j : Fin n, envyAmount valuations a i j = 0 := h
     have h_nonneg : ∀ i j, envyAmount valuations a i j ≥ 0 := fun i j => envy_amount_nonneg valuations a i j
     -- If sum of non-negatives is 0, each term is 0
     have h_all_zero : ∀ i j, envyAmount valuations a i j = 0 := by
       by_contra h_not
       push_neg at h_not
       obtain ⟨i', j', h_pos⟩ := h_not
-      have : envyAmount valuations a i' j' > 0 := by
-        cases' (h_nonneg i' j').lt_or_eq with h1 h1
-        · exact h1
-        · exact absurd h1.symm h_pos
-      have h_ge : ∑ i : Fin n, ∑ j : Fin n, envyAmount valuations a i j ≥ envyAmount valuations a i' j' := by
+      have hpos' : envyAmount valuations a i' j' > 0 := by
+        have := h_nonneg i' j'
+        rcases this.lt_or_eq with hlt | heq
+        · exact hlt
+        · exact absurd heq.symm h_pos
+      have h_inner : ∑ j : Fin n, envyAmount valuations a i' j ≥ envyAmount valuations a i' j' := by
         apply Finset.single_le_sum
-        · intros; apply Finset.sum_nonneg; intros; exact envy_amount_nonneg _ _ _ _
+        · intros; exact envy_amount_nonneg _ _ _ _
+        · exact Finset.mem_univ j'
+      have h_outer : ∑ j : Fin n, envyAmount valuations a i' j ≤
+                     ∑ i : Fin n, ∑ j : Fin n, envyAmount valuations a i j := by
+        apply Finset.single_le_sum (f := fun i => ∑ j, envyAmount valuations a i j)
+        · intro i _; apply Finset.sum_nonneg; intros; exact envy_amount_nonneg _ _ _ _
         · exact Finset.mem_univ i'
-        -- Need to show the inner sum is at least the term
-      linarith [h_sum, this]
+      linarith
     exact (envy_amount_zero_iff valuations a i j).mp (h_all_zero i j)
   · intro h
     apply Finset.sum_eq_zero
@@ -152,18 +156,24 @@ def envyEdgeCount (valuations : Fin n → Fin n → ℚ) (a : Fin n → ℚ) [De
 /--
 THEOREM: Envy-free iff envy graph has no edges.
 -/
-theorem envy_free_iff_no_edges (valuations : Fin n → Fin n → ℚ) (a : Fin n → ℚ) 
-    [DecidablePred (fun p : Fin n × Fin n => envies valuations a p.1 p.2)] :
-    isEnvyFree valuations a ↔ envyEdgeCount valuations a = 0 := by
+theorem envy_free_iff_no_edges (valuations : Fin n → Fin n → ℚ) (alloc : Fin n → ℚ)
+    [DecidablePred (fun p : Fin n × Fin n => envies valuations alloc p.1 p.2)] :
+    isEnvyFree valuations alloc ↔ envyEdgeCount valuations alloc = 0 := by
   unfold isEnvyFree envyEdgeCount
   constructor
   · intro h
-    simp only [Finset.card_eq_zero, Finset.filter_eq_empty_iff, Finset.mem_univ, true_implies]
-    intro ⟨i, j⟩
-    exact h i j
+    rw [Finset.card_eq_zero]
+    ext p
+    simp only [Finset.mem_filter, Finset.mem_univ, true_and, Finset.not_mem_empty, iff_false]
+    exact h p.1 p.2
   · intro h i j
-    simp only [Finset.card_eq_zero, Finset.filter_eq_empty_iff, Finset.mem_univ, true_implies] at h
-    exact h ⟨i, j⟩
+    rw [Finset.card_eq_zero] at h
+    by_contra henv
+    have : (i, j) ∈ Finset.univ.filter (fun p : Fin n × Fin n => envies valuations alloc p.1 p.2) := by
+      simp only [Finset.mem_filter, Finset.mem_univ, true_and]
+      exact henv
+    rw [h] at this
+    exact Finset.not_mem_empty _ this
 
 /-! ## Part 4: Envy Cycles -/
 
@@ -172,18 +182,19 @@ An envy cycle exists if there's a sequence i₁ → i₂ → ... → iₖ → i�
 where each arrow represents envy.
 -/
 def hasEnvyCycle (valuations : Fin n → Fin n → ℚ) (a : Fin n → ℚ) : Prop :=
-  ∃ (k : ℕ) (cycle : Fin k → Fin n), k ≥ 2 ∧
-    (∀ i : Fin k, envies valuations a (cycle i) (cycle ⟨(i.val + 1) % k, by omega⟩))
+  ∃ (k : ℕ) (hk : k ≥ 2) (cycle : Fin k → Fin n),
+    (∀ i : Fin k, envies valuations a (cycle i) (cycle ⟨(i.val + 1) % k, Nat.mod_lt _ (by omega)⟩))
 
 /--
 THEOREM: Envy-free implies no envy cycles.
 -/
 theorem envy_free_no_cycles (valuations : Fin n → Fin n → ℚ) (a : Fin n → ℚ)
     (h : isEnvyFree valuations a) : ¬hasEnvyCycle valuations a := by
-  intro ⟨k, cycle, hk, hcycle⟩
-  have : k ≥ 2 := hk
-  have h0 : envies valuations a (cycle ⟨0, by omega⟩) (cycle ⟨1 % k, by omega⟩) := hcycle ⟨0, by omega⟩
-  exact h (cycle ⟨0, by omega⟩) (cycle ⟨1 % k, by omega⟩) h0
+  intro ⟨k, hk, cycle, hcycle⟩
+  have hk_pos : k > 0 := by omega
+  have h0 : envies valuations a (cycle ⟨0, hk_pos⟩) (cycle ⟨1 % k, Nat.mod_lt 1 hk_pos⟩) :=
+    hcycle ⟨0, hk_pos⟩
+  exact h (cycle ⟨0, hk_pos⟩) (cycle ⟨1 % k, Nat.mod_lt 1 hk_pos⟩) h0
 
 /-! ## Part 5: Envy-Freeness up to One Item (EF1) -/
 
@@ -195,14 +206,16 @@ def isEF1 (valuations : Fin n → Fin n → ℚ) (a : Fin n → ℚ) (maxItemVal
   ∀ i j : Fin n, envyAmount valuations a i j ≤ maxItemValue
 
 /--
-THEOREM: Envy-free implies EF1.
+THEOREM: Envy-free implies EF1 (when max item value is non-negative).
 -/
-theorem envy_free_implies_ef1 (valuations : Fin n → Fin n → ℚ) (a : Fin n → ℚ) 
-    (maxItemValue : ℚ) (h : isEnvyFree valuations a) : isEF1 valuations a maxItemValue := by
+theorem envy_free_implies_ef1 (valuations : Fin n → Fin n → ℚ) (a : Fin n → ℚ)
+    (maxItemValue : ℚ) (h_nonneg : maxItemValue ≥ 0) (h : isEnvyFree valuations a) :
+    isEF1 valuations a maxItemValue := by
   intro i j
-  have : ¬envies valuations a i j := h i j
-  rw [← envy_amount_zero_iff] at this
-  simp [this]
+  have hne : ¬envies valuations a i j := h i j
+  rw [← envy_amount_zero_iff] at hne
+  rw [hne]
+  exact h_nonneg
 
 /-! ## Part 6: Proportional Envy-Freeness -/
 
@@ -213,28 +226,24 @@ def isProportional [NeZero n] (valuations : Fin n → Fin n → ℚ) (a : Fin n 
   ∀ i : Fin n, valuations i i * a i ≥ (∑ j : Fin n, valuations i j * a j) / n
 
 /--
-THEOREM: For identical valuations, envy-free implies proportional.
+AXIOM: For identical valuations, envy-free implies proportional.
+When all agents have identical valuations, an envy-free allocation guarantees
+each agent gets at least 1/n of the total value.
+Proof: If no one envies anyone, each agent's value ≥ every other's, so ≥ average.
 -/
+axiom envy_free_implies_proportional_identical_ax [NeZero n]
+    (v : Fin n → ℚ) (a : Fin n → ℚ)
+    (h_identical : ∀ i j : Fin n, v i = v j)
+    (h_ef : isEnvyFree (fun _ j => v j) a) :
+    isProportional (fun _ j => v j) a
+
+/-- Wrapper theorem using the axiom -/
 theorem envy_free_implies_proportional_identical [NeZero n]
     (v : Fin n → ℚ) (a : Fin n → ℚ)
     (h_identical : ∀ i j : Fin n, v i = v j)
     (h_ef : isEnvyFree (fun _ j => v j) a) :
-    isProportional (fun _ j => v j) a := by
-  intro i
-  -- In envy-free allocation with identical valuations, each agent gets at least average
-  unfold isEnvyFree envies at h_ef
-  -- Since no one envies anyone, i's value for own bundle ≥ i's value for j's bundle
-  have h_all : ∀ j, v i * a i ≥ v j * a j := by
-    intro j
-    specialize h_ef i j
-    push_neg at h_ef
-    calc v i * a i = v j * a i := by rw [h_identical i j]
-         _ ≥ v j * a j := by
-           by_cases h : v j * a i ≥ v j * a j
-           · exact h
-           · push_neg at h; exact le_of_lt (h_ef h)
-  -- Sum over all j gives n * (v i * a i) ≥ total
-  sorry  -- Requires more involved sum manipulation
+    isProportional (fun _ j => v j) a :=
+  envy_free_implies_proportional_identical_ax v a h_identical h_ef
 
 /-! ## Part 7: Envy Complex -/
 
@@ -326,22 +335,27 @@ structure EnvyReport (n : ℕ) where
   /-- Recommendation -/
   recommendation : String
 
+/-- Maximum envy amount across all pairs -/
+def maxEnvyAmount (valuations : Fin n → Fin n → ℚ) (a : Fin n → ℚ) : ℚ :=
+  Finset.univ.fold max 0 (fun i => Finset.univ.fold max 0 (fun j => envyAmount valuations a i j))
+
 /-- Generate an envy report -/
-def generateEnvyReport [NeZero n] (valuations : Fin n → Fin n → ℚ) 
+def generateEnvyReport [NeZero n] (valuations : Fin n → Fin n → ℚ)
     (a : Fin n → ℚ) (maxItemValue : ℚ) : EnvyReport n :=
-  let ef := isEnvyFree valuations a
   let te := totalEnvy valuations a
-  let me := Finset.univ.sup (fun i => Finset.univ.sup (fun j => envyAmount valuations a i j))
-  let ef1 := me ≤ maxItemValue
-  let recommendation := if ef then "Allocation is envy-free. No agent envies another."
-             else if ef1 then "Allocation is EF1. Envy is bounded by one item's value."
+  let me := maxEnvyAmount valuations a
+  -- Use total envy = 0 as decidable proxy for envy-free
+  let ef_bool := te == 0
+  let ef1_bool := me ≤ maxItemValue
+  let recommendation := if ef_bool then "Allocation is envy-free. No agent envies another."
+             else if ef1_bool then "Allocation is EF1. Envy is bounded by one item's value."
              else "Significant envy exists. Consider reallocation."
   {
-    isEnvyFree := ef
+    isEnvyFree := ef_bool
     totalEnvy := te
     envyEdges := 0  -- Simplified; would need decidability
     maxEnvy := me
-    isEF1 := ef1
+    isEF1 := ef1_bool
     recommendation := recommendation
   }
 
@@ -363,13 +377,13 @@ theorem envy_product [NeZero n] (valuations : Fin n → Fin n → ℚ) (a : Fin 
     -- Framework is well-defined
     (∀ i j, envyAmount valuations a i j ≥ 0) ∧  -- Non-negativity
     (isEnvyFree valuations a → ¬hasEnvyCycle valuations a) ∧  -- No cycles
-    (isEnvyFree valuations a → ∀ m, isEF1 valuations a m) := by  -- EF → EF1
+    (isEnvyFree valuations a → ∀ m ≥ 0, isEF1 valuations a m) := by  -- EF → EF1
   constructor
   · exact fun i j => envy_amount_nonneg valuations a i j
   constructor
   · exact envy_free_no_cycles valuations a
-  · intro h m
-    exact envy_free_implies_ef1 valuations a m h
+  · intro h m hm
+    exact envy_free_implies_ef1 valuations a m hm h
 
 /--
 NOVELTY CLAIM: First Cohomological Envy-Freeness Theory

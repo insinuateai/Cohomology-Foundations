@@ -30,3 +30,5 @@ import Perspective.Recurrence
 import Perspective.EntropyProduction
 import Perspective.FluctuationBounds
 import Perspective.FairnessFoundations
+import Perspective.ParetoTopology
+import Perspective.EnvyFreeness
