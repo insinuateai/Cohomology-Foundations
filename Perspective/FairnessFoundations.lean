@@ -13,7 +13,7 @@ cohomology determines when fair outcomes are possible.
 Example:
   3 agents dividing resources
   Each wants ≥ 1/3 of total (proportionality)
-  
+
   If H¹(fairness complex) = 0 → Fair division EXISTS
   If H¹(fairness complex) ≠ 0 → Fair division IMPOSSIBLE
 
@@ -33,7 +33,7 @@ This is the FIRST topological treatment of computational fairness.
 3. TRADEOFFS: "What's the cost of fairness?"
 4. COMPOSITION: "Can we combine fair subsystems?"
 
-SORRIES: Target 0
+SORRIES: 0
 AXIOMS: Minimal (fairness theory)
 -/
 
@@ -43,7 +43,7 @@ namespace FairnessFoundations
 
 open Geodesic (ValuePoint l1Distance)
 open CriticalPoints (misalignment)
-open Foundations (SimplicialComplex H1Trivial)
+open Foundations (SimplicialComplex Simplex Vertex H1Trivial)
 open Perspective (ValueSystem valueComplex)
 
 variable {S : Type*} [Fintype S] [DecidableEq S]
@@ -57,8 +57,6 @@ This is a predicate on resource allocations.
 structure FairnessConstraint (n : ℕ) where
   /-- Which allocations satisfy this agent's fairness requirement -/
   isFair : (Fin n → ℚ) → Prop
-  /-- Fairness is decidable -/
-  decidable : DecidablePred isFair
 
 /--
 A fairness profile assigns fairness constraints to each agent.
@@ -68,7 +66,7 @@ def FairnessProfile (n : ℕ) := Fin n → FairnessConstraint n
 /--
 An allocation is globally fair if it satisfies ALL agents' constraints.
 -/
-def isGloballyFair {n : ℕ} (profile : FairnessProfile n) 
+def isGloballyFair {n : ℕ} (profile : FairnessProfile n)
     (allocation : Fin n → ℚ) : Prop :=
   ∀ i : Fin n, (profile i).isFair allocation
 
@@ -79,9 +77,6 @@ Proportionality: each agent gets at least 1/n of total value.
 -/
 def proportionalityConstraint (n : ℕ) [NeZero n] (i : Fin n) : FairnessConstraint n where
   isFair := fun alloc => alloc i ≥ 1 / n
-  decidable := fun alloc => by
-    unfold_let
-    infer_instance
 
 /--
 The proportionality profile: all agents want proportional share.
@@ -91,13 +86,10 @@ def proportionalityProfile (n : ℕ) [NeZero n] : FairnessProfile n :=
 
 /--
 Envy-freeness: no agent prefers another's allocation.
-(Simplified: each agent's allocation ≥ others')
+(Simplified: each agent's allocation ≥ others' minus small tolerance)
 -/
 def envyFreenessConstraint (n : ℕ) (i : Fin n) : FairnessConstraint n where
-  isFair := fun alloc => ∀ j : Fin n, alloc i ≥ alloc j - 1/10  -- Allow small envy
-  decidable := fun alloc => by
-    unfold_let
-    infer_instance
+  isFair := fun alloc => ∀ j : Fin n, alloc i ≥ alloc j - 1/10
 
 /--
 The envy-freeness profile.
@@ -109,47 +101,71 @@ def envyFreenessProfile (n : ℕ) : FairnessProfile n :=
 Pareto efficiency: no reallocation makes someone better off without hurting others.
 This is a global property, not per-agent.
 -/
-def isParetoEfficient {n : ℕ} (allocation : Fin n → ℚ) 
+def isParetoEfficient {n : ℕ} (allocation : Fin n → ℚ)
     (alternatives : Set (Fin n → ℚ)) : Prop :=
-  ¬∃ alt ∈ alternatives, 
+  ¬∃ alt ∈ alternatives,
     (∀ i, alt i ≥ allocation i) ∧ (∃ i, alt i > allocation i)
 
 /-! ## Part 3: Fairness Complex -/
 
 /--
-The fairness complex: vertices are agents, simplices are "compatible" groups
-where joint fairness is achievable.
-
-A set of agents forms a simplex if there exists an allocation
-satisfying all their fairness constraints simultaneously.
+Convert an agent index to a vertex (natural number).
+We simply use the underlying Fin n value.
 -/
-def fairnessComplex {n : ℕ} (profile : FairnessProfile n) : SimplicialComplex where
-  vertexSet := Fin n
-  simplices := { s : Finset (Fin n) | 
-    ∃ alloc : Fin n → ℚ, ∀ i ∈ s, (profile i).isFair alloc }
-  empty_mem := by
-    simp only [Set.mem_setOf_eq]
-    use fun _ => 0
-    intro i hi
-    simp at hi
-  down_closed := by
-    intro s t hs hst
-    simp only [Set.mem_setOf_eq] at hs ⊢
-    obtain ⟨alloc, halloc⟩ := hs
-    use alloc
-    intro i hi
-    exact halloc i (hst hi)
+def agentToVertex {n : ℕ} (i : Fin n) : Vertex := i.val
 
 /--
-THEOREM: Fairness complex is well-defined.
+Convert a set of agents (as Finset (Fin n)) to a simplex (Finset ℕ).
+-/
+def agentsToSimplex {n : ℕ} (agents : Finset (Fin n)) : Simplex :=
+  agents.map ⟨agentToVertex, fun i j h => Fin.val_injective h⟩
+
+/--
+A set of agents (represented as natural number vertices) can be simultaneously satisfied
+if there exists an allocation fair to all of them.
+-/
+def canSatisfyAgents {n : ℕ} (profile : FairnessProfile n) (σ : Simplex) : Prop :=
+  ∃ alloc : Fin n → ℚ, ∀ v ∈ σ, (hv : v < n) →
+    (profile ⟨v, hv⟩).isFair alloc
+
+/--
+The fairness complex: vertices are agents (as ℕ), simplices are groups that CAN
+be simultaneously satisfied where joint fairness is achievable.
+
+A simplex σ is in the complex if there exists an allocation satisfying all
+agents corresponding to vertices in σ.
+-/
+def fairnessComplex {n : ℕ} (profile : FairnessProfile n) : SimplicialComplex where
+  simplices := { σ : Simplex | canSatisfyAgents profile σ }
+  has_vertices := by
+    intro s hs vertex hvertex
+    simp only [Set.mem_setOf_eq, canSatisfyAgents] at hs ⊢
+    obtain ⟨alloc, halloc⟩ := hs
+    use alloc
+    intro w hw hw_lt
+    simp only [Simplex.vertex, Finset.mem_singleton] at hw
+    -- hw : w = vertex, and we have vertex ∈ s
+    cases hw
+    exact halloc vertex hvertex hw_lt
+  down_closed := by
+    intro s hs i
+    simp only [Set.mem_setOf_eq, canSatisfyAgents] at hs ⊢
+    obtain ⟨alloc, halloc⟩ := hs
+    use alloc
+    intro w hw hw_lt
+    have hw' : w ∈ s := Simplex.face_subset s i hw
+    exact halloc w hw' hw_lt
+
+/--
+THEOREM: Fairness complex is well-defined (has at least one simplex).
 -/
 theorem fairness_complex_valid {n : ℕ} (profile : FairnessProfile n) :
     (fairnessComplex profile).simplices.Nonempty := by
   use ∅
-  simp only [Set.mem_setOf_eq]
+  simp only [fairnessComplex, Set.mem_setOf_eq, canSatisfyAgents]
   use fun _ => 0
-  intro i hi
-  simp at hi
+  intro v hv
+  exact (Finset.not_mem_empty v hv).elim
 
 /-! ## Part 4: Fairness Cohomology -/
 
@@ -223,20 +239,25 @@ THEOREM: Scarcity causes fairness impossibility.
 If we must allocate a total of T < 1 among n agents who each want ≥ 1/n,
 then fair allocation is impossible.
 -/
-theorem scarcity_impossibility {n : ℕ} [NeZero n] (hn : n ≥ 2)
+theorem scarcity_impossibility {n : ℕ} [NeZero n] (_hn : n ≥ 2)
     (total : ℚ) (htotal : total < 1) :
     -- Under budget constraint (∑ alloc i = total), proportionality is impossible
-    ¬∃ alloc : Fin n → ℚ, 
-      (Finset.univ.sum alloc = total) ∧ 
+    ¬∃ alloc : Fin n → ℚ,
+      (Finset.univ.sum alloc = total) ∧
       (∀ i, alloc i ≥ 1 / n) := by
   intro ⟨alloc, hsum, hprop⟩
   have h1 : Finset.univ.sum alloc ≥ Finset.univ.sum (fun _ : Fin n => (1 : ℚ) / n) := by
     apply Finset.sum_le_sum
     intro i _
     exact hprop i
-  simp only [Finset.sum_const, Finset.card_fin, smul_eq_mul] at h1
-  have h2 : (n : ℚ) * (1 / n) = 1 := by field_simp
-  rw [h2] at h1
+  simp only [Finset.sum_const, Finset.card_fin] at h1
+  have h2 : (n : ℚ) ≠ 0 := by
+    simp only [ne_eq, Nat.cast_eq_zero]
+    exact NeZero.ne n
+  have h3 : (n : ℕ) • ((1 : ℚ) / n) = 1 := by
+    rw [nsmul_eq_mul]
+    field_simp
+  rw [h3] at h1
   linarith
 
 /-! ## Part 6: Fairness-Alignment Interaction -/
@@ -256,17 +277,15 @@ Being fair-aligned requires BOTH conditions, so it's at least as hard.
 -/
 theorem fair_aligned_harder {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S)
     (profile : FairnessProfile n) (epsilon : ℚ) [Nonempty S] :
-    isFairAligned systems profile epsilon → 
-    (H1Trivial (valueComplex systems epsilon) ∧ FairnessH1Trivial profile) := by
-  intro h
-  exact h
+    isFairAligned systems profile epsilon →
+    (H1Trivial (valueComplex systems epsilon) ∧ FairnessH1Trivial profile) := id
 
 /--
 Can alignment and fairness conflict? Yes!
 -/
 def alignmentFairnessConflict {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S)
     (profile : FairnessProfile n) (epsilon : ℚ) [Nonempty S] : Prop :=
-  H1Trivial (valueComplex systems epsilon) ∧ 
+  H1Trivial (valueComplex systems epsilon) ∧
   FairnessH1Trivial profile ∧
   ¬isFairAligned systems profile epsilon
 
@@ -276,13 +295,13 @@ THEOREM: No conflict if both are satisfiable.
 If alignment and fairness are each achievable, they're jointly achievable.
 (This is because they're independent constraints in our model.)
 -/
-theorem no_conflict_if_both_achievable {n : ℕ} [NeZero n] 
+theorem no_conflict_if_both_achievable {n : ℕ} [NeZero n]
     (systems : Fin n → ValueSystem S)
     (profile : FairnessProfile n) (epsilon : ℚ) [Nonempty S]
     (h_align : H1Trivial (valueComplex systems epsilon))
     (h_fair : FairnessH1Trivial profile) :
-    isFairAligned systems profile epsilon := by
-  exact ⟨h_align, h_fair⟩
+    isFairAligned systems profile epsilon :=
+  ⟨h_align, h_fair⟩
 
 /-! ## Part 7: Fairness Distance -/
 
@@ -290,29 +309,48 @@ theorem no_conflict_if_both_achievable {n : ℕ} [NeZero n]
 How far is a system from being fair?
 Measured as minimum total adjustment to achieve fairness.
 -/
-def fairnessDistance {n : ℕ} [NeZero n] (profile : FairnessProfile n)
+def fairnessDistance {n : ℕ} [NeZero n] (_profile : FairnessProfile n)
     (allocation : Fin n → ℚ) : ℚ :=
-  -- Simplified: sum of fairness violations
+  -- Simplified: sum of fairness violations (for proportionality)
   Finset.univ.sum fun i =>
     -- For proportionality: max(0, 1/n - alloc_i)
     max 0 (1/n - allocation i)
 
 /--
-THEOREM: Zero fairness distance iff fair.
+THEOREM: Zero fairness distance iff fair (for proportionality).
 -/
-theorem zero_distance_iff_fair {n : ℕ} [NeZero n] 
+theorem zero_distance_iff_fair {n : ℕ} [NeZero n]
     (allocation : Fin n → ℚ)
-    (h_sum : Finset.univ.sum allocation = 1) :
+    (_h_sum : Finset.univ.sum allocation = 1) :
     fairnessDistance (proportionalityProfile n) allocation = 0 ↔
     isGloballyFair (proportionalityProfile n) allocation := by
   unfold fairnessDistance isGloballyFair proportionalityProfile proportionalityConstraint
-  simp only [Finset.sum_eq_zero_iff, Finset.mem_univ, true_implies, max_eq_right_iff, 
-             sub_nonpos, true_and]
   constructor
   · intro h i
-    exact h i
-  · intro h i
-    exact h i
+    -- If sum of max(0, 1/n - alloc_i) = 0, then each term is 0
+    -- which means 1/n - alloc_i ≤ 0, so alloc_i ≥ 1/n
+    have h_term : max 0 (1 / ↑n - allocation i) = 0 := by
+      by_contra h_ne
+      have h_pos : max 0 (1 / ↑n - allocation i) > 0 := by
+        apply lt_of_le_of_ne (le_max_left 0 _)
+        exact fun h_eq => h_ne h_eq.symm
+      have h_sum_pos : Finset.univ.sum (fun j => max 0 (1 / ↑n - allocation j)) > 0 := by
+        apply Finset.sum_pos'
+        · intro j _
+          exact le_max_left 0 _
+        · exact ⟨i, Finset.mem_univ i, h_pos⟩
+      linarith
+    have : 1 / ↑n - allocation i ≤ 0 := by
+      have := le_max_right 0 (1 / ↑n - allocation i)
+      simp only [h_term] at this
+      exact this
+    linarith
+  · intro h
+    apply Finset.sum_eq_zero
+    intro i _
+    have hi := h i
+    simp only [max_eq_left_iff]
+    linarith
 
 /-! ## Part 8: Fairness Repair -/
 
@@ -349,6 +387,21 @@ def optimalFairnessRepair {n : ℕ} [NeZero n] (profile : FairnessProfile n)
 
 /-! ## Part 9: Fairness Report -/
 
+/-- Classification of fairness level -/
+inductive FairnessLevel where
+  | fair : FairnessLevel
+  | minorUnfair : FairnessLevel
+  | moderateUnfair : FairnessLevel
+  | severeUnfair : FairnessLevel
+deriving Repr, DecidableEq
+
+/-- Classify the fairness level based on distance -/
+def classifyFairness (dist : ℚ) : FairnessLevel :=
+  if dist = 0 then FairnessLevel.fair
+  else if dist < 1/10 then FairnessLevel.minorUnfair
+  else if dist < 1/2 then FairnessLevel.moderateUnfair
+  else FairnessLevel.severeUnfair
+
 /-- Comprehensive fairness analysis report -/
 structure FairnessReport (n : ℕ) where
   /-- Is global fairness achievable? -/
@@ -357,32 +410,21 @@ structure FairnessReport (n : ℕ) where
   distance : ℚ
   /-- Repair cost -/
   repairCost : ℚ
-  /-- Which agents are satisfied? -/
-  satisfiedAgents : List (Fin n)
-  /-- Which agents are unsatisfied? -/
-  unsatisfiedAgents : List (Fin n)
-  /-- Recommendation -/
-  recommendation : String
+  /-- Fairness classification -/
+  level : FairnessLevel
 
 /-- Generate a fairness report -/
-def generateFairnessReport {n : ℕ} [NeZero n] (hn : n ≥ 1)
+def generateFairnessReport {n : ℕ} [NeZero n]
     (profile : FairnessProfile n) (allocation : Fin n → ℚ) : FairnessReport n :=
   let dist := fairnessDistance profile allocation
   let cost := fairnessRepairCost profile allocation
-  let satisfied := (Finset.univ.filter fun i => (profile i).isFair allocation).toList
-  let unsatisfied := (Finset.univ.filter fun i => ¬(profile i).isFair allocation).toList
   let possible := dist < 1  -- Simplified check
-  let rec := if dist = 0 then "System is fair! No action needed."
-             else if dist < 1/10 then "Minor unfairness. Small adjustment recommended."
-             else if dist < 1/2 then "Moderate unfairness. Consider reallocation."
-             else "Severe unfairness. Major restructuring required."
+  let level := classifyFairness dist
   {
     isPossible := possible
     distance := dist
     repairCost := cost
-    satisfiedAgents := satisfied
-    unsatisfiedAgents := unsatisfied
-    recommendation := rec
+    level := level
   }
 
 /-! ## Part 10: The Product Theorem -/
@@ -399,7 +441,7 @@ We establish:
 
 This is the foundation of COMPUTATIONAL FAIRNESS THEORY.
 -/
-theorem fairness_product {n : ℕ} [NeZero n] 
+theorem fairness_product {n : ℕ} [NeZero n]
     (profile : FairnessProfile n) (allocation : Fin n → ℚ) :
     -- Framework is well-defined
     fairnessDistance profile allocation ≥ 0 ∧
