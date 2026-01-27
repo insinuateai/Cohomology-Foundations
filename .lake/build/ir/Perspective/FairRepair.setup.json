@@ -1,6 +1,6 @@
 {"plugins": [],
  "options": {"pp.unicode.fun": true, "autoImplicit": false},
- "name": "Perspective",
+ "name": "Perspective.FairRepair",
  "isModule": false,
  "importArts":
  {"Qq.Typ":
@@ -220,8 +220,6 @@
   ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/FairnessBarriers.olean"],
   "Perspective.FairnessAlignmentTradeoff":
   ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/FairnessAlignmentTradeoff.olean"],
-  "Perspective.FairRepair":
-  ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/FairRepair.olean"],
   "Perspective.EscapeTime":
   ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/EscapeTime.olean"],
   "Perspective.EnvyFreeness":
