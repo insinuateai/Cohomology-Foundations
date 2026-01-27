@@ -38,3 +38,4 @@ import Perspective.LeximinGeodesics
 import Perspective.FairnessBarriers
 import Perspective.GroupFairness
 import Perspective.IndividualFairness
+import Perspective.FairnessPersistence
