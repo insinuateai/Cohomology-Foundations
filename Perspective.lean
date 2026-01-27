@@ -39,3 +39,4 @@ import Perspective.FairnessBarriers
 import Perspective.GroupFairness
 import Perspective.IndividualFairness
 import Perspective.FairnessPersistence
+import Perspective.FairnessDynamics

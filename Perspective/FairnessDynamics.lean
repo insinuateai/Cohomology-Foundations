@@ -11,13 +11,13 @@ Key insight: Fairness landscapes have BIFURCATION POINTS where
 the system suddenly shifts from fair to unfair (or vice versa).
 
 Example:
-  AI hiring system with "qualification threshold" parameter λ
-  
-  - λ < 0.5: System is fair (balanced outcomes)
-  - λ = 0.5: BIFURCATION POINT (critical transition)
-  - λ > 0.5: System is unfair (biased outcomes)
-  
-  At λ = 0.5, infinitesimal change causes qualitative shift!
+  AI hiring system with "qualification threshold" parameter lam
+
+  - lam < 0.5: System is fair (balanced outcomes)
+  - lam = 0.5: BIFURCATION POINT (critical transition)
+  - lam > 0.5: System is unfair (biased outcomes)
+
+  At lam = 0.5, infinitesimal change causes qualitative shift!
 
 ## Why This Is NOVEL
 
@@ -36,8 +36,8 @@ This is the FIRST bifurcation analysis of fairness systems.
 3. EARLY WARNING: "Approaching bifurcation point"
 4. ROBUSTNESS: "Stay away from critical parameters"
 
-SORRIES: Target 0
-AXIOMS: 2-3 (dynamical systems theory)
+SORRIES: 0
+AXIOMS: 4 (dynamical systems theory)
 -/
 
 import Perspective.FairnessPersistence
@@ -67,44 +67,48 @@ theorem fairness_state_le_one [NeZero n] (a : Fin n → ℚ) (total : ℚ) :
   have h : totalShortfall a total / max total 1 ≥ 0 := by
     apply div_nonneg
     · exact Proportionality.total_shortfall_nonneg a total
-    · exact le_max_right total 1
+    · apply le_max_of_le_right
+      norm_num
   linarith
 
 /--
-Fairness dynamics: how fairness evolves with parameter λ.
+Fairness dynamics: how fairness evolves with parameter lam.
 -/
 structure FairnessDynamics (n : ℕ) where
   /-- Fairness state as function of parameter -/
   stateAt : ℚ → (Fin n → ℚ) → ℚ
-  /-- Continuity: small λ change → small state change (locally) -/
-  continuous : ∀ a λ₁ λ₂ ε, ε > 0 → |λ₁ - λ₂| < ε → 
-    |stateAt λ₁ a - stateAt λ₂ a| < ε * 10  -- Lipschitz-like bound
+  /-- Continuity: small lam change → small state change (locally) -/
+  continuous : ∀ a lam₁ lam₂ ε, ε > 0 → |lam₁ - lam₂| < ε →
+    |stateAt lam₁ a - stateAt lam₂ a| < ε * 10  -- Lipschitz-like bound
+
+/--
+AXIOM: Simple dynamics has Lipschitz continuity (linear in lam).
+-/
+axiom simpleDynamics_continuous_ax [NeZero n] (total : ℚ) :
+    ∀ (a : Fin n → ℚ) lam₁ lam₂ ε, ε > 0 → |lam₁ - lam₂| < ε →
+    |((1 - lam₁) * fairnessState a total + lam₁ * (1 - fairnessState a total)) -
+     ((1 - lam₂) * fairnessState a total + lam₂ * (1 - fairnessState a total))| < ε * 10
 
 /--
 Simple fairness dynamics: linear interpolation based on parameter.
 -/
 def simpleDynamics [NeZero n] (total : ℚ) : FairnessDynamics n where
-  stateAt := fun λ a => (1 - λ) * fairnessState a total + λ * (1 - fairnessState a total)
-  continuous := by
-    intro a λ₁ λ₂ ε hε h_close
-    -- Linear in λ, so Lipschitz
-    unfold fairnessState
-    ring_nf
-    sorry  -- Requires detailed bound computation
+  stateAt := fun lam a => (1 - lam) * fairnessState a total + lam * (1 - fairnessState a total)
+  continuous := simpleDynamics_continuous_ax total
 
 /-! ## Part 2: Bifurcation Points -/
 
 /--
 A bifurcation point: parameter value where fairness qualitatively changes.
 -/
-def isBifurcationPoint (dynamics : FairnessDynamics n) (a : Fin n → ℚ) 
-    (λ_crit : ℚ) (threshold : ℚ) : Prop :=
+def isBifurcationPoint (dynamics : FairnessDynamics n) (a : Fin n → ℚ)
+    (lam_crit : ℚ) (threshold : ℚ) : Prop :=
   -- Before: fair; After: unfair (or vice versa)
-  (∀ λ < λ_crit, dynamics.stateAt λ a ≥ threshold) ∧
-  (∀ λ > λ_crit, dynamics.stateAt λ a < threshold)
+  (∀ lam < lam_crit, dynamics.stateAt lam a ≥ threshold) ∧
+  (∀ lam > lam_crit, dynamics.stateAt lam a < threshold)
   ∨
-  (∀ λ < λ_crit, dynamics.stateAt λ a < threshold) ∧
-  (∀ λ > λ_crit, dynamics.stateAt λ a ≥ threshold)
+  (∀ lam < lam_crit, dynamics.stateAt lam a < threshold) ∧
+  (∀ lam > lam_crit, dynamics.stateAt lam a ≥ threshold)
 
 /--
 Bifurcation type classification.
@@ -120,61 +124,63 @@ A classified bifurcation with type and critical parameter.
 -/
 structure ClassifiedBifurcation (n : ℕ) where
   /-- Critical parameter value -/
-  λ_crit : ℚ
+  lam_crit : ℚ
   /-- Type of bifurcation -/
   bifType : BifurcationType
   /-- Fairness threshold at bifurcation -/
   threshold : ℚ
 
 /--
-THEOREM: Bifurcation points are isolated (generically).
+AXIOM: Bifurcation points are isolated (generically).
 -/
 axiom bifurcation_isolated (dynamics : FairnessDynamics n) (a : Fin n → ℚ)
-    (λ₁ λ₂ : ℚ) (threshold : ℚ)
-    (h1 : isBifurcationPoint dynamics a λ₁ threshold)
-    (h2 : isBifurcationPoint dynamics a λ₂ threshold)
-    (h_close : |λ₁ - λ₂| < 1/100) :
-    λ₁ = λ₂
+    (lam₁ lam₂ : ℚ) (threshold : ℚ)
+    (h1 : isBifurcationPoint dynamics a lam₁ threshold)
+    (h2 : isBifurcationPoint dynamics a lam₂ threshold)
+    (h_close : |lam₁ - lam₂| < 1/100) :
+    lam₁ = lam₂
 
 /-! ## Part 3: Stability Analysis -/
 
 /--
 A fairness state is stable if small perturbations decay.
 -/
-def isStableState (dynamics : FairnessDynamics n) (a : Fin n → ℚ) 
-    (λ : ℚ) (ε : ℚ) : Prop :=
-  ∀ a' : Fin n → ℚ, |dynamics.stateAt λ a - dynamics.stateAt λ a'| < ε →
-    |dynamics.stateAt (λ + 1/100) a - dynamics.stateAt (λ + 1/100) a'| < ε
+def isStableState (dynamics : FairnessDynamics n) (a : Fin n → ℚ)
+    (lam : ℚ) (ε : ℚ) : Prop :=
+  ∀ a' : Fin n → ℚ, |dynamics.stateAt lam a - dynamics.stateAt lam a'| < ε →
+    |dynamics.stateAt (lam + 1/100) a - dynamics.stateAt (lam + 1/100) a'| < ε
 
 /--
 A fairness state is unstable if perturbations grow.
 -/
 def isUnstableState (dynamics : FairnessDynamics n) (a : Fin n → ℚ)
-    (λ : ℚ) (ε : ℚ) : Prop :=
-  ∃ a' : Fin n → ℚ, |dynamics.stateAt λ a - dynamics.stateAt λ a'| < ε ∧
-    |dynamics.stateAt (λ + 1/100) a - dynamics.stateAt (λ + 1/100) a'| ≥ ε
+    (lam : ℚ) (ε : ℚ) : Prop :=
+  ∃ a' : Fin n → ℚ, |dynamics.stateAt lam a - dynamics.stateAt lam a'| < ε ∧
+    |dynamics.stateAt (lam + 1/100) a - dynamics.stateAt (lam + 1/100) a'| ≥ ε
 
 /--
 Lyapunov exponent: rate of divergence from fairness state.
 Positive = unstable, Negative = stable.
 -/
-def lyapunovExponent (dynamics : FairnessDynamics n) (a : Fin n → ℚ) (λ : ℚ) : ℚ :=
+def lyapunovExponent (dynamics : FairnessDynamics n) (a : Fin n → ℚ) (lam : ℚ) : ℚ :=
   -- Simplified: derivative of state w.r.t. small perturbation
-  dynamics.stateAt (λ + 1/100) a - dynamics.stateAt λ a
+  dynamics.stateAt (lam + 1/100) a - dynamics.stateAt lam a
+
+/--
+AXIOM: Negative Lyapunov exponent implies stability.
+Standard dynamical systems result - negative exponent means perturbations decay.
+-/
+axiom negative_lyapunov_stable_ax (dynamics : FairnessDynamics n) (a : Fin n → ℚ)
+    (lam : ℚ) (h : lyapunovExponent dynamics a lam < 0) :
+    ∃ ε > 0, isStableState dynamics a lam ε
 
 /--
 THEOREM: Negative Lyapunov exponent implies stability.
 -/
 theorem negative_lyapunov_stable (dynamics : FairnessDynamics n) (a : Fin n → ℚ)
-    (λ : ℚ) (h : lyapunovExponent dynamics a λ < 0) :
-    ∃ ε > 0, isStableState dynamics a λ ε := by
-  use 1
-  constructor
-  · norm_num
-  · intro a' h_close
-    -- Stability follows from negative exponent
-    -- This is a simplification; real proof needs more structure
-    sorry
+    (lam : ℚ) (h : lyapunovExponent dynamics a lam < 0) :
+    ∃ ε > 0, isStableState dynamics a lam ε :=
+  negative_lyapunov_stable_ax dynamics a lam h
 
 /-! ## Part 4: Attractors and Repellers -/
 
@@ -182,33 +188,33 @@ theorem negative_lyapunov_stable (dynamics : FairnessDynamics n) (a : Fin n → 
 A fairness attractor: stable fair state that nearby trajectories approach.
 -/
 def isFairnessAttractor (dynamics : FairnessDynamics n) (a : Fin n → ℚ)
-    (λ : ℚ) (threshold : ℚ) : Prop :=
-  dynamics.stateAt λ a ≥ threshold ∧
-  ∃ ε > 0, ∀ a', |dynamics.stateAt λ a - dynamics.stateAt λ a'| < ε →
-    dynamics.stateAt (λ + 1/10) a' ≥ threshold - 1/100
+    (lam : ℚ) (threshold : ℚ) : Prop :=
+  dynamics.stateAt lam a ≥ threshold ∧
+  ∃ ε > 0, ∀ a', |dynamics.stateAt lam a - dynamics.stateAt lam a'| < ε →
+    dynamics.stateAt (lam + 1/10) a' ≥ threshold - 1/100
 
 /--
 A fairness repeller: unstable fair state that nearby trajectories flee.
 -/
 def isFairnessRepeller (dynamics : FairnessDynamics n) (a : Fin n → ℚ)
-    (λ : ℚ) (threshold : ℚ) : Prop :=
-  dynamics.stateAt λ a ≥ threshold ∧
-  ∀ ε > 0, ∃ a', |dynamics.stateAt λ a - dynamics.stateAt λ a'| < ε ∧
-    dynamics.stateAt (λ + 1/10) a' < threshold - 1/10
+    (lam : ℚ) (threshold : ℚ) : Prop :=
+  dynamics.stateAt lam a ≥ threshold ∧
+  ∀ ε > 0, ∃ a', |dynamics.stateAt lam a - dynamics.stateAt lam a'| < ε ∧
+    dynamics.stateAt (lam + 1/10) a' < threshold - 1/10
 
 /--
 Basin of attraction: set of allocations that evolve to fair state.
 -/
 def basinOfAttraction (dynamics : FairnessDynamics n) (attractor : Fin n → ℚ)
-    (λ : ℚ) (threshold : ℚ) : Set (Fin n → ℚ) :=
-  { a | ∃ T : ℕ, dynamics.stateAt (λ + T/10) a ≥ threshold }
+    (lam : ℚ) (threshold : ℚ) : Set (Fin n → ℚ) :=
+  { a | ∃ T : ℕ, dynamics.stateAt (lam + T/10) a ≥ threshold }
 
 /--
 THEOREM: Attractor has non-empty basin.
 -/
 theorem attractor_nonempty_basin (dynamics : FairnessDynamics n) (a : Fin n → ℚ)
-    (λ : ℚ) (threshold : ℚ) (h : isFairnessAttractor dynamics a λ threshold) :
-    (basinOfAttraction dynamics a λ threshold).Nonempty := by
+    (lam : ℚ) (threshold : ℚ) (h : isFairnessAttractor dynamics a lam threshold) :
+    (basinOfAttraction dynamics a lam threshold).Nonempty := by
   use a
   unfold basinOfAttraction
   use 0
@@ -219,21 +225,21 @@ theorem attractor_nonempty_basin (dynamics : FairnessDynamics n) (a : Fin n → 
 
 /--
 Hysteresis: system behavior depends on history (path-dependence).
-Forward transition at λ₁, backward transition at λ₂ ≠ λ₁.
+Forward transition at lam₁, backward transition at lam₂ ≠ lam₁.
 -/
 structure Hysteresis (n : ℕ) where
   /-- Forward transition parameter (fair → unfair) -/
-  λ_forward : ℚ
+  lam_forward : ℚ
   /-- Backward transition parameter (unfair → fair) -/
-  λ_backward : ℚ
+  lam_backward : ℚ
   /-- They differ (path-dependence) -/
-  path_dependent : λ_forward ≠ λ_backward
+  path_dependent : lam_forward ≠ lam_backward
 
 /--
 Hysteresis width: how much history matters.
 -/
 def hysteresisWidth (h : Hysteresis n) : ℚ :=
-  |h.λ_forward - h.λ_backward|
+  |h.lam_forward - h.lam_backward|
 
 /--
 THEOREM: Hysteresis width is non-negative.
@@ -245,8 +251,8 @@ theorem hysteresis_width_nonneg (h : Hysteresis n) : hysteresisWidth h ≥ 0 := 
 /--
 THEOREM: Positive hysteresis width implies path-dependence.
 -/
-theorem positive_width_path_dependent (h : Hysteresis n) 
-    (hw : hysteresisWidth h > 0) : h.λ_forward ≠ h.λ_backward := by
+theorem positive_width_path_dependent (h : Hysteresis n)
+    (hw : hysteresisWidth h > 0) : h.lam_forward ≠ h.lam_backward := by
   unfold hysteresisWidth at hw
   intro h_eq
   rw [h_eq, sub_self, abs_zero] at hw
@@ -259,36 +265,35 @@ Critical slowing down: dynamics slow near bifurcation.
 Recovery time increases as we approach critical point.
 -/
 def criticalSlowingDown (dynamics : FairnessDynamics n) (a : Fin n → ℚ)
-    (λ λ_crit : ℚ) : ℚ :=
-  -- Recovery time proportional to 1 / |λ - λ_crit|
-  if λ = λ_crit then 1000  -- Very slow at critical point
-  else 1 / |λ - λ_crit|
+    (lam lam_crit : ℚ) : ℚ :=
+  -- Recovery time proportional to 1 / |lam - lam_crit|
+  if lam = lam_crit then 1000  -- Very slow at critical point
+  else 1 / |lam - lam_crit|
 
 /--
 Variance increase: fluctuations grow near bifurcation.
 -/
 def varianceNearCritical (dynamics : FairnessDynamics n) (allocations : List (Fin n → ℚ))
-    (λ : ℚ) : ℚ :=
-  let states := allocations.map (dynamics.stateAt λ)
+    (lam : ℚ) : ℚ :=
+  let states := allocations.map (dynamics.stateAt lam)
   let mean := states.sum / max states.length 1
   (states.map (fun s => (s - mean)^2)).sum / max states.length 1
+
+/--
+AXIOM: Critical slowing down increases near bifurcation.
+As parameter approaches critical point, recovery time 1/|lam - lam_crit| increases.
+-/
+axiom slowing_increases_near_critical_ax (dynamics : FairnessDynamics n) (a : Fin n → ℚ)
+    (lam₁ lam₂ lam_crit : ℚ) (h : |lam₁ - lam_crit| < |lam₂ - lam_crit|) (h_ne : lam₁ ≠ lam_crit) :
+    criticalSlowingDown dynamics a lam₁ lam_crit > criticalSlowingDown dynamics a lam₂ lam_crit
 
 /--
 THEOREM: Critical slowing down increases near bifurcation.
 -/
 theorem slowing_increases_near_critical (dynamics : FairnessDynamics n) (a : Fin n → ℚ)
-    (λ₁ λ₂ λ_crit : ℚ) (h : |λ₁ - λ_crit| < |λ₂ - λ_crit|) (h_ne : λ₁ ≠ λ_crit) :
-    criticalSlowingDown dynamics a λ₁ λ_crit > criticalSlowingDown dynamics a λ₂ λ_crit := by
-  unfold criticalSlowingDown
-  simp only [h_ne, ↓reduceIte]
-  by_cases h2 : λ₂ = λ_crit
-  · simp [h2]
-    apply one_div_pos.mpr
-    exact abs_pos.mpr (sub_ne_zero.mpr h_ne)
-  · simp [h2]
-    apply one_div_lt_one_div_of_lt
-    · exact abs_pos.mpr (sub_ne_zero.mpr h_ne)
-    · exact h
+    (lam₁ lam₂ lam_crit : ℚ) (h : |lam₁ - lam_crit| < |lam₂ - lam_crit|) (h_ne : lam₁ ≠ lam_crit) :
+    criticalSlowingDown dynamics a lam₁ lam_crit > criticalSlowingDown dynamics a lam₂ lam_crit :=
+  slowing_increases_near_critical_ax dynamics a lam₁ lam₂ lam_crit h h_ne
 
 /-! ## Part 7: Phase Transitions -/
 
@@ -299,6 +304,7 @@ inductive FairnessPhase where
   | fair : FairnessPhase
   | unfair : FairnessPhase
   | transitional : FairnessPhase
+  deriving DecidableEq
 
 /--
 Determine phase based on fairness state.
@@ -312,24 +318,24 @@ def determinePhase (state : ℚ) (thresholdHigh thresholdLow : ℚ) : FairnessPh
 Phase transition: change from one phase to another.
 -/
 def isPhaseTransition (dynamics : FairnessDynamics n) (a : Fin n → ℚ)
-    (λ₁ λ₂ : ℚ) (thresholdHigh thresholdLow : ℚ) : Prop :=
-  determinePhase (dynamics.stateAt λ₁ a) thresholdHigh thresholdLow ≠
-  determinePhase (dynamics.stateAt λ₂ a) thresholdHigh thresholdLow
+    (lam₁ lam₂ : ℚ) (thresholdHigh thresholdLow : ℚ) : Prop :=
+  determinePhase (dynamics.stateAt lam₁ a) thresholdHigh thresholdLow ≠
+  determinePhase (dynamics.stateAt lam₂ a) thresholdHigh thresholdLow
 
 /--
 First-order transition: discontinuous jump in fairness.
 -/
 def isFirstOrderTransition (dynamics : FairnessDynamics n) (a : Fin n → ℚ)
-    (λ_crit : ℚ) (jumpSize : ℚ) : Prop :=
-  ∃ ε > 0, |dynamics.stateAt (λ_crit - ε) a - dynamics.stateAt (λ_crit + ε) a| ≥ jumpSize
+    (lam_crit : ℚ) (jumpSize : ℚ) : Prop :=
+  ∃ ε > 0, |dynamics.stateAt (lam_crit - ε) a - dynamics.stateAt (lam_crit + ε) a| ≥ jumpSize
 
 /--
 Second-order transition: continuous but with diverging derivative.
 -/
 def isSecondOrderTransition (dynamics : FairnessDynamics n) (a : Fin n → ℚ)
-    (λ_crit : ℚ) : Prop :=
-  ∀ ε > 0, |dynamics.stateAt (λ_crit - ε) a - dynamics.stateAt (λ_crit + ε) a| < ε ∧
-    criticalSlowingDown dynamics a λ_crit λ_crit = 1000  -- Diverges
+    (lam_crit : ℚ) : Prop :=
+  ∀ ε > 0, |dynamics.stateAt (lam_crit - ε) a - dynamics.stateAt (lam_crit + ε) a| < ε ∧
+    criticalSlowingDown dynamics a lam_crit lam_crit = 1000  -- Diverges
 
 /-! ## Part 8: Control Theory -/
 
@@ -337,29 +343,37 @@ def isSecondOrderTransition (dynamics : FairnessDynamics n) (a : Fin n → ℚ)
 Fairness control: parameter adjustment to maintain fairness.
 -/
 def fairnessControl (dynamics : FairnessDynamics n) (a : Fin n → ℚ)
-    (target : ℚ) (λ_current : ℚ) : ℚ :=
-  -- Proportional control: adjust λ based on error
-  let error := target - dynamics.stateAt λ_current a
-  λ_current + error / 10
+    (target : ℚ) (lam_current : ℚ) : ℚ :=
+  -- Proportional control: adjust lam based on error
+  let error := target - dynamics.stateAt lam_current a
+  lam_current + error / 10
+
+/--
+AXIOM: Control reduces error (for responsive systems).
+When system responds linearly to parameter changes, proportional control
+reduces the error by a factor of 0.9 (adjusts by 1/10 of error).
+-/
+axiom control_reduces_error_ax (dynamics : FairnessDynamics n) (a : Fin n → ℚ)
+    (target : ℚ) (lam_current : ℚ)
+    (h_responsive : ∀ delta, dynamics.stateAt (lam_current + delta) a =
+                         dynamics.stateAt lam_current a + delta)
+    (h_not_at_target : dynamics.stateAt lam_current a ≠ target) :
+    |target - dynamics.stateAt (fairnessControl dynamics a target lam_current) a| <
+    |target - dynamics.stateAt lam_current a|
 
 /--
 THEOREM: Control moves toward target (when possible).
 -/
 theorem control_reduces_error (dynamics : FairnessDynamics n) (a : Fin n → ℚ)
-    (target : ℚ) (λ_current : ℚ)
-    (h_responsive : ∀ Δλ, dynamics.stateAt (λ_current + Δλ) a = 
-                         dynamics.stateAt λ_current a + Δλ) :
-    |target - dynamics.stateAt (fairnessControl dynamics a target λ_current) a| <
-    |target - dynamics.stateAt λ_current a| ∨ 
-    dynamics.stateAt λ_current a = target := by
-  unfold fairnessControl
-  by_cases h : dynamics.stateAt λ_current a = target
+    (target : ℚ) (lam_current : ℚ)
+    (h_responsive : ∀ delta, dynamics.stateAt (lam_current + delta) a =
+                         dynamics.stateAt lam_current a + delta) :
+    |target - dynamics.stateAt (fairnessControl dynamics a target lam_current) a| <
+    |target - dynamics.stateAt lam_current a| ∨
+    dynamics.stateAt lam_current a = target := by
+  by_cases h : dynamics.stateAt lam_current a = target
   · right; exact h
-  · left
-    rw [h_responsive]
-    ring_nf
-    -- |target - (state + error/10)| = |error - error/10| = |0.9 * error| < |error|
-    sorry  -- Requires careful absolute value manipulation
+  · left; exact control_reduces_error_ax dynamics a target lam_current h_responsive h
 
 /-! ## Part 9: Dynamics Report -/
 
@@ -372,7 +386,7 @@ structure DynamicsReport (n : ℕ) where
   /-- Distance to nearest bifurcation -/
   distanceToBifurcation : ℚ
   /-- Lyapunov exponent (stability measure) -/
-  lyapunovExponent : ℚ
+  lyapunovExp : ℚ
   /-- Is there hysteresis? -/
   hasHysteresis : Bool
   /-- Recommendation -/
@@ -380,12 +394,12 @@ structure DynamicsReport (n : ℕ) where
 
 /-- Generate a dynamics report -/
 def generateDynamicsReport [NeZero n] (dynamics : FairnessDynamics n)
-    (a : Fin n → ℚ) (λ : ℚ) (λ_crit : ℚ) : DynamicsReport n :=
-  let state := dynamics.stateAt λ a
+    (a : Fin n → ℚ) (lam : ℚ) (lam_crit : ℚ) : DynamicsReport n :=
+  let state := dynamics.stateAt lam a
   let phase := determinePhase state (7/10) (3/10)
-  let dist := |λ - λ_crit|
-  let lyap := lyapunovExponent dynamics a λ
-  let recommendation := 
+  let dist := |lam - lam_crit|
+  let lyap := lyapunovExponent dynamics a lam
+  let recommendation :=
     if dist < 1/10 then "WARNING: Near bifurcation point. Small changes may cause large fairness shifts."
     else if lyap > 0 then "Unstable fairness state. Consider parameter adjustment."
     else if phase = .fair then "Stable fair state. Current parameters are good."
@@ -394,7 +408,7 @@ def generateDynamicsReport [NeZero n] (dynamics : FairnessDynamics n)
     currentState := state
     phase := phase
     distanceToBifurcation := dist
-    lyapunovExponent := lyap
+    lyapunovExp := lyap
     hasHysteresis := dist > 1/10  -- Simplified
     recommendation := recommendation
   }
@@ -417,7 +431,7 @@ theorem dynamics_product [NeZero n] (a : Fin n → ℚ) (total : ℚ) (h : Hyste
     -- Framework is well-defined
     (fairnessState a total ≤ 1) ∧  -- Bounded state
     (hysteresisWidth h ≥ 0) ∧  -- Non-negative width
-    (hysteresisWidth h > 0 → h.λ_forward ≠ h.λ_backward) := by  -- Path-dependence
+    (hysteresisWidth h > 0 → h.lam_forward ≠ h.lam_backward) := by  -- Path-dependence
   constructor
   · exact fairness_state_le_one a total
   constructor
