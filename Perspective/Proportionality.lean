@@ -102,18 +102,15 @@ theorem total_shortfall_zero_iff [NeZero n] (a : Fin n → ℚ) (total : ℚ) :
   unfold totalShortfall isProportional
   constructor
   · intro h i
-    have h_nonneg : ∀ j, proportionalityShortfall a total j ≥ 0 := 
+    have h_nonneg : ∀ j, proportionalityShortfall a total j ≥ 0 :=
       fun j => shortfall_nonneg a total j
     have h_all_zero : ∀ j, proportionalityShortfall a total j = 0 := by
       by_contra h_not
       push_neg at h_not
       obtain ⟨j, hj⟩ := h_not
-      have hj_pos : proportionalityShortfall a total j > 0 := by
-        cases' (h_nonneg j).lt_or_eq with h1 h1
-        · exact h1
-        · exact absurd h1.symm hj
-      have h_ge : totalShortfall a total ≥ proportionalityShortfall a total j := by
-        unfold totalShortfall
+      have hj_pos : proportionalityShortfall a total j > 0 :=
+        (h_nonneg j).lt_of_ne' hj
+      have h_ge : ∑ i, proportionalityShortfall a total i ≥ proportionalityShortfall a total j := by
         exact Finset.single_le_sum (fun k _ => shortfall_nonneg a total k) (Finset.mem_univ j)
       linarith
     exact (shortfall_zero_iff a total i).mp (h_all_zero i)
@@ -272,13 +269,13 @@ def proportional_not_envy_free_example : Prop :=
 /--
 The minimum utility across all agents.
 -/
-def minUtility (a : Fin n → ℚ) : ℚ :=
+def minUtility [NeZero n] (a : Fin n → ℚ) : ℚ :=
   Finset.univ.inf' ⟨0, Finset.mem_univ 0⟩ a
 
 /--
 Maximin allocation: maximizes the minimum utility.
 -/
-def isMaximin (a : Fin n → ℚ) (feasible : Set (Fin n → ℚ)) : Prop :=
+def isMaximin [NeZero n] (a : Fin n → ℚ) (feasible : Set (Fin n → ℚ)) : Prop :=
   a ∈ feasible ∧ ∀ b ∈ feasible, minUtility a ≥ minUtility b
 
 /--
@@ -331,23 +328,21 @@ structure ProportionalityReport (n : ℕ) where
 
 /-- Generate a proportionality report -/
 def generateProportionalityReport [NeZero n] (a : Fin n → ℚ) (total : ℚ)
-    (feasible : Set (Fin n → ℚ)) : ProportionalityReport n :=
-  let prop := isProportional a total
+    (isProp : Bool) (isEff : Bool) : ProportionalityReport n :=
   let ts := totalShortfall a total
   let ms := Finset.univ.sup' ⟨0, Finset.mem_univ 0⟩ (fun i => proportionalityShortfall a total i)
   let mu := Finset.univ.inf' ⟨0, Finset.mem_univ 0⟩ a
-  let eff := isParetoEfficient a feasible
-  let recommendation := 
-    if prop ∧ eff then "Allocation is proportional and Pareto efficient. Optimal."
-    else if prop then "Allocation is proportional but may not be efficient."
-    else if eff then "Allocation is efficient but not proportional. Consider redistribution."
+  let recommendation :=
+    if isProp ∧ isEff then "Allocation is proportional and Pareto efficient. Optimal."
+    else if isProp then "Allocation is proportional but may not be efficient."
+    else if isEff then "Allocation is efficient but not proportional. Consider redistribution."
     else "Allocation is neither proportional nor efficient. Significant improvements possible."
   {
-    isProportional := prop
+    isProportional := isProp
     totalShortfall := ts
     maxShortfall := ms
     minUtility := mu
-    isParetoEfficient := eff
+    isParetoEfficient := isEff
     recommendation := recommendation
   }
 

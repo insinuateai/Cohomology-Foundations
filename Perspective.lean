@@ -32,3 +32,5 @@ import Perspective.FluctuationBounds
 import Perspective.FairnessFoundations
 import Perspective.ParetoTopology
 import Perspective.EnvyFreeness
+import Perspective.Proportionality
+import Perspective.FairnessAlignmentTradeoff

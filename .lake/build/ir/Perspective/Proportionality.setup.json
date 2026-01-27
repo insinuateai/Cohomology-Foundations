@@ -1,6 +1,6 @@
 {"plugins": [],
  "options": {"pp.unicode.fun": true, "autoImplicit": false},
- "name": "Perspective",
+ "name": "Perspective.Proportionality",
  "isModule": false,
  "importArts":
  {"Qq.Typ":
@@ -178,8 +178,6 @@
   ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/SpectralGap.olean"],
   "Perspective.Recurrence":
   ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/Recurrence.olean"],
-  "Perspective.Proportionality":
-  ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/Proportionality.olean"],
   "Perspective.Persistence":
   ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/Persistence.olean"],
   "Perspective.ParetoTopology":
@@ -206,8 +204,6 @@
   ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/FluctuationBounds.olean"],
   "Perspective.FairnessFoundations":
   ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/FairnessFoundations.olean"],
-  "Perspective.FairnessAlignmentTradeoff":
-  ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/FairnessAlignmentTradeoff.olean"],
   "Perspective.EscapeTime":
   ["/workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/EscapeTime.olean"],
   "Perspective.EnvyFreeness":
