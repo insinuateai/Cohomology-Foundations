@@ -1,0 +1,54 @@
+{"synthetic": false,
+ "schemaVersion": "2025-09-10",
+ "outputs":
+ {"o": ["f49fee6144d61d2d.olean"],
+  "i": "723a93ff1574ab6c.ilean",
+  "c": "5dbdc3a81aea0561.c"},
+ "log":
+ [{"message":
+   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.26.0/bin/lean /workspaces/Cohomology-Foundations/Perspective/FairnessGames.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/FairnessGames.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/FairnessGames.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/FairnessGames.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/FairnessGames.setup.json --json",
+   "level": "trace"},
+  {"message":
+   "Perspective/FairnessGames.lean:117:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/FairnessGames.lean:149:22: unused variable `game`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/FairnessGames.lean:149:48: unused variable `fairnessScore`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/FairnessGames.lean:158:20: unused variable `game`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/FairnessGames.lean:158:46: unused variable `fairnessScore`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/FairnessGames.lean:231:8: unused variable `i`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "Perspective/FairnessGames.lean:280:43: unused variable `i`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"}],
+ "inputs":
+ [["Perspective.FairnessGames:deps",
+   [["deps",
+     [["CohomologyFoundations/Perspective:extraDep",
+       [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
+      ["imports",
+       [["Perspective.FairRepair transitive imports (legacy)",
+         "98547433800a3431"],
+        ["Perspective.FairRepair:importAllArts", "dd0237dc63616c69"]]]]],
+    ["libs",
+     [["import dynlibs", "00000000000006bb"],
+      ["package external libraries", "00000000000006bb"],
+      ["module dynlibs", "00000000000006bb"],
+      ["module plugins", "00000000000006bb"]]]]],
+  ["Lean 4.26.0, commit d8204c9fd894f91bbb2cdfec5912ec8196fd8562",
+   "9c9419104e9584f8"],
+  ["/workspaces/Cohomology-Foundations/Perspective/FairnessGames.lean",
+   "a06ce744ea69081d"],
+  ["options",
+   [["-Dpp.unicode.fun=true", "9b94070140457fab"],
+    ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
+  ["Module.leanArgs: #[]", "00000000000006bb"]],
+ "depHash": "e5ab82dcf08b3c04"}

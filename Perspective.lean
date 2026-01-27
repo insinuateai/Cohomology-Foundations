@@ -41,3 +41,4 @@ import Perspective.IndividualFairness
 import Perspective.FairnessPersistence
 import Perspective.FairnessDynamics
 import Perspective.FairRepair
+import Perspective.FairnessGames
