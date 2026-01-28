@@ -9,3 +9,9 @@ import MultiAgent.PerspectiveSheaf
 import MultiAgent.LensFormalism
 import MultiAgent.EncounterPrimitives
 import MultiAgent.GlobalLocalDuality
+-- Game Theory Module (Batches 59-63)
+import MultiAgent.GameTheoreticH1
+import MultiAgent.StrategicCoordination
+import MultiAgent.EquilibriumTopology
+import MultiAgent.CoalitionCohomology
+import MultiAgent.MechanismDesign
