@@ -1,0 +1,96 @@
+{"synthetic": false,
+ "schemaVersion": "2025-09-10",
+ "outputs":
+ {"o": ["3d7be48da2408a28.olean"],
+  "i": "798ec2303a347def.ilean",
+  "c": "57fe35ce23598c50.c"},
+ "log":
+ [{"message":
+   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.27.0/bin/lean /workspaces/Cohomology-Foundations/MultiAgent/ObservationalEquivalence.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/MultiAgent/ObservationalEquivalence.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/MultiAgent/ObservationalEquivalence.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/MultiAgent/ObservationalEquivalence.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/MultiAgent/ObservationalEquivalence.setup.json --json",
+   "level": "trace"},
+  {"message":
+   "MultiAgent/ObservationalEquivalence.lean:115:74: unused variable `a`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/ObservationalEquivalence.lean:129:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/ObservationalEquivalence.lean:165:8: declaration uses 'sorry'",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/ObservationalEquivalence.lean:182:8: declaration uses 'sorry'",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/ObservationalEquivalence.lean:228:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/ObservationalEquivalence.lean:231:44: unused variable `N`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/ObservationalEquivalence.lean:236:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/ObservationalEquivalence.lean:243:29: unused variable `sys`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/ObservationalEquivalence.lean:248:43: unused variable `sys`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/ObservationalEquivalence.lean:264:46: unused variable `sys`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/ObservationalEquivalence.lean:268:49: unused variable `sys`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/ObservationalEquivalence.lean:295:5: unused variable `ha`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/ObservationalEquivalence.lean:295:27: unused variable `hb`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/ObservationalEquivalence.lean:296:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/ObservationalEquivalence.lean:300:8: declaration uses 'sorry'",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/ObservationalEquivalence.lean:306:30: unused variable `sys`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/ObservationalEquivalence.lean:306:56: unused variable `a`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/ObservationalEquivalence.lean:310:38: unused variable `sys`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"}],
+ "inputs":
+ [["MultiAgent.ObservationalEquivalence:deps",
+   [["deps",
+     [["CohomologyFoundations/MultiAgent:extraDep",
+       [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
+      ["imports",
+       [["Mathlib.Data.Finset.Basic transitive imports (legacy)",
+         "732f38f1e4c71d79"],
+        ["Mathlib.Data.Finset.Basic:importAllArts", "1ec6b155e2444648"],
+        ["Mathlib.Data.Finset.Card transitive imports (legacy)",
+         "68b38e56b1aa328f"],
+        ["Mathlib.Data.Finset.Card:importAllArts", "dfd1b2e7b41d681f"],
+        ["Mathlib.Logic.Equiv.Basic transitive imports (legacy)",
+         "24a2148f1f74ac1a"],
+        ["Mathlib.Logic.Equiv.Basic:importAllArts", "b2e64b80193a1f7f"],
+        ["MultiAgent.AgentNetworks transitive imports (legacy)",
+         "a3e63cf756af82b7"],
+        ["MultiAgent.AgentNetworks:importAllArts", "cbf756cec16e2238"]]]]],
+    ["libs",
+     [["import dynlibs", "00000000000006bb"],
+      ["package external libraries", "00000000000006bb"],
+      ["module dynlibs", "00000000000006bb"],
+      ["module plugins", "00000000000006bb"]]]]],
+  ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
+   "9a2be90fd35343e5"],
+  ["/workspaces/Cohomology-Foundations/MultiAgent/ObservationalEquivalence.lean",
+   "127011b5c8a93ee6"],
+  ["options",
+   [["-Dpp.unicode.fun=true", "9b94070140457fab"],
+    ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
+  ["Module.leanArgs: #[]", "00000000000006bb"]],
+ "depHash": "d1188f638e3e6dc6"}

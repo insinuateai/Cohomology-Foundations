@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: MultiAgent
-// Imports: public import Init public import MultiAgent.AgentNetworks public import MultiAgent.MemoryPerspective public import MultiAgent.MemoryConsistency public import MultiAgent.CoordinationTopology public import MultiAgent.ConsensusObstruction public import MultiAgent.ScalableH1
+// Imports: public import Init public import MultiAgent.AgentNetworks public import MultiAgent.MemoryPerspective public import MultiAgent.MemoryConsistency public import MultiAgent.CoordinationTopology public import MultiAgent.ConsensusObstruction public import MultiAgent.ScalableH1 public import MultiAgent.ObservationalEquivalence public import MultiAgent.PerspectiveSheaf public import MultiAgent.LensFormalism public import MultiAgent.EncounterPrimitives public import MultiAgent.GlobalLocalDuality
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -20,6 +20,11 @@ lean_object* initialize_CohomologyFoundations_MultiAgent_MemoryConsistency(uint8
 lean_object* initialize_CohomologyFoundations_MultiAgent_CoordinationTopology(uint8_t builtin);
 lean_object* initialize_CohomologyFoundations_MultiAgent_ConsensusObstruction(uint8_t builtin);
 lean_object* initialize_CohomologyFoundations_MultiAgent_ScalableH1(uint8_t builtin);
+lean_object* initialize_CohomologyFoundations_MultiAgent_ObservationalEquivalence(uint8_t builtin);
+lean_object* initialize_CohomologyFoundations_MultiAgent_PerspectiveSheaf(uint8_t builtin);
+lean_object* initialize_CohomologyFoundations_MultiAgent_LensFormalism(uint8_t builtin);
+lean_object* initialize_CohomologyFoundations_MultiAgent_EncounterPrimitives(uint8_t builtin);
+lean_object* initialize_CohomologyFoundations_MultiAgent_GlobalLocalDuality(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_CohomologyFoundations_MultiAgent(uint8_t builtin) {
 lean_object * res;
@@ -44,6 +49,21 @@ res = initialize_CohomologyFoundations_MultiAgent_ConsensusObstruction(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_CohomologyFoundations_MultiAgent_ScalableH1(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_CohomologyFoundations_MultiAgent_ObservationalEquivalence(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_CohomologyFoundations_MultiAgent_PerspectiveSheaf(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_CohomologyFoundations_MultiAgent_LensFormalism(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_CohomologyFoundations_MultiAgent_EncounterPrimitives(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_CohomologyFoundations_MultiAgent_GlobalLocalDuality(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

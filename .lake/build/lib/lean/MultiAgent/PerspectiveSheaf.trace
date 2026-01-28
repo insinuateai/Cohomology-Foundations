@@ -1,0 +1,96 @@
+{"synthetic": false,
+ "schemaVersion": "2025-09-10",
+ "outputs":
+ {"o": ["31f083514a831726.olean"],
+  "i": "fdb914bfa75e553b.ilean",
+  "c": "4ac7167e6701da4d.c"},
+ "log":
+ [{"message":
+   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.27.0/bin/lean /workspaces/Cohomology-Foundations/MultiAgent/PerspectiveSheaf.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/MultiAgent/PerspectiveSheaf.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/MultiAgent/PerspectiveSheaf.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/MultiAgent/PerspectiveSheaf.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/MultiAgent/PerspectiveSheaf.setup.json --json",
+   "level": "trace"},
+  {"message":
+   "MultiAgent/PerspectiveSheaf.lean:140:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/PerspectiveSheaf.lean:152:4: unused variable `g`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/PerspectiveSheaf.lean:164:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/PerspectiveSheaf.lean:169:62: unused variable `P`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/PerspectiveSheaf.lean:188:61: unused variable `P`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/PerspectiveSheaf.lean:189:24: unused variable `hS`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/PerspectiveSheaf.lean:199:74: unused variable `P`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/PerspectiveSheaf.lean:200:5: unused variable `N`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/PerspectiveSheaf.lean:251:8: declaration uses 'sorry'",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/PerspectiveSheaf.lean:273:8: declaration uses 'sorry'",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/PerspectiveSheaf.lean:294:42: unused variable `sys`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/PerspectiveSheaf.lean:294:67: unused variable `N`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/PerspectiveSheaf.lean:314:35: unused variable `chunks`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/PerspectiveSheaf.lean:314:62: unused variable `N`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/PerspectiveSheaf.lean:318:30: unused variable `chunks`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/PerspectiveSheaf.lean:318:57: unused variable `N`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/PerspectiveSheaf.lean:322:31: unused variable `P`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/PerspectiveSheaf.lean:322:48: unused variable `N`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"}],
+ "inputs":
+ [["MultiAgent.PerspectiveSheaf:deps",
+   [["deps",
+     [["CohomologyFoundations/MultiAgent:extraDep",
+       [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
+      ["imports",
+       [["Mathlib.Data.Finset.Basic transitive imports (legacy)",
+         "732f38f1e4c71d79"],
+        ["Mathlib.Data.Finset.Basic:importAllArts", "1ec6b155e2444648"],
+        ["Mathlib.Data.Finset.Card transitive imports (legacy)",
+         "68b38e56b1aa328f"],
+        ["Mathlib.Data.Finset.Card:importAllArts", "dfd1b2e7b41d681f"],
+        ["Mathlib.Algebra.Group.Defs transitive imports (legacy)",
+         "48e3c8cc4be5f303"],
+        ["Mathlib.Algebra.Group.Defs:importAllArts", "a3ddfc2a59c821bb"],
+        ["MultiAgent.AgentNetworks transitive imports (legacy)",
+         "a3e63cf756af82b7"],
+        ["MultiAgent.AgentNetworks:importAllArts", "cbf756cec16e2238"]]]]],
+    ["libs",
+     [["import dynlibs", "00000000000006bb"],
+      ["package external libraries", "00000000000006bb"],
+      ["module dynlibs", "00000000000006bb"],
+      ["module plugins", "00000000000006bb"]]]]],
+  ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
+   "9a2be90fd35343e5"],
+  ["/workspaces/Cohomology-Foundations/MultiAgent/PerspectiveSheaf.lean",
+   "1c9fc3a6f2130ab7"],
+  ["options",
+   [["-Dpp.unicode.fun=true", "9b94070140457fab"],
+    ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
+  ["Module.leanArgs: #[]", "00000000000006bb"]],
+ "depHash": "37cc28eda73664c4"}
