@@ -1,30 +1,15 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["fc96af94004ca8b6.olean"],
-  "i": "97c61bb67e13a679.ilean",
-  "c": "188e2e04f11db3ba.c"},
+ {"o": ["355ad2890bd42f22.olean"],
+  "i": "4327de1d646ffaf5.ilean",
+  "c": "4b7572089bb3f4d1.c"},
  "log":
  [{"message":
    ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.27.0/bin/lean /workspaces/Cohomology-Foundations/H1Characterization/CycleCochain/Proofs.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/H1Characterization/CycleCochain/Proofs.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/H1Characterization/CycleCochain/Proofs.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/H1Characterization/CycleCochain/Proofs.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/H1Characterization/CycleCochain/Proofs.setup.json --json",
    "level": "trace"},
   {"message":
-   "H1Characterization/CycleCochain/Proofs.lean:131:49: unused variable `hd`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
-   "level": "warning"},
-  {"message":
-   "H1Characterization/CycleCochain/Proofs.lean:159:6: declaration uses 'sorry'",
-   "level": "warning"},
-  {"message":
-   "H1Characterization/CycleCochain/Proofs.lean:174:6: declaration uses 'sorry'",
-   "level": "warning"},
-  {"message":
-   "H1Characterization/CycleCochain/Proofs.lean:187:6: declaration uses 'sorry'",
-   "level": "warning"},
-  {"message":
-   "H1Characterization/CycleCochain/Proofs.lean:195:8: declaration uses 'sorry'",
-   "level": "warning"},
-  {"message":
-   "H1Characterization/CycleCochain/Proofs.lean:206:8: declaration uses 'sorry'",
+   "H1Characterization/CycleCochain/Proofs.lean:104:8: declaration uses 'sorry'",
    "level": "warning"}],
  "inputs":
  [["H1Characterization.CycleCochain.Proofs:deps",
@@ -48,9 +33,9 @@
   ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
    "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/H1Characterization/CycleCochain/Proofs.lean",
-   "9862646d5195905b"],
+   "25ae03f5040b499d"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "8ec1169a573ca4ac"}
+ "depHash": "3517f35865ff2dd1"}
