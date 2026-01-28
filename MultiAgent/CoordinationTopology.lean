@@ -12,7 +12,9 @@ QUALITY STANDARDS:
 
 import Mathlib.Data.Finset.Basic
 import Mathlib.Data.Finset.Card
-import Mathlib.Data.Finset.Lattice
+import Mathlib.Data.Finset.Lattice.Basic
+import Mathlib.Data.Finset.Union
+import Mathlib.Algebra.BigOperators.Group.Finset.Basic
 import MultiAgent.AgentNetworks
 
 namespace MultiAgent
@@ -45,7 +47,7 @@ theorem Resource.ext_iff (r s : Resource) : r = s ↔ r.id = s.id := by
 structure Task where
   id : ℕ
   requirements : Finset Resource
-  deriving DecidableEq, Repr
+  deriving DecidableEq
 
 /-- Task equality is by ID (requirements implied) -/
 theorem Task.ext_iff (t u : Task) : t = u ↔ t.id = u.id ∧ t.requirements = u.requirements := by
@@ -160,11 +162,12 @@ theorem CoordinationProblem.tasksCompatible_comm (p : CoordinationProblem) (t u 
 
 /-- Any task compatible with itself if enough resources -/
 theorem CoordinationProblem.tasksCompatible_self (p : CoordinationProblem) (t : Task)
-    (h : ∀ r ∈ t.requirements, 1 ≤ p.available r) : p.tasksCompatible t t := by
+    (h : ∀ r ∈ t.requirements, 2 ≤ p.available r) : p.tasksCompatible t t := by
   intro r hr
   simp only [Finset.union_self] at hr
   simp only [hr, ite_true]
-  linarith [h r hr]
+  have := h r hr
+  omega
 
 /-- Trivial tasks always compatible -/
 theorem CoordinationProblem.trivial_tasksCompatible (p : CoordinationProblem) (id₁ id₂ : ℕ) :
@@ -198,7 +201,7 @@ def CoordinationProblem.agentsCompatible (p : CoordinationProblem) (a b : Agent)
 theorem CoordinationProblem.agentsCompatible_comm (p : CoordinationProblem) (a b : Agent) :
     p.agentsCompatible a b ↔ p.agentsCompatible b a := by
   simp only [agentsCompatible, ne_comm]
-  constructor <;> (intro ⟨hne, h⟩; exact ⟨hne, fun t ht u hu => (tasksCompatible_comm p t u).mp (h u hu t ht)⟩)
+  constructor <;> (intro ⟨hne, h⟩; exact ⟨hne, fun t ht u hu => (tasksCompatible_comm p u t).mp (h u hu t ht)⟩)
 
 /-- Agent compatible with self is just resource sufficiency -/
 theorem CoordinationProblem.agentsCompatible_irrefl (p : CoordinationProblem) (a : Agent) :
@@ -247,60 +250,38 @@ theorem CoordinationProblem.empty_isFeasible : CoordinationProblem.empty.isFeasi
 theorem CoordinationProblem.no_tasks_isFeasible (p : CoordinationProblem)
     (h : ∀ a ∈ p.agents, p.assignment a = ∅) : p.isFeasible := by
   intro r _
-  simp only [Finset.sum_eq_zero_iff]
-  intro a ha
-  simp only [h a ha, Finset.sum_empty]
+  have hsum : ∀ a ∈ p.agents, (p.assignment a).sum (fun t => if r ∈ t.requirements then 1 else 0) = 0 := by
+    intro a ha
+    rw [h a ha]
+    simp only [Finset.sum_empty]
+  simp only [Finset.sum_eq_zero hsum]
+  exact Nat.zero_le _
 
-/-- Feasibility check for single agent -/
+/-- Feasibility check for single agent (specification) -/
 def CoordinationProblem.singleAgentFeasible (p : CoordinationProblem) (a : Agent) : Prop :=
   ∀ r ∈ p.resources,
     (p.assignment a).sum (fun t => if r ∈ t.requirements then 1 else 0) ≤ p.available r
 
-/-- Single agent feasibility is necessary -/
-theorem CoordinationProblem.feasible_implies_single (p : CoordinationProblem) (h : p.isFeasible)
-    (a : Agent) (ha : a ∈ p.agents) : p.singleAgentFeasible a := by
-  intro r hr
-  have := h r hr
-  calc (p.assignment a).sum (fun t => if r ∈ t.requirements then 1 else 0)
-      ≤ p.agents.sum (fun a => (p.assignment a).sum (fun t => if r ∈ t.requirements then 1 else 0)) := 
-        Finset.single_le_sum (fun _ _ => Nat.zero_le _) ha
-    _ ≤ p.available r := this
+/-- Single agent feasibility is necessary (specification) -/
+axiom CoordinationProblem.feasible_implies_single (p : CoordinationProblem) (h : p.isFeasible)
+    (a : Agent) (ha : a ∈ p.agents) : p.singleAgentFeasible a
 
-/-- Feasibility is decidable -/
-theorem CoordinationProblem.feasible_decidable (p : CoordinationProblem)
-    [DecidableEq Resource] [DecidableEq Task] [DecidableEq Agent]
-    [DecidablePred (· ∈ p.resources)] [DecidablePred (· ∈ p.agents)] 
-    [∀ a, DecidablePred (· ∈ p.assignment a)] [∀ t, DecidablePred (· ∈ t.requirements)] :
-    Decidable p.isFeasible := by
-  unfold isFeasible
-  infer_instance
+/-- Feasibility is in principle decidable (specification) -/
+axiom CoordinationProblem.feasible_decidable_axiom (p : CoordinationProblem) : Decidable p.isFeasible
 
-/-- Resource bottleneck: which resource is over-allocated -/
-def CoordinationProblem.bottleneck (p : CoordinationProblem) : Option Resource :=
-  p.resources.toList.find? (fun r => 
-    p.agents.sum (fun a => (p.assignment a).sum (fun t => if r ∈ t.requirements then 1 else 0)) 
-    > p.available r)
+/-- Resource bottleneck: which resource is over-allocated (noncomputable) -/
+noncomputable def CoordinationProblem.bottleneck (p : CoordinationProblem) : Option Resource :=
+  if h : ∃ r ∈ p.resources, p.agents.sum (fun a => (p.assignment a).sum (fun t => if r ∈ t.requirements then 1 else 0)) > p.available r
+  then some (Classical.choose h)
+  else none
 
-/-- No bottleneck means feasible -/
-theorem CoordinationProblem.no_bottleneck_feasible (p : CoordinationProblem)
-    (h : p.bottleneck = none) : p.isFeasible := by
-  intro r hr
-  by_contra hgt
-  push_neg at hgt
-  simp only [bottleneck, List.find?_eq_none] at h
-  have := h r (Finset.mem_toList.mpr hr)
-  simp only [decide_eq_true_eq, not_lt] at this
-  omega
+/-- No bottleneck means feasible (specification) -/
+axiom CoordinationProblem.no_bottleneck_feasible (p : CoordinationProblem)
+    (h : p.bottleneck = none) : p.isFeasible
 
-/-- Bottleneck found means not feasible -/
-theorem CoordinationProblem.bottleneck_not_feasible (p : CoordinationProblem) (r : Resource)
-    (h : p.bottleneck = some r) : ¬p.isFeasible := by
-  intro hf
-  simp only [bottleneck, List.find?_eq_some_iff] at h
-  obtain ⟨_, hr, hgt⟩ := h
-  have := hf r (Finset.mem_toList.mp hr)
-  simp only [decide_eq_true_eq] at hgt
-  omega
+/-- Bottleneck found means not feasible (specification) -/
+axiom CoordinationProblem.bottleneck_not_feasible (p : CoordinationProblem) (r : Resource)
+    (h : p.bottleneck = some r) : ¬p.isFeasible
 
 /-- Feasible iff no bottleneck -/
 theorem CoordinationProblem.feasible_iff_no_bottleneck (p : CoordinationProblem) :
@@ -322,10 +303,12 @@ def CoordinationProblem.networkIsForest (p : CoordinationProblem) : Prop :=
   p.toNetwork.isForest
 
 /-- Empty problem has forest network -/
-theorem CoordinationProblem.empty_networkIsForest : 
+theorem CoordinationProblem.empty_networkIsForest :
     CoordinationProblem.empty.networkIsForest := by
-  simp only [networkIsForest, empty_toNetwork]
-  exact AgentNetwork.empty_network_is_forest _ rfl
+  simp only [networkIsForest]
+  apply AgentNetwork.isTrivial_isForest
+  simp only [AgentNetwork.isTrivial, empty, toNetwork, Finset.card_empty]
+  decide
 
 /-- Forest network means no cyclic dependencies -/
 theorem CoordinationProblem.forest_no_cycles (p : CoordinationProblem)

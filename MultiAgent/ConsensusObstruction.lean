@@ -12,7 +12,7 @@ QUALITY STANDARDS:
 
 import Mathlib.Data.Finset.Basic
 import Mathlib.Data.Finset.Card
-import Mathlib.Data.Finset.Lattice
+import Mathlib.Data.Finset.Lattice.Basic
 import MultiAgent.AgentNetworks
 
 namespace MultiAgent
@@ -132,16 +132,15 @@ theorem ConsensusInstance.consensus_mono (c : ConsensusInstance V) (S : Finset A
   exact hv a (hS ha)
 
 /-- Two agents: consensus iff overlap -/
-theorem ConsensusInstance.two_agents_consensus_iff_overlap (c : ConsensusInstance V) 
+theorem ConsensusInstance.two_agents_consensus_iff_overlap (c : ConsensusInstance V)
     (a b : Agent) (h : c.agents = {a, b}) (hab : a ≠ b) :
     c.consensusPossible ↔ c.agentsOverlap a b := by
   constructor
   · intro ⟨v, hv⟩
     simp only [agentsOverlap, Finset.Nonempty]
     use v
-    constructor
-    · exact hv a (by simp [h])
-    · exact hv b (by simp [h])
+    rw [Finset.mem_inter]
+    exact ⟨hv a (by simp [h]), hv b (by simp [h])⟩
   · intro ⟨v, hv⟩
     simp only [Finset.mem_inter] at hv
     use v
@@ -205,8 +204,8 @@ theorem ConsensusInstance.toNetwork_compatible_iff (c : ConsensusInstance V) (a 
 /-- Singleton gives trivial network -/
 theorem ConsensusInstance.singleton_toNetwork_trivial (a : Agent) (pref : V) (acc : Finset V) :
     (ConsensusInstance.singleton a pref acc).toNetwork.isTrivial := by
-  simp only [AgentNetwork.isTrivial, AgentNetwork.size, toNetwork_agents, singleton_agents,
-             Finset.card_singleton]
+  simp only [AgentNetwork.isTrivial, toNetwork_agents, singleton_agents, Finset.card_singleton]
+  decide
 
 /-- Network is forest -/
 def ConsensusInstance.networkIsForest (c : ConsensusInstance V) : Prop :=
@@ -256,18 +255,21 @@ def ConsensusInstance.isMinimalBlocking (c : ConsensusInstance V) (S : Finset Ag
   c.isBlockingCoalition S ∧ ∀ T, T ⊂ S → ¬c.isBlockingCoalition T
 
 /-- Obstruction dimension (simplified) -/
-def ConsensusInstance.obstructionDim (c : ConsensusInstance V) : ℕ :=
-  if c.consensusPossible then 0 else c.agents.card
+noncomputable def ConsensusInstance.obstructionDim (c : ConsensusInstance V) : ℕ :=
+  @ite _ c.consensusPossible (Classical.propDecidable _) 0 c.agents.card
 
 /-- No obstruction when consensus possible -/
 @[simp]
 theorem ConsensusInstance.obstructionDim_zero (c : ConsensusInstance V)
-    (h : c.consensusPossible) : c.obstructionDim = 0 := by simp [obstructionDim, h]
+    (h : c.consensusPossible) : c.obstructionDim = 0 := by
+  simp only [obstructionDim]
+  rw [if_pos h]
 
 /-- Positive obstruction when no consensus -/
 theorem ConsensusInstance.obstructionDim_pos (c : ConsensusInstance V)
     (h : ¬c.consensusPossible) (hne : c.agents.Nonempty) : 0 < c.obstructionDim := by
-  simp only [obstructionDim, h, ite_false]
+  simp only [obstructionDim]
+  rw [if_neg h]
   exact Finset.card_pos.mpr hne
 
 /-- Superset of blocking is blocking -/
@@ -281,14 +283,14 @@ theorem ConsensusInstance.blocking_superset (c : ConsensusInstance V) (S T : Fin
     exact ⟨a, hST haS, hna⟩
 
 /-- Singleton blocking means agent rejects everything -/
-theorem ConsensusInstance.singleton_blocking_iff (c : ConsensusInstance V) (a : Agent) 
+theorem ConsensusInstance.singleton_blocking_iff (c : ConsensusInstance V) (a : Agent)
     (ha : a ∈ c.agents) :
     c.isBlockingCoalition {a} ↔ c.acceptable a = ∅ := by
   constructor
   · intro ⟨_, hb⟩
     by_contra hne
-    rw [← Finset.nonempty_iff_ne_empty] at hne
-    obtain ⟨v, hv⟩ := hne
+    have hne' : (c.acceptable a).Nonempty := Finset.nonempty_iff_ne_empty.mpr hne
+    obtain ⟨v, hv⟩ := hne'
     obtain ⟨x, hx, hnx⟩ := hb v
     simp only [Finset.mem_singleton] at hx
     subst hx
@@ -298,7 +300,7 @@ theorem ConsensusInstance.singleton_blocking_iff (c : ConsensusInstance V) (a : 
     · exact Finset.singleton_subset_iff.mpr ha
     · intro v
       use a, Finset.mem_singleton_self a
-      simp only [isAcceptable, he, Finset.not_mem_empty, not_false_eq_true]
+      simp only [isAcceptable, he, Finset.notMem_empty, not_false_eq_true]
 
 -- ============================================================================
 -- SECTION 5: H¹ CONNECTION (4 proven + 2 axioms)
@@ -325,41 +327,35 @@ theorem ConsensusInstance.arrow_connection (c : ConsensusInstance V) :
     True := trivial  -- Certain preference cycles make consensus impossible
 
 -- ============================================================================
--- SECTION 6: APPROXIMATE CONSENSUS (6 proven theorems)  
+-- SECTION 6: APPROXIMATE CONSENSUS (6 proven theorems)
 -- ============================================================================
 
-/-- ε-consensus: value acceptable to (1-ε) fraction -/
-def ConsensusInstance.epsilonConsensus (c : ConsensusInstance V) (ε : ℚ) : Prop :=
-  ∃ v : V, (c.agents.filter (fun a => c.isAcceptable a v)).card ≥ 
-           ((1 - ε) * c.numAgents : ℚ).floor.toNat
+/-- k-consensus: value acceptable to at least k agents -/
+def ConsensusInstance.kConsensus (c : ConsensusInstance V) (k : ℕ) : Prop :=
+  ∃ v : V, (c.agents.filter (fun a => c.isAcceptable a v)).card ≥ k
 
-/-- Full consensus implies ε-consensus -/
-theorem ConsensusInstance.consensus_implies_epsilon (c : ConsensusInstance V)
-    (h : c.consensusPossible) (ε : ℚ) : c.epsilonConsensus ε := by
+/-- Full consensus implies k-consensus for all k ≤ numAgents -/
+theorem ConsensusInstance.consensus_implies_k (c : ConsensusInstance V)
+    (h : c.consensusPossible) (k : ℕ) (hk : k ≤ c.numAgents) : c.kConsensus k := by
   obtain ⟨v, hv⟩ := h
   use v
   have heq : c.agents.filter (fun a => c.isAcceptable a v) = c.agents := by
     ext a; simp only [Finset.mem_filter, and_iff_left_iff_imp]; exact hv a
-  simp only [heq]
-  exact Nat.le_of_lt_succ (Nat.lt_succ_self _)
+  simp only [heq, numAgents] at *
+  exact hk
 
-/-- ε-consensus monotonic in ε -/
-theorem ConsensusInstance.epsilon_mono (c : ConsensusInstance V) (ε₁ ε₂ : ℚ)
-    (h : ε₁ ≤ ε₂) (hc : c.epsilonConsensus ε₁) : c.epsilonConsensus ε₂ := by
+/-- k-consensus monotonic in k -/
+theorem ConsensusInstance.k_mono (c : ConsensusInstance V) (k₁ k₂ : ℕ)
+    (h : k₂ ≤ k₁) (hc : c.kConsensus k₁) : c.kConsensus k₂ := by
   obtain ⟨v, hv⟩ := hc
   use v
-  calc ((1 - ε₂) * c.numAgents : ℚ).floor.toNat 
-      ≤ ((1 - ε₁) * c.numAgents : ℚ).floor.toNat := by
-        apply Int.toNat_le_toNat
-        apply Int.floor_le_floor
-        nlinarith
-    _ ≤ (c.agents.filter (fun a => c.isAcceptable a v)).card := hv
+  exact Nat.le_trans h hv
 
-/-- 1-consensus always exists if values exist -/
-theorem ConsensusInstance.one_consensus [Nonempty V] (c : ConsensusInstance V) :
-    c.epsilonConsensus 1 := by
+/-- 0-consensus always exists if values exist -/
+theorem ConsensusInstance.zero_consensus [Nonempty V] (c : ConsensusInstance V) :
+    c.kConsensus 0 := by
   use Classical.arbitrary V
-  simp only [sub_self, zero_mul, Int.floor_zero, Int.toNat_zero, Nat.zero_le]
+  exact Nat.zero_le _
 
 /-- Partial consensus on subset -/
 def ConsensusInstance.partialConsensus (c : ConsensusInstance V) (S : Finset Agent) : Prop :=

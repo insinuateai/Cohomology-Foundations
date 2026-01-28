@@ -94,6 +94,10 @@ def AgentNetwork.isEmpty (N : AgentNetwork) : Prop := N.agents = ∅
 /-- A network is trivial if it has at most one agent -/
 def AgentNetwork.isTrivial (N : AgentNetwork) : Prop := N.agents.card ≤ 1
 
+/-- Decidable instance for isTrivial -/
+instance AgentNetwork.decidableIsTrivial (N : AgentNetwork) : Decidable N.isTrivial :=
+  inferInstanceAs (Decidable (N.agents.card ≤ 1))
+
 /-- Size is always non-negative (trivial for ℕ but good to have) -/
 theorem AgentNetwork.size_nonneg (N : AgentNetwork) : 0 ≤ N.size :=
   Nat.zero_le _

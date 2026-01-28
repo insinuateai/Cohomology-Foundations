@@ -12,7 +12,7 @@ QUALITY STANDARDS:
 
 import Mathlib.Data.Finset.Basic
 import Mathlib.Data.Finset.Card
-import Mathlib.Data.Finset.Lattice
+import Mathlib.Data.Finset.Lattice.Basic
 import Mathlib.Logic.Function.Basic
 import MultiAgent.AgentNetworks
 
@@ -33,7 +33,10 @@ variable {F : Type*} [DecidableEq F]
 /-- A memory state is a finite set of facts an agent believes -/
 structure MemoryState (F : Type*) [DecidableEq F] where
   facts : Finset F
-  deriving DecidableEq, Repr
+
+instance [DecidableEq F] : DecidableEq (MemoryState F) :=
+  fun m₁ m₂ => decidable_of_iff (m₁.facts = m₂.facts)
+    ⟨fun h => by cases m₁; cases m₂; simp_all, fun h => by simp_all⟩
 
 /-- Number of facts in a memory -/
 def MemoryState.size (m : MemoryState F) : ℕ := m.facts.card
@@ -171,8 +174,10 @@ theorem AgentMemory.singleton_agents (a : Agent) (m : MemoryState F) :
 theorem AgentMemory.singleton_memory_self (a : Agent) (m : MemoryState F) : 
     (AgentMemory.singleton a m).memory a = m := by simp [singleton]
 
-theorem AgentMemory.singleton_memory_other (a b : Agent) (m : MemoryState F) (h : b ≠ a) : 
-    (AgentMemory.singleton a m).memory b = MemoryState.empty := by simp [singleton, h]
+theorem AgentMemory.singleton_memory_other (a b : Agent) (m : MemoryState F) (h : b ≠ a) :
+    (AgentMemory.singleton a m).memory b = MemoryState.empty := by
+  simp only [singleton]
+  rw [if_neg h]
 
 /-- Update an agent's memory -/
 def AgentMemory.updateMemory (am : AgentMemory F) (a : Agent) (m : MemoryState F) : AgentMemory F :=
@@ -276,8 +281,8 @@ theorem AgentMemory.singleton_toNetwork_agents (a : Agent) (m : MemoryState F) :
 
 theorem AgentMemory.singleton_toNetwork_trivial (a : Agent) (m : MemoryState F) :
     (AgentMemory.singleton a m).toNetwork.isTrivial := by
-  simp only [AgentNetwork.isTrivial, AgentNetwork.size, singleton_toNetwork_agents, 
-             Finset.card_singleton]
+  simp only [AgentNetwork.isTrivial, singleton_toNetwork_agents, Finset.card_singleton]
+  decide
 
 -- ============================================================================
 -- SECTION 6: PERSPECTIVE THEORY (8 proven theorems)
@@ -287,40 +292,43 @@ theorem AgentMemory.singleton_toNetwork_trivial (a : Agent) (m : MemoryState F) 
 abbrev Perspective (F : Type*) [DecidableEq F] := MemoryState F
 
 /-- One perspective extends another if it contains all the same facts -/
-def Perspective.extends (p₁ p₂ : Perspective F) : Prop :=
+def Perspective.extendsTo (p₁ p₂ : Perspective F) : Prop :=
   p₂.facts ⊆ p₁.facts
 
-theorem Perspective.extends_refl (p : Perspective F) : p.extends p := 
+theorem Perspective.extendsTo_refl (p : Perspective F) : p.extendsTo p :=
   Finset.Subset.refl _
 
-theorem Perspective.extends_trans (p₁ p₂ p₃ : Perspective F) 
-    (h₁ : p₁.extends p₂) (h₂ : p₂.extends p₃) : p₁.extends p₃ :=
+theorem Perspective.extendsTo_trans (p₁ p₂ p₃ : Perspective F)
+    (h₁ : p₁.extendsTo p₂) (h₂ : p₂.extendsTo p₃) : p₁.extendsTo p₃ :=
   Finset.Subset.trans h₂ h₁
 
-theorem Perspective.extends_antisymm (p₁ p₂ : Perspective F)
-    (h₁ : p₁.extends p₂) (h₂ : p₂.extends p₁) : p₁ = p₂ := by
+theorem Perspective.extendsTo_antisymm (p₁ p₂ : Perspective F)
+    (h₁ : p₁.extendsTo p₂) (h₂ : p₂.extendsTo p₁) : p₁ = p₂ := by
   cases p₁; cases p₂
-  simp only [extends, MemoryState.mk.injEq] at *
+  simp only [extendsTo, MemoryState.mk.injEq] at *
   exact Finset.Subset.antisymm h₂ h₁
 
-theorem Perspective.extends_empty (p : Perspective F) : 
-    p.extends MemoryState.empty := Finset.empty_subset _
+theorem Perspective.extendsTo_empty (p : Perspective F) :
+    p.extendsTo MemoryState.empty := Finset.empty_subset _
 
-theorem Perspective.empty_extends_iff (p : Perspective F) :
-    (MemoryState.empty : Perspective F).extends p ↔ p = MemoryState.empty := by
+theorem Perspective.empty_extendsTo_iff (p : Perspective F) :
+    Perspective.extendsTo MemoryState.empty p ↔ p = MemoryState.empty := by
   constructor
-  · intro h; cases p; simp only [extends, MemoryState.empty] at h
-    simp only [MemoryState.mk.injEq]; exact Finset.subset_empty.mp h
-  · intro h; rw [h]; exact extends_refl _
+  · intro h
+    cases p with | mk facts =>
+    simp only [extendsTo, MemoryState.empty] at h
+    have hf : facts = ∅ := Finset.subset_empty.mp h
+    simp only [hf, MemoryState.empty]
+  · intro h; rw [h]; exact extendsTo_refl _
 
 /-- Merge two perspectives -/
 def Perspective.merge (p₁ p₂ : Perspective F) : Perspective F := p₁.union p₂
 
-theorem Perspective.merge_extends_left (p₁ p₂ : Perspective F) :
-    (p₁.merge p₂).extends p₁ := Finset.subset_union_left
+theorem Perspective.merge_extendsTo_left (p₁ p₂ : Perspective F) :
+    (p₁.merge p₂).extendsTo p₁ := Finset.subset_union_left
 
-theorem Perspective.merge_extends_right (p₁ p₂ : Perspective F) :
-    (p₁.merge p₂).extends p₂ := Finset.subset_union_right
+theorem Perspective.merge_extendsTo_right (p₁ p₂ : Perspective F) :
+    (p₁.merge p₂).extendsTo p₂ := Finset.subset_union_right
 
 -- ============================================================================
 -- SECTION 7: GLOBAL AND LOCAL CONSISTENCY (6 proven + 2 axioms)
