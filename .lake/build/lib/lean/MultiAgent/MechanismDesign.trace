@@ -1,0 +1,100 @@
+{"synthetic": false,
+ "schemaVersion": "2025-09-10",
+ "outputs":
+ {"o": ["bebd2e8ebf2736bf.olean"],
+  "i": "d19cb2bf6c4ae560.ilean",
+  "c": "fc973fc028017bfa.c"},
+ "log":
+ [{"message":
+   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.27.0/bin/lean /workspaces/Cohomology-Foundations/MultiAgent/MechanismDesign.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/MultiAgent/MechanismDesign.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/MultiAgent/MechanismDesign.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/MultiAgent/MechanismDesign.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/MultiAgent/MechanismDesign.setup.json --json",
+   "level": "trace"},
+  {"message":
+   "MultiAgent/MechanismDesign.lean:63:24: unused variable `M`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/MechanismDesign.lean:81:24: unused variable `defaultOutcome`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message": "MultiAgent/MechanismDesign.lean:130:8: declaration uses 'sorry'",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/MechanismDesign.lean:180:29: unused variable `types`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message": "MultiAgent/MechanismDesign.lean:191:8: declaration uses 'sorry'",
+   "level": "warning"},
+  {"message": "MultiAgent/MechanismDesign.lean:222:8: declaration uses 'sorry'",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/MechanismDesign.lean:230:5: unused variable `hagents`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/MechanismDesign.lean:250:44: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/MechanismDesign.lean:257:60: This simp argument is unused:\n  AgentNetwork.size\n\nHint: Omit it from the simp argument list.\n  simp only [AgentNetwork.isForest, AgentNetwork.isTrivial, A̵g̵e̵n̵t̵N̵e̵t̵w̵o̵r̵k̵.̵s̵i̵z̵e̵,̵\n  ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵mechanismNetwork]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/MechanismDesign.lean:262:51: unused variable `u`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/MechanismDesign.lean:263:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/MechanismDesign.lean:279:51: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/MechanismDesign.lean:283:51: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/MechanismDesign.lean:291:43: unused variable `u`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/MechanismDesign.lean:301:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/MechanismDesign.lean:340:51: unused variable `valuations`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/MechanismDesign.lean:341:5: unused variable `hne`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/MechanismDesign.lean:368:49: unused variable `hne`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"}],
+ "inputs":
+ [["MultiAgent.MechanismDesign:deps",
+   [["deps",
+     [["CohomologyFoundations/MultiAgent:extraDep",
+       [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
+      ["imports",
+       [["Mathlib.Data.Finset.Basic transitive imports (legacy)",
+         "732f38f1e4c71d79"],
+        ["Mathlib.Data.Finset.Basic:importAllArts", "1ec6b155e2444648"],
+        ["Mathlib.Data.Finset.Card transitive imports (legacy)",
+         "68b38e56b1aa328f"],
+        ["Mathlib.Data.Finset.Card:importAllArts", "dfd1b2e7b41d681f"],
+        ["Mathlib.Data.Rat.Defs transitive imports (legacy)",
+         "de4fc737e93ac8f5"],
+        ["Mathlib.Data.Rat.Defs:importAllArts", "00a97e6c2a2e9d46"],
+        ["Mathlib.Algebra.Order.Field.Rat transitive imports (legacy)",
+         "8cb404d36ae11fde"],
+        ["Mathlib.Algebra.Order.Field.Rat:importAllArts", "158534099b5f7559"],
+        ["Mathlib.Algebra.BigOperators.Group.Finset.Basic transitive imports (legacy)",
+         "0a6362fb62507083"],
+        ["Mathlib.Algebra.BigOperators.Group.Finset.Basic:importAllArts",
+         "3b840309801c948c"],
+        ["MultiAgent.AgentNetworks transitive imports (legacy)",
+         "a3e63cf756af82b7"],
+        ["MultiAgent.AgentNetworks:importAllArts", "cbf756cec16e2238"]]]]],
+    ["libs",
+     [["import dynlibs", "00000000000006bb"],
+      ["package external libraries", "00000000000006bb"],
+      ["module dynlibs", "00000000000006bb"],
+      ["module plugins", "00000000000006bb"]]]]],
+  ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
+   "9a2be90fd35343e5"],
+  ["/workspaces/Cohomology-Foundations/MultiAgent/MechanismDesign.lean",
+   "355191819df16be4"],
+  ["options",
+   [["-Dpp.unicode.fun=true", "9b94070140457fab"],
+    ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
+  ["Module.leanArgs: #[]", "00000000000006bb"]],
+ "depHash": "b88a1385175c4c81"}
