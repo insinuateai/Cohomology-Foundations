@@ -23,3 +23,6 @@ name = "Perspective"
 
 [[lean_lib]]
 name = "AgentCoordination"
+
+[[lean_lib]]
+name = "MultiAgent"
