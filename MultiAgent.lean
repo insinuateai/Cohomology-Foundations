@@ -4,3 +4,8 @@ import MultiAgent.MemoryConsistency
 import MultiAgent.CoordinationTopology
 import MultiAgent.ConsensusObstruction
 import MultiAgent.ScalableH1
+import MultiAgent.ObservationalEquivalence
+import MultiAgent.PerspectiveSheaf
+import MultiAgent.LensFormalism
+import MultiAgent.EncounterPrimitives
+import MultiAgent.GlobalLocalDuality
