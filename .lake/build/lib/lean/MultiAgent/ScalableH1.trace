@@ -1,0 +1,60 @@
+{"synthetic": false,
+ "schemaVersion": "2025-09-10",
+ "outputs":
+ {"o": ["c93bc7372b0bc0c9.olean"],
+  "i": "6a3e35ef5a592dc5.ilean",
+  "c": "4dafd6e715c57947.c"},
+ "log":
+ [{"message":
+   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.26.0/bin/lean /workspaces/Cohomology-Foundations/MultiAgent/ScalableH1.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/MultiAgent/ScalableH1.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/MultiAgent/ScalableH1.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/MultiAgent/ScalableH1.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/MultiAgent/ScalableH1.setup.json --json",
+   "level": "trace"},
+  {"message":
+   "MultiAgent/ScalableH1.lean:184:42: unused variable `N`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/ScalableH1.lean:205:42: unused variable `N`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/ScalableH1.lean:323:35: unused variable `N`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/ScalableH1.lean:327:35: unused variable `N`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/ScalableH1.lean:338:42: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/ScalableH1.lean:361:34: unused variable `N`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"}],
+ "inputs":
+ [["MultiAgent.ScalableH1:deps",
+   [["deps",
+     [["CohomologyFoundations/MultiAgent:extraDep",
+       [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
+      ["imports",
+       [["Mathlib.Data.Finset.Basic transitive imports (legacy)",
+         "77a84be61c8ea562"],
+        ["Mathlib.Data.Finset.Basic:importAllArts", "c4c3c73d1e5c9d34"],
+        ["Mathlib.Data.Finset.Card transitive imports (legacy)",
+         "2114d0a4bbc2b326"],
+        ["Mathlib.Data.Finset.Card:importAllArts", "31a32c8cd5d267a2"],
+        ["Mathlib.Data.Nat.Basic transitive imports (legacy)",
+         "d62d24c81088400e"],
+        ["Mathlib.Data.Nat.Basic:importAllArts", "6180dd46882126e7"],
+        ["MultiAgent.AgentNetworks transitive imports (legacy)",
+         "adc5558d0990befa"],
+        ["MultiAgent.AgentNetworks:importAllArts", "fe79537b8f10620d"]]]]],
+    ["libs",
+     [["import dynlibs", "00000000000006bb"],
+      ["package external libraries", "00000000000006bb"],
+      ["module dynlibs", "00000000000006bb"],
+      ["module plugins", "00000000000006bb"]]]]],
+  ["Lean 4.26.0, commit d8204c9fd894f91bbb2cdfec5912ec8196fd8562",
+   "9c9419104e9584f8"],
+  ["/workspaces/Cohomology-Foundations/MultiAgent/ScalableH1.lean",
+   "3bfd97f8511d1f20"],
+  ["options",
+   [["-Dpp.unicode.fun=true", "9b94070140457fab"],
+    ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
+  ["Module.leanArgs: #[]", "00000000000006bb"]],
+ "depHash": "13b54933a9710630"}
