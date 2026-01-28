@@ -1,8 +1,8 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["47bd508a19d78fcb.olean"],
-  "i": "f399cc56f76feaa2.ilean",
+ {"o": ["cab36f74c8e2dbb4.olean"],
+  "i": "3c8c6e1b55b7f1d3.ilean",
   "c": "e35bb4e15b6700d9.c"},
  "log":
  [{"message":
@@ -53,8 +53,8 @@
         ["Mathlib.Algebra.Order.BigOperators.Group.Finset:importAllArts",
          "329e548710a04a14"],
         ["MultiAgent.AgentNetworks transitive imports (legacy)",
-         "a3e63cf756af82b7"],
-        ["MultiAgent.AgentNetworks:importAllArts", "cbf756cec16e2238"]]]]],
+         "3e0d5f3bbf7fb5d0"],
+        ["MultiAgent.AgentNetworks:importAllArts", "d1e6bf35e938cf75"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
@@ -68,4 +68,4 @@
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "bbdc402594a4d1cc"}
+ "depHash": "a3305c78061be2be"}

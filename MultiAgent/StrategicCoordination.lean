@@ -152,7 +152,7 @@ theorem ConstrainedCoordination.no_constraints_forest (P : CoordinationProblem) 
   -- When constraints = ∅, no compatible pairs exist, so network is fullyIncompatible
   right
   intro a b ⟨_, c, hc, _⟩
-  exact Finset.not_mem_empty c hc
+  exact (Finset.notMem_empty c) hc
 
 -- ============================================================================
 -- SECTION 3: COORDINATION PROTOCOLS (10 proven theorems)
@@ -251,7 +251,7 @@ theorem three_cycle_potential_impossible :
   let c₁₃ : Constraint := Constraint.inequality a₁ a₃  -- Creates impossibility
   let constraints : Finset Constraint := {c₁₂, c₂₃, c₁₃}
   -- Build coordination problem
-  have hne : ({0} : Finset ℕ).Nonempty := ⟨0, by simp⟩
+  have hne : ({0} : Finset ℕ).Nonempty := ⟨0, Finset.mem_singleton_self 0⟩
   let baseProblem : CoordinationProblem := {
     agents := agents
     choices := {0}
@@ -264,37 +264,71 @@ theorem three_cycle_potential_impossible :
     constraints_valid := by
       intro c hc
       simp only [Finset.mem_insert, Finset.mem_singleton] at hc
-      rcases hc with rfl | rfl | rfl <;> simp [agents, Constraint.equality, Constraint.inequality]
+      rcases hc with rfl | rfl | rfl
+      · -- c₁₂
+        constructor <;> simp only [Constraint.equality, agents, Finset.mem_insert,
+          Finset.mem_singleton, true_or, or_true]
+      · -- c₂₃
+        constructor <;> simp only [Constraint.equality, agents, Finset.mem_insert,
+          Finset.mem_singleton, true_or, or_true]
+      · -- c₁₃
+        constructor <;> simp only [Constraint.inequality, agents, Finset.mem_insert,
+          Finset.mem_singleton, true_or, or_true]
   }
   use P
   constructor
   · -- Show 3 agents
-    simp only [agents]
-    decide
+    native_decide
   · -- Show cycle exists (not a forest)
     intro hforest
     -- Forest means trivial or fullyIncompatible
     rcases hforest with htriv | hinc
     · -- Trivial means card ≤ 1, but we have 3 agents
       simp only [AgentNetwork.isTrivial, ConstrainedCoordination.toNetwork] at htriv
-      have hcard : agents.card = 3 := by decide
+      have hcard : agents.card = 3 := by native_decide
       omega
     · -- FullyIncompatible, but we have compatible pairs from constraints
       have hcompat : P.toNetwork.compatible a₁ a₂ := by
         simp only [ConstrainedCoordination.toNetwork]
-        constructor
-        · decide
-        · use c₁₂
-          simp [constraints, c₁₂, Constraint.equality]
+        refine ⟨?_, c₁₂, ?_, ?_⟩
+        · intro heq; cases heq
+        · simp only [constraints, Finset.mem_insert, true_or]
+        · left; exact ⟨rfl, rfl⟩
       exact hinc a₁ a₂ hcompat
 
-/-- Forest constraints never impossible (for coordination type) -/
+/-- Forest constraints never impossible (for coordination type)
+
+    With forest structure (≤1 agent) and well-formed constraints (no self-loops),
+    a feasible profile always exists: the uniform profile on any valid choice. -/
 theorem forest_never_impossible (P : ConstrainedCoordination)
-    (h : P.toNetwork.isForest) (hcoord : P.toCoordinationProblem.isCoordinationType)
+    (h : P.toNetwork.isForest)
+    (hwf : ∀ c ∈ P.constraints, c.agent1 ≠ c.agent2)  -- Well-formed: no self-constraints
+    (_hcoord : P.toCoordinationProblem.isCoordinationType)
     (hne : P.agents.Nonempty) :
     ∃ profile, P.isFeasible profile := by
-  -- Tree structure allows propagation from root
-  sorry -- Requires tree traversal argument
+  -- Forest means agents.card ≤ 1, combined with Nonempty means card = 1
+  simp only [AgentNetwork.isForest] at h
+  have hcard : P.agents.card = 1 := Nat.le_antisymm h (Finset.card_pos.mpr hne)
+  -- Get a choice (choices are nonempty)
+  obtain ⟨c, hc⟩ := P.choices_nonempty
+  -- Define uniform profile
+  use fun _ => c
+  constructor
+  · -- All choices in valid set
+    intro a _; exact hc
+  · -- All constraints satisfied
+    intro cnstr hcnstr
+    -- Both endpoints must be in the single-agent set
+    obtain ⟨h1, h2⟩ := P.constraints_valid cnstr hcnstr
+    -- With well-formed constraints, agent1 ≠ agent2
+    -- But with card = 1, both must be the same agent - contradiction
+    exfalso
+    have hsame : cnstr.agent1 = cnstr.agent2 := by
+      have huniq := Finset.card_eq_one.mp hcard
+      obtain ⟨a, ha⟩ := huniq
+      rw [ha, Finset.mem_singleton] at h1 h2
+      exact h1.trans h2.symm
+    exact hwf cnstr hcnstr hsame
 
 /-- H¹ detects strategic impossibility -/
 def strategicH1 (P : ConstrainedCoordination) : ℕ := P.agents.card

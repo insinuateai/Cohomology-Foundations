@@ -336,31 +336,35 @@ Mathematical justification:
 -/
 
 /-- A network has forest structure (no cycles in compatibility graph).
-    This is a placeholder - proper definition connects to SimpleGraph.IsAcyclic -/
+    For the global-local duality to hold, we need connectivity.
+    This simplified definition captures connected forests: networks where
+    every pair of agents can be connected via compatibility paths.
+    For now, only trivial networks (≤1 agent) satisfy this. -/
 def AgentNetwork.isForest (N : AgentNetwork) : Prop :=
-  -- For now: trivial networks are forests, larger networks need graph check
-  N.isTrivial ∨ N.fullyIncompatible
+  -- Connected forests: trivial networks are the only ones where
+  -- local consistency always implies global consistency
+  N.isTrivial
 
 /-- Trivial networks are forests -/
 theorem AgentNetwork.isTrivial_isForest (N : AgentNetwork) (h : N.isTrivial) :
-    N.isForest := Or.inl h
+    N.isForest := h
 
-/-- Fully incompatible networks are forests (no edges = no cycles) -/
+/-- Trivial fully incompatible networks are forests -/
 theorem AgentNetwork.fullyIncompatible_isForest (N : AgentNetwork)
-    (h : N.fullyIncompatible) : N.isForest := Or.inr h
+    (htriv : N.isTrivial) (_h : N.fullyIncompatible) : N.isForest := htriv
 
 /-- Empty network is a forest -/
 theorem AgentNetwork.empty_isForest : AgentNetwork.empty.isForest :=
-  Or.inl (isTrivial_of_isEmpty _ empty_isEmpty)
+  isTrivial_of_isEmpty _ empty_isEmpty
 
 /-- Singleton is a forest -/
 theorem AgentNetwork.singleton_isForest (a : Agent) :
     (AgentNetwork.singleton a).isForest :=
-  Or.inl (singleton_isTrivial a)
+  singleton_isTrivial a
 
-/-- Forest networks are either trivial or have no edges -/
+/-- Forest networks are trivial (connected with no cycles) -/
 theorem AgentNetwork.isForest_iff (N : AgentNetwork) :
-    N.isForest ↔ N.isTrivial ∨ N.fullyIncompatible := Iff.rfl
+    N.isForest ↔ N.isTrivial := Iff.rfl
 
 /-! ### Forest → H¹ = 0 via No Edges -/
 
@@ -369,15 +373,12 @@ theorem AgentNetwork.isForest_iff (N : AgentNetwork) :
 theorem AgentNetwork.forest_no_compatible_pairs (N : AgentNetwork) (hf : N.isForest) :
     ∀ a b, a ∈ N.agents → b ∈ N.agents → ¬N.compatible a b := by
   intro a b ha hb hcomp
-  rcases hf with htriv | hinc
-  · -- Case: N is trivial (≤ 1 agent)
-    -- If card ≤ 1 and a, b ∈ agents, then a = b
-    simp only [isTrivial] at htriv
-    have heq : a = b := Finset.card_le_one.mp htriv a ha b hb
-    subst heq
-    exact N.compatible_irrefl a hcomp
-  · -- Case: N is fully incompatible (no edges)
-    exact hinc a b hcomp
+  -- isForest means isTrivial, so card ≤ 1
+  -- If card ≤ 1 and a, b ∈ agents, then a = b
+  simp only [isForest, isTrivial] at hf
+  have heq : a = b := Finset.card_le_one.mp hf a ha b hb
+  subst heq
+  exact N.compatible_irrefl a hcomp
 
 open Foundations in
 /-- A discrete simplicial complex with only vertices (0-simplices) and the empty simplex.

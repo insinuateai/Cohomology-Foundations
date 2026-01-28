@@ -207,12 +207,12 @@ theorem EncounterSystem.inquire_not_symm (sys : EncounterSystem)
     (hasym : ∃ b c : Agent, (sys.encounter b c).exp1of2.content ≠ (sys.encounter c b).exp1of2.content) :
     ∃ a b c, sys.inquire a b c ≠ sys.inquire c b a := by
   obtain ⟨b, c, hne⟩ := hasym
-  -- For any a, inquire a b c gets (encounter b c).exp1of2.content
-  -- and inquire c b a gets (encounter b a).exp1of2.content
-  -- If b=c these are related to hne
+  -- inquire a b c has content = (encounter b c).exp1of2.content
+  -- inquire c b a has content = (encounter b a).exp1of2.content
   use b, b, c
-  simp only [inquire, InquireResult.mk.injEq, not_and, not_forall, exists_prop]
-  exact fun _ _ _ => hne
+  simp only [inquire, ne_eq, InquireResult.mk.injEq, not_and]
+  intro _ _ _
+  exact hne
 
 /-- Self-inquire through self -/
 def EncounterSystem.selfInquire (sys : EncounterSystem) (a : Agent) : InquireResult :=
@@ -334,14 +334,20 @@ theorem no_universal_observer (sys : EncounterSystem) (h : sys.agents.card ≥ 2
       (sys.encounter u a).exp1of2.content = (sys.encounter a b).exp1of2.content := by
   intro ⟨u, hu, huniv⟩
   obtain ⟨a, b, c, d, ha, hb, hc, hd, hne⟩ := hdiverse
-  -- u's encounter with a equals a's encounter with b
+  -- huniv a ha b hb : (encounter u a) = (encounter a b)
   have h1 := huniv a ha b hb
-  -- u's encounter with c equals c's encounter with d
+  -- huniv c hc d hd : (encounter u c) = (encounter c d)
   have h2 := huniv c hc d hd
-  -- u's encounter with a equals u's encounter with c (transitively through u)
-  have h3 := huniv a ha c hc
-  -- Contradiction: ab ≠ cd but both equal u's perspective
-  exact hne (h1.symm.trans (huniv a ha c hc).trans h2)
+  -- huniv u hu a ha : (encounter u u) = (encounter u a)
+  have h3 := huniv u hu a ha
+  -- huniv u hu c hc : (encounter u u) = (encounter u c)
+  have h4 := huniv u hu c hc
+  -- Chain: ab = ua (by h1.symm) = uu (by h3.symm) = uc (by h4) = cd (by h2)
+  have hab_eq_ua : (sys.encounter a b).exp1of2.content = (sys.encounter u a).exp1of2.content := h1.symm
+  have hua_eq_uu : (sys.encounter u a).exp1of2.content = (sys.encounter u u).exp1of2.content := h3.symm
+  have huu_eq_uc : (sys.encounter u u).exp1of2.content = (sys.encounter u c).exp1of2.content := h4
+  have huc_eq_cd : (sys.encounter u c).exp1of2.content = (sys.encounter c d).exp1of2.content := h2
+  exact hne (hab_eq_ua.trans (hua_eq_uu.trans (huu_eq_uc.trans huc_eq_cd)))
 
 /-- Theorem: Encounter creates information -/
 theorem encounter_creates_info (sys : EncounterSystem) (a b : Agent) 

@@ -15,6 +15,7 @@ extern "C" {
 #endif
 lean_object* l_List_lengthTR___redArg(lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_Mechanism_dictatorial(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* lp_CohomologyFoundations_MultiAgent_Mechanism_majority___closed__1;
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_mechanismH1(lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_Mechanism_dictatorial___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_mechanismH1___boxed(lean_object*);
@@ -24,6 +25,7 @@ LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_matchingMechanism__
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_Finset_image___at___00MultiAgent_matchingMechanism_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t lp_CohomologyFoundations___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___00List_foldrTR___at___00List_pwFilter___at___00List_dedup___at___00Multiset_dedup___at___00Multiset_toFinset___at___00Finset_image___at___00MultiAgent_matchingMechanism_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___lam__0(lean_object*, uint8_t, lean_object*);
+lean_object* lp_CohomologyFoundations_Multiset_ndinsert___at___00Foundations_Simplex_edge_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_Mechanism_constant(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_Mechanism_numAgents(lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_Mechanism_numOutcomes___boxed(lean_object*);
@@ -47,7 +49,6 @@ LEAN_EXPORT lean_object* lp_CohomologyFoundations_Multiset_dedup___at___00Multis
 static lean_object* lp_CohomologyFoundations_MultiAgent_auctionMechanism___closed__0;
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_Mechanism_numAgents___boxed(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-uint8_t lp_mathlib_List_elem___at___00__private_Mathlib_Tactic_Translate_Core_0__Mathlib_Tactic_Translate_applyReplacementFun_visitApp_spec__0(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_Finset_image___at___00MultiAgent_matchingMechanism_spec__0(lean_object*, lean_object*, lean_object*);
 static lean_object* lp_CohomologyFoundations_MultiAgent_Mechanism_majority___closed__0;
@@ -64,7 +65,6 @@ static lean_object* lp_CohomologyFoundations_MultiAgent_matchingMechanism___clos
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___00List_foldrTR___at___00List_pwFilter___at___00List_dedup___at___00Multiset_dedup___at___00Multiset_toFinset___at___00Finset_image___at___00MultiAgent_matchingMechanism_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0(lean_object*, size_t, size_t, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* lp_CohomologyFoundations_Multiset_ndinsert___at___00MultiAgent_Mechanism_majority_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_mechanismNetwork___boxed(lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_Mechanism_constant___lam__0___boxed(lean_object*, lean_object*);
 uint8_t l_List_decidableBAll___redArg(lean_object*, lean_object*);
@@ -198,26 +198,6 @@ lean_inc(x_1);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* lp_CohomologyFoundations_Multiset_ndinsert___at___00MultiAgent_Mechanism_majority_spec__0(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; 
-x_3 = lp_mathlib_List_elem___at___00__private_Mathlib_Tactic_Translate_Core_0__Mathlib_Tactic_Translate_applyReplacementFun_visitApp_spec__0(x_1, x_2);
-if (x_3 == 0)
-{
-lean_object* x_4; 
-x_4 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
-return x_4;
-}
-else
-{
-lean_dec(x_1);
-return x_2;
-}
-}
-}
 static lean_object* _init_lp_CohomologyFoundations_MultiAgent_Mechanism_majority___closed__0() {
 _start:
 {
@@ -227,6 +207,16 @@ x_2 = lean_unsigned_to_nat(1u);
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
+return x_3;
+}
+}
+static lean_object* _init_lp_CohomologyFoundations_MultiAgent_Mechanism_majority___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lp_CohomologyFoundations_MultiAgent_Mechanism_majority___closed__0;
+x_2 = lean_unsigned_to_nat(0u);
+x_3 = lp_CohomologyFoundations_Multiset_ndinsert___at___00Foundations_Simplex_edge_spec__0(x_2, x_1);
 return x_3;
 }
 }
@@ -243,18 +233,17 @@ return x_3;
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_Mechanism_majority(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_3 = lean_unsigned_to_nat(0u);
 x_4 = lean_alloc_closure((void*)(lp_CohomologyFoundations_MultiAgent_Mechanism_majority___lam__0___boxed), 2, 1);
 lean_closure_set(x_4, 0, x_3);
-x_5 = lp_CohomologyFoundations_MultiAgent_Mechanism_majority___closed__0;
-x_6 = lp_CohomologyFoundations_Multiset_ndinsert___at___00MultiAgent_Mechanism_majority_spec__0(x_3, x_5);
-x_7 = lean_alloc_ctor(0, 4, 0);
-lean_ctor_set(x_7, 0, x_1);
-lean_ctor_set(x_7, 1, x_2);
-lean_ctor_set(x_7, 2, x_6);
-lean_ctor_set(x_7, 3, x_4);
-return x_7;
+x_5 = lp_CohomologyFoundations_MultiAgent_Mechanism_majority___closed__1;
+x_6 = lean_alloc_ctor(0, 4, 0);
+lean_ctor_set(x_6, 0, x_1);
+lean_ctor_set(x_6, 1, x_2);
+lean_ctor_set(x_6, 2, x_5);
+lean_ctor_set(x_6, 3, x_4);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_mechanismNetwork(lean_object* x_1) {
@@ -598,6 +587,8 @@ lp_CohomologyFoundations_MultiAgent_Mechanism_dictatorial___redArg___closed__0 =
 lean_mark_persistent(lp_CohomologyFoundations_MultiAgent_Mechanism_dictatorial___redArg___closed__0);
 lp_CohomologyFoundations_MultiAgent_Mechanism_majority___closed__0 = _init_lp_CohomologyFoundations_MultiAgent_Mechanism_majority___closed__0();
 lean_mark_persistent(lp_CohomologyFoundations_MultiAgent_Mechanism_majority___closed__0);
+lp_CohomologyFoundations_MultiAgent_Mechanism_majority___closed__1 = _init_lp_CohomologyFoundations_MultiAgent_Mechanism_majority___closed__1();
+lean_mark_persistent(lp_CohomologyFoundations_MultiAgent_Mechanism_majority___closed__1);
 lp_CohomologyFoundations_MultiAgent_auctionMechanism___closed__0 = _init_lp_CohomologyFoundations_MultiAgent_auctionMechanism___closed__0();
 lean_mark_persistent(lp_CohomologyFoundations_MultiAgent_auctionMechanism___closed__0);
 lp_CohomologyFoundations_MultiAgent_matchingMechanism___closed__0 = _init_lp_CohomologyFoundations_MultiAgent_matchingMechanism___closed__0();

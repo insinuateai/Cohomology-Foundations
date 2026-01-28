@@ -13,42 +13,60 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_ConsistentAgentSystem_empty(lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_ConsistentRAGSystem___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_Presheaf_constant(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_ConsistentAgentSystem_const___redArg___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_coboundary0___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_Presheaf_intPresheaf___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_Presheaf_trivial___lam__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_ragPerspectiveSheaf___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_perspectiveSheaf___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_Presheaf_sum___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_ConsistentAgentSystem_empty___boxed(lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_Presheaf_sum___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_sessionPerspectiveSheaf(lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_ConsistentAgentSystem_instCoeFunForallAgentFinsetNat___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_chatPerspectiveSheaf___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_coboundary0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_ConsistentRAGSystem(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_ragPerspectiveSheaf(lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_ConsistentAgentSystem_getData(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_Presheaf_intPresheaf___lam__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_ConsistentAgentSystem_empty___lam__0___boxed(lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_ConsistentAgentSystem_const(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_Presheaf_trivial___lam__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_perspectiveSheaf___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_ragPerspectiveSheaf___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_Presheaf_constant___redArg___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_Presheaf_localSection___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_Presheaf_natPresheaf___lam__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_ConsistentAgentSystem_instCoeFunForallAgentFinsetNat(lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_Presheaf_intPresheaf(lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_chatPerspectiveSheaf___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_chatPerspectiveSheaf(lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_Presheaf_constant___redArg(lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_ConsistentAgentSystem_getData___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_Presheaf_localSection(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_ConsistentAgentSystem_const___redArg(lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_Presheaf_trivial___lam__0___boxed(lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_ConsistentAgentSystem_empty___lam__0(lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_Presheaf_constant___redArg___lam__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_Presheaf_trivial___lam__0(lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_ConsistentAgentSystem_const___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_sessionPerspectiveSheaf___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_Presheaf_natPresheaf(lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_Presheaf_sum___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_Presheaf_constant___redArg___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_ConsistentAgentSystem_const___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_Presheaf_natPresheaf___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_Presheaf_constant___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_ConsistentAgentSystem_getData___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_Presheaf_sum(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_ConsistentRAGSystem___redArg(lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_sessionPerspectiveSheaf___lam__0___boxed(lean_object*, lean_object*);
 lean_object* l_List_getD___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_ConsistentAgentSystem_instCoeFunForallAgentFinsetNat___boxed(lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_perspectiveSheaf(lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_Presheaf_trivial;
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_Presheaf_constant___redArg___lam__0(lean_object* x_1, lean_object* x_2) {
@@ -303,6 +321,134 @@ x_6 = lp_CohomologyFoundations_MultiAgent_coboundary0___redArg(x_2, x_3, x_4, x_
 return x_6;
 }
 }
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_ConsistentAgentSystem_instCoeFunForallAgentFinsetNat___lam__0(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_apply_1(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_ConsistentAgentSystem_instCoeFunForallAgentFinsetNat(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(lp_CohomologyFoundations_MultiAgent_ConsistentAgentSystem_instCoeFunForallAgentFinsetNat___lam__0), 2, 0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_ConsistentAgentSystem_instCoeFunForallAgentFinsetNat___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lp_CohomologyFoundations_MultiAgent_ConsistentAgentSystem_instCoeFunForallAgentFinsetNat(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_ConsistentAgentSystem_empty___lam__0(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_box(0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_ConsistentAgentSystem_empty___lam__0___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lp_CohomologyFoundations_MultiAgent_ConsistentAgentSystem_empty___lam__0(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_ConsistentAgentSystem_empty(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(lp_CohomologyFoundations_MultiAgent_ConsistentAgentSystem_empty___lam__0___boxed), 1, 0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_ConsistentAgentSystem_empty___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lp_CohomologyFoundations_MultiAgent_ConsistentAgentSystem_empty(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_ConsistentAgentSystem_const___redArg___lam__0(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_ConsistentAgentSystem_const___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lp_CohomologyFoundations_MultiAgent_ConsistentAgentSystem_const___redArg___lam__0(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_ConsistentAgentSystem_const(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(lp_CohomologyFoundations_MultiAgent_ConsistentAgentSystem_const___redArg___lam__0___boxed), 2, 1);
+lean_closure_set(x_3, 0, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_ConsistentAgentSystem_const___redArg(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(lp_CohomologyFoundations_MultiAgent_ConsistentAgentSystem_const___redArg___lam__0___boxed), 2, 1);
+lean_closure_set(x_2, 0, x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_ConsistentAgentSystem_const___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lp_CohomologyFoundations_MultiAgent_ConsistentAgentSystem_const(x_1, x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_ConsistentAgentSystem_getData(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_apply_1(x_2, x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_ConsistentAgentSystem_getData___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_apply_1(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_ConsistentAgentSystem_getData___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lp_CohomologyFoundations_MultiAgent_ConsistentAgentSystem_getData(x_1, x_2, x_3);
+lean_dec(x_1);
+return x_4;
+}
+}
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_perspectiveSheaf___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -414,6 +560,32 @@ x_2 = lean_alloc_closure((void*)(lp_CohomologyFoundations_MultiAgent_sessionPers
 lean_closure_set(x_2, 0, x_1);
 x_3 = lp_CohomologyFoundations_MultiAgent_perspectiveSheaf(x_2);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_ConsistentRAGSystem___redArg(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(lp_CohomologyFoundations_MultiAgent_ragPerspectiveSheaf___lam__0___boxed), 2, 1);
+lean_closure_set(x_2, 0, x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_ConsistentRAGSystem(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lp_CohomologyFoundations_MultiAgent_ConsistentRAGSystem___redArg(x_2);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_ConsistentRAGSystem___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lp_CohomologyFoundations_MultiAgent_ConsistentRAGSystem(x_1, x_2, x_3);
+lean_dec(x_1);
+return x_4;
 }
 }
 lean_object* initialize_Init(uint8_t builtin);

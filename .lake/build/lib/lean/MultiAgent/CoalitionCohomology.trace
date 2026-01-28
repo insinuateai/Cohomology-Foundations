@@ -1,8 +1,8 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["41f158c0e10c7308.olean"],
-  "i": "e900d9bd06ee17d2.ilean",
+ {"o": ["5b042fb0fef915e7.olean"],
+  "i": "c6664a26d43ee2df.ilean",
   "c": "0e038c8fbf389312.c"},
  "log":
  [{"message":
@@ -36,16 +36,16 @@
    "MultiAgent/CoalitionCohomology.lean:260:8: declaration uses 'sorry'",
    "level": "warning"},
   {"message":
-   "MultiAgent/CoalitionCohomology.lean:266:8: declaration uses 'sorry'",
+   "MultiAgent/CoalitionCohomology.lean:267:35: unused variable `hs`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/CoalitionCohomology.lean:274:26: unused variable `G`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/CoalitionCohomology.lean:290:26: unused variable `G`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/CoalitionCohomology.lean:287:8: declaration uses 'sorry'",
+   "MultiAgent/CoalitionCohomology.lean:303:8: declaration uses 'sorry'",
    "level": "warning"},
   {"message":
-   "MultiAgent/CoalitionCohomology.lean:314:31: unused variable `G`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/CoalitionCohomology.lean:330:31: unused variable `G`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"}],
  "inputs":
  [["MultiAgent.CoalitionCohomology:deps",
@@ -80,9 +80,9 @@
   ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
    "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/MultiAgent/CoalitionCohomology.lean",
-   "92bf22dae7a82b58"],
+   "bafaf75ae252cfce"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "315922c85b8f0fbd"}
+ "depHash": "1c1aba7496f4f5d9"}
