@@ -1,21 +1,18 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["f77a6b08b237eac3.olean"],
-  "i": "e021d259a1eb164a.ilean",
-  "c": "580160d6de6213d0.c"},
+ {"o": ["c050cbe6832f5658.olean"],
+  "i": "a673e22595223b58.ilean",
+  "c": "175ffc62bbfac852.c"},
  "log":
  [{"message":
-   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.26.0/bin/lean /workspaces/Cohomology-Foundations/Perspective/FairnessFoundations.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/FairnessFoundations.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/FairnessFoundations.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/FairnessFoundations.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/FairnessFoundations.setup.json --json",
+   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.27.0/bin/lean /workspaces/Cohomology-Foundations/Perspective/FairnessFoundations.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/FairnessFoundations.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/FairnessFoundations.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/FairnessFoundations.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/FairnessFoundations.setup.json --json",
    "level": "trace"},
   {"message":
    "Perspective/FairnessFoundations.lean:121:33: unused variable `i`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
    "Perspective/FairnessFoundations.lean:121:35: unused variable `j`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
-   "level": "warning"},
-  {"message":
-   "Perspective/FairnessFoundations.lean:168:9: `Finset.not_mem_empty` has been deprecated: Use `Finset.notMem_empty` instead",
    "level": "warning"},
   {"message":
    "Perspective/FairnessFoundations.lean:278:0: automatically included section variable(s) unused in theorem `FairnessFoundations.fair_aligned_harder`:\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
@@ -30,19 +27,19 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["Perspective.FluctuationBounds transitive imports (legacy)",
-         "643811a1f7e37e71"],
-        ["Perspective.FluctuationBounds:importAllArts", "cac0417e4ed1e3bd"]]]]],
+         "ba1094480ea5232e"],
+        ["Perspective.FluctuationBounds:importAllArts", "55a36039c2d81ffe"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
       ["module dynlibs", "00000000000006bb"],
       ["module plugins", "00000000000006bb"]]]]],
-  ["Lean 4.26.0, commit d8204c9fd894f91bbb2cdfec5912ec8196fd8562",
-   "9c9419104e9584f8"],
+  ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
+   "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/Perspective/FairnessFoundations.lean",
-   "e5bdd8c7664dc75b"],
+   "aece0b141c6c9ffc"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "91b37a671f396462"}
+ "depHash": "4ccc994fd4409337"}

@@ -1,12 +1,12 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["7e07667726f9206f.olean"],
-  "i": "42b66c2c2ebfdfeb.ilean",
-  "c": "e9e43511732ad793.c"},
+ {"o": ["1d1dc3dd3fc98133.olean"],
+  "i": "38da61ca54465130.ilean",
+  "c": "3181ae78df6ee73b.c"},
  "log":
  [{"message":
-   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.26.0/bin/lean /workspaces/Cohomology-Foundations/Perspective/LeximinGeodesics.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/LeximinGeodesics.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/LeximinGeodesics.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/LeximinGeodesics.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/LeximinGeodesics.setup.json --json",
+   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.27.0/bin/lean /workspaces/Cohomology-Foundations/Perspective/LeximinGeodesics.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/LeximinGeodesics.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/LeximinGeodesics.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/LeximinGeodesics.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/LeximinGeodesics.setup.json --json",
    "level": "trace"},
   {"message":
    "Perspective/LeximinGeodesics.lean:223:50: unused variable `feasible`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
@@ -18,20 +18,20 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["Perspective.FairnessAlignmentTradeoff transitive imports (legacy)",
-         "b11a72d11b012fbd"],
+         "20e476aa815d0a13"],
         ["Perspective.FairnessAlignmentTradeoff:importAllArts",
-         "5603f2b41a9d3b30"]]]]],
+         "f07129304721e512"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
       ["module dynlibs", "00000000000006bb"],
       ["module plugins", "00000000000006bb"]]]]],
-  ["Lean 4.26.0, commit d8204c9fd894f91bbb2cdfec5912ec8196fd8562",
-   "9c9419104e9584f8"],
+  ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
+   "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/Perspective/LeximinGeodesics.lean",
    "5e95cf5fec758cc3"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "1ad2af5f960b3f6f"}
+ "depHash": "429cf6d1b4249683"}

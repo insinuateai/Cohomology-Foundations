@@ -164,7 +164,7 @@ theorem envy_free_iff_no_edges (valuations : Fin n → Fin n → ℚ) (alloc : F
   · intro h
     rw [Finset.card_eq_zero]
     ext p
-    simp only [Finset.mem_filter, Finset.mem_univ, true_and, Finset.not_mem_empty, iff_false]
+    simp only [Finset.mem_filter, Finset.mem_univ, true_and, Finset.notMem_empty, iff_false]
     exact h p.1 p.2
   · intro h i j
     rw [Finset.card_eq_zero] at h
@@ -173,7 +173,7 @@ theorem envy_free_iff_no_edges (valuations : Fin n → Fin n → ℚ) (alloc : F
       simp only [Finset.mem_filter, Finset.mem_univ, true_and]
       exact henv
     rw [h] at this
-    exact Finset.not_mem_empty _ this
+    exact Finset.notMem_empty _ this
 
 /-! ## Part 4: Envy Cycles -/
 
@@ -273,7 +273,7 @@ theorem empty_envy_compatible (valuations : Fin n → Fin n → ℚ) :
     envyCompatible valuations ∅ := by
   use fun _ => 0
   intro i hi
-  exact absurd hi (Finset.not_mem_empty i)
+  exact absurd hi (Finset.notMem_empty i)
 
 /-! ## Part 8: Envy Reduction -/
 

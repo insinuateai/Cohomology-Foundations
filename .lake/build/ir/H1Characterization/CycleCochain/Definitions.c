@@ -13,78 +13,59 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_H1Characterization_walkToOrientedEdges(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00H1Characterization_walkToEdgeList_spec__0___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_countP_go___at___00H1Characterization_countPositive_spec__0___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_H1Characterization_OrientedEdge_ctorIdx___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_H1Characterization_vertex0Simplex(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_H1Characterization_cochainWalkSum___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_H1Characterization_walkToOrientedEdges___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_H1Characterization_OrientedEdge_toSimplex___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_H1Characterization_walkToEdgeList___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_H1Characterization_OrientedEdge_toSimplex(lean_object*, lean_object*);
-static lean_object* l_H1Characterization_OrientedEdge_sign___redArg___closed__0;
-LEAN_EXPORT lean_object* l_H1Characterization_countNegative(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_SimpleGraph_Walk_darts___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_H1Characterization_countNegative___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00H1Characterization_walkToOrientedEdges_spec__0(lean_object*, lean_object*, lean_object*);
-lean_object* l_Multiset_ndinsert___at___00Foundations_Simplex_edge_spec__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_foldr___at___00List_sum___at___00H1Characterization_cochainWalkSum_spec__1_spec__1___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_H1Characterization_vertex0Simplex___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_List_countP_go___at___00H1Characterization_countNegative_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_H1Characterization_countPositive___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Nat_cast___at___00Mathlib_Tactic_Ring_ExProd_mkNat_spec__0(lean_object*);
-LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00H1Characterization_walkToEdgeList_spec__0(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_sum___at___00H1Characterization_cochainWalkSum_spec__1(lean_object*);
-LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00H1Characterization_walkToOrientedEdges_spec__0___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_countP_go___at___00H1Characterization_countNegative_spec__0___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_walkToOrientedEdges(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_List_mapTR_loop___at___00H1Characterization_walkToEdgeList_spec__0___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_List_countP_go___at___00H1Characterization_countPositive_spec__0___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_vertex0Simplex(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_cochainWalkSum___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_walkToOrientedEdges___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_OrientedEdge_toSimplex___redArg(lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_walkToEdgeList___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_OrientedEdge_toSimplex(lean_object*, lean_object*);
+static lean_object* lp_CohomologyFoundations_H1Characterization_OrientedEdge_sign___redArg___closed__0;
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_countNegative(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lp_mathlib_SimpleGraph_Walk_darts___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_countNegative___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_List_mapTR_loop___at___00H1Characterization_walkToOrientedEdges_spec__0(lean_object*, lean_object*, lean_object*);
+lean_object* lp_CohomologyFoundations_Multiset_ndinsert___at___00Foundations_Simplex_edge_spec__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_List_foldr___at___00List_sum___at___00H1Characterization_cochainWalkSum_spec__1_spec__1___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_vertex0Simplex___redArg(lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_List_countP_go___at___00H1Characterization_countNegative_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_countPositive___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lp_mathlib_Nat_cast___at___00Mathlib_Tactic_Ring_ExProd_mkNat_spec__0(lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_List_mapTR_loop___at___00H1Characterization_walkToEdgeList_spec__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_List_sum___at___00H1Characterization_cochainWalkSum_spec__1(lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_List_mapTR_loop___at___00H1Characterization_walkToOrientedEdges_spec__0___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_List_countP_go___at___00H1Characterization_countNegative_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Rat_mul(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_H1Characterization_cochainWalkSum___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_cochainWalkSum___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Rat_sub(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_H1Characterization_OrientedEdge_sign___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_List_countP_go___at___00H1Characterization_countPositive_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_H1Characterization_cycleIndicator(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_H1Characterization_walkToEdgeList(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_foldr___at___00List_sum___at___00H1Characterization_cochainWalkSum_spec__1_spec__1(lean_object*, lean_object*);
-static lean_object* l_H1Characterization_OrientedEdge_sign___redArg___closed__1;
-LEAN_EXPORT lean_object* l_H1Characterization_countPositive___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_List_sum___at___00H1Characterization_cochainWalkSum_spec__1___closed__0;
-LEAN_EXPORT lean_object* l_H1Characterization_walkToEdgeList___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_OrientedEdge_sign___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_List_countP_go___at___00H1Characterization_countPositive_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_cycleIndicator(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_walkToEdgeList(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_List_foldr___at___00List_sum___at___00H1Characterization_cochainWalkSum_spec__1_spec__1(lean_object*, lean_object*);
+static lean_object* lp_CohomologyFoundations_H1Characterization_OrientedEdge_sign___redArg___closed__1;
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_countPositive___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* lp_CohomologyFoundations_List_sum___at___00H1Characterization_cochainWalkSum_spec__1___closed__0;
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_walkToEdgeList___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Rat_add(lean_object*, lean_object*);
 lean_object* l_List_reverse___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_H1Characterization_OrientedEdge_ctorIdx(lean_object*, lean_object*);
 uint8_t l_List_decidablePerm___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_H1Characterization_walkToOrientedEdges___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_H1Characterization_countPositive(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_H1Characterization_OrientedEdge_sign(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_walkToOrientedEdges___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_countPositive(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_OrientedEdge_sign(lean_object*, lean_object*);
 lean_object* l_instDecidableEqNat___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_H1Characterization_OrientedEdge_sign___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00H1Characterization_cochainWalkSum_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_H1Characterization_OrientedEdge_sign___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_OrientedEdge_sign___redArg(lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_List_mapTR_loop___at___00H1Characterization_cochainWalkSum_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_OrientedEdge_sign___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_H1Characterization_cochainWalkSum(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00H1Characterization_cochainWalkSum_spec__0___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_H1Characterization_countNegative___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_cochainWalkSum(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_List_mapTR_loop___at___00H1Characterization_cochainWalkSum_spec__0___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_countNegative___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Rat_neg(lean_object*);
-LEAN_EXPORT lean_object* l_H1Characterization_OrientedEdge_ctorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_H1Characterization_OrientedEdge_ctorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_H1Characterization_OrientedEdge_ctorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_H1Characterization_OrientedEdge_toSimplex___redArg(lean_object* x_1) {
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_OrientedEdge_toSimplex___redArg(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; 
@@ -98,7 +79,7 @@ x_5 = lean_box(0);
 lean_ctor_set_tag(x_1, 1);
 lean_ctor_set(x_1, 1, x_5);
 lean_ctor_set(x_1, 0, x_4);
-x_6 = l_Multiset_ndinsert___at___00Foundations_Simplex_edge_spec__0(x_3, x_1);
+x_6 = lp_CohomologyFoundations_Multiset_ndinsert___at___00Foundations_Simplex_edge_spec__0(x_3, x_1);
 return x_6;
 }
 else
@@ -113,38 +94,38 @@ x_9 = lean_box(0);
 x_10 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_10, 0, x_8);
 lean_ctor_set(x_10, 1, x_9);
-x_11 = l_Multiset_ndinsert___at___00Foundations_Simplex_edge_spec__0(x_7, x_10);
+x_11 = lp_CohomologyFoundations_Multiset_ndinsert___at___00Foundations_Simplex_edge_spec__0(x_7, x_10);
 return x_11;
 }
 }
 }
-LEAN_EXPORT lean_object* l_H1Characterization_OrientedEdge_toSimplex(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_OrientedEdge_toSimplex(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_H1Characterization_OrientedEdge_toSimplex___redArg(x_2);
+x_3 = lp_CohomologyFoundations_H1Characterization_OrientedEdge_toSimplex___redArg(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_H1Characterization_OrientedEdge_sign___redArg___closed__0() {
+static lean_object* _init_lp_CohomologyFoundations_H1Characterization_OrientedEdge_sign___redArg___closed__0() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(1u);
-x_2 = l_Nat_cast___at___00Mathlib_Tactic_Ring_ExProd_mkNat_spec__0(x_1);
+x_2 = lp_mathlib_Nat_cast___at___00Mathlib_Tactic_Ring_ExProd_mkNat_spec__0(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_H1Characterization_OrientedEdge_sign___redArg___closed__1() {
+static lean_object* _init_lp_CohomologyFoundations_H1Characterization_OrientedEdge_sign___redArg___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_H1Characterization_OrientedEdge_sign___redArg___closed__0;
+x_1 = lp_CohomologyFoundations_H1Characterization_OrientedEdge_sign___redArg___closed__0;
 x_2 = l_Rat_neg(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_H1Characterization_OrientedEdge_sign___redArg(lean_object* x_1) {
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_OrientedEdge_sign___redArg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; 
@@ -154,44 +135,44 @@ x_4 = lean_nat_dec_lt(x_2, x_3);
 if (x_4 == 0)
 {
 lean_object* x_5; 
-x_5 = l_H1Characterization_OrientedEdge_sign___redArg___closed__1;
+x_5 = lp_CohomologyFoundations_H1Characterization_OrientedEdge_sign___redArg___closed__1;
 return x_5;
 }
 else
 {
 lean_object* x_6; 
-x_6 = l_H1Characterization_OrientedEdge_sign___redArg___closed__0;
+x_6 = lp_CohomologyFoundations_H1Characterization_OrientedEdge_sign___redArg___closed__0;
 return x_6;
 }
 }
 }
-LEAN_EXPORT lean_object* l_H1Characterization_OrientedEdge_sign(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_OrientedEdge_sign(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_H1Characterization_OrientedEdge_sign___redArg(x_2);
+x_3 = lp_CohomologyFoundations_H1Characterization_OrientedEdge_sign___redArg(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_H1Characterization_OrientedEdge_sign___redArg___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_H1Characterization_OrientedEdge_sign___redArg(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_H1Characterization_OrientedEdge_sign___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_OrientedEdge_sign___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_H1Characterization_OrientedEdge_sign(x_1, x_2);
+x_3 = lp_CohomologyFoundations_H1Characterization_OrientedEdge_sign(x_1, x_2);
 lean_dec_ref(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00H1Characterization_walkToOrientedEdges_spec__0___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_OrientedEdge_sign___redArg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lp_CohomologyFoundations_H1Characterization_OrientedEdge_sign___redArg(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_List_mapTR_loop___at___00H1Characterization_walkToOrientedEdges_spec__0___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -282,42 +263,42 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00H1Characterization_walkToOrientedEdges_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_List_mapTR_loop___at___00H1Characterization_walkToOrientedEdges_spec__0___redArg(x_2, x_3);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_H1Characterization_walkToOrientedEdges___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_walkToOrientedEdges___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_4 = l_SimpleGraph_Walk_darts___redArg(x_2, x_3);
+x_4 = lp_mathlib_SimpleGraph_Walk_darts___redArg(x_2, x_3);
 x_5 = lean_box(0);
-x_6 = l_List_mapTR_loop___at___00H1Characterization_walkToOrientedEdges_spec__0___redArg(x_4, x_5);
+x_6 = lp_CohomologyFoundations_List_mapTR_loop___at___00H1Characterization_walkToOrientedEdges_spec__0___redArg(x_4, x_5);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_H1Characterization_walkToOrientedEdges(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_walkToOrientedEdges(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_H1Characterization_walkToOrientedEdges___redArg(x_1, x_2, x_4);
+x_5 = lp_CohomologyFoundations_H1Characterization_walkToOrientedEdges___redArg(x_1, x_2, x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_H1Characterization_walkToOrientedEdges___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_List_mapTR_loop___at___00H1Characterization_walkToOrientedEdges_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lp_CohomologyFoundations_List_mapTR_loop___at___00H1Characterization_walkToOrientedEdges_spec__0___redArg(x_2, x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_walkToOrientedEdges___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_H1Characterization_walkToOrientedEdges(x_1, x_2, x_3, x_4);
+x_5 = lp_CohomologyFoundations_H1Characterization_walkToOrientedEdges(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00H1Characterization_walkToEdgeList_spec__0___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_List_mapTR_loop___at___00H1Characterization_walkToEdgeList_spec__0___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -335,7 +316,7 @@ if (x_4 == 0)
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_5 = lean_ctor_get(x_1, 0);
 x_6 = lean_ctor_get(x_1, 1);
-x_7 = l_H1Characterization_OrientedEdge_toSimplex___redArg(x_5);
+x_7 = lp_CohomologyFoundations_H1Characterization_OrientedEdge_toSimplex___redArg(x_5);
 lean_ctor_set(x_1, 1, x_2);
 lean_ctor_set(x_1, 0, x_7);
 {
@@ -354,7 +335,7 @@ x_10 = lean_ctor_get(x_1, 1);
 lean_inc(x_10);
 lean_inc(x_9);
 lean_dec(x_1);
-x_11 = l_H1Characterization_OrientedEdge_toSimplex___redArg(x_9);
+x_11 = lp_CohomologyFoundations_H1Characterization_OrientedEdge_toSimplex___redArg(x_9);
 x_12 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_12, 0, x_11);
 lean_ctor_set(x_12, 1, x_2);
@@ -365,42 +346,42 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00H1Characterization_walkToEdgeList_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_List_mapTR_loop___at___00H1Characterization_walkToEdgeList_spec__0___redArg(x_2, x_3);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_H1Characterization_walkToEdgeList___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_walkToEdgeList___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_4 = l_H1Characterization_walkToOrientedEdges___redArg(x_1, x_2, x_3);
+x_4 = lp_CohomologyFoundations_H1Characterization_walkToOrientedEdges___redArg(x_1, x_2, x_3);
 x_5 = lean_box(0);
-x_6 = l_List_mapTR_loop___at___00H1Characterization_walkToEdgeList_spec__0___redArg(x_4, x_5);
+x_6 = lp_CohomologyFoundations_List_mapTR_loop___at___00H1Characterization_walkToEdgeList_spec__0___redArg(x_4, x_5);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_H1Characterization_walkToEdgeList(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_walkToEdgeList(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_H1Characterization_walkToEdgeList___redArg(x_1, x_2, x_4);
+x_5 = lp_CohomologyFoundations_H1Characterization_walkToEdgeList___redArg(x_1, x_2, x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_H1Characterization_walkToEdgeList___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_List_mapTR_loop___at___00H1Characterization_walkToEdgeList_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lp_CohomologyFoundations_List_mapTR_loop___at___00H1Characterization_walkToEdgeList_spec__0___redArg(x_2, x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_walkToEdgeList___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_H1Characterization_walkToEdgeList(x_1, x_2, x_3, x_4);
+x_5 = lp_CohomologyFoundations_H1Characterization_walkToEdgeList(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_List_countP_go___at___00H1Characterization_countPositive_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_List_countP_go___at___00H1Characterization_countPositive_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -418,7 +399,7 @@ lean_inc(x_5);
 lean_dec_ref(x_2);
 x_6 = lean_alloc_closure((void*)(l_instDecidableEqNat___boxed), 2, 0);
 lean_inc(x_4);
-x_7 = l_H1Characterization_OrientedEdge_toSimplex___redArg(x_4);
+x_7 = lp_CohomologyFoundations_H1Characterization_OrientedEdge_toSimplex___redArg(x_4);
 lean_inc(x_1);
 x_8 = l_List_decidablePerm___redArg(x_6, x_7, x_1);
 if (x_8 == 0)
@@ -457,42 +438,42 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_List_countP_go___at___00H1Characterization_countPositive_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_List_countP_go___at___00H1Characterization_countPositive_spec__0___redArg(x_2, x_3, x_4);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_H1Characterization_countPositive___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_countPositive___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_5 = l_H1Characterization_walkToOrientedEdges___redArg(x_1, x_2, x_3);
+x_5 = lp_CohomologyFoundations_H1Characterization_walkToOrientedEdges___redArg(x_1, x_2, x_3);
 x_6 = lean_unsigned_to_nat(0u);
-x_7 = l_List_countP_go___at___00H1Characterization_countPositive_spec__0___redArg(x_4, x_5, x_6);
+x_7 = lp_CohomologyFoundations_List_countP_go___at___00H1Characterization_countPositive_spec__0___redArg(x_4, x_5, x_6);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_H1Characterization_countPositive(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_countPositive(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
-x_6 = l_H1Characterization_countPositive___redArg(x_1, x_2, x_4, x_5);
+x_6 = lp_CohomologyFoundations_H1Characterization_countPositive___redArg(x_1, x_2, x_4, x_5);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_H1Characterization_countPositive___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_List_countP_go___at___00H1Characterization_countPositive_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = lp_CohomologyFoundations_List_countP_go___at___00H1Characterization_countPositive_spec__0___redArg(x_2, x_3, x_4);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_countPositive___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
-x_6 = l_H1Characterization_countPositive(x_1, x_2, x_3, x_4, x_5);
+x_6 = lp_CohomologyFoundations_H1Characterization_countPositive(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_3);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_List_countP_go___at___00H1Characterization_countNegative_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_List_countP_go___at___00H1Characterization_countNegative_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -510,7 +491,7 @@ lean_inc(x_5);
 lean_dec_ref(x_2);
 x_6 = lean_alloc_closure((void*)(l_instDecidableEqNat___boxed), 2, 0);
 lean_inc(x_4);
-x_7 = l_H1Characterization_OrientedEdge_toSimplex___redArg(x_4);
+x_7 = lp_CohomologyFoundations_H1Characterization_OrientedEdge_toSimplex___redArg(x_4);
 lean_inc(x_1);
 x_8 = l_List_decidablePerm___redArg(x_6, x_7, x_1);
 if (x_8 == 0)
@@ -549,57 +530,57 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_List_countP_go___at___00H1Characterization_countNegative_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_List_countP_go___at___00H1Characterization_countNegative_spec__0___redArg(x_2, x_3, x_4);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_H1Characterization_countNegative___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_countNegative___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_5 = l_H1Characterization_walkToOrientedEdges___redArg(x_1, x_2, x_3);
+x_5 = lp_CohomologyFoundations_H1Characterization_walkToOrientedEdges___redArg(x_1, x_2, x_3);
 x_6 = lean_unsigned_to_nat(0u);
-x_7 = l_List_countP_go___at___00H1Characterization_countNegative_spec__0___redArg(x_4, x_5, x_6);
+x_7 = lp_CohomologyFoundations_List_countP_go___at___00H1Characterization_countNegative_spec__0___redArg(x_4, x_5, x_6);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_H1Characterization_countNegative(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_countNegative(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
-x_6 = l_H1Characterization_countNegative___redArg(x_1, x_2, x_4, x_5);
+x_6 = lp_CohomologyFoundations_H1Characterization_countNegative___redArg(x_1, x_2, x_4, x_5);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_H1Characterization_countNegative___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_List_countP_go___at___00H1Characterization_countNegative_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = lp_CohomologyFoundations_List_countP_go___at___00H1Characterization_countNegative_spec__0___redArg(x_2, x_3, x_4);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_countNegative___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
-x_6 = l_H1Characterization_countNegative(x_1, x_2, x_3, x_4, x_5);
+x_6 = lp_CohomologyFoundations_H1Characterization_countNegative(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_3);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_H1Characterization_cycleIndicator(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_cycleIndicator(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 lean_inc(x_4);
 lean_inc_ref(x_3);
 lean_inc(x_2);
-x_5 = l_H1Characterization_countPositive___redArg(x_1, x_2, x_3, x_4);
-x_6 = l_Nat_cast___at___00Mathlib_Tactic_Ring_ExProd_mkNat_spec__0(x_5);
-x_7 = l_H1Characterization_countNegative___redArg(x_1, x_2, x_3, x_4);
-x_8 = l_Nat_cast___at___00Mathlib_Tactic_Ring_ExProd_mkNat_spec__0(x_7);
+x_5 = lp_CohomologyFoundations_H1Characterization_countPositive___redArg(x_1, x_2, x_3, x_4);
+x_6 = lp_mathlib_Nat_cast___at___00Mathlib_Tactic_Ring_ExProd_mkNat_spec__0(x_5);
+x_7 = lp_CohomologyFoundations_H1Characterization_countNegative___redArg(x_1, x_2, x_3, x_4);
+x_8 = lp_mathlib_Nat_cast___at___00Mathlib_Tactic_Ring_ExProd_mkNat_spec__0(x_7);
 x_9 = l_Rat_sub(x_6, x_8);
 return x_9;
 }
 }
-LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00H1Characterization_cochainWalkSum_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_List_mapTR_loop___at___00H1Characterization_cochainWalkSum_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -618,8 +599,8 @@ if (x_5 == 0)
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_6 = lean_ctor_get(x_2, 0);
 x_7 = lean_ctor_get(x_2, 1);
-x_8 = l_H1Characterization_OrientedEdge_sign___redArg(x_6);
-x_9 = l_H1Characterization_OrientedEdge_toSimplex___redArg(x_6);
+x_8 = lp_CohomologyFoundations_H1Characterization_OrientedEdge_sign___redArg(x_6);
+x_9 = lp_CohomologyFoundations_H1Characterization_OrientedEdge_toSimplex___redArg(x_6);
 lean_inc_ref(x_1);
 x_10 = lean_apply_1(x_1, x_9);
 x_11 = l_Rat_mul(x_8, x_10);
@@ -642,8 +623,8 @@ x_14 = lean_ctor_get(x_2, 1);
 lean_inc(x_14);
 lean_inc(x_13);
 lean_dec(x_2);
-x_15 = l_H1Characterization_OrientedEdge_sign___redArg(x_13);
-x_16 = l_H1Characterization_OrientedEdge_toSimplex___redArg(x_13);
+x_15 = lp_CohomologyFoundations_H1Characterization_OrientedEdge_sign___redArg(x_13);
+x_16 = lp_CohomologyFoundations_H1Characterization_OrientedEdge_toSimplex___redArg(x_13);
 lean_inc_ref(x_1);
 x_17 = lean_apply_1(x_1, x_16);
 x_18 = l_Rat_mul(x_15, x_17);
@@ -658,15 +639,16 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00H1Characterization_cochainWalkSum_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+static lean_object* _init_lp_CohomologyFoundations_List_sum___at___00H1Characterization_cochainWalkSum_spec__1___closed__0() {
 _start:
 {
-lean_object* x_5; 
-x_5 = l_List_mapTR_loop___at___00H1Characterization_cochainWalkSum_spec__0___redArg(x_2, x_3, x_4);
-return x_5;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lp_mathlib_Nat_cast___at___00Mathlib_Tactic_Ring_ExProd_mkNat_spec__0(x_1);
+return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_List_foldr___at___00List_sum___at___00H1Characterization_cochainWalkSum_spec__1_spec__1(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_List_foldr___at___00List_sum___at___00H1Characterization_cochainWalkSum_spec__1_spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -682,68 +664,67 @@ lean_inc(x_3);
 x_4 = lean_ctor_get(x_2, 1);
 lean_inc(x_4);
 lean_dec_ref(x_2);
-x_5 = l_List_foldr___at___00List_sum___at___00H1Characterization_cochainWalkSum_spec__1_spec__1(x_1, x_4);
+x_5 = lp_CohomologyFoundations_List_foldr___at___00List_sum___at___00H1Characterization_cochainWalkSum_spec__1_spec__1(x_1, x_4);
 x_6 = l_Rat_add(x_3, x_5);
 return x_6;
 }
 }
 }
-static lean_object* _init_l_List_sum___at___00H1Characterization_cochainWalkSum_spec__1___closed__0() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Nat_cast___at___00Mathlib_Tactic_Ring_ExProd_mkNat_spec__0(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_List_sum___at___00H1Characterization_cochainWalkSum_spec__1(lean_object* x_1) {
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_List_sum___at___00H1Characterization_cochainWalkSum_spec__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_List_sum___at___00H1Characterization_cochainWalkSum_spec__1___closed__0;
-x_3 = l_List_foldr___at___00List_sum___at___00H1Characterization_cochainWalkSum_spec__1_spec__1(x_2, x_1);
+x_2 = lp_CohomologyFoundations_List_sum___at___00H1Characterization_cochainWalkSum_spec__1___closed__0;
+x_3 = lp_CohomologyFoundations_List_foldr___at___00List_sum___at___00H1Characterization_cochainWalkSum_spec__1_spec__1(x_2, x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_H1Characterization_cochainWalkSum___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_cochainWalkSum___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_5 = l_H1Characterization_walkToOrientedEdges___redArg(x_1, x_3, x_4);
+x_5 = lp_CohomologyFoundations_H1Characterization_walkToOrientedEdges___redArg(x_1, x_3, x_4);
 x_6 = lean_box(0);
-x_7 = l_List_mapTR_loop___at___00H1Characterization_cochainWalkSum_spec__0___redArg(x_2, x_5, x_6);
-x_8 = l_List_sum___at___00H1Characterization_cochainWalkSum_spec__1(x_7);
+x_7 = lp_CohomologyFoundations_List_mapTR_loop___at___00H1Characterization_cochainWalkSum_spec__0___redArg(x_2, x_5, x_6);
+x_8 = lp_CohomologyFoundations_List_sum___at___00H1Characterization_cochainWalkSum_spec__1(x_7);
 return x_8;
 }
 }
-LEAN_EXPORT lean_object* l_H1Characterization_cochainWalkSum(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_cochainWalkSum(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
-x_6 = l_H1Characterization_cochainWalkSum___redArg(x_1, x_2, x_3, x_5);
+x_6 = lp_CohomologyFoundations_H1Characterization_cochainWalkSum___redArg(x_1, x_2, x_3, x_5);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_List_foldr___at___00List_sum___at___00H1Characterization_cochainWalkSum_spec__1_spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_List_mapTR_loop___at___00H1Characterization_cochainWalkSum_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_3; 
-x_3 = l_List_foldr___at___00List_sum___at___00H1Characterization_cochainWalkSum_spec__1_spec__1(x_1, x_2);
-lean_dec_ref(x_1);
-return x_3;
+lean_object* x_5; 
+x_5 = lp_CohomologyFoundations_List_mapTR_loop___at___00H1Characterization_cochainWalkSum_spec__0___redArg(x_2, x_3, x_4);
+return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_H1Characterization_cochainWalkSum___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_cochainWalkSum___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
-x_6 = l_H1Characterization_cochainWalkSum(x_1, x_2, x_3, x_4, x_5);
+x_6 = lp_CohomologyFoundations_H1Characterization_cochainWalkSum(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_4);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_H1Characterization_vertex0Simplex___redArg(lean_object* x_1) {
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_List_foldr___at___00List_sum___at___00H1Characterization_cochainWalkSum_spec__1_spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lp_CohomologyFoundations_List_foldr___at___00List_sum___at___00H1Characterization_cochainWalkSum_spec__1_spec__1(x_1, x_2);
+lean_dec_ref(x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_vertex0Simplex___redArg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -754,33 +735,33 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_H1Characterization_vertex0Simplex(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_H1Characterization_vertex0Simplex(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_H1Characterization_vertex0Simplex___redArg(x_2);
+x_3 = lp_CohomologyFoundations_H1Characterization_vertex0Simplex___redArg(x_2);
 return x_3;
 }
 }
 lean_object* initialize_Init(uint8_t builtin);
-lean_object* initialize_H1Characterization_OneConnected(uint8_t builtin);
+lean_object* initialize_CohomologyFoundations_H1Characterization_OneConnected(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_H1Characterization_CycleCochain_Definitions(uint8_t builtin) {
+LEAN_EXPORT lean_object* initialize_CohomologyFoundations_H1Characterization_CycleCochain_Definitions(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_H1Characterization_OneConnected(builtin);
+res = initialize_CohomologyFoundations_H1Characterization_OneConnected(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_H1Characterization_OrientedEdge_sign___redArg___closed__0 = _init_l_H1Characterization_OrientedEdge_sign___redArg___closed__0();
-lean_mark_persistent(l_H1Characterization_OrientedEdge_sign___redArg___closed__0);
-l_H1Characterization_OrientedEdge_sign___redArg___closed__1 = _init_l_H1Characterization_OrientedEdge_sign___redArg___closed__1();
-lean_mark_persistent(l_H1Characterization_OrientedEdge_sign___redArg___closed__1);
-l_List_sum___at___00H1Characterization_cochainWalkSum_spec__1___closed__0 = _init_l_List_sum___at___00H1Characterization_cochainWalkSum_spec__1___closed__0();
-lean_mark_persistent(l_List_sum___at___00H1Characterization_cochainWalkSum_spec__1___closed__0);
+lp_CohomologyFoundations_H1Characterization_OrientedEdge_sign___redArg___closed__0 = _init_lp_CohomologyFoundations_H1Characterization_OrientedEdge_sign___redArg___closed__0();
+lean_mark_persistent(lp_CohomologyFoundations_H1Characterization_OrientedEdge_sign___redArg___closed__0);
+lp_CohomologyFoundations_H1Characterization_OrientedEdge_sign___redArg___closed__1 = _init_lp_CohomologyFoundations_H1Characterization_OrientedEdge_sign___redArg___closed__1();
+lean_mark_persistent(lp_CohomologyFoundations_H1Characterization_OrientedEdge_sign___redArg___closed__1);
+lp_CohomologyFoundations_List_sum___at___00H1Characterization_cochainWalkSum_spec__1___closed__0 = _init_lp_CohomologyFoundations_List_sum___at___00H1Characterization_cochainWalkSum_spec__1___closed__0();
+lean_mark_persistent(lp_CohomologyFoundations_List_sum___at___00H1Characterization_cochainWalkSum_spec__1___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

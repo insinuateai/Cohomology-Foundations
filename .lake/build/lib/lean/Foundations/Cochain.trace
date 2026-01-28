@@ -1,12 +1,12 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["0a545eaef3099c31.olean"],
-  "i": "7bc6f180ece5bf7f.ilean",
-  "c": "4733e707d0595ae8.c"},
+ {"o": ["fb558e70dca463d4.olean"],
+  "i": "7aad7f219b19a9f9.ilean",
+  "c": "4a75597ecf379ec5.c"},
  "log":
  [{"message":
-   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.26.0/bin/lean /workspaces/Cohomology-Foundations/Foundations/Cochain.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Foundations/Cochain.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Foundations/Cochain.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/Foundations/Cochain.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/Foundations/Cochain.setup.json --json",
+   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.27.0/bin/lean /workspaces/Cohomology-Foundations/Foundations/Cochain.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Foundations/Cochain.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Foundations/Cochain.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/Foundations/Cochain.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/Foundations/Cochain.setup.json --json",
    "level": "trace"}],
  "inputs":
  [["Foundations.Cochain:deps",
@@ -14,19 +14,19 @@
      [["CohomologyFoundations/Foundations:extraDep",
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
-       [["Foundations.Simplex transitive imports (legacy)", "bbdaabc5716dde6a"],
-        ["Foundations.Simplex:importAllArts", "26a182580cc62b51"]]]]],
+       [["Foundations.Simplex transitive imports (legacy)", "51091e1cb2665740"],
+        ["Foundations.Simplex:importAllArts", "2bf697bc27e96201"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
       ["module dynlibs", "00000000000006bb"],
       ["module plugins", "00000000000006bb"]]]]],
-  ["Lean 4.26.0, commit d8204c9fd894f91bbb2cdfec5912ec8196fd8562",
-   "9c9419104e9584f8"],
+  ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
+   "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/Foundations/Cochain.lean",
    "c37d4ddbcbf98edd"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "c9f0374e74082b55"}
+ "depHash": "e09094b735ee1bbf"}

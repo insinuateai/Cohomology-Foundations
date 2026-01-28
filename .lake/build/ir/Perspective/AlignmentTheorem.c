@@ -14,20 +14,20 @@
 extern "C" {
 #endif
 lean_object* initialize_Init(uint8_t builtin);
-lean_object* initialize_Perspective_Alignment(uint8_t builtin);
-lean_object* initialize_Mathlib_Tactic_Linarith(uint8_t builtin);
+lean_object* initialize_CohomologyFoundations_Perspective_Alignment(uint8_t builtin);
+lean_object* initialize_mathlib_Mathlib_Tactic_Linarith(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Perspective_AlignmentTheorem(uint8_t builtin) {
+LEAN_EXPORT lean_object* initialize_CohomologyFoundations_Perspective_AlignmentTheorem(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Perspective_Alignment(builtin);
+res = initialize_CohomologyFoundations_Perspective_Alignment(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Mathlib_Tactic_Linarith(builtin);
+res = initialize_mathlib_Mathlib_Tactic_Linarith(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

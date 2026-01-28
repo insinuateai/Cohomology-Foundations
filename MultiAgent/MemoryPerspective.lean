@@ -100,7 +100,7 @@ theorem MemoryState.addFact_size_le (m : MemoryState F) (f : F) :
 
 theorem MemoryState.addFact_size_of_not_mem (m : MemoryState F) (f : F) (h : f ∉ m.facts) :
     (m.addFact f).size = m.size + 1 := by
-  simp only [size, addFact, Finset.card_insert_of_not_mem h]
+  simp only [size, addFact, Finset.card_insert_of_notMem h]
 
 theorem MemoryState.removeFact_size_le (m : MemoryState F) (f : F) :
     (m.removeFact f).size ≤ m.size := by
@@ -347,13 +347,13 @@ theorem AgentMemory.empty_globallyConsistent :
     (AgentMemory.empty : AgentMemory F).globallyConsistent := by
   use MemoryState.empty
   intro a ha
-  exact (Finset.not_mem_empty a ha).elim
+  exact (Finset.notMem_empty a ha).elim
 
 /-- Empty system is locally consistent -/
 theorem AgentMemory.empty_locallyConsistent : 
     (AgentMemory.empty : AgentMemory F).locallyConsistent := by
   intro a ha
-  exact (Finset.not_mem_empty a ha).elim
+  exact (Finset.notMem_empty a ha).elim
 
 /-- Singleton system is globally consistent -/
 theorem AgentMemory.singleton_globallyConsistent (a : Agent) (m : MemoryState F) :

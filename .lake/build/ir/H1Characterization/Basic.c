@@ -14,24 +14,24 @@
 extern "C" {
 #endif
 lean_object* initialize_Init(uint8_t builtin);
-lean_object* initialize_Foundations_Cohomology(uint8_t builtin);
-lean_object* initialize_Mathlib_Combinatorics_SimpleGraph_Basic(uint8_t builtin);
-lean_object* initialize_Mathlib_Combinatorics_SimpleGraph_Acyclic(uint8_t builtin);
+lean_object* initialize_CohomologyFoundations_Foundations_Cohomology(uint8_t builtin);
+lean_object* initialize_mathlib_Mathlib_Combinatorics_SimpleGraph_Basic(uint8_t builtin);
+lean_object* initialize_mathlib_Mathlib_Combinatorics_SimpleGraph_Acyclic(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_H1Characterization_Basic(uint8_t builtin) {
+LEAN_EXPORT lean_object* initialize_CohomologyFoundations_H1Characterization_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Foundations_Cohomology(builtin);
+res = initialize_CohomologyFoundations_Foundations_Cohomology(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Mathlib_Combinatorics_SimpleGraph_Basic(builtin);
+res = initialize_mathlib_Mathlib_Combinatorics_SimpleGraph_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Mathlib_Combinatorics_SimpleGraph_Acyclic(builtin);
+res = initialize_mathlib_Mathlib_Combinatorics_SimpleGraph_Acyclic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

@@ -1,12 +1,12 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["02964b0da60dccf9.olean"],
-  "i": "38a0b43ba8fd00da.ilean",
-  "c": "4ec8e0196261a328.c"},
+ {"o": ["d4567d264c1e91a9.olean"],
+  "i": "2275189c70da4685.ilean",
+  "c": "c4d5d4a5082ce050.c"},
  "log":
  [{"message":
-   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.26.0/bin/lean /workspaces/Cohomology-Foundations/Perspective/Hysteresis.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/Hysteresis.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/Hysteresis.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/Hysteresis.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/Hysteresis.setup.json --json",
+   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.27.0/bin/lean /workspaces/Cohomology-Foundations/Perspective/Hysteresis.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/Hysteresis.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/Hysteresis.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/Hysteresis.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/Hysteresis.setup.json --json",
    "level": "trace"},
   {"message":
    "Perspective/Hysteresis.lean:114:38: unused variable `systems`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
@@ -69,19 +69,19 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["Perspective.Bifurcation transitive imports (legacy)",
-         "5e2cc7579190d7e7"],
-        ["Perspective.Bifurcation:importAllArts", "619b9e00de6b696f"]]]]],
+         "4fa0ee9085efc7ed"],
+        ["Perspective.Bifurcation:importAllArts", "37faa716c93f0422"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
       ["module dynlibs", "00000000000006bb"],
       ["module plugins", "00000000000006bb"]]]]],
-  ["Lean 4.26.0, commit d8204c9fd894f91bbb2cdfec5912ec8196fd8562",
-   "9c9419104e9584f8"],
+  ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
+   "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/Perspective/Hysteresis.lean",
    "ba2f40fa7970b92b"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "07d756f8144c0017"}
+ "depHash": "2d28e1e4194da839"}

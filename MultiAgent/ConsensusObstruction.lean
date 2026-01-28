@@ -120,7 +120,7 @@ theorem ConsensusInstance.empty_agents_consensusPossible (c : ConsensusInstance 
   use Classical.arbitrary V
   intro a ha
   rw [h] at ha
-  exact (Finset.not_mem_empty a ha).elim
+  exact (Finset.notMem_empty a ha).elim
 
 /-- Subset of agents preserves consensus -/
 theorem ConsensusInstance.consensus_mono (c : ConsensusInstance V) (S : Finset Agent)

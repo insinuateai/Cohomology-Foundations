@@ -1,12 +1,12 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["cc59d7c0af96e6e3.olean"],
-  "i": "c879d2ab22c09642.ilean",
-  "c": "8a394668fe3d74a4.c"},
+ {"o": ["d9f0d619c28686c5.olean"],
+  "i": "5bfc852ab7041a72.ilean",
+  "c": "99161b922a7a6d83.c"},
  "log":
  [{"message":
-   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.26.0/bin/lean /workspaces/Cohomology-Foundations/Perspective/Geodesic.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/Geodesic.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/Geodesic.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/Geodesic.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/Geodesic.setup.json --json",
+   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.27.0/bin/lean /workspaces/Cohomology-Foundations/Perspective/Geodesic.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/Geodesic.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/Geodesic.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/Geodesic.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/Geodesic.setup.json --json",
    "level": "trace"},
   {"message":
    "Perspective/Geodesic.lean:98:0: automatically included section variable(s) unused in theorem `Geodesic.l1_triangle`:\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
@@ -65,19 +65,19 @@
      [["CohomologyFoundations/Perspective:extraDep",
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
-       [["Perspective.Barrier transitive imports (legacy)", "5745c74eb86ed612"],
-        ["Perspective.Barrier:importAllArts", "dfaed333da1f5421"]]]]],
+       [["Perspective.Barrier transitive imports (legacy)", "c702e5f17d9112a4"],
+        ["Perspective.Barrier:importAllArts", "f5543ca86335d35b"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
       ["module dynlibs", "00000000000006bb"],
       ["module plugins", "00000000000006bb"]]]]],
-  ["Lean 4.26.0, commit d8204c9fd894f91bbb2cdfec5912ec8196fd8562",
-   "9c9419104e9584f8"],
+  ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
+   "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/Perspective/Geodesic.lean",
    "ff9dd57bef958ce3"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "68589a5871071045"}
+ "depHash": "2749617d73e4cbde"}

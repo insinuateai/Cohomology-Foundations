@@ -1,12 +1,12 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["8efead2005db5832.olean"],
-  "i": "56941cb04c72afd3.ilean",
-  "c": "568f2cd34202d90d.c"},
+ {"o": ["767af520613d04ee.olean"],
+  "i": "a9be0db77a4ce6f0.ilean",
+  "c": "cd292668f9cc4d3b.c"},
  "log":
  [{"message":
-   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.26.0/bin/lean /workspaces/Cohomology-Foundations/Perspective/EntropyProduction.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/EntropyProduction.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/EntropyProduction.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/EntropyProduction.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/EntropyProduction.setup.json --json",
+   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.27.0/bin/lean /workspaces/Cohomology-Foundations/Perspective/EntropyProduction.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/EntropyProduction.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/EntropyProduction.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/EntropyProduction.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/EntropyProduction.setup.json --json",
    "level": "trace"},
   {"message":
    "Perspective/EntropyProduction.lean:65:5: unused variable `epsilon`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
@@ -42,19 +42,19 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["Perspective.Recurrence transitive imports (legacy)",
-         "662b17d8f7549286"],
-        ["Perspective.Recurrence:importAllArts", "141068382031039b"]]]]],
+         "bbb80506a9fed1e9"],
+        ["Perspective.Recurrence:importAllArts", "a6e873ae351e001e"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
       ["module dynlibs", "00000000000006bb"],
       ["module plugins", "00000000000006bb"]]]]],
-  ["Lean 4.26.0, commit d8204c9fd894f91bbb2cdfec5912ec8196fd8562",
-   "9c9419104e9584f8"],
+  ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
+   "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/Perspective/EntropyProduction.lean",
    "e191ba40545012f6"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "e72258d6ba82dfbc"}
+ "depHash": "b07c71972dabf480"}

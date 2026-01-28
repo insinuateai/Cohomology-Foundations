@@ -1,12 +1,12 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["6f8c2b3b72365316.olean"],
-  "i": "a71346b8426e224c.ilean",
-  "c": "2a5121ad0b51cc76.c"},
+ {"o": ["61bc05db9067b75a.olean"],
+  "i": "6eb17b56a7e3ce4a.ilean",
+  "c": "52bd1b0b965a8442.c"},
  "log":
  [{"message":
-   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.26.0/bin/lean /workspaces/Cohomology-Foundations/Perspective/Proportionality.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/Proportionality.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/Proportionality.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/Proportionality.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/Proportionality.setup.json --json",
+   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.27.0/bin/lean /workspaces/Cohomology-Foundations/Perspective/Proportionality.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/Proportionality.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/Proportionality.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/Proportionality.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/Proportionality.setup.json --json",
    "level": "trace"}],
  "inputs":
  [["Perspective.Proportionality:deps",
@@ -15,19 +15,19 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["Perspective.EnvyFreeness transitive imports (legacy)",
-         "e33ab02f3a81ae70"],
-        ["Perspective.EnvyFreeness:importAllArts", "914bf334e7608e6f"]]]]],
+         "ff37e20807cf8fe4"],
+        ["Perspective.EnvyFreeness:importAllArts", "aa9932dec5aafbe5"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
       ["module dynlibs", "00000000000006bb"],
       ["module plugins", "00000000000006bb"]]]]],
-  ["Lean 4.26.0, commit d8204c9fd894f91bbb2cdfec5912ec8196fd8562",
-   "9c9419104e9584f8"],
+  ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
+   "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/Perspective/Proportionality.lean",
    "49cfde6798f1a259"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "9b4e9e2d3f5a8160"}
+ "depHash": "acad46bfa7f6e558"}

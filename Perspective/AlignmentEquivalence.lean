@@ -236,7 +236,7 @@ def hollowTriangle : SimplicialComplex where
     -- Each vertex of each simplex is in the complex
     rcases hs with rfl | rfl | rfl | rfl | rfl | rfl | rfl
     -- For ∅: no vertices (vacuous)
-    · exact absurd hv (Finset.not_mem_empty v)
+    · exact absurd hv (Finset.notMem_empty v)
     -- For {0}: vertex 0
     · simp only [Finset.mem_singleton] at hv
       subst hv

@@ -1,12 +1,12 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["2cba50003fb014e0.olean"],
-  "i": "79c5447f74f009f5.ilean",
-  "c": "1ad34baafc98fcff.c"},
+ {"o": ["1571a08afe9cf4f1.olean"],
+  "i": "a84917855b89eb07.ilean",
+  "c": "9b3f380077416ad6.c"},
  "log":
  [{"message":
-   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.26.0/bin/lean /workspaces/Cohomology-Foundations/H1Characterization/PathIntegral.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/H1Characterization/PathIntegral.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/H1Characterization/PathIntegral.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/H1Characterization/PathIntegral.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/H1Characterization/PathIntegral.setup.json --json",
+   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.27.0/bin/lean /workspaces/Cohomology-Foundations/H1Characterization/PathIntegral.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/H1Characterization/PathIntegral.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/H1Characterization/PathIntegral.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/H1Characterization/PathIntegral.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/H1Characterization/PathIntegral.setup.json --json",
    "level": "trace"}],
  "inputs":
  [["H1Characterization.PathIntegral:deps",
@@ -15,20 +15,20 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["H1Characterization.CycleCochain.Definitions transitive imports (legacy)",
-         "72d3d24ba1b72c87"],
+         "e046920a6805d9d4"],
         ["H1Characterization.CycleCochain.Definitions:importAllArts",
-         "9c93975c8909cfde"]]]]],
+         "4d81c26df2b25d25"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
       ["module dynlibs", "00000000000006bb"],
       ["module plugins", "00000000000006bb"]]]]],
-  ["Lean 4.26.0, commit d8204c9fd894f91bbb2cdfec5912ec8196fd8562",
-   "9c9419104e9584f8"],
+  ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
+   "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/H1Characterization/PathIntegral.lean",
    "c4192e1c634a8ddc"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "8639ad0e249615be"}
+ "depHash": "914520cc5e53876b"}

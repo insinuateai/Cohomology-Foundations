@@ -1,12 +1,12 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["dd5309fb0f6645e9.olean"],
-  "i": "8d415b88079fd192.ilean",
-  "c": "6f2b480fc7f32cf4.c"},
+ {"o": ["d338b1abb966bee2.olean"],
+  "i": "047f2362f52736cc.ilean",
+  "c": "5117d26352ea956a.c"},
  "log":
  [{"message":
-   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.26.0/bin/lean /workspaces/Cohomology-Foundations/Perspective/FairnessBarriers.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/FairnessBarriers.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/FairnessBarriers.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/FairnessBarriers.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/FairnessBarriers.setup.json --json",
+   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.27.0/bin/lean /workspaces/Cohomology-Foundations/Perspective/FairnessBarriers.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/FairnessBarriers.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/FairnessBarriers.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/FairnessBarriers.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/FairnessBarriers.setup.json --json",
    "level": "trace"},
   {"message":
    "Perspective/FairnessBarriers.lean:103:30: unused variable `b`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
@@ -27,19 +27,19 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["Perspective.LeximinGeodesics transitive imports (legacy)",
-         "a640734ce1da9bc8"],
-        ["Perspective.LeximinGeodesics:importAllArts", "331cc68047ade101"]]]]],
+         "f4c349421a3450ac"],
+        ["Perspective.LeximinGeodesics:importAllArts", "89ba5b6255245bcc"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
       ["module dynlibs", "00000000000006bb"],
       ["module plugins", "00000000000006bb"]]]]],
-  ["Lean 4.26.0, commit d8204c9fd894f91bbb2cdfec5912ec8196fd8562",
-   "9c9419104e9584f8"],
+  ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
+   "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/Perspective/FairnessBarriers.lean",
    "aedc2036951de28f"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "0d1e20c1c1b193cd"}
+ "depHash": "db09538626686416"}

@@ -100,7 +100,7 @@ def AgentMemory.hasConflict (am : AgentMemory F) : Prop :=
 theorem AgentMemory.empty_no_conflict : 
     ¬(AgentMemory.empty : AgentMemory F).hasConflict := by
   intro ⟨a, _, _, ha, _, _, _, _, _, _, _, _, _⟩
-  exact Finset.not_mem_empty a ha
+  exact Finset.notMem_empty a ha
 
 /-- No conflict in singleton -/
 theorem AgentMemory.singleton_no_conflict (a : Agent) (m : MemoryState F) :
@@ -142,9 +142,10 @@ theorem AgentMemory.globallyConsistent_locallyConsistent_not_hollow (am : AgentM
     (hg : am.globallyConsistent) (hl : am.locallyConsistent) : ¬am.isHollowTriangle :=
   fun ⟨_, hng⟩ => hng hg
 
-/-- Conflict detection is in principle decidable for finite systems (specification) -/
-axiom AgentMemory.conflict_decidable_axiom [Fintype F] (am : AgentMemory F) :
-    Decidable am.hasConflict
+/-- Conflict detection is decidable for finite systems -/
+noncomputable instance AgentMemory.conflict_decidable [DecidableEq F] (am : AgentMemory F) :
+    Decidable am.hasConflict :=
+  Classical.propDecidable _
 
 /-- Number of potential conflicts bounded by agent triples -/
 theorem AgentMemory.conflict_count_bound (am : AgentMemory F) :

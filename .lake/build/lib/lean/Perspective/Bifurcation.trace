@@ -1,12 +1,12 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["18d77cb860e4f680.olean"],
-  "i": "e50c7c2fa1d64741.ilean",
-  "c": "71e128cdd76d2e07.c"},
+ {"o": ["9f76ab6a7148c413.olean"],
+  "i": "932adf782fff5ff9.ilean",
+  "c": "470fe18cdadb2cab.c"},
  "log":
  [{"message":
-   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.26.0/bin/lean /workspaces/Cohomology-Foundations/Perspective/Bifurcation.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/Bifurcation.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/Bifurcation.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/Bifurcation.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/Bifurcation.setup.json --json",
+   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.27.0/bin/lean /workspaces/Cohomology-Foundations/Perspective/Bifurcation.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/Bifurcation.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/Bifurcation.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/Bifurcation.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/Bifurcation.setup.json --json",
    "level": "trace"},
   {"message":
    "Perspective/Bifurcation.lean:127:0: automatically included section variable(s) unused in theorem `Bifurcation.critical_epsilon_is_bifurcation`:\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
@@ -57,19 +57,19 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["Perspective.CriticalPoints transitive imports (legacy)",
-         "b7b1bf2070a571b4"],
-        ["Perspective.CriticalPoints:importAllArts", "d4635df08e41fac6"]]]]],
+         "57a6a79d2b3f7ee3"],
+        ["Perspective.CriticalPoints:importAllArts", "4d4c309541757503"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
       ["module dynlibs", "00000000000006bb"],
       ["module plugins", "00000000000006bb"]]]]],
-  ["Lean 4.26.0, commit d8204c9fd894f91bbb2cdfec5912ec8196fd8562",
-   "9c9419104e9584f8"],
+  ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
+   "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/Perspective/Bifurcation.lean",
    "16bd531f2f7a33fa"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "0d0386966cff41d8"}
+ "depHash": "04bf2d1c5679d773"}

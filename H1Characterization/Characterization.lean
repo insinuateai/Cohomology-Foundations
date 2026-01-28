@@ -130,7 +130,7 @@ theorem hollowTriangle_not_oneConnected_axiom :
         · exact hne12 (congrArg Subtype.val h)
         · exact hne01.symm (congrArg Subtype.val h)
     · -- ne_nil: w ≠ nil
-      exact fun h => SimpleGraph.Walk.noConfusion h
+      simp only [ne_eq, reduceCtorEq, not_false_eq_true]
   · -- support_nodup: tail of support is nodup
     -- support = [v0, v1, v2, v0], tail = [v1, v2, v0]
     show (SimpleGraph.Walk.cons h01 (SimpleGraph.Walk.cons h12 (SimpleGraph.Walk.cons h20 SimpleGraph.Walk.nil))).support.tail.Nodup
@@ -165,7 +165,7 @@ def singleEdge : SimplicialComplex where
     intro s hs v hv
     simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hs ⊢
     rcases hs with rfl | rfl | rfl | rfl
-    · exact absurd hv (Finset.not_mem_empty v)
+    · exact absurd hv (Finset.notMem_empty v)
     · simp only [Finset.mem_singleton] at hv; subst hv; right; left; rfl
     · simp only [Finset.mem_singleton] at hv; subst hv; right; right; left; rfl
     · simp only [Finset.mem_insert, Finset.mem_singleton] at hv
@@ -241,7 +241,7 @@ theorem singleEdge_oneConnected_axiom :
       simp only [singleEdge, Set.mem_insert_iff, Set.mem_singleton_iff] at hmem
       rcases hmem with h_empty | h_0 | h_1 | h01
       · exfalso; have : a.val ∈ (∅ : Finset ℕ) := by rw [← h_empty]; exact Finset.mem_insert_self _ _
-        exact Finset.not_mem_empty _ this
+        exact Finset.notMem_empty _ this
       · exfalso
         have ha : a.val = 0 := Finset.mem_singleton.mp (by rw [← h_0]; exact Finset.mem_insert_self _ _)
         have hb : b.val = 0 := Finset.mem_singleton.mp (by rw [← h_0]; exact Finset.mem_insert_of_mem (Finset.mem_singleton_self _))

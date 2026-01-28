@@ -1,4 +1,5 @@
 {"plugins": [],
+ "package": "CohomologyFoundations",
  "options": {"pp.unicode.fun": true, "autoImplicit": false},
  "name": "MultiAgent",
  "isModule": false,
@@ -260,11 +261,11 @@
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Util/AssertExists.ir",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Util/AssertExists.olean.server",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Util/AssertExists.olean.private"],
-  "Mathlib.Tactic.WithoutCDot":
-  ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/WithoutCDot.olean",
-   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/WithoutCDot.ir",
-   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/WithoutCDot.olean.server",
-   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/WithoutCDot.olean.private"],
+  "Mathlib.Util.AddRelatedDecl":
+  ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Util/AddRelatedDecl.olean",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Util/AddRelatedDecl.ir",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Util/AddRelatedDecl.olean.server",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Util/AddRelatedDecl.olean.private"],
   "Mathlib.Tactic.Widget.SelectPanelUtils":
   ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Widget/SelectPanelUtils.olean",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Widget/SelectPanelUtils.ir",
@@ -360,6 +361,11 @@
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/ToLevel.ir",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/ToLevel.olean.server",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/ToLevel.olean.private"],
+  "Mathlib.Tactic.ToFun":
+  ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/ToFun.olean",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/ToFun.ir",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/ToFun.olean.server",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/ToFun.olean.private"],
   "Mathlib.Tactic.ToExpr":
   ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/ToExpr.olean",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/ToExpr.ir",
@@ -530,16 +536,6 @@
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/NthRewrite.ir",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/NthRewrite.olean.server",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/NthRewrite.olean.private"],
-  "Mathlib.Tactic.Nontriviality.Core":
-  ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Nontriviality/Core.olean",
-   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Nontriviality/Core.ir",
-   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Nontriviality/Core.olean.server",
-   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Nontriviality/Core.olean.private"],
-  "Mathlib.Tactic.Nontriviality":
-  ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Nontriviality.olean",
-   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Nontriviality.ir",
-   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Nontriviality.olean.server",
-   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Nontriviality.olean.private"],
   "Mathlib.Tactic.Monotonicity.Attr":
   ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Monotonicity/Attr.olean",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Monotonicity/Attr.ir",
@@ -555,6 +551,11 @@
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/MinImports.ir",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/MinImports.olean.server",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/MinImports.olean.private"],
+  "Mathlib.Tactic.Linter.Whitespace":
+  ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Linter/Whitespace.olean",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Linter/Whitespace.ir",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Linter/Whitespace.olean.server",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Linter/Whitespace.olean.private"],
   "Mathlib.Tactic.Linter.UpstreamableDecl":
   ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Linter/UpstreamableDecl.olean",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Linter/UpstreamableDecl.ir",
@@ -575,6 +576,11 @@
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Linter/UnusedInstancesInType.ir",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Linter/UnusedInstancesInType.olean.server",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Linter/UnusedInstancesInType.olean.private"],
+  "Mathlib.Tactic.Linter.TacticDocumentation":
+  ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Linter/TacticDocumentation.olean",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Linter/TacticDocumentation.ir",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Linter/TacticDocumentation.olean.server",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Linter/TacticDocumentation.olean.private"],
   "Mathlib.Tactic.Linter.Style":
   ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Linter/Style.olean",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Linter/Style.ir",
@@ -665,11 +671,6 @@
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Linter/DeprecatedModule.ir",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Linter/DeprecatedModule.olean.server",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Linter/DeprecatedModule.olean.private"],
-  "Mathlib.Tactic.Linter.CommandStart":
-  ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Linter/CommandStart.olean",
-   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Linter/CommandStart.ir",
-   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Linter/CommandStart.olean.server",
-   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Linter/CommandStart.olean.private"],
   "Mathlib.Tactic.Linter":
   ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Linter.olean",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Linter.ir",
@@ -950,6 +951,16 @@
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/ByCases.ir",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/ByCases.olean.server",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/ByCases.olean.private"],
+  "Mathlib.Tactic.Bound.Init":
+  ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Bound/Init.olean",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Bound/Init.ir",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Bound/Init.olean.server",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Bound/Init.olean.private"],
+  "Mathlib.Tactic.Bound.Attribute":
+  ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Bound/Attribute.olean",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Bound/Attribute.ir",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Bound/Attribute.olean.server",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Bound/Attribute.olean.private"],
   "Mathlib.Tactic.Basic":
   ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Basic.olean",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Basic.ir",
@@ -1155,6 +1166,11 @@
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Order/CompleteLattice/Lemmas.ir",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Order/CompleteLattice/Lemmas.olean.server",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Order/CompleteLattice/Lemmas.olean.private"],
+  "Mathlib.Order.CompleteLattice.Finset":
+  ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Order/CompleteLattice/Finset.olean",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Order/CompleteLattice/Finset.ir",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Order/CompleteLattice/Finset.olean.server",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Order/CompleteLattice/Finset.olean.private"],
   "Mathlib.Order.CompleteLattice.Defs":
   ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Order/CompleteLattice/Defs.olean",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Order/CompleteLattice/Defs.ir",
@@ -1400,16 +1416,16 @@
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Lean/Meta.ir",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Lean/Meta.olean.server",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Lean/Meta.olean.private"],
+  "Mathlib.Lean.Linter":
+  ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Lean/Linter.olean",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Lean/Linter.ir",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Lean/Linter.olean.server",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Lean/Linter.olean.private"],
   "Mathlib.Lean.GoalsLocation":
   ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Lean/GoalsLocation.olean",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Lean/GoalsLocation.ir",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Lean/GoalsLocation.olean.server",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Lean/GoalsLocation.olean.private"],
-  "Mathlib.Lean.Expr.ReplaceRec":
-  ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Lean/Expr/ReplaceRec.olean",
-   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Lean/Expr/ReplaceRec.ir",
-   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Lean/Expr/ReplaceRec.olean.server",
-   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Lean/Expr/ReplaceRec.olean.private"],
   "Mathlib.Lean.Expr.Basic":
   ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Lean/Expr/Basic.olean",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Lean/Expr/Basic.ir",
@@ -1430,11 +1446,6 @@
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Lean/Elab/Tactic/Meta.ir",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Lean/Elab/Tactic/Meta.olean.server",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Lean/Elab/Tactic/Meta.olean.private"],
-  "Mathlib.Lean.Elab.Tactic.Basic":
-  ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Lean/Elab/Tactic/Basic.olean",
-   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Lean/Elab/Tactic/Basic.ir",
-   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Lean/Elab/Tactic/Basic.olean.server",
-   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Lean/Elab/Tactic/Basic.olean.private"],
   "Mathlib.Lean.Elab.InfoTree":
   ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Lean/Elab/InfoTree.olean",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Lean/Elab/InfoTree.ir",
@@ -1490,6 +1501,11 @@
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Set/Subsingleton.ir",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Set/Subsingleton.olean.server",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Set/Subsingleton.olean.private"],
+  "Mathlib.Data.Set.Sigma":
+  ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Set/Sigma.olean",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Set/Sigma.ir",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Set/Sigma.olean.server",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Set/Sigma.olean.private"],
   "Mathlib.Data.Set.Restrict":
   ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Set/Restrict.olean",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Set/Restrict.ir",
@@ -1525,6 +1541,11 @@
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Set/List.ir",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Set/List.olean.server",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Set/List.olean.private"],
+  "Mathlib.Data.Set.Lattice.Image":
+  ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Set/Lattice/Image.olean",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Set/Lattice/Image.ir",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Set/Lattice/Image.olean.server",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Set/Lattice/Image.olean.private"],
   "Mathlib.Data.Set.Lattice":
   ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Set/Lattice.olean",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Set/Lattice.ir",
@@ -1685,6 +1706,11 @@
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Multiset/Powerset.ir",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Multiset/Powerset.olean.server",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Multiset/Powerset.olean.private"],
+  "Mathlib.Data.Multiset.OrderedMonoid":
+  ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Multiset/OrderedMonoid.olean",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Multiset/OrderedMonoid.ir",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Multiset/OrderedMonoid.olean.server",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Multiset/OrderedMonoid.olean.private"],
   "Mathlib.Data.Multiset.MapFold":
   ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Multiset/MapFold.olean",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Multiset/MapFold.ir",
@@ -1790,6 +1816,11 @@
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/List/Pairwise.ir",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/List/Pairwise.olean.server",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/List/Pairwise.olean.private"],
+  "Mathlib.Data.List.OffDiag":
+  ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/List/OffDiag.olean",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/List/OffDiag.ir",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/List/OffDiag.olean.server",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/List/OffDiag.olean.private"],
   "Mathlib.Data.List.OfFn":
   ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/List/OfFn.olean",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/List/OfFn.ir",
@@ -1805,6 +1836,11 @@
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/List/Monad.ir",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/List/Monad.olean.server",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/List/Monad.olean.private"],
+  "Mathlib.Data.List.MinMax":
+  ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/List/MinMax.olean",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/List/MinMax.ir",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/List/MinMax.olean.server",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/List/MinMax.olean.private"],
   "Mathlib.Data.List.Lex":
   ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/List/Lex.olean",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/List/Lex.ir",
@@ -1845,6 +1881,11 @@
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/List/FinRange.ir",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/List/FinRange.olean.server",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/List/FinRange.olean.private"],
+  "Mathlib.Data.List.Enum":
+  ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/List/Enum.olean",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/List/Enum.ir",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/List/Enum.olean.server",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/List/Enum.olean.private"],
   "Mathlib.Data.List.Defs":
   ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/List/Defs.olean",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/List/Defs.ir",
@@ -1920,6 +1961,16 @@
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Fintype/Defs.ir",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Fintype/Defs.olean.server",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Fintype/Defs.olean.private"],
+  "Mathlib.Data.Fintype.Card":
+  ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Fintype/Card.olean",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Fintype/Card.ir",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Fintype/Card.olean.server",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Fintype/Card.olean.private"],
+  "Mathlib.Data.Fintype.Basic":
+  ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Fintype/Basic.olean",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Fintype/Basic.ir",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Fintype/Basic.olean.server",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Fintype/Basic.olean.private"],
   "Mathlib.Data.Finset.Union":
   ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Finset/Union.olean",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Finset/Union.ir",
@@ -1935,6 +1986,11 @@
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Finset/Sum.ir",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Finset/Sum.olean.server",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Finset/Sum.olean.private"],
+  "Mathlib.Data.Finset.Sigma":
+  ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Finset/Sigma.olean",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Finset/Sigma.ir",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Finset/Sigma.olean.server",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Finset/Sigma.olean.private"],
   "Mathlib.Data.Finset.SDiff":
   ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Finset/SDiff.olean",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Finset/SDiff.ir",
@@ -1955,6 +2011,11 @@
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Finset/Powerset.ir",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Finset/Powerset.olean.server",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Finset/Powerset.olean.private"],
+  "Mathlib.Data.Finset.Option":
+  ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Finset/Option.olean",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Finset/Option.ir",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Finset/Option.olean.server",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Finset/Option.olean.private"],
   "Mathlib.Data.Finset.Lattice.Union":
   ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Finset/Lattice/Union.olean",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Data/Finset/Lattice/Union.ir",
@@ -2110,11 +2171,6 @@
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Control/Combinators.ir",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Control/Combinators.olean.server",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Control/Combinators.olean.private"],
-  "Mathlib.Control.Basic":
-  ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Control/Basic.olean",
-   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Control/Basic.ir",
-   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Control/Basic.olean.server",
-   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Control/Basic.olean.private"],
   "Mathlib.Algebra.Regular.Defs":
   ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Regular/Defs.olean",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Regular/Defs.ir",
@@ -2130,6 +2186,16 @@
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Sub/Defs.ir",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Sub/Defs.olean.server",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Sub/Defs.olean.private"],
+  "Mathlib.Algebra.Order.Monoid.Unbundled.Pow":
+  ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Monoid/Unbundled/Pow.olean",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Monoid/Unbundled/Pow.ir",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Monoid/Unbundled/Pow.olean.server",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Monoid/Unbundled/Pow.olean.private"],
+  "Mathlib.Algebra.Order.Monoid.Unbundled.OrderDual":
+  ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Monoid/Unbundled/OrderDual.olean",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Monoid/Unbundled/OrderDual.ir",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Monoid/Unbundled/OrderDual.olean.server",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Monoid/Unbundled/OrderDual.olean.private"],
   "Mathlib.Algebra.Order.Monoid.Unbundled.ExistsOfLE":
   ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Monoid/Unbundled/ExistsOfLE.olean",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Monoid/Unbundled/ExistsOfLE.ir",
@@ -2145,11 +2211,66 @@
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Monoid/Unbundled/Basic.ir",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Monoid/Unbundled/Basic.olean.server",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Monoid/Unbundled/Basic.olean.private"],
+  "Mathlib.Algebra.Order.Monoid.Defs":
+  ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Monoid/Defs.olean",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Monoid/Defs.ir",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Monoid/Defs.olean.server",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Monoid/Defs.olean.private"],
+  "Mathlib.Algebra.Order.Monoid.Canonical.Defs":
+  ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Monoid/Canonical/Defs.olean",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Monoid/Canonical/Defs.ir",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Monoid/Canonical/Defs.olean.server",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Monoid/Canonical/Defs.olean.private"],
+  "Mathlib.Algebra.Order.Group.Unbundled.Basic":
+  ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Group/Unbundled/Basic.olean",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Group/Unbundled/Basic.ir",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Group/Unbundled/Basic.olean.server",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Group/Unbundled/Basic.olean.private"],
+  "Mathlib.Algebra.Order.Group.Unbundled.Abs":
+  ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Group/Unbundled/Abs.olean",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Group/Unbundled/Abs.ir",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Group/Unbundled/Abs.olean.server",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Group/Unbundled/Abs.olean.private"],
+  "Mathlib.Algebra.Order.Group.Synonym":
+  ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Group/Synonym.olean",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Group/Synonym.ir",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Group/Synonym.olean.server",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Group/Synonym.olean.private"],
+  "Mathlib.Algebra.Order.Group.OrderIso":
+  ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Group/OrderIso.olean",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Group/OrderIso.ir",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Group/OrderIso.olean.server",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Group/OrderIso.olean.private"],
+  "Mathlib.Algebra.Order.Group.Nat":
+  ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Group/Nat.olean",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Group/Nat.ir",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Group/Nat.olean.server",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Group/Nat.olean.private"],
   "Mathlib.Algebra.Order.Group.Multiset":
   ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Group/Multiset.olean",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Group/Multiset.ir",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Group/Multiset.olean.server",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Group/Multiset.olean.private"],
+  "Mathlib.Algebra.Order.Group.Lattice":
+  ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Group/Lattice.olean",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Group/Lattice.ir",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Group/Lattice.olean.server",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/Group/Lattice.olean.private"],
+  "Mathlib.Algebra.Order.BigOperators.Group.Multiset":
+  ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/BigOperators/Group/Multiset.olean",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/BigOperators/Group/Multiset.ir",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/BigOperators/Group/Multiset.olean.server",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/BigOperators/Group/Multiset.olean.private"],
+  "Mathlib.Algebra.Order.BigOperators.Group.List":
+  ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/BigOperators/Group/List.olean",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/BigOperators/Group/List.ir",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/BigOperators/Group/List.olean.server",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/BigOperators/Group/List.olean.private"],
+  "Mathlib.Algebra.Order.BigOperators.Group.Finset":
+  ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/BigOperators/Group/Finset.olean",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/BigOperators/Group/Finset.ir",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/BigOperators/Group/Finset.olean.server",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Order/BigOperators/Group/Finset.olean.private"],
   "Mathlib.Algebra.Opposites":
   ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Opposites.olean",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Opposites.ir",
@@ -2185,6 +2306,11 @@
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Group/Units/Hom.ir",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Group/Units/Hom.olean.server",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Group/Units/Hom.olean.private"],
+  "Mathlib.Algebra.Group.Units.Equiv":
+  ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Group/Units/Equiv.olean",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Group/Units/Equiv.ir",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Group/Units/Equiv.olean.server",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Group/Units/Equiv.olean.private"],
   "Mathlib.Algebra.Group.Units.Defs":
   ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Group/Units/Defs.olean",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Group/Units/Defs.ir",
@@ -2215,6 +2341,11 @@
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Group/Prod.ir",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Group/Prod.olean.server",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Group/Prod.olean.private"],
+  "Mathlib.Algebra.Group.Pi.Basic":
+  ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Group/Pi/Basic.olean",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Group/Pi/Basic.ir",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Group/Pi/Basic.olean.server",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Group/Pi/Basic.olean.private"],
   "Mathlib.Algebra.Group.Opposite":
   ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Group/Opposite.olean",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Group/Opposite.ir",
@@ -2255,6 +2386,11 @@
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Group/Hom/Basic.ir",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Group/Hom/Basic.olean.server",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Group/Hom/Basic.olean.private"],
+  "Mathlib.Algebra.Group.Even":
+  ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Group/Even.olean",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Group/Even.ir",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Group/Even.olean.server",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Group/Even.olean.private"],
   "Mathlib.Algebra.Group.Equiv.Opposite":
   ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Group/Equiv/Opposite.olean",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/Group/Equiv/Opposite.ir",
@@ -2315,6 +2451,11 @@
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/BigOperators/Group/List/Basic.ir",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/BigOperators/Group/List/Basic.olean.server",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/BigOperators/Group/List/Basic.olean.private"],
+  "Mathlib.Algebra.BigOperators.Group.Finset.Sigma":
+  ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/BigOperators/Group/Finset/Sigma.olean",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/BigOperators/Group/Finset/Sigma.ir",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/BigOperators/Group/Finset/Sigma.olean.server",
+   "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/BigOperators/Group/Finset/Sigma.olean.private"],
   "Mathlib.Algebra.BigOperators.Group.Finset.Defs":
   ["/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/BigOperators/Group/Finset/Defs.olean",
    "/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Algebra/BigOperators/Group/Finset/Defs.ir",
@@ -2360,11 +2501,6 @@
    "/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean/ImportGraph/Imports.ir",
    "/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean/ImportGraph/Imports.olean.server",
    "/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean/ImportGraph/Imports.olean.private"],
-  "Batteries.WF":
-  ["/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean/Batteries/WF.olean",
-   "/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean/Batteries/WF.ir",
-   "/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean/Batteries/WF.olean.server",
-   "/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean/Batteries/WF.olean.private"],
   "Batteries.Util.ProofWanted":
   ["/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean/Batteries/Util/ProofWanted.olean",
    "/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean/Batteries/Util/ProofWanted.ir",
@@ -2840,6 +2976,11 @@
    "/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean/Aesop/Tree/Tracing.ir",
    "/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean/Aesop/Tree/Tracing.olean.server",
    "/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean/Aesop/Tree/Tracing.olean.private"],
+  "Aesop.Tree.Stats":
+  ["/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean/Aesop/Tree/Stats.olean",
+   "/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean/Aesop/Tree/Stats.ir",
+   "/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean/Aesop/Tree/Stats.olean.server",
+   "/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean/Aesop/Tree/Stats.olean.private"],
   "Aesop.Tree.State":
   ["/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean/Aesop/Tree/State.olean",
    "/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean/Aesop/Tree/State.ir",
@@ -3165,16 +3306,6 @@
    "/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean/Aesop/Rule.ir",
    "/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean/Aesop/Rule.olean.server",
    "/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean/Aesop/Rule.olean.private"],
-  "Aesop.RPINF.Basic":
-  ["/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean/Aesop/RPINF/Basic.olean",
-   "/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean/Aesop/RPINF/Basic.ir",
-   "/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean/Aesop/RPINF/Basic.olean.server",
-   "/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean/Aesop/RPINF/Basic.olean.private"],
-  "Aesop.RPINF":
-  ["/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean/Aesop/RPINF.olean",
-   "/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean/Aesop/RPINF.ir",
-   "/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean/Aesop/RPINF.olean.server",
-   "/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean/Aesop/RPINF.olean.private"],
   "Aesop.Percent":
   ["/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean/Aesop/Percent.olean",
    "/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean/Aesop/Percent.ir",
@@ -3280,6 +3411,11 @@
    "/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean/Aesop/Forward/Substitution.ir",
    "/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean/Aesop/Forward/Substitution.olean.server",
    "/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean/Aesop/Forward/Substitution.olean.private"],
+  "Aesop.Forward.State.UpdateGoal":
+  ["/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean/Aesop/Forward/State/UpdateGoal.olean",
+   "/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean/Aesop/Forward/State/UpdateGoal.ir",
+   "/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean/Aesop/Forward/State/UpdateGoal.olean.server",
+   "/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean/Aesop/Forward/State/UpdateGoal.olean.private"],
   "Aesop.Forward.State.Initial":
   ["/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean/Aesop/Forward/State/Initial.olean",
    "/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean/Aesop/Forward/State/Initial.ir",
@@ -3335,6 +3471,11 @@
    "/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean/Aesop/ElabM.ir",
    "/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean/Aesop/ElabM.olean.server",
    "/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean/Aesop/ElabM.olean.private"],
+  "Aesop.EMap":
+  ["/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean/Aesop/EMap.olean",
+   "/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean/Aesop/EMap.ir",
+   "/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean/Aesop/EMap.olean.server",
+   "/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean/Aesop/EMap.olean.private"],
   "Aesop.Constants":
   ["/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean/Aesop/Constants.olean",
    "/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean/Aesop/Constants.ir",

@@ -1,12 +1,12 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["cd776ff38584a1b5.olean"],
-  "i": "8c534138afc8dd15.ilean",
-  "c": "33a6ea82b7fce700.c"},
+ {"o": ["d40c5a4c4cfbc851.olean"],
+  "i": "5f491a9f816f0181.ilean",
+  "c": "9f017f76b91de499.c"},
  "log":
  [{"message":
-   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.26.0/bin/lean /workspaces/Cohomology-Foundations/H1Characterization/CycleCochain/Definitions.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/H1Characterization/CycleCochain/Definitions.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/H1Characterization/CycleCochain/Definitions.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/H1Characterization/CycleCochain/Definitions.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/H1Characterization/CycleCochain/Definitions.setup.json --json",
+   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.27.0/bin/lean /workspaces/Cohomology-Foundations/H1Characterization/CycleCochain/Definitions.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/H1Characterization/CycleCochain/Definitions.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/H1Characterization/CycleCochain/Definitions.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/H1Characterization/CycleCochain/Definitions.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/H1Characterization/CycleCochain/Definitions.setup.json --json",
    "level": "trace"},
   {"message":
    "H1Characterization/CycleCochain/Definitions.lean:160:62: This simp argument is unused:\n  or_comm\n\nHint: Omit it from the simp argument list.\n  simp [Finset.mem_insert, Finset.mem_singleton,̵ ̵o̵r̵_̵c̵o̵m̵m̵]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
@@ -57,20 +57,20 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["H1Characterization.OneConnected transitive imports (legacy)",
-         "32c972ab303520d0"],
+         "d0e40976f1afadd0"],
         ["H1Characterization.OneConnected:importAllArts",
-         "bd61ef003b4d9679"]]]]],
+         "7cab2b6187433080"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
       ["module dynlibs", "00000000000006bb"],
       ["module plugins", "00000000000006bb"]]]]],
-  ["Lean 4.26.0, commit d8204c9fd894f91bbb2cdfec5912ec8196fd8562",
-   "9c9419104e9584f8"],
+  ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
+   "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/H1Characterization/CycleCochain/Definitions.lean",
    "8389fda1444e7bb7"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "111bc899e85679d7"}
+ "depHash": "43254bc9f8c348cf"}

@@ -165,7 +165,7 @@ theorem fairness_complex_valid {n : ℕ} (profile : FairnessProfile n) :
   simp only [fairnessComplex, Set.mem_setOf_eq, canSatisfyAgents]
   use fun _ => 0
   intro v hv
-  exact (Finset.not_mem_empty v hv).elim
+  exact (Finset.notMem_empty v hv).elim
 
 /-! ## Part 4: Fairness Cohomology -/
 

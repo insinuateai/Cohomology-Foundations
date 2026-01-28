@@ -1,12 +1,12 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["4d0eb821f62af9b1.olean"],
-  "i": "26b74b770089d7e9.ilean",
-  "c": "a3ec42f02ce0c01e.c"},
+ {"o": ["a0038675db63b90d.olean"],
+  "i": "517c445fbe310da0.ilean",
+  "c": "703f8335fb7809cf.c"},
  "log":
  [{"message":
-   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.26.0/bin/lean /workspaces/Cohomology-Foundations/Perspective/FairRepair.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/FairRepair.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/FairRepair.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/FairRepair.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/FairRepair.setup.json --json",
+   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.27.0/bin/lean /workspaces/Cohomology-Foundations/Perspective/FairRepair.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/FairRepair.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/FairRepair.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/FairRepair.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/FairRepair.setup.json --json",
    "level": "trace"}],
  "inputs":
  [["Perspective.FairRepair:deps",
@@ -15,19 +15,19 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["Perspective.FairnessDynamics transitive imports (legacy)",
-         "1eb597b0a2adaee9"],
-        ["Perspective.FairnessDynamics:importAllArts", "01b9f1f8a86a2e47"]]]]],
+         "fe973f13af6ddfa5"],
+        ["Perspective.FairnessDynamics:importAllArts", "b1f9f8e26fc60d7d"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
       ["module dynlibs", "00000000000006bb"],
       ["module plugins", "00000000000006bb"]]]]],
-  ["Lean 4.26.0, commit d8204c9fd894f91bbb2cdfec5912ec8196fd8562",
-   "9c9419104e9584f8"],
+  ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
+   "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/Perspective/FairRepair.lean",
    "63a6e5a42a8f0782"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "aea34a28b5ea46fe"}
+ "depHash": "41e85aaee7aeef83"}

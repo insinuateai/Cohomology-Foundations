@@ -301,7 +301,7 @@ theorem empty_group_compatible (partition : GroupPartition n) :
   unfold groupFairnessCompatible
   use fun _ => 0
   intro g hg
-  exact absurd hg (Finset.not_mem_empty g)
+  exact absurd hg (Finset.notMem_empty g)
 
 /-! ## Part 9: Group Fairness Report -/
 

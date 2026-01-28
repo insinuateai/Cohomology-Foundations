@@ -15,6 +15,7 @@ import Mathlib.Data.Finset.Card
 import Mathlib.Data.Finset.Lattice.Basic
 import Mathlib.Data.Finset.Union
 import Mathlib.Algebra.BigOperators.Group.Finset.Basic
+import Mathlib.Algebra.Order.BigOperators.Group.Finset
 import MultiAgent.AgentNetworks
 
 namespace MultiAgent
@@ -173,7 +174,7 @@ theorem CoordinationProblem.tasksCompatible_self (p : CoordinationProblem) (t : 
 theorem CoordinationProblem.trivial_tasksCompatible (p : CoordinationProblem) (id₁ id₂ : ℕ) :
     p.tasksCompatible (Task.trivial id₁) (Task.trivial id₂) := by
   intro r hr
-  simp only [Task.trivial, Finset.empty_union, Finset.not_mem_empty] at hr
+  simp only [Task.trivial, Finset.empty_union, Finset.notMem_empty] at hr
 
 /-- No shared resources means compatible -/
 theorem CoordinationProblem.disjoint_compatible (p : CoordinationProblem) (t u : Task)
@@ -213,7 +214,7 @@ theorem CoordinationProblem.empty_assignment_compatible (p : CoordinationProblem
   constructor
   · exact hne
   · intro t ht
-    simp only [ha, Finset.not_mem_empty] at ht
+    simp only [ha, Finset.notMem_empty] at ht
 
 /-- Build network from coordination problem -/
 def CoordinationProblem.toNetwork (p : CoordinationProblem) : AgentNetwork where
@@ -244,7 +245,7 @@ def CoordinationProblem.isFeasible (p : CoordinationProblem) : Prop :=
 /-- Empty problem is feasible -/
 theorem CoordinationProblem.empty_isFeasible : CoordinationProblem.empty.isFeasible := by
   intro r hr
-  simp only [empty, Finset.not_mem_empty] at hr
+  simp only [empty, Finset.notMem_empty] at hr
 
 /-- Problem with no tasks is feasible -/
 theorem CoordinationProblem.no_tasks_isFeasible (p : CoordinationProblem)
@@ -262,12 +263,20 @@ def CoordinationProblem.singleAgentFeasible (p : CoordinationProblem) (a : Agent
   ∀ r ∈ p.resources,
     (p.assignment a).sum (fun t => if r ∈ t.requirements then 1 else 0) ≤ p.available r
 
-/-- Single agent feasibility is necessary (specification) -/
-axiom CoordinationProblem.feasible_implies_single (p : CoordinationProblem) (h : p.isFeasible)
-    (a : Agent) (ha : a ∈ p.agents) : p.singleAgentFeasible a
+/-- Single agent feasibility is necessary -/
+theorem CoordinationProblem.feasible_implies_single (p : CoordinationProblem) (h : p.isFeasible)
+    (a : Agent) (ha : a ∈ p.agents) : p.singleAgentFeasible a := by
+  intro r hr
+  have htotal := h r hr
+  have hle : (p.assignment a).sum (fun t => if r ∈ t.requirements then 1 else 0) ≤
+      p.agents.sum (fun a => (p.assignment a).sum (fun t => if r ∈ t.requirements then 1 else 0)) :=
+    Finset.single_le_sum (f := fun a => (p.assignment a).sum (fun t => if r ∈ t.requirements then 1 else 0))
+      (fun _ _ => Nat.zero_le _) ha
+  exact hle.trans htotal
 
-/-- Feasibility is in principle decidable (specification) -/
-axiom CoordinationProblem.feasible_decidable_axiom (p : CoordinationProblem) : Decidable p.isFeasible
+/-- Feasibility is decidable -/
+instance CoordinationProblem.feasible_decidable (p : CoordinationProblem) : Decidable p.isFeasible :=
+  inferInstanceAs (Decidable (∀ r ∈ p.resources, _))
 
 /-- Resource bottleneck: which resource is over-allocated (noncomputable) -/
 noncomputable def CoordinationProblem.bottleneck (p : CoordinationProblem) : Option Resource :=
@@ -275,13 +284,27 @@ noncomputable def CoordinationProblem.bottleneck (p : CoordinationProblem) : Opt
   then some (Classical.choose h)
   else none
 
-/-- No bottleneck means feasible (specification) -/
-axiom CoordinationProblem.no_bottleneck_feasible (p : CoordinationProblem)
-    (h : p.bottleneck = none) : p.isFeasible
+/-- No bottleneck means feasible -/
+theorem CoordinationProblem.no_bottleneck_feasible (p : CoordinationProblem)
+    (h : p.bottleneck = none) : p.isFeasible := by
+  intro r hr
+  by_contra hcontra
+  push_neg at hcontra
+  have hex : ∃ r ∈ p.resources, p.agents.sum (fun a => (p.assignment a).sum
+      (fun t => if r ∈ t.requirements then 1 else 0)) > p.available r := ⟨r, hr, hcontra⟩
+  simp only [bottleneck, dif_pos hex, reduceCtorEq] at h
 
-/-- Bottleneck found means not feasible (specification) -/
-axiom CoordinationProblem.bottleneck_not_feasible (p : CoordinationProblem) (r : Resource)
-    (h : p.bottleneck = some r) : ¬p.isFeasible
+/-- Bottleneck found means not feasible -/
+theorem CoordinationProblem.bottleneck_not_feasible (p : CoordinationProblem) (r : Resource)
+    (h : p.bottleneck = some r) : ¬p.isFeasible := by
+  intro hfeas
+  simp only [bottleneck] at h
+  by_cases hex : ∃ r ∈ p.resources, p.agents.sum (fun a => (p.assignment a).sum
+      (fun t => if r ∈ t.requirements then 1 else 0)) > p.available r
+  · obtain ⟨r', hr', hgt⟩ := hex
+    have hle := hfeas r' hr'
+    omega
+  · simp only [dif_neg hex, reduceCtorEq] at h
 
 /-- Feasible iff no bottleneck -/
 theorem CoordinationProblem.feasible_iff_no_bottleneck (p : CoordinationProblem) :
@@ -362,7 +385,7 @@ theorem CoordinationProblem.addTask_agents (p : CoordinationProblem) (a : Agent)
 /-- Adding task increases task count (if new) -/
 theorem CoordinationProblem.addTask_numTasks (p : CoordinationProblem) (a : Agent) (t : Task)
     (h : t ∉ p.tasks) : (p.addTask a t).numTasks = p.numTasks + 1 := by
-  simp only [numTasks, addTask, Finset.card_insert_of_not_mem h]
+  simp only [numTasks, addTask, Finset.card_insert_of_notMem h]
 
 /-- Remove a task from an agent -/
 def CoordinationProblem.removeTask (p : CoordinationProblem) (a : Agent) (t : Task) : CoordinationProblem where

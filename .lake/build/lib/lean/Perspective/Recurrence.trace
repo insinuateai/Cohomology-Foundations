@@ -1,12 +1,12 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["3d6e34ce31722383.olean"],
-  "i": "8d7bbabf08a24b4d.ilean",
-  "c": "84ddd77f0b196c7d.c"},
+ {"o": ["e6f7b85b7c8dd4d3.olean"],
+  "i": "5d6215de99af9ac3.ilean",
+  "c": "cdca19b7784bc5db.c"},
  "log":
  [{"message":
-   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.26.0/bin/lean /workspaces/Cohomology-Foundations/Perspective/Recurrence.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/Recurrence.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/Recurrence.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/Recurrence.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/Recurrence.setup.json --json",
+   ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.27.0/bin/lean /workspaces/Cohomology-Foundations/Perspective/Recurrence.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/Recurrence.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/Recurrence.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/Recurrence.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/Recurrence.setup.json --json",
    "level": "trace"},
   {"message":
    "Perspective/Recurrence.lean:115:6: unused variable `margin`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
@@ -66,19 +66,19 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["Perspective.EscapeTime transitive imports (legacy)",
-         "a572fcdc2169887b"],
-        ["Perspective.EscapeTime:importAllArts", "1bca3e2c7b3a8228"]]]]],
+         "1b5fd82b928c229f"],
+        ["Perspective.EscapeTime:importAllArts", "789c77997d38d3d8"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
       ["module dynlibs", "00000000000006bb"],
       ["module plugins", "00000000000006bb"]]]]],
-  ["Lean 4.26.0, commit d8204c9fd894f91bbb2cdfec5912ec8196fd8562",
-   "9c9419104e9584f8"],
+  ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
+   "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/Perspective/Recurrence.lean",
    "12b3425db14bcf4e"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "f723426e1ca5532c"}
+ "depHash": "b57c5a40c455d9ec"}
