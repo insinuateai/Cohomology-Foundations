@@ -1,8 +1,8 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["4444fe0f300cbc69.olean"],
-  "i": "88317373903bb5a3.ilean",
+ {"o": ["bf7e6de614a95593.olean"],
+  "i": "e6fd8dcf5eafa4ba.ilean",
   "c": "e342df9315ceb8b0.c"},
  "log":
  [{"message":
@@ -30,37 +30,34 @@
    "MultiAgent/ConsensusObstruction.lean:126:0: automatically included section variable(s) unused in theorem `MultiAgent.ConsensusInstance.consensus_mono`:\n  [DecidableEq V]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq V] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/ConsensusObstruction.lean:154:8: declaration uses 'sorry'",
+   "MultiAgent/ConsensusObstruction.lean:154:0: automatically included section variable(s) unused in theorem `MultiAgent.ConsensusInstance.add_agent_preserves_not_consensus`:\n  [DecidableEq V]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq V] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/ConsensusObstruction.lean:173:0: automatically included section variable(s) unused in theorem `MultiAgent.ConsensusInstance.remove_agent_mono`:\n  [DecidableEq V]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq V] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "MultiAgent/ConsensusObstruction.lean:171:0: automatically included section variable(s) unused in theorem `MultiAgent.ConsensusInstance.remove_agent_mono`:\n  [DecidableEq V]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq V] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/ConsensusObstruction.lean:230:8: declaration uses 'sorry'",
+   "MultiAgent/ConsensusObstruction.lean:243:0: automatically included section variable(s) unused in theorem `MultiAgent.ConsensusInstance.full_blocking_iff`:\n  [DecidableEq V]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq V] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/ConsensusObstruction.lean:248:0: automatically included section variable(s) unused in theorem `MultiAgent.ConsensusInstance.full_blocking_iff`:\n  [DecidableEq V]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq V] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "MultiAgent/ConsensusObstruction.lean:258:0: automatically included section variable(s) unused in theorem `MultiAgent.ConsensusInstance.obstructionDim_zero`:\n  [DecidableEq V]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq V] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/ConsensusObstruction.lean:263:0: automatically included section variable(s) unused in theorem `MultiAgent.ConsensusInstance.obstructionDim_zero`:\n  [DecidableEq V]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq V] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "MultiAgent/ConsensusObstruction.lean:264:0: automatically included section variable(s) unused in theorem `MultiAgent.ConsensusInstance.obstructionDim_pos`:\n  [DecidableEq V]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq V] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/ConsensusObstruction.lean:269:0: automatically included section variable(s) unused in theorem `MultiAgent.ConsensusInstance.obstructionDim_pos`:\n  [DecidableEq V]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq V] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "MultiAgent/ConsensusObstruction.lean:271:0: automatically included section variable(s) unused in theorem `MultiAgent.ConsensusInstance.blocking_superset`:\n  [DecidableEq V]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq V] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/ConsensusObstruction.lean:276:0: automatically included section variable(s) unused in theorem `MultiAgent.ConsensusInstance.blocking_superset`:\n  [DecidableEq V]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq V] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "MultiAgent/ConsensusObstruction.lean:317:0: automatically included section variable(s) unused in theorem `MultiAgent.ConsensusInstance.topology_fundamental`:\n  [DecidableEq V]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq V] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/ConsensusObstruction.lean:322:0: automatically included section variable(s) unused in theorem `MultiAgent.ConsensusInstance.topology_fundamental`:\n  [DecidableEq V]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq V] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "MultiAgent/ConsensusObstruction.lean:321:0: automatically included section variable(s) unused in theorem `MultiAgent.ConsensusInstance.arrow_connection`:\n  [DecidableEq V]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq V] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/ConsensusObstruction.lean:326:0: automatically included section variable(s) unused in theorem `MultiAgent.ConsensusInstance.arrow_connection`:\n  [DecidableEq V]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq V] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "MultiAgent/ConsensusObstruction.lean:321:44: unused variable `c`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/ConsensusObstruction.lean:326:44: unused variable `c`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
-   "level": "warning"},
-  {"message":
-   "MultiAgent/ConsensusObstruction.lean:365:0: automatically included section variable(s) unused in theorem `MultiAgent.ConsensusInstance.partial_full`:\n  [DecidableEq V]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq V] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "MultiAgent/ConsensusObstruction.lean:360:0: automatically included section variable(s) unused in theorem `MultiAgent.ConsensusInstance.partial_full`:\n  [DecidableEq V]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [DecidableEq V] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
    "level": "warning"}],
  "inputs":
  [["MultiAgent.ConsensusObstruction:deps",
@@ -78,8 +75,8 @@
          "0397f13ef0cea909"],
         ["Mathlib.Data.Finset.Lattice.Basic:importAllArts", "bfb96f2dfd9bbe90"],
         ["MultiAgent.AgentNetworks transitive imports (legacy)",
-         "a3e63cf756af82b7"],
-        ["MultiAgent.AgentNetworks:importAllArts", "cbf756cec16e2238"]]]]],
+         "3e0d5f3bbf7fb5d0"],
+        ["MultiAgent.AgentNetworks:importAllArts", "d1e6bf35e938cf75"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
@@ -88,9 +85,9 @@
   ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
    "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/MultiAgent/ConsensusObstruction.lean",
-   "cf23071e13a5c57f"],
+   "5114b73ffdf9fe88"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "fd08c43173b6ff81"}
+ "depHash": "39500671fe78b43b"}

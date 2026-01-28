@@ -1,15 +1,21 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["355ad2890bd42f22.olean"],
-  "i": "4327de1d646ffaf5.ilean",
+ {"o": ["e2cefa369ca36658.olean"],
+  "i": "27a4918e96b255a6.ilean",
   "c": "4b7572089bb3f4d1.c"},
  "log":
  [{"message":
    ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.27.0/bin/lean /workspaces/Cohomology-Foundations/H1Characterization/CycleCochain/Proofs.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/H1Characterization/CycleCochain/Proofs.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/H1Characterization/CycleCochain/Proofs.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/H1Characterization/CycleCochain/Proofs.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/H1Characterization/CycleCochain/Proofs.setup.json --json",
    "level": "trace"},
   {"message":
-   "H1Characterization/CycleCochain/Proofs.lean:104:8: declaration uses 'sorry'",
+   "H1Characterization/CycleCochain/Proofs.lean:121:27: unused variable `hcd`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "H1Characterization/CycleCochain/Proofs.lean:191:22: This simp argument is unused:\n  ite_false\n\nHint: Omit it from the simp argument list.\n  simp only [hqa,̵ ̵i̵t̵e̵_̵f̵a̵l̵s̵e̵]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "H1Characterization/CycleCochain/Proofs.lean:197:24: This simp argument is unused:\n  ite_false\n\nHint: Omit it from the simp argument list.\n  simp only [hpa,̵ ̵i̵t̵e̵_̵f̵a̵l̵s̵e̵]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
    "level": "warning"}],
  "inputs":
  [["H1Characterization.CycleCochain.Proofs:deps",
@@ -33,9 +39,9 @@
   ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
    "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/H1Characterization/CycleCochain/Proofs.lean",
-   "25ae03f5040b499d"],
+   "dafb46fe9d6d2960"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "3517f35865ff2dd1"}
+ "depHash": "4102196647fd4d7b"}

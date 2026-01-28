@@ -152,8 +152,8 @@ theorem ConsensusInstance.two_agents_consensus_iff_overlap (c : ConsensusInstanc
 
 /-- Adding agent can only break consensus -/
 theorem ConsensusInstance.add_agent_preserves_not_consensus (c : ConsensusInstance V)
-    (a : Agent) (acc : Finset V) (h : ¬c.consensusPossible) :
-    ¬(⟨insert a c.agents, c.preferences, 
+    (a : Agent) (acc : Finset V) (ha : a ∉ c.agents) (h : ¬c.consensusPossible) :
+    ¬(⟨insert a c.agents, c.preferences,
        fun x => if x = a then acc else c.acceptable x⟩ : ConsensusInstance V).consensusPossible := by
   intro ⟨v, hv⟩
   apply h
@@ -163,9 +163,7 @@ theorem ConsensusInstance.add_agent_preserves_not_consensus (c : ConsensusInstan
   simp only [isAcceptable] at this ⊢
   by_cases hxa : x = a
   · subst hxa
-    simp at this
-    -- x = a case needs that a ∉ c.agents originally
-    sorry -- Edge case
+    exact absurd hx ha
   · simp only [hxa, ite_false] at this
     exact this
 
@@ -228,13 +226,10 @@ theorem ConsensusInstance.consensus_complete_compat (c : ConsensusInstance V) (v
 
 /-- No overlap means no edges -/
 theorem ConsensusInstance.no_overlap_isolated (c : ConsensusInstance V) (a : Agent)
-    (h : ∀ b ∈ c.agents, b ≠ a → ¬c.agentsOverlap a b) (b : Agent) (hne : b ≠ a) :
+    (h : ∀ b ∈ c.agents, b ≠ a → ¬c.agentsOverlap a b) (b : Agent) (hb : b ∈ c.agents) (hne : b ≠ a) :
     ¬c.toNetwork.compatible a b := by
   intro ⟨_, hov⟩
-  by_cases hb : b ∈ c.agents
-  · exact h b hb hne hov
-  · -- If b not in agents, still need to handle
-    exact h b (by sorry) hne hov  -- Edge case
+  exact h b hb hne hov
 
 -- ============================================================================
 -- SECTION 4: BLOCKING COALITIONS (8 proven theorems)

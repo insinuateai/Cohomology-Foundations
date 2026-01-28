@@ -1,8 +1,8 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["6c6ec844915bbfcf.olean"],
-  "i": "1a81d3b39a3db27f.ilean",
+ {"o": ["ef0fe889f8516b8e.olean"],
+  "i": "cf5003a32055aa59.ilean",
   "c": "9ae12fae8ea74b4e.c"},
  "log":
  [{"message":
@@ -15,91 +15,85 @@
    "MultiAgent/EquilibriumTopology.lean:43:31: unused variable `c₂`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/EquilibriumTopology.lean:114:8: declaration uses 'sorry'",
+   "MultiAgent/EquilibriumTopology.lean:135:30: unused variable `pred`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/EquilibriumTopology.lean:131:30: unused variable `pred`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/EquilibriumTopology.lean:148:30: unused variable `pred`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/EquilibriumTopology.lean:144:30: unused variable `pred`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/EquilibriumTopology.lean:149:5: unused variable `equilibria`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/EquilibriumTopology.lean:145:5: unused variable `equilibria`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/EquilibriumTopology.lean:177:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/EquilibriumTopology.lean:173:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/EquilibriumTopology.lean:187:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/EquilibriumTopology.lean:183:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/EquilibriumTopology.lean:201:37: This simp argument is unused:\n  AgentNetwork.size\n\nHint: Omit it from the simp argument list.\n  simp only [hasForestEquilibria, equilibriumNetwork, AgentNetwork.isForest, A̵g̵e̵n̵t̵N̵e̵t̵w̵o̵r̵k̵.̵i̵s̵T̵r̵i̵v̵i̵a̵l̵,̵ ̵A̵g̵e̵n̵t̵N̵e̵t̵w̵o̵r̵k̵.̵s̵i̵z̵e̵]̵A̲g̲e̲n̲t̲N̲e̲t̲w̲o̲r̲k̲.̲i̲s̲T̲r̲i̲v̲i̲a̲l̲]̲\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/EquilibriumTopology.lean:197:37: This simp argument is unused:\n  AgentNetwork.size\n\nHint: Omit it from the simp argument list.\n  simp only [hasForestEquilibria, equilibriumNetwork, AgentNetwork.isForest, A̵g̵e̵n̵t̵N̵e̵t̵w̵o̵r̵k̵.̵i̵s̵T̵r̵i̵v̵i̵a̵l̵,̵ ̵A̵g̵e̵n̵t̵N̵e̵t̵w̵o̵r̵k̵.̵s̵i̵z̵e̵]̵A̲g̲e̲n̲t̲N̲e̲t̲w̲o̲r̲k̲.̲i̲s̲T̲r̲i̲v̲i̲a̲l̲]̲\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "MultiAgent/EquilibriumTopology.lean:241:20: unused variable `pred₁`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/EquilibriumTopology.lean:214:8: declaration uses 'sorry'",
+   "MultiAgent/EquilibriumTopology.lean:241:26: unused variable `pred₂`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/EquilibriumTopology.lean:231:20: unused variable `pred₁`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/EquilibriumTopology.lean:248:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/EquilibriumTopology.lean:231:26: unused variable `pred₂`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/EquilibriumTopology.lean:252:18: unused variable `pred₁`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/EquilibriumTopology.lean:238:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/EquilibriumTopology.lean:252:24: unused variable `pred₂`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/EquilibriumTopology.lean:242:18: unused variable `pred₁`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/EquilibriumTopology.lean:257:17: unused variable `pred₁`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/EquilibriumTopology.lean:242:24: unused variable `pred₂`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/EquilibriumTopology.lean:257:23: unused variable `pred₂`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/EquilibriumTopology.lean:247:17: unused variable `pred₁`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/EquilibriumTopology.lean:262:12: unused variable `pred₁`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/EquilibriumTopology.lean:247:23: unused variable `pred₂`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/EquilibriumTopology.lean:262:18: unused variable `pred₂`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/EquilibriumTopology.lean:252:12: unused variable `pred₁`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/EquilibriumTopology.lean:277:24: unused variable `payoffs`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/EquilibriumTopology.lean:252:18: unused variable `pred₂`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/EquilibriumTopology.lean:278:3: unused variable `c`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/EquilibriumTopology.lean:267:24: unused variable `payoffs`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/EquilibriumTopology.lean:281:24: unused variable `payoffs`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/EquilibriumTopology.lean:268:3: unused variable `c`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/EquilibriumTopology.lean:299:34: unused variable `agents`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/EquilibriumTopology.lean:271:24: unused variable `payoffs`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/EquilibriumTopology.lean:303:30: unused variable `pred`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/EquilibriumTopology.lean:289:34: unused variable `agents`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/EquilibriumTopology.lean:315:40: unused variable `supply`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/EquilibriumTopology.lean:293:30: unused variable `pred`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/EquilibriumTopology.lean:315:47: unused variable `demand`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/EquilibriumTopology.lean:305:40: unused variable `supply`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/EquilibriumTopology.lean:320:3: unused variable `c`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/EquilibriumTopology.lean:305:47: unused variable `demand`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/EquilibriumTopology.lean:323:35: unused variable `candidates`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/EquilibriumTopology.lean:310:3: unused variable `c`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/EquilibriumTopology.lean:324:3: unused variable `c`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/EquilibriumTopology.lean:313:35: unused variable `candidates`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/EquilibriumTopology.lean:328:3: unused variable `c`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/EquilibriumTopology.lean:314:3: unused variable `c`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
-   "level": "warning"},
-  {"message":
-   "MultiAgent/EquilibriumTopology.lean:318:3: unused variable `c`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
-   "level": "warning"},
-  {"message":
-   "MultiAgent/EquilibriumTopology.lean:328:54: unused variable `hlarge`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/EquilibriumTopology.lean:338:54: unused variable `hlarge`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"}],
  "inputs":
  [["MultiAgent.EquilibriumTopology:deps",
@@ -121,8 +115,8 @@
         ["Mathlib.Algebra.BigOperators.Group.Finset.Basic:importAllArts",
          "3b840309801c948c"],
         ["MultiAgent.AgentNetworks transitive imports (legacy)",
-         "a3e63cf756af82b7"],
-        ["MultiAgent.AgentNetworks:importAllArts", "cbf756cec16e2238"]]]]],
+         "3e0d5f3bbf7fb5d0"],
+        ["MultiAgent.AgentNetworks:importAllArts", "d1e6bf35e938cf75"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
@@ -131,9 +125,9 @@
   ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
    "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/MultiAgent/EquilibriumTopology.lean",
-   "b0a4f9da9094277b"],
+   "b503a543851dfcc8"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "ef46d578c1979dad"}
+ "depHash": "333f5e13939b17db"}

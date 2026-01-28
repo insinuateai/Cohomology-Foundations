@@ -149,10 +149,10 @@ theorem ConstrainedCoordination.toNetwork_agents (P : ConstrainedCoordination) :
 /-- No constraints means no edges -/
 theorem ConstrainedCoordination.no_constraints_forest (P : CoordinationProblem) :
     (⟨P, ∅, by simp⟩ : ConstrainedCoordination).toNetwork.isForest := by
-  simp only [ConstrainedCoordination.toNetwork, AgentNetwork.isForest, AgentNetwork.isTrivial,
-             AgentNetwork.size]
-  -- No edges means forest
-  sorry -- Requires showing no compatible pairs
+  -- When constraints = ∅, no compatible pairs exist, so network is fullyIncompatible
+  right
+  intro a b ⟨_, c, hc, _⟩
+  exact Finset.not_mem_empty c hc
 
 -- ============================================================================
 -- SECTION 3: COORDINATION PROTOCOLS (10 proven theorems)
@@ -240,7 +240,53 @@ def hasConstraintCycle (P : ConstrainedCoordination) : Prop :=
 /-- Three-agent cycle (hollow triangle in constraints) -/
 theorem three_cycle_potential_impossible :
     ∃ P : ConstrainedCoordination, P.agents.card = 3 ∧ hasConstraintCycle P := by
-  sorry -- Construct triangle constraint network
+  -- Construct three agents
+  let a₁ : Agent := ⟨0⟩
+  let a₂ : Agent := ⟨1⟩
+  let a₃ : Agent := ⟨2⟩
+  let agents : Finset Agent := {a₁, a₂, a₃}
+  -- Constraint between each pair (forms a triangle)
+  let c₁₂ : Constraint := Constraint.equality a₁ a₂
+  let c₂₃ : Constraint := Constraint.equality a₂ a₃
+  let c₁₃ : Constraint := Constraint.inequality a₁ a₃  -- Creates impossibility
+  let constraints : Finset Constraint := {c₁₂, c₂₃, c₁₃}
+  -- Build coordination problem
+  have hne : ({0} : Finset ℕ).Nonempty := ⟨0, by simp⟩
+  let baseProblem : CoordinationProblem := {
+    agents := agents
+    choices := {0}
+    utility := fun _ _ _ => 0
+    choices_nonempty := hne
+  }
+  let P : ConstrainedCoordination := {
+    baseProblem with
+    constraints := constraints
+    constraints_valid := by
+      intro c hc
+      simp only [Finset.mem_insert, Finset.mem_singleton] at hc
+      rcases hc with rfl | rfl | rfl <;> simp [agents, Constraint.equality, Constraint.inequality]
+  }
+  use P
+  constructor
+  · -- Show 3 agents
+    simp only [agents]
+    decide
+  · -- Show cycle exists (not a forest)
+    intro hforest
+    -- Forest means trivial or fullyIncompatible
+    rcases hforest with htriv | hinc
+    · -- Trivial means card ≤ 1, but we have 3 agents
+      simp only [AgentNetwork.isTrivial, ConstrainedCoordination.toNetwork] at htriv
+      have hcard : agents.card = 3 := by decide
+      omega
+    · -- FullyIncompatible, but we have compatible pairs from constraints
+      have hcompat : P.toNetwork.compatible a₁ a₂ := by
+        simp only [ConstrainedCoordination.toNetwork]
+        constructor
+        · decide
+        · use c₁₂
+          simp [constraints, c₁₂, Constraint.equality]
+      exact hinc a₁ a₂ hcompat
 
 /-- Forest constraints never impossible (for coordination type) -/
 theorem forest_never_impossible (P : ConstrainedCoordination)
@@ -311,25 +357,25 @@ theorem gap_hollow_triangle (P : ConstrainedCoordination) :
 -- ============================================================================
 
 /-- Distributed database coordination -/
-def databaseCoordination (nodes : Finset Agent) (values : Finset ℕ) : CoordinationProblem where
+def databaseCoordination (nodes : Finset Agent) (values : Finset ℕ) (hv : values.Nonempty) : CoordinationProblem where
   agents := nodes
   choices := values
   utility := fun _ myVal consensus => if myVal = consensus then 1 else 0
-  choices_nonempty := by sorry -- Assume values nonempty
+  choices_nonempty := hv
 
 /-- Consensus protocol exists -/
 theorem database_consensus_exists (nodes : Finset Agent) (values : Finset ℕ)
     (hv : values.Nonempty) (hn : nodes.Nonempty) :
-    ∃ p : Protocol, p.isSuccessful (databaseCoordination nodes values) := by
-  obtain ⟨v, hv⟩ := hv
-  exact ⟨Protocol.trivial v, Protocol.trivial_successful _ v hv⟩
+    ∃ p : Protocol, p.isSuccessful (databaseCoordination nodes values hv) := by
+  obtain ⟨v, hv'⟩ := hv
+  exact ⟨Protocol.trivial v, Protocol.trivial_successful _ v hv'⟩
 
 /-- Multi-robot coordination -/
-def robotCoordination (robots : Finset Agent) (positions : Finset ℕ) : CoordinationProblem where
+def robotCoordination (robots : Finset Agent) (positions : Finset ℕ) (hp : positions.Nonempty) : CoordinationProblem where
   agents := robots
   choices := positions
   utility := fun _ pos target => if pos = target then 1 else 0
-  choices_nonempty := by sorry
+  choices_nonempty := hp
 
 /-- Traffic intersection coordination -/
 def trafficCoordination (lanes : Finset Agent) : CoordinationProblem where
@@ -339,11 +385,11 @@ def trafficCoordination (lanes : Finset Agent) : CoordinationProblem where
   choices_nonempty := by simp
 
 /-- Spectrum allocation -/
-def spectrumCoordination (users : Finset Agent) (channels : Finset ℕ) : CoordinationProblem where
+def spectrumCoordination (users : Finset Agent) (channels : Finset ℕ) (hc : channels.Nonempty) : CoordinationProblem where
   agents := users
   choices := channels
   utility := fun _ ch _ => 1  -- Simplified
-  choices_nonempty := by sorry
+  choices_nonempty := hc
 
 /-- Supply chain coordination -/
 def supplyChainCoordination (suppliers : Finset Agent) : CoordinationProblem where
@@ -353,18 +399,18 @@ def supplyChainCoordination (suppliers : Finset Agent) : CoordinationProblem whe
   choices_nonempty := by simp
 
 /-- Meeting scheduling -/
-def meetingCoordination (participants : Finset Agent) (times : Finset ℕ) : CoordinationProblem where
+def meetingCoordination (participants : Finset Agent) (times : Finset ℕ) (ht : times.Nonempty) : CoordinationProblem where
   agents := participants
   choices := times
   utility := fun _ slot consensus => if slot = consensus then 1 else 0
-  choices_nonempty := by sorry
+  choices_nonempty := ht
 
 /-- Forest structure enables efficient scheduling -/
 theorem meeting_forest_efficient (participants : Finset Agent) (times : Finset ℕ)
-    (ht : times.Nonempty) : 
-    ∃ p : Protocol, p.isSuccessful (meetingCoordination participants times) := by
-  obtain ⟨t, ht⟩ := ht
-  exact ⟨Protocol.trivial t, Protocol.trivial_successful _ t ht⟩
+    (ht : times.Nonempty) :
+    ∃ p : Protocol, p.isSuccessful (meetingCoordination participants times ht) := by
+  obtain ⟨t, ht'⟩ := ht
+  exact ⟨Protocol.trivial t, Protocol.trivial_successful _ t ht'⟩
 
 -- ============================================================================
 -- SUMMARY: ~54 proven theorems, 2 axioms, ~5 sorries

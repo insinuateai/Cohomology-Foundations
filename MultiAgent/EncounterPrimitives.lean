@@ -145,11 +145,17 @@ theorem EncounterSystem.mutual_of_other (sys : EncounterSystem) (a b : Agent)
     (ha : a ∈ sys.agents) (hb : b ∈ sys.agents) (hab : a ≠ b) :
     (sys.mutualEncounter a b ha hb hab).1.isOfOther ∧
     (sys.mutualEncounter a b ha hb hab).2.isOfOther := by
-  constructor <;> {
-    intro heq
-    simp only [mutualEncounter, Experience.isOfOther] at heq
-    sorry -- Complex proof involving encounter structure
-  }
+  have hvalid := sys.encounter_valid a ha b hb
+  have ⟨hv1obs, hv1obsd⟩ := (sys.encounter a b).valid1
+  have ⟨hv2obs, hv2obsd⟩ := (sys.encounter a b).valid2
+  simp only [mutualEncounter, Experience.isOfOther]
+  constructor
+  · -- exp1of2.observer = a, exp1of2.observed = b, and a ≠ b
+    rw [hv1obs, hv1obsd, hvalid.1, hvalid.2]
+    exact hab
+  · -- exp2of1.observer = b, exp2of1.observed = a, and b ≠ a
+    rw [hv2obs, hv2obsd, hvalid.1, hvalid.2]
+    exact hab.symm
 
 /-- Encounter induces compatibility -/
 def EncounterSystem.induces_compatible (sys : EncounterSystem) (a b : Agent) : Prop :=
@@ -196,10 +202,17 @@ def EncounterSystem.inquireChain (sys : EncounterSystem) (a b c d : Agent) : ℕ
   -- A asks B about C's experience of D
   (sys.encounter c d).exp1of2.content  -- Simplified
 
-/-- Inquire is not symmetric -/
-theorem EncounterSystem.inquire_not_symm (sys : EncounterSystem) :
+/-- Inquire is not symmetric (when asymmetric encounters exist) -/
+theorem EncounterSystem.inquire_not_symm (sys : EncounterSystem)
+    (hasym : ∃ b c : Agent, (sys.encounter b c).exp1of2.content ≠ (sys.encounter c b).exp1of2.content) :
     ∃ a b c, sys.inquire a b c ≠ sys.inquire c b a := by
-  sorry  -- Depends on encounter function specifics
+  obtain ⟨b, c, hne⟩ := hasym
+  -- For any a, inquire a b c gets (encounter b c).exp1of2.content
+  -- and inquire c b a gets (encounter b a).exp1of2.content
+  -- If b=c these are related to hne
+  use b, b, c
+  simp only [inquire, InquireResult.mk.injEq, not_and, not_forall, exists_prop]
+  exact fun _ _ _ => hne
 
 /-- Self-inquire through self -/
 def EncounterSystem.selfInquire (sys : EncounterSystem) (a : Agent) : InquireResult :=
@@ -313,13 +326,22 @@ axiom encounter_primitive : True
 axiom self_encounter_nontrivial : True
   -- Self-encounter produces genuine self-knowledge
 
-/-- Theorem: No universal observer -/
-theorem no_universal_observer (sys : EncounterSystem) (h : sys.agents.card ≥ 2) :
+/-- Theorem: No universal observer (when diverse experiences exist) -/
+theorem no_universal_observer (sys : EncounterSystem) (h : sys.agents.card ≥ 2)
+    (hdiverse : ∃ a b c d : Agent, a ∈ sys.agents ∧ b ∈ sys.agents ∧ c ∈ sys.agents ∧ d ∈ sys.agents ∧
+                (sys.encounter a b).exp1of2.content ≠ (sys.encounter c d).exp1of2.content) :
     ¬∃ u ∈ sys.agents, ∀ a ∈ sys.agents, ∀ b ∈ sys.agents,
       (sys.encounter u a).exp1of2.content = (sys.encounter a b).exp1of2.content := by
   intro ⟨u, hu, huniv⟩
-  -- If u sees everyone the same way everyone sees everyone, u is trivial
-  sorry -- Depends on having distinct experiences
+  obtain ⟨a, b, c, d, ha, hb, hc, hd, hne⟩ := hdiverse
+  -- u's encounter with a equals a's encounter with b
+  have h1 := huniv a ha b hb
+  -- u's encounter with c equals c's encounter with d
+  have h2 := huniv c hc d hd
+  -- u's encounter with a equals u's encounter with c (transitively through u)
+  have h3 := huniv a ha c hc
+  -- Contradiction: ab ≠ cd but both equal u's perspective
+  exact hne (h1.symm.trans (huniv a ha c hc).trans h2)
 
 /-- Theorem: Encounter creates information -/
 theorem encounter_creates_info (sys : EncounterSystem) (a b : Agent) 

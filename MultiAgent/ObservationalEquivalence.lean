@@ -150,10 +150,11 @@ structure Lens where
   representative : Agent
   members : Finset Agent
   nonempty : members.Nonempty
+  rep_in_members : representative ∈ members
 
 /-- Lens from equivalence class -/
 noncomputable def ObservationSystem.toLens (sys : ObservationSystem) (a : Agent) (ha : a ∈ sys.agents) : Lens :=
-  ⟨a, sys.equivClass a, ⟨a, sys.mem_equivClass_self a ha⟩⟩
+  ⟨a, sys.equivClass a, ⟨a, sys.mem_equivClass_self a ha⟩, sys.mem_equivClass_self a ha⟩
 
 /-- Lens size -/
 def Lens.size (l : Lens) : ℕ := l.members.card
@@ -162,13 +163,10 @@ def Lens.size (l : Lens) : ℕ := l.members.card
 theorem Lens.size_pos (l : Lens) : 0 < l.size := Finset.card_pos.mpr l.nonempty
 
 /-- Representative is in members -/
-theorem Lens.rep_mem (l : Lens) : l.representative ∈ l.members := by
-  -- This requires a structural invariant that representative ∈ members
-  -- For now, we'll need to add this as a field or axiom
-  sorry
+theorem Lens.rep_mem (l : Lens) : l.representative ∈ l.members := l.rep_in_members
 
 /-- Singleton lens -/
-def Lens.singleton (a : Agent) : Lens := ⟨a, {a}, Finset.singleton_nonempty a⟩
+def Lens.singleton (a : Agent) : Lens := ⟨a, {a}, Finset.singleton_nonempty a, Finset.mem_singleton_self a⟩
 
 /-- Singleton has size 1 -/
 @[simp]
@@ -178,15 +176,14 @@ theorem Lens.singleton_size (a : Agent) : (Lens.singleton a).size = 1 := Finset.
 @[simp]
 theorem Lens.singleton_rep (a : Agent) : (Lens.singleton a).representative = a := rfl
 
-/-- Two lenses are equal if same members -/
-theorem Lens.ext_iff (l m : Lens) : l = m ↔ l.members = m.members := by
+/-- Two lenses are equal if same representative and members -/
+theorem Lens.ext_iff (l m : Lens) : l = m ↔ l.representative = m.representative ∧ l.members = m.members := by
   constructor
-  · intro h; rw [h]
-  · intro h
+  · intro h; rw [h]; exact ⟨rfl, rfl⟩
+  · intro ⟨hrep, hmem⟩
     cases l; cases m
-    simp only at h
-    simp only [mk.injEq, h, and_true]
-    sorry -- Representative might differ
+    simp only at hrep hmem
+    simp only [mk.injEq, hrep, hmem, and_self]
 
 /-- Lens contains agent -/
 def Lens.contains (l : Lens) (a : Agent) : Prop := a ∈ l.members
@@ -297,10 +294,13 @@ theorem perspectiveIdentity_same_class (sys : ObservationSystem) (a b : Agent)
   simp only [ObservationSystem.equivClass]
 
 /-- No universal perspective: can't observe everything -/
-theorem no_universal_perspective (sys : ObservationSystem) (h : sys.agents.card ≥ 2) :
+theorem no_universal_perspective (sys : ObservationSystem) (h : sys.agents.card ≥ 2)
+    (hdiff : ∃ a b c : Agent, a ∈ sys.agents ∧ b ∈ sys.agents ∧ sys.observe a c ≠ sys.observe b c) :
     ∃ a b : Agent, a ∈ sys.agents ∧ b ∈ sys.agents ∧ ¬perspectiveIdentity sys a b := by
-  -- With 2+ agents, there exist non-identical ones (unless all equivalent)
-  sorry -- Depends on observation function structure
+  obtain ⟨a, b, c, ha, hb, hne⟩ := hdiff
+  use a, b, ha, hb
+  intro ⟨hab, _⟩
+  exact hne (hab c)
 
 /-- Perspective is local -/
 theorem perspective_locality (sys : ObservationSystem) (a : Agent) :

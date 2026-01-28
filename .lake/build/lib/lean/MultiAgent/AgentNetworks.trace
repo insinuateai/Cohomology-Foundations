@@ -1,13 +1,19 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["b2c91ef3ec918eb5.olean"],
-  "i": "9fdbd881725d6c8c.ilean",
-  "c": "7f80a13a70262ac5.c"},
+ {"o": ["81952c223c104c3c.olean"],
+  "i": "b6320d87c4cadf9c.ilean",
+  "c": "c6e0da45219ced8a.c"},
  "log":
  [{"message":
    ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.27.0/bin/lean /workspaces/Cohomology-Foundations/MultiAgent/AgentNetworks.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/MultiAgent/AgentNetworks.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/MultiAgent/AgentNetworks.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/MultiAgent/AgentNetworks.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/MultiAgent/AgentNetworks.setup.json --json",
-   "level": "trace"}],
+   "level": "trace"},
+  {"message":
+   "MultiAgent/AgentNetworks.lean:445:78: This simp argument is unused:\n  List.get_eq_getElem\n\nHint: Omit it from the simp argument list.\n  simp only [Finset.mem_erase, Finset.mem_insert, Finset.mem_singleton,̵ ̵L̵i̵s̵t̵.̵g̵e̵t̵_̵e̵q̵_̵g̵e̵t̵E̵l̵e̵m̵]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/AgentNetworks.lean:459:78: This simp argument is unused:\n  List.get_eq_getElem\n\nHint: Omit it from the simp argument list.\n  simp only [Finset.mem_erase, Finset.mem_insert, Finset.mem_singleton,̵ ̵L̵i̵s̵t̵.̵g̵e̵t̵_̵e̵q̵_̵g̵e̵t̵E̵l̵e̵m̵]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "level": "warning"}],
  "inputs":
  [["MultiAgent.AgentNetworks:deps",
    [["deps",
@@ -22,7 +28,10 @@
         ["Mathlib.Data.Finset.Card:importAllArts", "dfd1b2e7b41d681f"],
         ["Mathlib.Logic.Function.Basic transitive imports (legacy)",
          "b3b73233ad49e942"],
-        ["Mathlib.Logic.Function.Basic:importAllArts", "290dda990eb4d20b"]]]]],
+        ["Mathlib.Logic.Function.Basic:importAllArts", "290dda990eb4d20b"],
+        ["Foundations.Cohomology transitive imports (legacy)",
+         "05bb958d28b1d91a"],
+        ["Foundations.Cohomology:importAllArts", "80ff563c1904e716"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
@@ -31,9 +40,9 @@
   ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
    "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/MultiAgent/AgentNetworks.lean",
-   "39252728420a3f72"],
+   "1221dcdc5b229504"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "183e9740a4a90ce6"}
+ "depHash": "70d4d4605e442701"}

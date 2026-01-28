@@ -137,8 +137,11 @@ theorem Mechanism.dictatorial_ic_dictator (agents : Finset Agent) (types : Agent
         (fun x => if x = dictator then report else others x)) := by
   intro trueType _ report _ others
   simp only [dictatorial, hpref]
-  -- Truth-telling gives utility 1 if trueType ∈ outcomes
-  sorry -- Requires case analysis on membership
+  -- Truth-telling gives utility 1, reporting may give 0 or 1
+  simp only [ite_eq_left_iff, ite_eq_right_iff]
+  by_cases h : report = trueType
+  · simp only [h, ↓reduceIte, le_refl]
+  · simp only [h, ↓reduceIte, zero_le]
 
 /-- Individual rationality: participation is beneficial -/
 def Mechanism.isIR (M : Mechanism) (u : Utility) (reserve : ℚ) : Prop :=

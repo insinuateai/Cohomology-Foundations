@@ -115,7 +115,11 @@ theorem equilibriumConnected_trans (pred : Configuration n → Prop) (c₁ c₂ 
     equilibriumConnected pred c₁ c₂ → equilibriumConnected pred c₂ c₃ →
     equilibriumConnected pred c₁ c₃ := by
   intro ⟨h1, _, _, _, _, _⟩ ⟨_, h3, _, _, _, _⟩
-  exact ⟨h1, h3, [c₁, c₃], by simp, by simp, by intro c hc; simp at hc; cases hc <;> (subst_vars; sorry)⟩
+  refine ⟨h1, h3, [c₁, c₃], by simp, by simp, ?_⟩
+  intro c hc; simp at hc
+  rcases hc with rfl | rfl
+  · exact h1
+  · exact h3
 
 /-- Component of an equilibrium -/
 def equilibriumComponent (pred : Configuration n → Prop) (c : Configuration n) : 
@@ -219,9 +223,15 @@ theorem stable_is_isolated (pred : Configuration n → Prop) (c : Configuration 
     constructor
     · intro hc'
       simp only [equilibriumComponent, Set.mem_setOf_eq] at hc'
-      obtain ⟨_, hpred, path, _, _, hpath⟩ := hc'
-      -- Need to show path stays at c
-      sorry -- Requires stability argument
+      obtain ⟨_, hpred, _, _, _, _⟩ := hc'
+      -- Since distance is always 0, neighborhood r includes everything (for r > 0)
+      obtain ⟨r, hr, hstab⟩ := h.2
+      -- c' is in neighborhood (distance 0 ≤ r)
+      have hc'_in : c' ∈ c.neighborhood r := by
+        simp only [Configuration.neighborhood, Set.mem_setOf_eq, Configuration.distance]
+        exact Nat.zero_le r
+      simp only [Set.mem_singleton_iff]
+      exact hstab c' hc'_in hpred
     · intro hc'
       simp only [Set.mem_singleton_iff] at hc'
       rw [hc']

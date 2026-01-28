@@ -360,11 +360,11 @@ theorem teamGame_additive (players : Finset Agent) :
   norm_cast
 
 /-- Supply chain coalition -/
-def supplyChainGame (suppliers : Finset Agent) 
-    (efficiency : Coalition → ℚ) : CoalitionGame where
+def supplyChainGame (suppliers : Finset Agent)
+    (efficiency : Coalition → ℚ) (hzero : efficiency ∅ = 0) : CoalitionGame where
   agents := suppliers
   value := efficiency
-  empty_zero := by sorry
+  empty_zero := hzero
 
 /-- International coalition -/
 def internationalGame (countries : Finset Agent)

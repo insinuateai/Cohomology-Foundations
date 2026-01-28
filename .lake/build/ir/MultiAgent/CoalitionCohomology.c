@@ -22,12 +22,13 @@ LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_researchGame(lean_o
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_CoalitionGame_shapleyValue(lean_object*, lean_object*);
 lean_object* lp_mathlib_Multiset_map___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_internationalGame___lam__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_supplyChainGame___redArg(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT uint8_t lp_CohomologyFoundations___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___00List_foldrTR___at___00List_pwFilter___at___00List_dedup___at___00Multiset_dedup___at___00Multiset_toFinset___at___00Finset_image___at___00MultiAgent_CoalitionStructure_singletons_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___lam__0(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_Finset_sum___at___00MultiAgent_internationalGame_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_Multiset_sum___at___00Finset_sum___at___00MultiAgent_internationalGame_spec__0_spec__0(lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_Coalition_size___boxed(lean_object*);
-LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_supplyChainGame(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_supplyChainGame(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_Finset_image___at___00MultiAgent_CoalitionStructure_singletons_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_CoalitionStructure_singletons___lam__0(lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_CoalitionStructure_numCoalitions(lean_object*);
@@ -35,6 +36,7 @@ LEAN_EXPORT lean_object* lp_CohomologyFoundations_List_dedup___at___00Multiset_d
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_teamGame(lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_Finset_sum___at___00MultiAgent_internationalGame_spec__0(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
+lean_object* lp_mathlib_Nat_cast___at___00Mathlib_Tactic_Ring_ExProd_mkNat_spec__0(lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_CoalitionStructure_grand___redArg(lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_List_pwFilter___at___00List_dedup___at___00Multiset_dedup___at___00Multiset_toFinset___at___00Finset_image___at___00MultiAgent_CoalitionStructure_singletons_spec__0_spec__0_spec__0_spec__0_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_Finset_image___at___00MultiAgent_CoalitionStructure_singletons_spec__0(lean_object*, lean_object*, lean_object*);
@@ -59,7 +61,6 @@ uint8_t lp_mathlib_Multiset_decidableMem___redArg(lean_object*, lean_object*, le
 static lean_object* lp_CohomologyFoundations_MultiAgent_researchGame___closed__0;
 LEAN_EXPORT lean_object* lp_CohomologyFoundations___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___00List_foldrTR___at___00List_pwFilter___at___00List_dedup___at___00Multiset_dedup___at___00Multiset_toFinset___at___00Finset_image___at___00MultiAgent_CoalitionStructure_singletons_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0(lean_object*, size_t, size_t, lean_object*);
 size_t lean_usize_sub(size_t, size_t);
-lean_object* lp_mathlib_Nat_cast___at___00Mathlib_Linter___aux__Mathlib__Tactic__Linter__DeprecatedModule______elabRules__Mathlib__Linter__deprecated__modules__1_spec__5(lean_object*);
 lean_object* lean_array_mk(lean_object*);
 lean_object* lp_CohomologyFoundations_MultiAgent_instDecidableEqAgent___boxed(lean_object*, lean_object*);
 uint8_t l_List_decidablePerm___redArg(lean_object*, lean_object*, lean_object*);
@@ -358,7 +359,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lp_mathlib_Nat_cast___at___00Mathlib_Linter___aux__Mathlib__Tactic__Linter__DeprecatedModule______elabRules__Mathlib__Linter__deprecated__modules__1_spec__5(x_1);
+x_2 = lp_mathlib_Nat_cast___at___00Mathlib_Tactic_Ring_ExProd_mkNat_spec__0(x_1);
 return x_2;
 }
 }
@@ -468,7 +469,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = l_List_lengthTR___redArg(x_1);
-x_3 = lp_mathlib_Nat_cast___at___00Mathlib_Linter___aux__Mathlib__Tactic__Linter__DeprecatedModule______elabRules__Mathlib__Linter__deprecated__modules__1_spec__5(x_2);
+x_3 = lp_mathlib_Nat_cast___at___00Mathlib_Tactic_Ring_ExProd_mkNat_spec__0(x_2);
 return x_3;
 }
 }
@@ -542,7 +543,17 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_supplyChainGame(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_supplyChainGame(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_supplyChainGame___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -607,7 +618,7 @@ else
 lean_object* x_7; lean_object* x_8; 
 x_7 = l_List_lengthTR___redArg(x_3);
 lean_dec(x_3);
-x_8 = lp_mathlib_Nat_cast___at___00Mathlib_Linter___aux__Mathlib__Tactic__Linter__DeprecatedModule______elabRules__Mathlib__Linter__deprecated__modules__1_spec__5(x_7);
+x_8 = lp_mathlib_Nat_cast___at___00Mathlib_Tactic_Ring_ExProd_mkNat_spec__0(x_7);
 return x_8;
 }
 }

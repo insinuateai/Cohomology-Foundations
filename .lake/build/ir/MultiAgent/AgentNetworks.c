@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: MultiAgent.AgentNetworks
-// Imports: public import Init public import Mathlib.Data.Finset.Basic public import Mathlib.Data.Finset.Card public import Mathlib.Logic.Function.Basic
+// Imports: public import Init public import Mathlib.Data.Finset.Basic public import Mathlib.Data.Finset.Card public import Mathlib.Logic.Function.Basic public import Foundations.Cohomology
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -25,6 +25,7 @@ LEAN_EXPORT lean_object* lp_CohomologyFoundations_Multiset_erase___at___00Finset
 lean_object* lp_mathlib_Multiset_filter___redArg(lean_object*, lean_object*);
 static lean_object* lp_CohomologyFoundations_MultiAgent_instReprAgent_repr___redArg___closed__8;
 lean_object* lean_string_length(lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_AgentNetwork_toComplex(lean_object*);
 static lean_object* lp_CohomologyFoundations_MultiAgent_instReprAgent_repr___redArg___closed__11;
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_AgentNetwork_restrict(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t lp_CohomologyFoundations_MultiAgent_instDecidableEqAgent_decEq(lean_object*, lean_object*);
@@ -45,6 +46,7 @@ LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_instDecidableEqAgen
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_AgentNetwork_empty;
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_AgentNetwork_removeAgent(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations___private_Init_Data_List_Impl_0__List_eraseTR_go___at___00Multiset_erase___at___00Finset_erase___at___00MultiAgent_AgentNetwork_removeAgent_spec__0_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_AgentNetwork_toComplex___boxed(lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_Agent_ofNat___boxed(lean_object*);
 static lean_object* lp_CohomologyFoundations_MultiAgent_instReprAgent_repr___redArg___closed__4;
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_Multiset_erase___at___00Finset_erase___at___00MultiAgent_AgentNetwork_removeAgent_spec__0_spec__0(lean_object*, lean_object*);
@@ -594,10 +596,28 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_AgentNetwork_toComplex(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_box(0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_AgentNetwork_toComplex___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lp_CohomologyFoundations_MultiAgent_AgentNetwork_toComplex(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
 lean_object* initialize_Init(uint8_t builtin);
 lean_object* initialize_mathlib_Mathlib_Data_Finset_Basic(uint8_t builtin);
 lean_object* initialize_mathlib_Mathlib_Data_Finset_Card(uint8_t builtin);
 lean_object* initialize_mathlib_Mathlib_Logic_Function_Basic(uint8_t builtin);
+lean_object* initialize_CohomologyFoundations_Foundations_Cohomology(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_CohomologyFoundations_MultiAgent_AgentNetworks(uint8_t builtin) {
 lean_object * res;
@@ -613,6 +633,9 @@ res = initialize_mathlib_Mathlib_Data_Finset_Card(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_mathlib_Mathlib_Logic_Function_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_CohomologyFoundations_Foundations_Cohomology(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 lp_CohomologyFoundations_MultiAgent_instReprAgent_repr___redArg___closed__4 = _init_lp_CohomologyFoundations_MultiAgent_instReprAgent_repr___redArg___closed__4();

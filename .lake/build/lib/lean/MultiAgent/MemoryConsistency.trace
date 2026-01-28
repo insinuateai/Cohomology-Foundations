@@ -1,8 +1,8 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["1bb40691a862f583.olean"],
-  "i": "e4589aade904dcde.ilean",
+ {"o": ["fe16ad2ebefccb99.olean"],
+  "i": "df4f5f457cec4964.ilean",
   "c": "b064da36e4350ea3.c"},
  "log":
  [{"message":
@@ -15,34 +15,31 @@
    "MultiAgent/MemoryConsistency.lean:45:5: unused variable `hne`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/MemoryConsistency.lean:114:8: declaration uses 'sorry'",
+   "MultiAgent/MemoryConsistency.lean:126:34: unused variable `hl`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/MemoryConsistency.lean:142:34: unused variable `hl`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/MemoryConsistency.lean:135:42: unused variable `am`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/MemoryConsistency.lean:151:42: unused variable `am`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/MemoryConsistency.lean:170:22: unused variable `a`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/MemoryConsistency.lean:186:22: unused variable `a`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/MemoryConsistency.lean:251:39: unused variable `am`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/MemoryConsistency.lean:267:39: unused variable `am`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/MemoryConsistency.lean:256:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/MemoryConsistency.lean:259:40: unused variable `am`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/MemoryConsistency.lean:263:46: unused variable `am`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
    "MultiAgent/MemoryConsistency.lean:272:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/MemoryConsistency.lean:275:40: unused variable `am`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
-   "level": "warning"},
-  {"message":
-   "MultiAgent/MemoryConsistency.lean:279:46: unused variable `am`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
-   "level": "warning"},
-  {"message":
-   "MultiAgent/MemoryConsistency.lean:288:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
-   "level": "warning"},
-  {"message":
-   "MultiAgent/MemoryConsistency.lean:332:7: unused variable `a`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/MemoryConsistency.lean:316:7: unused variable `a`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"}],
  "inputs":
  [["MultiAgent.MemoryConsistency:deps",
@@ -66,8 +63,8 @@
          "b0577007605aa5d8"],
         ["Mathlib.Data.Finset.Union:importAllArts", "7b33b6a02a96964c"],
         ["MultiAgent.MemoryPerspective transitive imports (legacy)",
-         "a0a14629c0bac5a7"],
-        ["MultiAgent.MemoryPerspective:importAllArts", "7873f552b672983b"]]]]],
+         "77482eaacbce8465"],
+        ["MultiAgent.MemoryPerspective:importAllArts", "5e4e2554f6cfa12a"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
@@ -76,9 +73,9 @@
   ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
    "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/MultiAgent/MemoryConsistency.lean",
-   "bc03bd3ce607f304"],
+   "69d22aeba343f888"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "a5b123389d9bc588"}
+ "depHash": "86bf771850442bd3"}

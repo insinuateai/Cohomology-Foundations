@@ -126,17 +126,20 @@ def StrategicGame.isDominant (G : StrategicGame) (a : Agent) (action : ℕ) : Pr
     G.payoff a (fun p => if p = a then action else profile p) ≥ 
     G.payoff a (fun p => if p = a then action' else profile p)
 
-/-- Dominant strategy is always best response -/
+/-- Dominant strategy is always best response when played -/
 theorem StrategicGame.dominant_is_best (G : StrategicGame) (a : Agent) (action : ℕ)
-    (h : G.isDominant a action) (profile : ActionProfile) :
+    (h : G.isDominant a action) (profile : ActionProfile) (hplay : profile a = action) :
     G.isBestResponse a profile action := by
   constructor
   · exact h.1
   · intro action' haction'
     have := h.2 profile action' haction'
     simp only at this ⊢
-    -- Need to connect the payoff formulations
-    sorry -- Technical: payoff equality
+    -- profile = (fun p => if p = a then action else profile p) when profile a = action
+    have hprof : profile = (fun p => if p = a then action else profile p) := by
+      funext p; by_cases hp : p = a <;> simp [hp, hplay]
+    rw [hprof]
+    exact this
 
 /-- Strict Nash: unique best response for all -/
 def StrategicGame.isStrictNash (G : StrategicGame) (profile : ActionProfile) : Prop :=
@@ -225,20 +228,18 @@ def StrategicGame.brCompatible (G : StrategicGame) (a b : Agent)
     (profile : ActionProfile) : Prop :=
   G.isBestResponse a profile (profile a) ∧ G.isBestResponse b profile (profile b)
 
-/-- Nash iff all pairs BR-compatible -/
-theorem StrategicGame.nash_iff_all_compatible (G : StrategicGame) (profile : ActionProfile) :
-    G.isNashEquilibrium profile ↔ 
+/-- Nash iff all pairs BR-compatible (for multi-player games) -/
+theorem StrategicGame.nash_iff_all_compatible (G : StrategicGame) (profile : ActionProfile)
+    (hmp : G.players.card ≥ 2) :
+    G.isNashEquilibrium profile ↔
     ∀ a ∈ G.players, ∀ b ∈ G.players, a ≠ b → G.brCompatible a b profile := by
   constructor
   · intro h a ha b hb _
     exact ⟨h a ha, h b hb⟩
   · intro h a ha
-    by_cases hne : G.players.card ≥ 2
-    · obtain ⟨b, hb, hab⟩ : ∃ b ∈ G.players, b ≠ a := by
-        sorry -- Need two distinct players
-      exact (h a ha b hb hab.symm).1
-    · -- Single player case
-      sorry -- Edge case
+    obtain ⟨b, hb, hab⟩ : ∃ b ∈ G.players, b ≠ a :=
+      Finset.exists_ne_of_one_lt_card (Nat.lt_of_succ_le hmp) ha
+    exact (h a ha b hb hab.symm).1
 
 /-- Strategic cycle: cyclic best response chain -/
 def StrategicGame.hasBRCycle (G : StrategicGame) : Prop :=

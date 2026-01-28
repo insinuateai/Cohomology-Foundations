@@ -1,9 +1,9 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["f883547999818811.olean"],
-  "i": "26036cbb4ffd9d2a.ilean",
-  "c": "9d9bdce65065c4b4.c"},
+ {"o": ["41f158c0e10c7308.olean"],
+  "i": "e900d9bd06ee17d2.ilean",
+  "c": "0e038c8fbf389312.c"},
  "log":
  [{"message":
    ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.27.0/bin/lean /workspaces/Cohomology-Foundations/MultiAgent/CoalitionCohomology.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/MultiAgent/CoalitionCohomology.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/MultiAgent/CoalitionCohomology.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/MultiAgent/CoalitionCohomology.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/MultiAgent/CoalitionCohomology.setup.json --json",
@@ -46,9 +46,6 @@
    "level": "warning"},
   {"message":
    "MultiAgent/CoalitionCohomology.lean:314:31: unused variable `G`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
-   "level": "warning"},
-  {"message":
-   "MultiAgent/CoalitionCohomology.lean:363:4: declaration uses 'sorry'",
    "level": "warning"}],
  "inputs":
  [["MultiAgent.CoalitionCohomology:deps",
@@ -73,8 +70,8 @@
         ["Mathlib.Algebra.BigOperators.Group.Finset.Basic:importAllArts",
          "3b840309801c948c"],
         ["MultiAgent.AgentNetworks transitive imports (legacy)",
-         "a3e63cf756af82b7"],
-        ["MultiAgent.AgentNetworks:importAllArts", "cbf756cec16e2238"]]]]],
+         "3e0d5f3bbf7fb5d0"],
+        ["MultiAgent.AgentNetworks:importAllArts", "d1e6bf35e938cf75"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
@@ -83,9 +80,9 @@
   ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
    "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/MultiAgent/CoalitionCohomology.lean",
-   "d24541a018fe178f"],
+   "92bf22dae7a82b58"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "48b4d129bfb79319"}
+ "depHash": "315922c85b8f0fbd"}

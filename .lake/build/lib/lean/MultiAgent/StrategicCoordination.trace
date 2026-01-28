@@ -1,9 +1,9 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["93384fdedf13d162.olean"],
-  "i": "4add6fc6b98eea07.ilean",
-  "c": "d36d7a3342deef80.c"},
+ {"o": ["093cf01986b5db80.olean"],
+  "i": "c3f8369de1b30819.ilean",
+  "c": "21eb6f2b0e835f8c.c"},
  "log":
  [{"message":
    ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.27.0/bin/lean /workspaces/Cohomology-Foundations/MultiAgent/StrategicCoordination.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/MultiAgent/StrategicCoordination.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/MultiAgent/StrategicCoordination.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/MultiAgent/StrategicCoordination.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/MultiAgent/StrategicCoordination.setup.json --json",
@@ -48,19 +48,10 @@
    "MultiAgent/StrategicCoordination.lean:264:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/StrategicCoordination.lean:314:4: declaration uses 'sorry'",
-   "level": "warning"},
-  {"message":
    "MultiAgent/StrategicCoordination.lean:322:28: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/StrategicCoordination.lean:328:4: declaration uses 'sorry'",
-   "level": "warning"},
-  {"message":
-   "MultiAgent/StrategicCoordination.lean:342:4: declaration uses 'sorry'",
-   "level": "warning"},
-  {"message":
-   "MultiAgent/StrategicCoordination.lean:356:4: declaration uses 'sorry'",
+   "MultiAgent/StrategicCoordination.lean:345:19: unused variable `ch`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"}],
  "inputs":
  [["MultiAgent.StrategicCoordination:deps",
@@ -82,8 +73,8 @@
         ["Mathlib.Algebra.BigOperators.Group.Finset.Basic:importAllArts",
          "3b840309801c948c"],
         ["MultiAgent.AgentNetworks transitive imports (legacy)",
-         "a3e63cf756af82b7"],
-        ["MultiAgent.AgentNetworks:importAllArts", "cbf756cec16e2238"]]]]],
+         "3e0d5f3bbf7fb5d0"],
+        ["MultiAgent.AgentNetworks:importAllArts", "d1e6bf35e938cf75"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
@@ -92,9 +83,9 @@
   ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
    "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/MultiAgent/StrategicCoordination.lean",
-   "d9de7d9ca3b4a393"],
+   "3cf926073a35d537"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "320a721d2e058afa"}
+ "depHash": "1e57dfff30d94fe0"}

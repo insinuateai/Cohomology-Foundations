@@ -1,7 +1,7 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["fdaa78c12e6ce8ed.olean"],
+ {"o": ["6c2f4e4aad990e65.olean"],
   "i": "9e34e45bb351581f.ilean",
   "c": "e45b973284906e49.c"},
  "log":
@@ -27,8 +27,8 @@
          "b3b73233ad49e942"],
         ["Mathlib.Logic.Function.Basic:importAllArts", "290dda990eb4d20b"],
         ["MultiAgent.AgentNetworks transitive imports (legacy)",
-         "a3e63cf756af82b7"],
-        ["MultiAgent.AgentNetworks:importAllArts", "cbf756cec16e2238"]]]]],
+         "3e0d5f3bbf7fb5d0"],
+        ["MultiAgent.AgentNetworks:importAllArts", "d1e6bf35e938cf75"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
@@ -42,4 +42,4 @@
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "f63bbb7de6502b4d"}
+ "depHash": "e15eeebc4379ddd3"}
