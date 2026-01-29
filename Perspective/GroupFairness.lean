@@ -248,10 +248,31 @@ def groupFairnessCompatible (partition : GroupPartition n)
   ∃ a : Fin n → ℚ, ∀ g ∈ groups, isWithinGroupProportional a partition g
 
 /--
-AXIOM: Single groups are always self-compatible.
+THEOREM: Single groups are always self-compatible.
+
+A single group is trivially compatible with itself: just allocate equally to all
+members of that group (and anything to non-members). This satisfies within-group
+proportionality for that group.
 -/
-axiom single_group_compatible (partition : GroupPartition n) (g : Fin partition.numGroups) :
-    groupFairnessCompatible partition {g}
+theorem single_group_compatible (partition : GroupPartition n) (g : Fin partition.numGroups) :
+    groupFairnessCompatible partition {g} := by
+  -- Use constant allocation: everyone gets 1
+  use fun _ => 1
+  intro g' hg'
+  -- g' ∈ {g}, so g' = g
+  simp only [Finset.mem_singleton] at hg'
+  rw [hg']
+  -- Show: isWithinGroupProportional (fun _ => 1) partition g
+  intro i _hi hsize
+  -- The allocation is constant 1, and groupAlloc / size = card / card = 1
+  show (1 : ℚ) ≥ groupAllocation (fun _ => 1) partition g / groupSize partition g
+  unfold groupAllocation groupSize groupMembers
+  -- Simplify: sum of constants = card * 1 = card, and card / card = 1
+  simp only [Finset.sum_const, nsmul_eq_mul, mul_one]
+  -- Need to show 1 ≥ card / card = 1
+  have hcard_ne_zero : (Finset.univ.filter fun x => partition.assignment x = g).card ≠ 0 :=
+    Nat.pos_iff_ne_zero.mp hsize
+  rw [div_self (by exact_mod_cast hcard_ne_zero : ((Finset.univ.filter fun x => partition.assignment x = g).card : ℚ) ≠ 0)]
 
 /--
 THEOREM: Empty set is compatible.

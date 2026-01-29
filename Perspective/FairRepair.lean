@@ -311,12 +311,58 @@ def scheduleCost (original : Fin n → ℚ) (schedule : RepairSchedule n) : ℚ 
 /-! ## Part 7: Repair Bounds -/
 
 /--
-AXIOM: Lower bound on repair cost: at least the total shortfall.
-This requires showing cost is at least the sum of deficits.
+THEOREM: Lower bound on repair cost: at least the total shortfall.
+
+To achieve proportionality, agents below their fair share must receive at least their
+shortfall amount. The L1 repair cost counts this movement, so cost ≥ total shortfall.
+
+PROOF SKETCH:
+- Partition agents: S+ = {i | original i < total/n} (below fair share)
+- For any proportional repair: repaired i ≥ total/n for all i
+- For i ∈ S+: cost_i = |repaired i - original i| ≥ total/n - original i = shortfall_i
+- Total cost ≥ ∑_{i ∈ S+} shortfall_i = total shortfall
 -/
-axiom repair_cost_lower_bound [NeZero n] (original : Fin n → ℚ) (total : ℚ)
-    (h_sum : (∑ i, original i) = total) :
-    minRepairCost original (proportionalityTarget total) ≥ totalShortfall original total
+theorem repair_cost_lower_bound [NeZero n] (original : Fin n → ℚ) (total : ℚ)
+    (_h_sum : (∑ i, original i) = total) :
+    minRepairCost original (proportionalityTarget total) ≥ totalShortfall original total := by
+  unfold minRepairCost totalShortfall
+  -- Get the witness from proportionality target nonempty
+  let repaired := Classical.choose (proportionalityTarget (n := n) total).nonempty
+  have h_repaired : (proportionalityTarget (n := n) total).satisfies repaired := Classical.choose_spec _
+  -- h_repaired says: repaired is proportional and sums to total
+  unfold proportionalityTarget at h_repaired
+  obtain ⟨h_prop, _h_sum_rep⟩ := h_repaired
+  -- Show: repairCostL1 original repaired ≥ totalShortfall original total
+  unfold repairCostL1 isProportional at *
+  -- For each agent i:
+  -- - If original i < total/n: shortfall_i = total/n - original i
+  --   and cost_i = |repaired i - original i| ≥ repaired i - original i ≥ total/n - original i
+  -- - If original i ≥ total/n: shortfall_i = 0, so contributes nothing
+  -- Therefore: sum of costs ≥ sum of shortfalls
+  have h_each : ∀ i, |original i - repaired i| ≥ max 0 (total / n - original i) := by
+    intro i
+    by_cases h : original i < total / n
+    · -- Agent i is below fair share
+      have h_shortfall : max 0 (total / n - original i) = total / n - original i := by
+        apply max_eq_right
+        linarith
+      rw [h_shortfall]
+      -- repaired i ≥ total/n by proportionality
+      have h_rep : repaired i ≥ total / n := h_prop i
+      -- Since original i < total/n ≤ repaired i, we have repaired i > original i
+      have : repaired i ≥ original i := by linarith
+      rw [abs_sub_comm, abs_of_nonneg (by linarith : repaired i - original i ≥ 0)]
+      linarith
+    · -- Agent i is at or above fair share
+      push_neg at h
+      have : max 0 (total / n - original i) = 0 := by
+        apply max_eq_left
+        linarith
+      rw [this]
+      exact abs_nonneg _
+  calc ∑ i, |original i - repaired i|
+      ≥ ∑ i, max 0 (total / n - original i) := Finset.sum_le_sum (fun i _ => h_each i)
+    _ = ∑ i, Proportionality.proportionalityShortfall original total i := rfl
 
 /-! ## Part 8: Repair Quality Metrics -/
 

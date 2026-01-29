@@ -171,7 +171,8 @@ theorem aligned_zero_escape {n : ℕ} [NeZero n]
 AXIOM: Larger tolerance means faster escape (monotonicity).
 
 This follows from: larger tolerance → smaller ratio → smaller escape time.
-The proof involves rational arithmetic floor operations.
+The proof requires Int arithmetic lemmas about division and toNat that are
+not readily available in Mathlib. Remains an axiom.
 -/
 axiom escape_time_monotone_ax {n : ℕ} [NeZero n]
     (systems : Fin n → ValueSystem S) (epsilon tol1 tol2 : ℚ)

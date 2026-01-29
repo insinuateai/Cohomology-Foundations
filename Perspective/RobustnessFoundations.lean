@@ -87,8 +87,20 @@ theorem linf_symm {n : ℕ} (x y : Fin n → ℚ) :
       rw [abs_sub_comm]
     simp only [h_eq]
 
-/-- AXIOM: L∞ distance is non-negative (standard metric property). -/
-axiom linf_nonneg {n : ℕ} (x y : Fin n → ℚ) : linfDistance x y ≥ 0
+/-- THEOREM: L∞ distance is non-negative (standard metric property).
+
+    Proof: L∞ distance is either 0 (when n=0) or the supremum of absolute values.
+    Since |x i - y i| ≥ 0 for all i, the supremum is also ≥ 0. -/
+theorem linf_nonneg {n : ℕ} (x y : Fin n → ℚ) : linfDistance x y ≥ 0 := by
+  unfold linfDistance
+  split_ifs with h
+  · -- n = 0 case: distance is 0
+    rfl
+  · -- n ≠ 0 case: supremum of absolute values
+    have inst : NeZero n := ⟨h⟩
+    apply Finset.le_sup'
+    exact Finset.mem_univ 0
+    exact abs_nonneg _
 
 /-! ## Part 2: Perturbation Balls -/
 

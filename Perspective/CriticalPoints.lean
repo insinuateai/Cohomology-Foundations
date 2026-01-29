@@ -268,6 +268,9 @@ pair (i, j), the disagreement |baseVal(s) - baseVal(s)| = 0 for all situations s
 The supremum over an empty or all-zero set is 0.
 Thus the excess max(0, 0 - 2ε) = 0, and 0² = 0.
 Summing zero over all pairs gives total misalignment = 0.
+
+NOTE: This requires epsilon ≥ 0 for the max simplification. This constraint
+should be added to the definition or this remains an axiom.
 -/
 axiom uniform_misalignment_zero_ax {n : ℕ} (epsilon : ℚ) [Nonempty S]
     (baseVal : S → ℚ) :

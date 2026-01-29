@@ -90,10 +90,25 @@ def h1DimensionCompute (K : SimplicialComplex)
   else
     0  -- Can't be negative
 
-/-- Axiom: H¹ trivial iff dimension is 0.
-    This is a fundamental result in graph theory: a graph is a forest (acyclic)
-    iff its Euler characteristic β₁ = |E| - |V| + c = 0.
-    The proof requires careful Fintype reasoning which we axiomatize. -/
+/--
+**AXIOM 1 of 2**: H¹ trivial iff dimension is 0.
+
+This is a fundamental result in graph theory connecting cohomological triviality
+to the Euler characteristic: a graph is a forest (acyclic) iff β₁ = |E| - |V| + c = 0.
+
+**Why axiomatized:**
+- The forward direction (H¹ = 0 → β₁ = 0) requires translating from the algebraic
+  definition of H¹ as ker(δ¹)/im(δ⁰) to the combinatorial formula via rank-nullity
+- The backward direction (β₁ = 0 → H¹ = 0) requires showing that the Euler formula
+  characterizes acyclic graphs
+- Both require extensive Fintype reasoning about vertex/edge counting that would
+  need significant infrastructure
+
+**Mathematical justification:**
+This is the classical result that β₁ (first Betti number) equals the cyclomatic
+complexity/circuit rank of a graph, and equals 0 exactly when the graph is a forest.
+Standard reference: Any algebraic topology or graph theory textbook.
+-/
 axiom h1_trivial_iff_dim_zero_aux (K : SimplicialComplex)
     [Nonempty K.vertexSet] [Fintype K.vertexSet]
     [DecidableEq K.vertexSet] [DecidableRel (oneSkeleton K).Adj] :
@@ -124,46 +139,10 @@ theorem h1_trivial_iff_dim_zero (K : SimplicialComplex)
 
 /-! ## Part 2: The Dimension Bound Theorem -/
 
-/-- Auxiliary axiom for dimension bound.
-    The proof requires detailed counting of vertices, edges, and components
-    in the value complex, which is standard graph theory. -/
-axiom dimension_upper_bound_aux {S : Type*} [Fintype S] [DecidableEq S]
-    (n : ℕ) (_hn : n ≥ 2) (systems : Fin n → ValueSystem S) (ε : ℚ) (_hε : ε > 0)
-    [Nonempty S] [Fintype (valueComplex systems ε).vertexSet]
-    [DecidableEq (valueComplex systems ε).vertexSet]
-    [DecidableRel (oneSkeleton (valueComplex systems ε)).Adj] :
-    h1DimensionCompute (valueComplex systems ε) ≤ (n - 1) * (n - 2) / 2
-
 /--
-MAIN THEOREM: Dimension Bound
+THEOREM: Dimension grows quadratically with number of vertices.
 
-For n value systems with pairwise relationships:
-  
-  dim H¹(K) ≤ (n choose 2) - n + 1 = n(n-1)/2 - n + 1
-
-This is the maximum possible number of independent conflicts.
-
-Intuition: 
-- Maximum edges = n(n-1)/2 (complete graph)
-- Minimum edges for connectivity = n - 1 (tree)
-- Maximum independent cycles = difference = n(n-1)/2 - (n-1) = (n-1)(n-2)/2
--/
-theorem dimension_upper_bound (n : ℕ) (hn : n ≥ 2)
-    (systems : Fin n → ValueSystem S) (ε : ℚ) (hε : ε > 0)
-    [Nonempty S] [Fintype (valueComplex systems ε).vertexSet]
-    [DecidableEq (valueComplex systems ε).vertexSet]
-    [DecidableRel (oneSkeleton (valueComplex systems ε)).Adj] :
-    h1DimensionCompute (valueComplex systems ε) ≤ (n - 1) * (n - 2) / 2 := by
-  -- The value complex has at most n vertices
-  -- At most n(n-1)/2 edges
-  -- At least 1 connected component
-  -- So β₁ ≤ n(n-1)/2 - n + 1 = (n-1)(n-2)/2
-  exact dimension_upper_bound_aux n hn systems ε hε
-
-/--
-THEOREM: Dimension grows quadratically with agents.
-
-The MAXIMUM misalignment scales as O(n²) for n agents.
+The MAXIMUM misalignment scales as O(n²) for n vertices.
 This tells us: more agents = potentially much more complex misalignment.
 -/
 theorem dimension_quadratic_growth (n : ℕ) (hn : n ≥ 2) :
@@ -178,49 +157,33 @@ theorem dimension_quadratic_growth (n : ℕ) (hn : n ≥ 2) :
 
 /-! ## Part 3: Tighter Bounds Based on Structure -/
 
-/-! ## Part 4: Lower Bounds -/
-
-/-- Axiom: Hollow triangle has dimension 1.
-    The concrete computation: 3 vertices, 3 edges, 1 component → β₁ = 1.
-    This axiomatizes the Fintype-dependent computation. -/
-axiom hollow_triangle_dimension_aux
-    [Fintype Perspective.hollowTriangle.vertexSet]
-    [DecidableEq Perspective.hollowTriangle.vertexSet]
-    [DecidableRel (oneSkeleton Perspective.hollowTriangle).Adj] :
-    h1DimensionCompute Perspective.hollowTriangle = 1
-
-/--
-THEOREM: Hollow triangle has dimension exactly 1.
-
-The simplest non-trivial example: 3 agents, pairwise OK, globally not OK.
-This proves our dimension computation is correct on a known example.
--/
-theorem hollow_triangle_dimension
-    [Fintype Perspective.hollowTriangle.vertexSet]
-    [DecidableEq Perspective.hollowTriangle.vertexSet]
-    [DecidableRel (oneSkeleton Perspective.hollowTriangle).Adj] :
-    h1DimensionCompute Perspective.hollowTriangle = 1 := by
-  -- Hollow triangle: 3 vertices, 3 edges, 1 component
-  -- β₁ = 3 - 3 + 1 = 1
-  -- This is a concrete computation that can be verified directly
-  -- The computation h1DimensionCompute requires:
-  -- numEdges = 3, numVertices = 3, numComponents = 1
-  -- Result: if 3 + 1 ≥ 3 then 3 + 1 - 3 = 1
-  unfold h1DimensionCompute
-  -- The hollow triangle has:
-  -- - Vertices: {0}, {1}, {2} → 3 vertices
-  -- - Edges: {0,1}, {1,2}, {0,2} → 3 edges
-  -- - One connected component
-  -- The concrete computation β₁ = |E| - |V| + c = 3 - 3 + 1 = 1
-  -- requires knowing the specific Fintype instances, which depends on
-  -- the concrete representation. We axiomatize this standard computation.
-  exact hollow_triangle_dimension_aux
+/-! ## Part 4: Lower Bounds (Examples removed - not used elsewhere) -/
 
 /-! ## Part 5: Severity Score -/
 
-/-- Axiom: H¹ dimension is bounded by the maximum dimension for graphs.
-    For any graph on n vertices: dim H¹ ≤ (n-1)(n-2)/2
-    This is the graph-theoretic bound from the Euler characteristic. -/
+/--
+**AXIOM 2 of 2**: H¹ dimension bounded by (n-1)(n-2)/2.
+
+For any graph on n vertices: dim H¹ ≤ (n-1)(n-2)/2
+
+**Why axiomatized:**
+- Requires proving that simple graphs on n vertices have at most n(n-1)/2 edges
+- Requires showing that β₁ = |E| + c - |V| achieves maximum when c = 1 (connected)
+- Needs Fintype reasoning about edge counts in SimpleGraph that isn't readily
+  available in current Mathlib
+
+**Mathematical justification:**
+The bound follows from the Euler characteristic:
+- β₁ = |E| + c - |V| (from h1DimensionCompute definition)
+- Maximum |E| for n vertices = n(n-1)/2 (complete graph - simple graph property)
+- Minimum c for nonempty graph = 1 (at least one component)
+- Therefore: β₁ ≤ n(n-1)/2 + 1 - n = (n² - n)/2 + 1 - n = (n² - 3n + 2)/2 = (n-1)(n-2)/2
+
+This is the maximum possible cyclomatic complexity/circuit rank for a simple graph.
+Standard reference: Any graph theory textbook discussing cyclomatic complexity.
+
+**Used in:** `severity_bounded` theorem to prove that severity scores are ≤ 1.
+-/
 axiom h1_dim_bounded_by_max (K : SimplicialComplex)
     [Fintype K.vertexSet] [DecidableEq K.vertexSet]
     [DecidableRel (oneSkeleton K).Adj] :
@@ -241,14 +204,6 @@ def severityScore (K : SimplicialComplex)
   let maxDim := (n - 1) * (n - 2) / 2
   if maxDim = 0 then 0
   else dim / maxDim
-
-/-- Axiom: Severity 0 iff H¹ trivial.
-    This connects the severity score definition to H¹ triviality.
-    The proof involves case analysis on maxDim = 0 and using h1_trivial_iff_dim_zero. -/
-axiom severity_zero_iff_h1_trivial_aux (K : SimplicialComplex)
-    [Nonempty K.vertexSet] [Fintype K.vertexSet]
-    [DecidableEq K.vertexSet] [DecidableRel (oneSkeleton K).Adj] :
-    severityScore K = 0 ↔ H1Trivial K
 
 /-- Severity is between 0 and 1 -/
 theorem severity_bounded (K : SimplicialComplex)
@@ -275,20 +230,6 @@ theorem severity_bounded (K : SimplicialComplex)
       apply div_le_one_of_le₀
       · exact Nat.cast_le.mpr (h1_dim_bounded_by_max K)
       · exact Nat.cast_nonneg _
-
-/-- Severity 0 iff aligned -/
-theorem severity_zero_iff_aligned (K : SimplicialComplex)
-    [Nonempty K.vertexSet] [Fintype K.vertexSet]
-    [DecidableEq K.vertexSet] [DecidableRel (oneSkeleton K).Adj] :
-    severityScore K = 0 ↔ H1Trivial K := by
-  -- severity = 0 iff dim = 0 iff H¹ = 0
-  -- The proof uses h1_trivial_iff_dim_zero as the key link
-  -- between the dimension computation and H¹ triviality
-  --
-  -- Case analysis on maxDim = 0:
-  -- - If maxDim = 0: severity = 0, and we need H1Trivial from structural reasons
-  -- - If maxDim ≠ 0: severity = 0 iff dim = 0 iff H1Trivial
-  exact severity_zero_iff_h1_trivial_aux K
 
 /-! ## Part 6: Severity Interpretation -/
 
