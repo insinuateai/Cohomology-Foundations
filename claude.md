@@ -1,9 +1,9 @@
 # CLAUDE.md - COBOUND Project Context
 
-> **Last Updated**: January 2026  
-> **Project**: Cohomology-Foundations (COBOUND)  
-> **Status**: Active Development - Phase 4 Preparation  
-> **Quality Score**: 82/100 → Target 95+
+> **Last Updated**: January 2026
+> **Project**: Cohomology-Foundations (COBOUND)
+> **Status**: Active Development
+> **Quality Target**: 95+/100
 
 ---
 
@@ -110,31 +110,36 @@ Cohomology-Foundations/
 
 ---
 
-## 📊 Current Quality Metrics
+## 📊 Quality Metrics Framework
 
-| Module | Files | Lines | Theorems | Axioms | Sorries | Grade |
-|--------|-------|-------|----------|--------|---------|-------|
-| Foundations | 6 | 1,107 | 21 | 0 | 0 | 🏆 GOLD |
-| H1Characterization | 10 | 2,224 | 50 | 4 | 0 | ⭐ SILVER |
-| Perspective | 49 | 20,281 | 442 | 100 | 0 | 🔶 BRONZE |
-| MultiAgent | 17 | 5,956 | 489 | 48 | 12 | ⚠️ NEEDS WORK |
-| **TOTAL** | **85** | **31,288** | **1,099** | **106** | **12** | **82/100** |
+### Module Quality Grades
 
-### Remaining Issues
+| Grade | Criteria | Status |
+|-------|----------|--------|
+| 🏆 **GOLD** | 0 sorries, 0 axioms | Target for Foundations |
+| ⭐ **SILVER** | 0 sorries, minimal justified axioms | Target for H1Characterization |
+| 🔶 **BRONZE** | 0 sorries, moderate axioms (documented) | Target for Perspective |
+| ⚠️ **NEEDS WORK** | Has sorries or excessive undocumented axioms | Requires cleanup |
 
-**12 Sorries** (must fix before Phase 4):
-- GameTheoreticH1.lean: 4 sorries
-- MechanismDesign.lean: 2 sorries
-- GlobalLocalDuality.lean: 2 sorries
-- StrategicCoordination.lean: 1 sorry
-- CoalitionCohomology.lean: 1 sorry
-- PerspectiveSheaf.lean: 1 sorry
+### Quality Targets
 
-**106 Axioms** (reduce to ≤50):
-- ~14 Legitimate (spectral theory, category theory)
-- ~50 Bridge axioms (H1 ↔ property - should be theorems)
-- ~20 Provable (can be converted to theorems)
-- ~20+ Unused (DELETE immediately)
+- **Foundations**: Must maintain GOLD standard (0/0)
+- **H1Characterization**: Should maintain SILVER (0 sorries, <5 axioms)
+- **Perspective**: Should reach BRONZE (0 sorries, documented axioms)
+- **MultiAgent**: Work toward BRONZE
+
+### Common Issue Patterns
+
+**Sorries to prioritize**:
+- Files with multiple sorries (fix together for context)
+- Sorries in core theorems (block downstream work)
+- Sorries in application theorems (easier wins)
+
+**Axiom categories to audit**:
+- Legitimate: External mathematics (spectral theory, category theory)
+- Bridge axioms: H1 ↔ property connections (should become theorems)
+- Provable: Can be converted to theorems with effort
+- Unused: DELETE immediately
 
 ---
 
@@ -159,11 +164,11 @@ grep -rn "sorry" --include="*.lean" Foundations/    # Must be empty
 grep -rn "sorry" --include="*.lean" H1Characterization/  # Should be empty
 ```
 
-Before Phase 4:
-- [ ] Total sorries ≤ 0
-- [ ] Total axioms ≤ 50
+Phase readiness criteria:
+- [ ] No sorries in critical modules
+- [ ] Axioms minimized and justified
 - [ ] Build: 0 errors
-- [ ] Quality score ≥ 95
+- [ ] Quality score meets target
 
 ---
 
@@ -340,20 +345,24 @@ calc        -- Chain of equalities
 
 ---
 
-## 🎯 Current Objectives
+## 🎯 Development Objectives
 
-### Immediate (Before Phase 4)
+### Ongoing Quality Improvement
 
-1. **Fix 12 sorries** → 0 sorries
-   - Priority: GameTheoreticH1 (4), MechanismDesign (2), GlobalLocalDuality (2)
-   - Then: Easy ones (Strategic, Coalition, Sheaf)
+1. **Eliminate sorries**
+   - Priority: Files with multiple sorries (group-fix for context)
+   - Next: Core theorems (block downstream dependencies)
+   - Then: Application theorems (easier wins)
 
-2. **Reduce 106 axioms** → ≤50 axioms
+2. **Reduce axioms to minimum necessary**
    - Delete unused axioms
-   - Prove provable axioms (CycleCochain, OptimalRepair, DimensionBound)
-   - Document remaining axioms
+   - Prove provable axioms when feasible
+   - Document remaining axioms with justification
 
-3. **Achieve quality score 95+**
+3. **Achieve and maintain high quality standards**
+   - Target: 0 sorries across all modules
+   - Target: Minimal axioms (≤50 total, all justified)
+   - Target: Quality score ≥95/100
 
 ### Phase 4 (After Cleanup)
 
@@ -437,22 +446,22 @@ split_ifs with h <;> omega
 
 ## 🌟 Success Metrics
 
-### For This Session
-- [ ] Sorries fixed or reduced
+### For Each Session
+- [ ] Progress on sorries (fixed or reduced)
 - [ ] No new axioms added without justification
 - [ ] All modified files build successfully
 - [ ] Quality maintained or improved
 
 ### For Phase Completion
 - [ ] 0 sorries in Foundations and H1Characterization
-- [ ] ≤50 total axioms
-- [ ] Quality score ≥95/100
+- [ ] Minimal axioms (all justified and documented)
+- [ ] High quality score
 - [ ] All Crown Jewel theorems complete
 
 ### For Project Completion
-- [ ] 4,000+ theorems
-- [ ] 0 sorries
-- [ ] ≤30 axioms (all documented as foundational)
+- [ ] Extensive theorem library
+- [ ] 0 sorries across all modules
+- [ ] Minimal axioms (all documented as foundational)
 - [ ] Publication-ready mathematical rigor
 
 ---

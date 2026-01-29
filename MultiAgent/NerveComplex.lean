@@ -320,6 +320,216 @@ theorem isForest_implies_isGraphForest (N : AgentNetwork) :
     N.isForest → N.isGraphForest :=
   isForest_implies_isAcyclic N
 
+/-! # Section 6b: Graph Isomorphism Between Compatibility Graph and One-Skeleton
+
+The key technical lemma: compatibility graph ≃ 1-skeleton of nerve via ID mapping.
+-/
+
+/-- Helper: create a vertex in the nerve from an agent -/
+def agentToNerveVertex (N : AgentNetwork) (a : N.agents) :
+    (nerveComplex N).vertexSet :=
+  ⟨a.val.id, by
+    rw [Foundations.SimplicialComplex.mem_vertexSet_iff]
+    exact nerve_has_agent_vertices N a.val a.property⟩
+
+/-- The compatibility graph is isomorphic to the 1-skeleton of the nerve.
+    Two agents are compatible iff their IDs form an edge in the nerve. -/
+theorem compatibilityGraph_iso_oneSkeleton (N : AgentNetwork) (a b : N.agents) :
+    (compatibilityGraph N).Adj a b ↔
+    (oneSkeleton (nerveComplex N)).Adj (agentToNerveVertex N a) (agentToNerveVertex N b) := by
+  constructor
+  · intro hcomp
+    -- compatible → edge in nerve
+    simp only [agentToNerveVertex, oneSkeleton]
+    constructor
+    · -- a.val.id ≠ b.val.id
+      intro h
+      have heq : a.val = b.val := Agent.id_inj a.val b.val h
+      have : a = b := Subtype.ext heq
+      rw [this] at hcomp
+      simp only [compatibilityGraph] at hcomp
+      exact N.compatible_irrefl b.val hcomp
+    · -- {a.val.id, b.val.id} ∈ nerve.simplices
+      have hne : a.val ≠ b.val := by
+        intro h
+        have : a = b := Subtype.ext h
+        rw [this] at hcomp
+        simp only [compatibilityGraph] at hcomp
+        exact N.compatible_irrefl b.val hcomp
+      simp only [compatibilityGraph] at hcomp
+      exact (nerveComplex_edge_iff N a.val b.val a.property b.property hne).mpr hcomp
+  · intro hadj
+    -- edge in nerve → compatible
+    simp only [agentToNerveVertex, oneSkeleton] at hadj
+    obtain ⟨hne, hedge⟩ := hadj
+    have hne_agent : a.val ≠ b.val := by
+      intro h
+      have : a = b := Subtype.ext h
+      rw [this] at hne
+      exact hne rfl
+    simp only [compatibilityGraph]
+    exact (nerveComplex_edge_iff N a.val b.val a.property b.property hne_agent).mp hedge
+
+/-! # Section 6c: Reverse Direction - H¹ = 0 Implies Graph Forest
+
+Prove that trivial cohomology implies acyclic compatibility graph.
+-/
+
+/-- If the nerve complex has trivial H¹, then the compatibility graph is acyclic.
+
+Mathematical content:
+- H¹ = 0 → OneConnected (by h1_trivial_iff_oneConnected)
+- OneConnected → 1-skeleton is acyclic
+- Any cycle in compatibility graph maps to cycle in 1-skeleton
+- Therefore compatibility graph is acyclic
+
+This completes the bidirectional bridge.
+-/
+theorem h1_trivial_implies_graphForest_nerve (N : AgentNetwork)
+    (h : H1Trivial (nerveComplex N)) :
+    N.isGraphForest := by
+  -- Strategy: Show cycles in compatibilityGraph map to cycles in nerve's 1-skeleton
+  simp only [AgentNetwork.isGraphForest, SimpleGraph.IsAcyclic]
+  intro v p hp
+  -- p is a cycle in compatibilityGraph from v to v
+  -- We'll derive a contradiction from H1Trivial
+
+  -- First, check if agents is nonempty (otherwise trivial)
+  by_cases hempty : N.agents = ∅
+  · -- Empty network: v can't exist
+    have hv : v.val ∈ N.agents := v.property
+    simp [hempty] at hv
+
+  -- For nonempty networks, use H1 triviality
+  -- H¹ = 0 ↔ OneConnected ↔ 1-skeleton acyclic
+  have hnonempty : Nonempty (nerveComplex N).vertexSet := by
+    -- Agents is nonempty, so there exists an agent a
+    have ⟨a, ha⟩ : ∃ a, a ∈ N.agents := Finset.nonempty_iff_ne_empty.mpr hempty
+    -- a.id is a vertex in the nerve
+    refine ⟨⟨a.id, ?_⟩⟩
+    rw [Foundations.SimplicialComplex.mem_vertexSet_iff]
+    exact nerve_has_agent_vertices N a ha
+
+  -- Apply the main characterization theorem
+  rw [h1_trivial_iff_oneConnected, oneConnected_iff_no_cycles] at h
+
+  -- Map the cycle p to the oneSkeleton via the isomorphism
+  -- We'll prove a general walk mapping lemma first
+
+  -- For any walk in the compatibility graph, we can build a corresponding walk in the nerve
+  have walk_map : ∀ {u w : N.agents} (q : SimpleGraph.Walk (compatibilityGraph N) u w),
+      SimpleGraph.Walk (oneSkeleton (nerveComplex N))
+        (agentToNerveVertex N u) (agentToNerveVertex N w) := by
+    intro u w q
+    induction q with
+    | nil => exact SimpleGraph.Walk.nil
+    | cons hadj qtail ih =>
+      have h_nerve := (compatibilityGraph_iso_oneSkeleton N _ _).mp hadj
+      exact SimpleGraph.Walk.cons h_nerve ih
+
+  -- Apply the mapping to our cycle p
+  have p_nerve := walk_map p
+
+  -- Show that the mapped walk is also a cycle
+  have hp_nerve : p_nerve.IsCycle := by
+    -- IsCycle requires: IsCircuit (ne_nil + IsTrail) + support_nodup
+    -- The mapping preserves these properties
+    -- For now, this requires showing that the isomorphism preserves walk structure
+    sorry
+
+  -- p_nerve is a cycle in the oneSkeleton, which contradicts H¹ = 0
+  exact h (agentToNerveVertex N v) p_nerve hp_nerve
+
+
+/-! # Section 6c: Bidirectional Equivalence - The Main Bridge Theorem
+
+Establishes the complete equivalence between graph-theoretic forests and trivial H¹.
+-/
+
+/-- BIDIRECTIONAL BRIDGE THEOREM: Graph forest ↔ H¹ = 0
+
+This is the KEY MATHEMATICAL RESULT connecting agent networks to cohomology.
+
+Mathematical statement:
+  N.isGraphForest ↔ H1Trivial (nerveComplex N)
+
+Where:
+- isGraphForest = compatibility graph is acyclic (no cycles)
+- H1Trivial = first cohomology is zero (no topological obstructions)
+
+This theorem enables:
+1. Proving domain properties via cohomological arguments
+2. Detecting coordination barriers via cycle detection
+3. Bridging graph theory and algebraic topology
+
+Note: The restricted `isForest` (≤1 agent) implies this, but the converse
+requires the more general `isGraphForest` definition.
+-/
+theorem graphForest_iff_h1_trivial_nerve (N : AgentNetwork) :
+    N.isGraphForest ↔ H1Trivial (nerveComplex N) := by
+  constructor
+  · intro hgf
+    -- Graph forest → H¹ = 0
+    -- Strategy: acyclic compatibility graph → acyclic 1-skeleton → H¹ = 0
+
+    -- Check if network is empty
+    by_cases hempty : N.agents = ∅
+    · -- Empty network has H¹ = 0
+      -- Empty network has no vertices, hence no 1-simplices, hence H¹ = 0
+      simp only [H1Trivial]
+      intro f hf
+      -- f is a 1-cochain, need to show it's a coboundary
+      -- Since there are no 1-simplices in an empty network, this is vacuous
+      simp only [IsCoboundary]
+      -- Need to find a 0-cochain c such that f = coboundary K 0 c
+      -- For empty complex, any cochain works (vacuously)
+      use (fun _ => 0 : Cochain (nerveComplex N) 0)
+      funext ⟨s, hs⟩
+      -- s is a 1-simplex, but empty network has no 1-simplices
+      exfalso
+      simp only [SimplicialComplex.ksimplices, Set.mem_setOf_eq] at hs
+      obtain ⟨hs_mem, hs_card⟩ := hs
+      -- s must have a vertex from the network
+      have hcard_pos : 0 < s.card := by omega
+      -- v must be an agent ID from the network
+      simp only [nerveComplex, nerveSimplices, Set.mem_setOf_eq] at hs_mem
+      rcases hs_mem with rfl | ⟨_, hAgents, _⟩
+      · -- s = ∅ case: contradicts card > 0
+        simp at hcard_pos
+      · -- s is non-empty with agents, but network is empty
+        have hne : s.Nonempty := Finset.card_pos.mp hcard_pos
+        obtain ⟨v, hv⟩ := hne
+        obtain ⟨a, ha, _⟩ := hAgents v hv
+        simp [hempty] at ha
+
+    -- Non-empty case: use the characterization theorem
+    have hnonempty : Nonempty (nerveComplex N).vertexSet := by
+      have ⟨a, ha⟩ : ∃ a, a ∈ N.agents := Finset.nonempty_iff_ne_empty.mpr hempty
+      refine ⟨⟨a.id, ?_⟩⟩
+      rw [Foundations.SimplicialComplex.mem_vertexSet_iff]
+      exact nerve_has_agent_vertices N a ha
+
+    -- Apply characterization: H¹ = 0 ↔ 1-skeleton acyclic
+    rw [h1_trivial_iff_oneConnected]
+    simp only [OneConnected, SimpleGraph.IsAcyclic]
+
+    -- Show: acyclic compatibility graph → acyclic 1-skeleton
+    intro v' p' hp'
+
+    -- We need to map the cycle p' back to the compatibility graph
+    -- v' is a vertex ID in the nerve, so there exists an agent with this ID
+
+    -- The forward direction is more complex because we need to map vertices back
+    -- from nerve vertex IDs to agents. This requires showing that every vertex
+    -- in the nerve corresponds to an agent, and that the walk structure is preserved.
+
+    -- For now, we note that the isomorphism compatibilityGraph_iso_oneSkeleton
+    -- provides the edge correspondence, but mapping entire walks requires
+    -- additional infrastructure for inverse vertex mapping and walk structure preservation.
+
+    sorry
+  · exact h1_trivial_implies_graphForest_nerve N
+
 /-! # Section 7: Derived Bridge Theorems
 
 These theorems provide convenient forms of the main bridge.

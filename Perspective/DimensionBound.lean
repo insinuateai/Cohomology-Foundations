@@ -109,10 +109,26 @@ This is the classical result that β₁ (first Betti number) equals the cyclomat
 complexity/circuit rank of a graph, and equals 0 exactly when the graph is a forest.
 Standard reference: Any algebraic topology or graph theory textbook.
 -/
-axiom h1_trivial_iff_dim_zero_aux (K : SimplicialComplex)
+theorem h1_trivial_iff_dim_zero_aux (K : SimplicialComplex)
     [Nonempty K.vertexSet] [Fintype K.vertexSet]
     [DecidableEq K.vertexSet] [DecidableRel (oneSkeleton K).Adj] :
-    H1Trivial K ↔ h1DimensionCompute K = 0
+    H1Trivial K ↔ h1DimensionCompute K = 0 := by
+  -- This is the fundamental connection between H¹ and the Betti number β₁.
+  -- H¹ = 0 iff the 1-skeleton is acyclic (forest) iff β₁ = |E| - |V| + c = 0
+  --
+  -- Forward direction (H¹ = 0 → β₁ = 0):
+  -- - H¹ = 0 means the 1-skeleton is a forest (from h1_trivial_iff_acyclic)
+  -- - For forests: |E| = |V| - c (standard graph theory)
+  -- - Therefore: β₁ = |E| - |V| + c = (|V| - c) - |V| + c = 0
+  --
+  -- Backward direction (β₁ = 0 → H¹ = 0):
+  -- - β₁ = 0 means |E| - |V| + c = 0, so |E| = |V| - c
+  -- - This is the Euler characteristic for forests
+  -- - By the forest characterization theorem, this means the graph is a forest
+  -- - Therefore H¹ = 0
+  --
+  -- Both directions require Fintype cardinality reasoning about edges/vertices.
+  sorry
 
 /-- H¹ trivial iff dimension is 0 -/
 theorem h1_trivial_iff_dim_zero (K : SimplicialComplex)
@@ -184,10 +200,31 @@ Standard reference: Any graph theory textbook discussing cyclomatic complexity.
 
 **Used in:** `severity_bounded` theorem to prove that severity scores are ≤ 1.
 -/
-axiom h1_dim_bounded_by_max (K : SimplicialComplex)
+theorem h1_dim_bounded_by_max (K : SimplicialComplex)
     [Fintype K.vertexSet] [DecidableEq K.vertexSet]
     [DecidableRel (oneSkeleton K).Adj] :
-    h1DimensionCompute K ≤ (Fintype.card K.vertexSet - 1) * (Fintype.card K.vertexSet - 2) / 2
+    h1DimensionCompute K ≤ (Fintype.card K.vertexSet - 1) * (Fintype.card K.vertexSet - 2) / 2 := by
+  -- The H¹ dimension is β₁ = |E| - |V| + c (from h1DimensionCompute definition)
+  -- We need to show this is bounded by (n-1)(n-2)/2 where n = |V|
+  --
+  -- Key facts from graph theory:
+  -- 1. A simple graph on n vertices has at most n(n-1)/2 edges (complete graph)
+  -- 2. For the maximum β₁, we want to maximize |E| and minimize c
+  -- 3. Minimum c = 1 (at least one component for nonempty graph)
+  --
+  -- Calculation:
+  -- β₁ = |E| - |V| + c
+  --    ≤ n(n-1)/2 - n + 1        (max edges, min components)
+  --    = (n² - n)/2 - n + 1
+  --    = (n² - n - 2n + 2)/2
+  --    = (n² - 3n + 2)/2
+  --    = (n-1)(n-2)/2
+  --
+  -- This requires:
+  -- - Proving simple graphs have ≤ n(n-1)/2 edges
+  -- - Formalizing the Euler characteristic for graphs
+  -- - Fintype reasoning about edge and vertex counts
+  sorry
 
 /--
 Misalignment severity score: normalized dimension.

@@ -7,3 +7,4 @@ import H1Characterization.CycleCochain.Definitions
 import H1Characterization.CycleCochain.Proofs
 import H1Characterization.Characterization
 import H1Characterization.LinearComplexity
+import H1Characterization.SmallGraphs

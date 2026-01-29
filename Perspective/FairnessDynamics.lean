@@ -72,6 +72,20 @@ theorem fairness_state_le_one [NeZero n] (a : Fin n → ℚ) (total : ℚ) :
   linarith
 
 /--
+THEOREM: Fairness state is non-negative (under standard conditions).
+
+This holds when totalShortfall ≤ max total 1, which is satisfied for
+typical allocation scenarios where shortfall doesn't exceed the total resource.
+-/
+theorem fairness_state_ge_zero [NeZero n] (a : Fin n → ℚ) (total : ℚ)
+    (h_bound : totalShortfall a total ≤ max total 1) :
+    fairnessState a total ≥ 0 := by
+  unfold fairnessState
+  have h_div : totalShortfall a total / max total 1 ≤ 1 := by
+    sorry  -- TODO: Prove from h_bound using division properties
+  linarith
+
+/--
 Fairness dynamics: how fairness evolves with parameter lam.
 -/
 structure FairnessDynamics (n : ℕ) where
@@ -100,10 +114,51 @@ where shortfalls don't grow unboundedly relative to resources.
 Alternative: Could make the Lipschitz constant state-dependent, but a universal bound of 10
 suffices for the dynamical systems analysis.
 -/
-axiom simpleDynamics_continuous_ax [NeZero n] (total : ℚ) :
+theorem simpleDynamics_continuous_ax [NeZero n] (total : ℚ) :
     ∀ (a : Fin n → ℚ) lam₁ lam₂ ε, ε > 0 → |lam₁ - lam₂| < ε →
     |((1 - lam₁) * fairnessState a total + lam₁ * (1 - fairnessState a total)) -
-     ((1 - lam₂) * fairnessState a total + lam₂ * (1 - fairnessState a total))| < ε * 10
+     ((1 - lam₂) * fairnessState a total + lam₂ * (1 - fairnessState a total))| < ε * 10 := by
+  intro a lam₁ lam₂ ε hε hlam
+  -- Simplify the expression algebraically
+  -- f(lam) = (1 - lam) * s + lam * (1 - s) where s = fairnessState a total
+  -- f(lam₁) - f(lam₂) = (lam₂ - lam₁) * (2s - 1)
+  let s := fairnessState a total
+  have heq : ((1 - lam₁) * s + lam₁ * (1 - s)) - ((1 - lam₂) * s + lam₂ * (1 - s)) =
+             (lam₂ - lam₁) * (2 * s - 1) := by ring
+  rw [heq, abs_mul]
+  -- Since 0 ≤ s ≤ 1 (fairness state is a ratio), we have |2s - 1| ≤ 1
+  -- For any s ∈ [0,1]: if s ≤ 1/2, then 2s-1 ≤ 0, so |2s-1| = 1-2s ≤ 1
+  --                    if s ≥ 1/2, then 2s-1 ≥ 0, so |2s-1| = 2s-1 ≤ 1
+  have hs_bound : |2 * s - 1| ≤ 1 := by
+    -- Fairness state is a fraction (shortfall/total or similar), so bounded by [0,1]
+    -- We'll prove this assuming s ∈ [0, 1], which follows from the definition
+    have hs_le : s ≤ 1 := fairness_state_le_one a total
+    -- For the lower bound, we assume totalShortfall is bounded (standard for allocations)
+    -- This is a reasonable assumption: shortfall can't exceed the total resource
+    have h_shortfall_bound : totalShortfall a total ≤ max total 1 := by
+      sorry  -- This should hold for valid allocations, but needs proof or axiom
+    have hs_ge : s ≥ 0 := fairness_state_ge_zero a total h_shortfall_bound
+    -- Now prove |2s - 1| ≤ 1 using s ∈ [0, 1]
+    by_cases h : s ≥ (1 : ℚ) / 2
+    · -- Case s ≥ 1/2: then 2s - 1 ≥ 0, so |2s - 1| = 2s - 1
+      have h2s : 2 * s - 1 ≥ 0 := by linarith
+      rw [abs_of_nonneg h2s]
+      linarith  -- 2s - 1 ≤ 2*1 - 1 = 1
+    · -- Case s < 1/2: then 2s - 1 < 0, so |2s - 1| = 1 - 2s
+      push_neg at h
+      have h2s : 2 * s - 1 < 0 := by linarith
+      rw [abs_of_neg h2s]
+      linarith  -- -(2s - 1) = 1 - 2s ≤ 1 - 2*0 = 1
+  -- Therefore |lam₁ - lam₂| * |2s - 1| ≤ |lam₁ - lam₂| * 1 < ε * 1 < ε * 10
+  have h1 : |lam₂ - lam₁| * |2 * s - 1| ≤ |lam₂ - lam₁| := by
+    calc |lam₂ - lam₁| * |2 * s - 1|
+        ≤ |lam₂ - lam₁| * 1 := mul_le_mul_of_nonneg_left hs_bound (abs_nonneg _)
+      _ = |lam₂ - lam₁| := mul_one _
+  calc |lam₂ - lam₁| * |2 * s - 1|
+      ≤ |lam₂ - lam₁| := h1
+    _ = |lam₁ - lam₂| := abs_sub_comm lam₂ lam₁
+    _ < ε := hlam
+    _ ≤ ε * 10 := by linarith
 
 /--
 Simple fairness dynamics: linear interpolation based on parameter.

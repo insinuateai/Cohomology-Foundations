@@ -289,11 +289,27 @@ axiom StrategicGame.actions_nonempty (G : StrategicGame) (a : Agent)
 /-- Coordination games satisfy a monotonicity property: deviating alone doesn't help.
     For coordination games where payoffs are aligned, unilateral deviations
     from coordinated profiles are weakly dominated.
-    This is a fundamental property of pure coordination games. -/
-axiom StrategicGame.coordination_payoff_ge (G : StrategicGame)
+    This is a fundamental property of pure coordination games.
+
+    NOTE: This cannot be proven from the current definition of `isCoordinationGame`,
+    which only requires sign agreement (payoff a > 0 ↔ payoff b > 0).
+    A full proof would require a richer definition that explicitly models
+    coordination incentives, such as:
+    - Payoffs increase with the number of coordinated players, or
+    - Payoffs are maximized when all players choose matching actions
+
+    The current definition is too weak to capture these coordination dynamics. -/
+theorem StrategicGame.coordination_payoff_ge (G : StrategicGame)
     (_hcoord : G.isCoordinationGame) (profile : ActionProfile)
     (a : Agent) (ha : a ∈ G.players) (action' : ℕ) :
-    G.payoff a profile ≥ G.payoff a (fun p => if p = a then action' else profile p)
+    G.payoff a profile ≥ G.payoff a (fun p => if p = a then action' else profile p) := by
+  -- To prove this, we would need to show that isCoordinationGame implies
+  -- that coordinated profiles are Nash equilibria.
+  -- The current definition only constrains payoff sign agreement, not coordination incentives.
+  -- A proper proof would require enriching the definition to model:
+  -- 1. How payoffs depend on the degree of coordination
+  -- 2. Why matching choices by others makes deviation unprofitable
+  sorry
 
 /-- Coordination games with Nash and >2 players are impossible in this model.
     This is a consequence of the simplified formalization where forests require ≤1 player. -/

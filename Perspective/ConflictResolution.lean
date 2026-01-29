@@ -176,9 +176,21 @@ theorem remove_edge_from_single_cycle_aux (K : SimplicialComplex) [Nonempty K.ve
   -- Apply h1_trivial_iff_acyclic
   rw [H1Characterization.h1_trivial_iff_acyclic]
   -- Show (oneSkeleton (K.removeEdge e he_card h_maximal)).IsAcyclic
-  -- This is a standard graph theory result: removing an edge preserves or improves acyclicity
-  -- A full proof would show that any cycle in the removed complex was also in K,
-  -- but K minus an edge has one fewer edge, so fewer potential cycles.
+  --
+  -- PROOF STRATEGY:
+  -- 1. The 1-skeleton of K.removeEdge is a subgraph of K's 1-skeleton
+  -- 2. Any walk in the subgraph is also a walk in K
+  -- 3. Any cycle in the subgraph is also a cycle in K
+  -- 4. The subgraph has strictly fewer edges (missing edge e)
+  --
+  -- KEY INSIGHT: Removing an edge cannot CREATE new cycles. It can only remove them.
+  -- However, proving H¹ = 0 requires showing ALL cycles are gone, not just some.
+  -- This requires additional assumptions about K (e.g., K has only one independent cycle).
+  --
+  -- TODO: This lemma needs additional assumptions to be provable:
+  --   - Either: dim H¹(K) = 1 (single independent cycle)
+  --   - Or: e is part of every cycle in K
+  --   - Or: K already has H¹ near-trivial in some sense
   sorry
 
 /-- THEOREM: Filling a hollow triangle makes H¹ trivial.
@@ -204,17 +216,35 @@ theorem fill_triangle_h1_trivial_aux (K : SimplicialComplex) [Nonempty K.vertexS
   -- Apply h1_trivial_iff_acyclic
   rw [H1Characterization.h1_trivial_iff_acyclic]
   -- Show (oneSkeleton (K.addTriangle t ht)).IsAcyclic
-  -- The 2-simplex doesn't add edges beyond what the hollow triangle already had
-  -- (the three edges of the triangle). So the 1-skeleton is the same.
-  -- Wait, that's not quite right - if K didn't have all three edges, adding the
-  -- triangle adds them, which could create a cycle.
   --
-  -- Actually, this axiom is about filling an EXISTING hollow triangle.
-  -- The assumption should be that K already has the three edges forming the boundary.
-  -- In that case, K has a 3-cycle, so H¹(K) ≠ 0. Adding the 2-simplex fills it.
+  -- PROOF STRATEGY (requires cohomology, not just graph theory):
   --
-  -- The proof requires showing that the 3-cycle becomes the boundary of the 2-simplex,
-  -- hence exact (coboundary), which reduces H¹. This is cohomology theory.
+  -- From a GRAPH THEORY perspective:
+  --   - addTriangle adds the 2-simplex t and all its faces
+  --   - The faces include the three edges of the triangle
+  --   - If K already has these edges (hollow triangle), the 1-skeleton is UNCHANGED
+  --   - So graph-theoretically, acyclicity doesn't change!
+  --
+  -- From a COHOMOLOGY perspective:
+  --   - If K has edges {a,b}, {b,c}, {a,c} but not the triangle {a,b,c},
+  --     then there's a 3-cycle in the 1-skeleton
+  --   - This cycle is a 1-cocycle that is NOT a coboundary (H¹ ≠ 0)
+  --   - Adding the 2-simplex makes this cycle become ∂(triangle)
+  --   - The cycle is now a coboundary: it's the boundary of the 2-simplex
+  --   - Therefore it becomes exact, and H¹ = 0
+  --
+  -- THE GAP: We need to formalize the boundary operator ∂: C₂ → C₁
+  --   and prove that the 3-cycle equals ∂(triangle).
+  --   This requires infrastructure in Foundations/Boundary.lean (not yet built).
+  --
+  -- REQUIRED INFRASTRUCTURE:
+  --   1. Boundary operator (dual to coboundary δ)
+  --   2. Lemma: ∂(2-simplex) = its three edges with signs
+  --   3. Lemma: If cycle c = ∂(s), then c is exact in cohomology
+  --   4. Exactness implies cycle becomes coboundary after adding s
+  --
+  -- TODO: Build boundary operator infrastructure, or use graph theory approach
+  --       with explicit cycle analysis
   sorry
 
 /-- THEOREM: There exists an edge that can be removed to restore H¹ triviality.
@@ -229,16 +259,82 @@ theorem resolution_edge_exists_aux (K : SimplicialComplex) [Nonempty K.vertexSet
     ∃ (e : Simplex) (he : e ∈ K.ksimplices 1) (he_card : e.card ≥ 2)
        (h_max : ∀ s ∈ K.simplices, s ≠ e → ¬(e ⊆ s ∧ e ≠ s)),
        H1Trivial (K.removeEdge e he_card h_max) := by
-  -- H¹ ≠ 0 means the 1-skeleton is not acyclic (has a cycle)
-  rw [H1Characterization.h1_trivial_iff_acyclic] at h
-  -- From ¬IsAcyclic, we can extract a cycle
-  -- A cycle is a closed walk with no repeated vertices (except start = end)
-  -- Pick any edge from this cycle
-  --
-  -- The existence of such an edge and the proof that removing it reduces H¹
-  -- requires substantial graph theory infrastructure (cycle detection, edge extraction).
-  -- This is a standard result but needs formalization.
-  sorry
+  -- From ¬H1Trivial, we can extract a cycle witness
+  obtain ⟨w, _⟩ := conflict_witness_exists K h
+  -- The cycle has positive length, so it has at least one edge
+  have h_edges_nonempty : w.cycle.edges.length > 0 := by
+    have h_len := w.nontrivial
+    -- A walk of length n has n edges
+    rw [SimpleGraph.Walk.length_edges]
+    exact h_len
+  -- Get the first edge from the cycle
+  let first_edge := w.cycle.edges.get ⟨0, h_edges_nonempty⟩
+  have h_mem : first_edge ∈ w.cycle.edges := List.get_mem w.cycle.edges ⟨0, h_edges_nonempty⟩
+  -- Use Sym2 induction to extract vertices
+  have h_first_adj : ∃ v₁ v₂, first_edge = s(v₁, v₂) ∧ (oneSkeleton K).Adj v₁ v₂ := by
+    revert h_mem
+    induction first_edge using Sym2.inductionOn with
+    | hf a b =>
+      intro h_mem
+      refine ⟨a, b, rfl, ?_⟩
+      exact SimpleGraph.Walk.adj_of_mem_edges w.cycle h_mem
+  obtain ⟨v₁, v₂, _, h_adj⟩ := h_first_adj
+  -- From adjacency, we get that {v₁.val, v₂.val} is a simplex in K
+  obtain ⟨hne, hedge⟩ := h_adj
+  let e : Simplex := {v₁.val, v₂.val}
+  -- Show e ∈ K.ksimplices 1
+  have he : e ∈ K.ksimplices 1 := by
+    constructor
+    · exact hedge
+    · -- Show e.card = 2
+      have : e.card = 2 := Finset.card_pair hne
+      omega
+  -- Show e.card ≥ 2
+  have he_card : e.card ≥ 2 := by
+    have : e.card = 2 := Finset.card_pair hne
+    omega
+  -- Check if e is maximal (not contained in any higher simplex)
+  by_cases h_max : ∀ s ∈ K.simplices, s ≠ e → ¬(e ⊆ s ∧ e ≠ s)
+  · -- e is maximal, use it
+    use e, he, he_card, h_max
+    -- TODO: Prove that removing this edge restores H¹ = 0
+    -- This requires Sorry #1 (remove_edge_from_single_cycle_aux) to be fully resolved.
+    --
+    -- STRATEGY: We know that:
+    --   1. H¹(K) ≠ 0, so there exists a cycle
+    --   2. e is an edge in this cycle
+    --   3. Removing e from K gives K.removeEdge
+    --   4. Any cycle in K.removeEdge is also in K (subgraph property)
+    --   5. But the specific cycle containing e is broken in K.removeEdge
+    --
+    -- If K has ONLY ONE independent cycle (dim H¹ = 1), then removing any edge
+    -- from that cycle makes H¹ = 0. But we don't have this assumption!
+    --
+    -- The gap: Need to prove that removing e reduces dim H¹ by at least 1,
+    -- and that if dim H¹ = 1 initially, then removal makes H¹ = 0.
+    --
+    -- REFERENCE: This is exactly what remove_edge_from_single_cycle_aux (line 156)
+    -- is supposed to prove, but it also has a sorry.
+    sorry
+  · -- e is not maximal (contained in some higher simplex)
+    -- Need to find a different edge from the cycle that IS maximal
+    --
+    -- KEY INSIGHT: If a cycle contributes to H¹ ≠ 0, at least one of its edges
+    -- must be maximal (not part of a 2-simplex). Otherwise, the cycle would be
+    -- "filled" and wouldn't contribute to H¹.
+    --
+    -- PROOF: If every edge in the cycle were part of a 2-simplex, then the cycle
+    -- would be the boundary of a 2-chain, making it exact (coboundary), so it
+    -- wouldn't contribute to H¹. Contradiction.
+    --
+    -- TODO: Implement edge search through w.cycle.edges to find a maximal one
+    -- This requires:
+    --   1. Iterating through w.cycle.edges
+    --   2. For each edge, checking maximality
+    --   3. Proving that at least one exists (the key lemma above)
+    --
+    -- This is substantial infrastructure work.
+    sorry
 
 /-! ## Part 1: Resolution Strategies -/
 

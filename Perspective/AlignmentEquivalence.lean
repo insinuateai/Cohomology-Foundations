@@ -201,24 +201,36 @@ def Reconciles (R V : ValueSystem S) (ε : ℚ) : Prop :=
     - Higher simplices exist iff all their edges exist (flag complex property)
 -/
 def valueComplex {n : ℕ} (systems : Fin n → ValueSystem S) (ε : ℚ) : SimplicialComplex where
-  simplices := {σ : Simplex | ∀ i j : ℕ, i ∈ σ → j ∈ σ → i < j → (hi : i < n) → (hj : j < n) →
-    -- Edge {i,j} exists iff systems i and j agree somewhere within 2ε
-    ∃ s : S, |(systems ⟨i, hi⟩).values s - (systems ⟨j, hj⟩).values s| ≤ 2 * ε}
+  simplices := {σ : Simplex |
+    -- All vertices must be < n
+    (∀ v ∈ σ, v < n) ∧
+    -- Pairwise agreement for edges
+    (∀ i j : ℕ, i ∈ σ → j ∈ σ → i < j → (hi : i < n) → (hj : j < n) →
+      ∃ s : S, |(systems ⟨i, hi⟩).values s - (systems ⟨j, hj⟩).values s| ≤ 2 * ε)}
   has_vertices := by
     intro s hs v hv
-    simp only [Set.mem_setOf_eq, Simplex.vertex]
-    intro i j hi hj hij _ _
-    -- For a singleton {v}, i and j must both equal v, contradicting i < j
-    simp only [Finset.mem_singleton] at hi hj
-    omega
+    simp only [Set.mem_setOf_eq, Simplex.vertex] at hs ⊢
+    constructor
+    · intro w hw
+      simp only [Finset.mem_singleton] at hw
+      rw [hw]
+      exact hs.1 v hv
+    · intro i j hi hj hij hi_lt hj_lt
+      -- For a singleton {v}, i and j must both equal v, contradicting i < j
+      simp only [Finset.mem_singleton] at hi hj
+      omega
   down_closed := by
     intro s hs i
     simp only [Set.mem_setOf_eq] at hs ⊢
-    intro a b ha hb hab ha_lt hb_lt
-    -- s.face i is a subset of s, so the pairwise agreement still holds
-    have ha' : a ∈ s := Simplex.face_subset s i ha
-    have hb' : b ∈ s := Simplex.face_subset s i hb
-    exact hs a b ha' hb' hab ha_lt hb_lt
+    constructor
+    · intro v hv
+      have : v ∈ s := Simplex.face_subset s i hv
+      exact hs.1 v this
+    · intro a b ha hb hab ha_lt hb_lt
+      -- s.face i is a subset of s, so the pairwise agreement still holds
+      have ha' : a ∈ s := Simplex.face_subset s i ha
+      have hb' : b ∈ s := Simplex.face_subset s i hb
+      exact hs.2 a b ha' hb' hab ha_lt hb_lt
 
 /-
 ## The Hollow Triangle (Multi-Stakeholder Extension)
