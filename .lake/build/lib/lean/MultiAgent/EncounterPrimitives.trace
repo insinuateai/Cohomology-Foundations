@@ -1,8 +1,8 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["b1ddc1b47d622ea9.olean"],
-  "i": "1c111a23c78959e4.ilean",
+ {"o": ["e0c31d54afc5fdb7.olean"],
+  "i": "f2f31ca6c23c684d.ilean",
   "c": "174580ade7a2e480.c"},
  "log":
  [{"message":
@@ -18,61 +18,52 @@
    "MultiAgent/EncounterPrimitives.lean:139:49: unused variable `hab`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/EncounterPrimitives.lean:144:8: declaration uses 'sorry'",
+   "MultiAgent/EncounterPrimitives.lean:201:58: unused variable `a`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/EncounterPrimitives.lean:150:32: This simp argument is unused:\n  Experience.isOfOther\n\nHint: Omit it from the simp argument list.\n  simp only [mutualEncounter,̵ ̵E̵x̵p̵e̵r̵i̵e̵n̵c̵e̵.̵i̵s̵O̵f̵O̵t̵h̵e̵r̵] at heq\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "MultiAgent/EncounterPrimitives.lean:201:60: unused variable `b`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/EncounterPrimitives.lean:195:58: unused variable `a`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/EncounterPrimitives.lean:232:38: unused variable `n`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/EncounterPrimitives.lean:195:60: unused variable `b`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/EncounterPrimitives.lean:277:5: unused variable `ha`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/EncounterPrimitives.lean:200:8: declaration uses 'sorry'",
+   "MultiAgent/EncounterPrimitives.lean:277:27: unused variable `hb`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/EncounterPrimitives.lean:218:38: unused variable `n`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/EncounterPrimitives.lean:331:55: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/EncounterPrimitives.lean:263:5: unused variable `ha`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/EncounterPrimitives.lean:355:5: unused variable `ha`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/EncounterPrimitives.lean:263:27: unused variable `hb`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/EncounterPrimitives.lean:355:27: unused variable `hb`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/EncounterPrimitives.lean:317:8: declaration uses 'sorry'",
+   "MultiAgent/EncounterPrimitives.lean:355:49: unused variable `hab`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/EncounterPrimitives.lean:326:5: unused variable `ha`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/EncounterPrimitives.lean:359:33: unused variable `sys`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/EncounterPrimitives.lean:326:27: unused variable `hb`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/EncounterPrimitives.lean:363:76: unused variable `ha`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/EncounterPrimitives.lean:326:49: unused variable `hab`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/EncounterPrimitives.lean:378:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/EncounterPrimitives.lean:330:33: unused variable `sys`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/EncounterPrimitives.lean:383:33: unused variable `sys`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/EncounterPrimitives.lean:334:76: unused variable `ha`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/EncounterPrimitives.lean:388:52: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/EncounterPrimitives.lean:349:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/EncounterPrimitives.lean:392:35: unused variable `sys`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/EncounterPrimitives.lean:354:33: unused variable `sys`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
-   "level": "warning"},
-  {"message":
-   "MultiAgent/EncounterPrimitives.lean:359:52: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
-   "level": "warning"},
-  {"message":
-   "MultiAgent/EncounterPrimitives.lean:363:35: unused variable `sys`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
-   "level": "warning"},
-  {"message":
-   "MultiAgent/EncounterPrimitives.lean:367:33: unused variable `sys`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/EncounterPrimitives.lean:396:33: unused variable `sys`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"}],
  "inputs":
  [["MultiAgent.EncounterPrimitives:deps",
@@ -87,8 +78,8 @@
          "68b38e56b1aa328f"],
         ["Mathlib.Data.Finset.Card:importAllArts", "dfd1b2e7b41d681f"],
         ["MultiAgent.AgentNetworks transitive imports (legacy)",
-         "a3e63cf756af82b7"],
-        ["MultiAgent.AgentNetworks:importAllArts", "cbf756cec16e2238"]]]]],
+         "3e0d5f3bbf7fb5d0"],
+        ["MultiAgent.AgentNetworks:importAllArts", "fe4ac6d1fc9da768"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
@@ -97,9 +88,9 @@
   ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
    "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/MultiAgent/EncounterPrimitives.lean",
-   "6fade75268ea8ae9"],
+   "5b2c3f2a4431e7b2"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "b34cd12115d526e4"}
+ "depHash": "033b023b85d3d9d7"}

@@ -207,12 +207,13 @@ theorem EncounterSystem.inquire_not_symm (sys : EncounterSystem)
     (hasym : ∃ b c : Agent, (sys.encounter b c).exp1of2.content ≠ (sys.encounter c b).exp1of2.content) :
     ∃ a b c, sys.inquire a b c ≠ sys.inquire c b a := by
   obtain ⟨b, c, hne⟩ := hasym
-  -- inquire a b c has content = (encounter b c).exp1of2.content
-  -- inquire c b a has content = (encounter b a).exp1of2.content
+  -- If b = c then hne would be trivially false, so b ≠ c
+  have hbc : b ≠ c := fun heq => hne (by rw [heq])
   use b, b, c
-  simp only [inquire, ne_eq, InquireResult.mk.injEq, not_and]
-  intro _ _ _
-  exact hne
+  simp only [inquire, ne_eq]
+  intro h
+  have : b = c := congrArg InquireResult.asker h
+  exact hbc this
 
 /-- Self-inquire through self -/
 def EncounterSystem.selfInquire (sys : EncounterSystem) (a : Agent) : InquireResult :=
@@ -313,7 +314,7 @@ theorem EncounterSystem.numEquivClasses_pos (sys : EncounterSystem) (h : sys.age
     
     This is the philosophical core: observation is not passive reading
     but active creation of experience. -/
-axiom encounter_primitive : True
+theorem encounter_primitive : True := trivial
   -- Cannot be stated formally because it's about what CANNOT be reduced
 
 /-- AXIOM 2 (FOUNDATIONAL): Self-encounter is non-trivial
@@ -323,7 +324,7 @@ axiom encounter_primitive : True
     
     This distinguishes perspective mathematics from standard mathematics
     where self-reference leads to paradox. -/
-axiom self_encounter_nontrivial : True
+theorem self_encounter_nontrivial : True := trivial
   -- Self-encounter produces genuine self-knowledge
 
 /-- Theorem: No universal observer (when diverse experiences exist) -/

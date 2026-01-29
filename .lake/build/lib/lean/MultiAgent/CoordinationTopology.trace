@@ -1,30 +1,27 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["cab36f74c8e2dbb4.olean"],
-  "i": "3c8c6e1b55b7f1d3.ilean",
-  "c": "e35bb4e15b6700d9.c"},
+ {"o": ["264fead2cc8c3cd9.olean"],
+  "i": "78ad0f5a5e29aa00.ilean",
+  "c": "c0c67430b368fb53.c"},
  "log":
  [{"message":
    ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.27.0/bin/lean /workspaces/Cohomology-Foundations/MultiAgent/CoordinationTopology.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/MultiAgent/CoordinationTopology.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/MultiAgent/CoordinationTopology.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/MultiAgent/CoordinationTopology.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/MultiAgent/CoordinationTopology.setup.json --json",
    "level": "trace"},
   {"message":
-   "MultiAgent/CoordinationTopology.lean:338:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/CoordinationTopology.lean:339:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/CoordinationTopology.lean:363:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/CoordinationTopology.lean:381:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/CoordinationTopology.lean:367:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/CoordinationTopology.lean:417:85: unused variable `a`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/CoordinationTopology.lean:403:85: unused variable `a`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/CoordinationTopology.lean:417:97: unused variable `t`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/CoordinationTopology.lean:403:97: unused variable `t`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
-   "level": "warning"},
-  {"message":
-   "MultiAgent/CoordinationTopology.lean:404:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/CoordinationTopology.lean:418:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"}],
  "inputs":
  [["MultiAgent.CoordinationTopology:deps",
@@ -54,7 +51,10 @@
          "329e548710a04a14"],
         ["MultiAgent.AgentNetworks transitive imports (legacy)",
          "3e0d5f3bbf7fb5d0"],
-        ["MultiAgent.AgentNetworks:importAllArts", "d1e6bf35e938cf75"]]]]],
+        ["MultiAgent.AgentNetworks:importAllArts", "fe4ac6d1fc9da768"],
+        ["MultiAgent.NerveComplex transitive imports (legacy)",
+         "fe5b103b74dc51ec"],
+        ["MultiAgent.NerveComplex:importAllArts", "24a7f79f8002d0a8"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
@@ -63,9 +63,9 @@
   ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
    "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/MultiAgent/CoordinationTopology.lean",
-   "aca45d1f3369ac9e"],
+   "980f7c27343fbe56"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "a3305c78061be2be"}
+ "depHash": "ce15b07fac4fd5aa"}

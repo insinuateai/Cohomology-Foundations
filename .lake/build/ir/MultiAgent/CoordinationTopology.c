@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: MultiAgent.CoordinationTopology
-// Imports: public import Init public import Mathlib.Data.Finset.Basic public import Mathlib.Data.Finset.Card public import Mathlib.Data.Finset.Lattice.Basic public import Mathlib.Data.Finset.Union public import Mathlib.Algebra.BigOperators.Group.Finset.Basic public import Mathlib.Algebra.Order.BigOperators.Group.Finset public import MultiAgent.AgentNetworks
+// Imports: public import Init public import Mathlib.Data.Finset.Basic public import Mathlib.Data.Finset.Card public import Mathlib.Data.Finset.Lattice.Basic public import Mathlib.Data.Finset.Union public import Mathlib.Algebra.BigOperators.Group.Finset.Basic public import Mathlib.Algebra.Order.BigOperators.Group.Finset public import MultiAgent.AgentNetworks public import MultiAgent.NerveComplex
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -27,12 +27,10 @@ LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_CoordinationProblem
 static lean_object* lp_CohomologyFoundations_MultiAgent_instReprResource_repr___redArg___closed__0;
 uint64_t lean_uint64_of_nat(lean_object*);
 uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);
-lean_object* lp_mathlib_Multiset_map___redArg(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t lp_CohomologyFoundations_MultiAgent_instDecidableEqResource_decEq(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations___private_Init_Data_List_Impl_0__List_eraseTR_go___at___00Multiset_erase___at___00Finset_erase___at___00MultiAgent_CoordinationProblem_removeTask_spec__0_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_CoordinationProblem_removeTask___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* lp_CohomologyFoundations_Finset_sum___at___00MultiAgent_CoordinationProblem_totalCapacity_spec__0___redArg(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 uint8_t lp_mathlib_Multiset_decidableDforallMultiset___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_Multiset_toFinset___at___00Finset_biUnion___at___00MultiAgent_CoordinationProblem_resourcesNeeded_spec__0_spec__0(lean_object*);
@@ -72,7 +70,6 @@ LEAN_EXPORT lean_object* lp_CohomologyFoundations_List_dedup___at___00Multiset_d
 static lean_object* lp_CohomologyFoundations_MultiAgent_instReprResource_repr___redArg___closed__8;
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_instReprResource_repr___redArg(lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_CoordinationProblem_increaseCapacity___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* lp_CohomologyFoundations_Multiset_sum___at___00Finset_sum___at___00MultiAgent_CoordinationProblem_totalCapacity_spec__0_spec__0___closed__0;
 LEAN_EXPORT uint8_t lp_CohomologyFoundations_List_elem___at___00Multiset_ndinsert___at___00MultiAgent_CoordinationProblem_addTask_spec__0_spec__0(lean_object*, lean_object*);
 static lean_object* lp_CohomologyFoundations_MultiAgent_instReprResource_repr___redArg___closed__11;
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_Finset_biUnion___at___00MultiAgent_CoordinationProblem_resourcesNeeded_spec__0(lean_object*, lean_object*, lean_object*);
@@ -84,15 +81,12 @@ LEAN_EXPORT lean_object* lp_CohomologyFoundations_Multiset_ndinsert___at___00Mul
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_Multiset_erase___at___00Finset_erase___at___00MultiAgent_CoordinationProblem_removeTask_spec__0_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_Task_resourceCount___boxed(lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_List_pwFilter___at___00List_dedup___at___00Multiset_dedup___at___00Multiset_toFinset___at___00Finset_biUnion___at___00MultiAgent_CoordinationProblem_resourcesNeeded_spec__0_spec__0_spec__0_spec__0_spec__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* lp_CohomologyFoundations_Multiset_sum___at___00Finset_sum___at___00MultiAgent_CoordinationProblem_totalCapacity_spec__0_spec__0(lean_object*);
 static lean_object* lp_CohomologyFoundations_MultiAgent_instReprResource_repr___redArg___closed__12;
-lean_object* l_Nat_add___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_Multiset_ndunion___at___00MultiAgent_CoordinationProblem_addTask_spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_instDecidableEqTask_decEq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t lp_CohomologyFoundations_MultiAgent_instDecidableEqResource(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_CoordinationProblem_toNetwork___boxed(lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_CoordinationProblem_addTask___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_List_foldrTR___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_CoordinationProblem_numTasks___boxed(lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_Finset_biUnion___at___00MultiAgent_CoordinationProblem_resourcesNeeded_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___00List_foldrTR___at___00Multiset_ndunion___at___00MultiAgent_CoordinationProblem_addTask_spec__2_spec__3_spec__3(lean_object*, size_t, size_t, lean_object*);
@@ -118,6 +112,7 @@ static lean_object* lp_CohomologyFoundations_MultiAgent_instReprResource_repr___
 size_t lean_usize_sub(size_t, size_t);
 lean_object* lean_array_mk(lean_object*);
 uint8_t l_List_decidablePerm___redArg(lean_object*, lean_object*, lean_object*);
+lean_object* lp_mathlib_Finset_sum___at___00finFunctionFinEquiv_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_CoordinationProblem_toNetwork(lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___00List_foldrTR___at___00List_pwFilter___at___00List_dedup___at___00Multiset_dedup___at___00Multiset_toFinset___at___00Finset_biUnion___at___00MultiAgent_CoordinationProblem_resourcesNeeded_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0(lean_object*, size_t, size_t, lean_object*);
@@ -132,7 +127,6 @@ LEAN_EXPORT lean_object* lp_CohomologyFoundations___private_Init_Data_Array_Basi
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_CoordinationProblem_feasible__decidable___boxed(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* lp_CohomologyFoundations_Finset_sum___at___00MultiAgent_CoordinationProblem_totalCapacity_spec__0(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___00__private_Init_Data_List_Impl_0__List_eraseTR_go___at___00Multiset_erase___at___00Finset_erase___at___00MultiAgent_CoordinationProblem_removeTask_spec__0_spec__0_spec__0_spec__0(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_CoordinationProblem_reassignTask(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -547,41 +541,6 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-static lean_object* _init_lp_CohomologyFoundations_Multiset_sum___at___00Finset_sum___at___00MultiAgent_CoordinationProblem_totalCapacity_spec__0_spec__0___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Nat_add___boxed), 2, 0);
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* lp_CohomologyFoundations_Multiset_sum___at___00Finset_sum___at___00MultiAgent_CoordinationProblem_totalCapacity_spec__0_spec__0(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = lp_CohomologyFoundations_Multiset_sum___at___00Finset_sum___at___00MultiAgent_CoordinationProblem_totalCapacity_spec__0_spec__0___closed__0;
-x_3 = lean_unsigned_to_nat(0u);
-x_4 = l_List_foldrTR___redArg(x_2, x_3, x_1);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* lp_CohomologyFoundations_Finset_sum___at___00MultiAgent_CoordinationProblem_totalCapacity_spec__0___redArg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; 
-x_3 = lp_mathlib_Multiset_map___redArg(x_2, x_1);
-x_4 = lp_CohomologyFoundations_Multiset_sum___at___00Finset_sum___at___00MultiAgent_CoordinationProblem_totalCapacity_spec__0_spec__0(x_3);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* lp_CohomologyFoundations_Finset_sum___at___00MultiAgent_CoordinationProblem_totalCapacity_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lp_CohomologyFoundations_Finset_sum___at___00MultiAgent_CoordinationProblem_totalCapacity_spec__0___redArg(x_2, x_3);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* lp_CohomologyFoundations_MultiAgent_CoordinationProblem_totalCapacity(lean_object* x_1) {
 _start:
 {
@@ -591,7 +550,7 @@ lean_inc(x_2);
 x_3 = lean_ctor_get(x_1, 4);
 lean_inc_ref(x_3);
 lean_dec_ref(x_1);
-x_4 = lp_CohomologyFoundations_Finset_sum___at___00MultiAgent_CoordinationProblem_totalCapacity_spec__0___redArg(x_2, x_3);
+x_4 = lp_mathlib_Finset_sum___at___00finFunctionFinEquiv_spec__0___redArg(x_2, x_3);
 return x_4;
 }
 }
@@ -1636,6 +1595,7 @@ lean_object* initialize_mathlib_Mathlib_Data_Finset_Union(uint8_t builtin);
 lean_object* initialize_mathlib_Mathlib_Algebra_BigOperators_Group_Finset_Basic(uint8_t builtin);
 lean_object* initialize_mathlib_Mathlib_Algebra_Order_BigOperators_Group_Finset(uint8_t builtin);
 lean_object* initialize_CohomologyFoundations_MultiAgent_AgentNetworks(uint8_t builtin);
+lean_object* initialize_CohomologyFoundations_MultiAgent_NerveComplex(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_CohomologyFoundations_MultiAgent_CoordinationTopology(uint8_t builtin) {
 lean_object * res;
@@ -1663,6 +1623,9 @@ res = initialize_mathlib_Mathlib_Algebra_Order_BigOperators_Group_Finset(builtin
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_CohomologyFoundations_MultiAgent_AgentNetworks(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_CohomologyFoundations_MultiAgent_NerveComplex(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 lp_CohomologyFoundations_MultiAgent_instReprResource_repr___redArg___closed__4 = _init_lp_CohomologyFoundations_MultiAgent_instReprResource_repr___redArg___closed__4();
@@ -1699,8 +1662,6 @@ lp_CohomologyFoundations_MultiAgent_instHashableResource___closed__0 = _init_lp_
 lean_mark_persistent(lp_CohomologyFoundations_MultiAgent_instHashableResource___closed__0);
 lp_CohomologyFoundations_MultiAgent_instHashableResource = _init_lp_CohomologyFoundations_MultiAgent_instHashableResource();
 lean_mark_persistent(lp_CohomologyFoundations_MultiAgent_instHashableResource);
-lp_CohomologyFoundations_Multiset_sum___at___00Finset_sum___at___00MultiAgent_CoordinationProblem_totalCapacity_spec__0_spec__0___closed__0 = _init_lp_CohomologyFoundations_Multiset_sum___at___00Finset_sum___at___00MultiAgent_CoordinationProblem_totalCapacity_spec__0_spec__0___closed__0();
-lean_mark_persistent(lp_CohomologyFoundations_Multiset_sum___at___00Finset_sum___at___00MultiAgent_CoordinationProblem_totalCapacity_spec__0_spec__0___closed__0);
 lp_CohomologyFoundations_MultiAgent_CoordinationProblem_empty = _init_lp_CohomologyFoundations_MultiAgent_CoordinationProblem_empty();
 lean_mark_persistent(lp_CohomologyFoundations_MultiAgent_CoordinationProblem_empty);
 lp_CohomologyFoundations_Multiset_erase___at___00Finset_erase___at___00MultiAgent_CoordinationProblem_removeTask_spec__0_spec__0___closed__0 = _init_lp_CohomologyFoundations_Multiset_erase___at___00Finset_erase___at___00MultiAgent_CoordinationProblem_removeTask_spec__0_spec__0___closed__0();

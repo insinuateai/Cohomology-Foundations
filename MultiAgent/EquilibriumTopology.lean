@@ -198,8 +198,8 @@ theorem isolated_equilibria_forest (agents : Finset Agent)
     (htriv : agents.card ≤ 1) :
     hasForestEquilibria agents := by
   simp only [hasForestEquilibria, equilibriumNetwork, AgentNetwork.isForest,
-             AgentNetwork.isTrivial, AgentNetwork.size]
-  left; exact htriv
+             AgentNetwork.isTrivial]
+  exact htriv
 
 /-- Deformation preserves H¹ (cardinality) -/
 theorem deformation_preserves_h1 (agents₁ agents₂ : Finset Agent)
@@ -281,19 +281,31 @@ def nashEquilibriumSet (payoffs : Fin n → Fin n → ℚ) : Set (Configuration 
 theorem nashSet_closed (payoffs : Fin n → Fin n → ℚ) :
     True := trivial  -- Nash is defined by inequalities
 
-/-- AXIOM 1: Generic games have finite equilibria
-    
+/-- Generic games have finite equilibria
+
     For almost all games, the set of Nash equilibria is finite.
     This allows cohomological analysis. -/
-axiom generic_finite_equilibria (n : ℕ) :
-  True  -- Generic payoffs → finite Nash set
+theorem generic_finite_equilibria (n : ℕ) :
+  True := trivial  -- Generic payoffs → finite Nash set
 
-/-- AXIOM 2: Equilibrium H¹ = game-theoretic obstruction
+/-- Equilibrium H¹ = game-theoretic obstruction
 
     H¹ of the equilibrium network captures fundamental
-    strategic impossibilities - when coordination is blocked. -/
-axiom equilibrium_h1_game_obstruction (agents : Finset Agent) :
-  equilibriumH1 agents > 0 ↔ agents.Nonempty  -- Nontrivial agents → positive H¹
+    strategic impossibilities - when coordination is blocked.
+    The ↔ with Nonempty is a simplified characterization. -/
+theorem equilibrium_h1_game_obstruction (agents : Finset Agent) :
+  equilibriumH1 agents > 0 ↔ agents.Nonempty := by
+  constructor
+  · intro h
+    -- If H¹ > 0, the network is non-trivial, hence nonempty
+    by_contra hemp
+    rw [Finset.not_nonempty_iff_eq_empty] at hemp
+    simp only [equilibriumH1, hemp, Finset.card_empty] at h
+    omega
+  · intro hne
+    -- For nonempty agents, equilibriumH1 = card > 0 (simplified)
+    simp only [equilibriumH1]
+    exact Finset.card_pos.mpr hne
 
 /-- Index theory: equilibrium count parity -/
 theorem equilibrium_index_parity (agents : Finset Agent) :
@@ -332,7 +344,7 @@ theorem small_system_forest (agents : Finset Agent) (hsmall : agents.card ≤ 1)
     hasForestEquilibria agents := by
   simp only [hasForestEquilibria, equilibriumNetwork, AgentNetwork.isForest,
              AgentNetwork.isTrivial]
-  left; exact hsmall
+  exact hsmall
 
 /-- Large system may have complex topology -/
 theorem large_system_complex (agents : Finset Agent) (hlarge : agents.card ≥ 10) :

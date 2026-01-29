@@ -1,8 +1,8 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["44b451fa4639e7f6.olean"],
-  "i": "0342e588f9bde2b5.ilean",
+ {"o": ["4160c82ff5ae2397.olean"],
+  "i": "7716ecab0c604d39.ilean",
   "c": "dc3ec81f0abaf951.c"},
  "log":
  [{"message":
@@ -40,7 +40,7 @@
         ["Mathlib.Logic.Function.Basic:importAllArts", "290dda990eb4d20b"],
         ["MultiAgent.AgentNetworks transitive imports (legacy)",
          "3e0d5f3bbf7fb5d0"],
-        ["MultiAgent.AgentNetworks:importAllArts", "d1e6bf35e938cf75"]]]]],
+        ["MultiAgent.AgentNetworks:importAllArts", "fe4ac6d1fc9da768"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
@@ -49,9 +49,9 @@
   ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
    "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/MultiAgent/LensFormalism.lean",
-   "95cee8551c5d4652"],
+   "fef305efceb1a191"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "0d3e2e441700f0ce"}
+ "depHash": "7ed57dc041680c57"}

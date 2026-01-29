@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: MultiAgent.GlobalLocalDuality
-// Imports: public import Init public import Mathlib.Data.Finset.Basic public import Mathlib.Data.Finset.Card public import MultiAgent.AgentNetworks
+// Imports: public import Init public import Mathlib.Data.Finset.Basic public import Mathlib.Data.Finset.Card public import MultiAgent.AgentNetworks public import MultiAgent.NerveComplex
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -17,6 +17,7 @@ lean_object* initialize_Init(uint8_t builtin);
 lean_object* initialize_mathlib_Mathlib_Data_Finset_Basic(uint8_t builtin);
 lean_object* initialize_mathlib_Mathlib_Data_Finset_Card(uint8_t builtin);
 lean_object* initialize_CohomologyFoundations_MultiAgent_AgentNetworks(uint8_t builtin);
+lean_object* initialize_CohomologyFoundations_MultiAgent_NerveComplex(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_CohomologyFoundations_MultiAgent_GlobalLocalDuality(uint8_t builtin) {
 lean_object * res;
@@ -32,6 +33,9 @@ res = initialize_mathlib_Mathlib_Data_Finset_Card(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_CohomologyFoundations_MultiAgent_AgentNetworks(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_CohomologyFoundations_MultiAgent_NerveComplex(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

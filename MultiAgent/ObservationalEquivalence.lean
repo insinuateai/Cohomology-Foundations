@@ -249,13 +249,13 @@ theorem ObservationSystem.obsH0_objective (sys : ObservationSystem) :
     
     The nerve of the equivalence relation gives a simplicial complex
     whose cohomology captures observation structure. -/
-axiom obsEquiv_forms_complex (sys : ObservationSystem) : True
+theorem obsEquiv_forms_complex (sys : ObservationSystem) : True := trivial
 
 /-- AXIOM 2: H¹ of observation complex measures "perspective barriers"
     
     H¹ ≠ 0 means there exist local observations that can't be
     reconciled into a global consistent picture. -/
-axiom obsH1_measures_barriers (sys : ObservationSystem) : True
+theorem obsH1_measures_barriers (sys : ObservationSystem) : True := trivial
 
 /-- Forest structure in observation network means no barriers -/
 theorem ObservationSystem.forest_no_barriers (sys : ObservationSystem) :

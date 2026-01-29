@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: MultiAgent.MemoryConsistency
-// Imports: public import Init public import Mathlib.Data.Finset.Basic public import Mathlib.Data.Finset.Card public import Mathlib.Data.Finset.Lattice.Basic public import Mathlib.Data.Finset.Powerset public import Mathlib.Data.Finset.Union public import MultiAgent.MemoryPerspective
+// Imports: public import Init public import Mathlib.Data.Finset.Basic public import Mathlib.Data.Finset.Card public import Mathlib.Data.Finset.Lattice.Basic public import Mathlib.Data.Finset.Powerset public import Mathlib.Data.Finset.Union public import MultiAgent.MemoryPerspective public import MultiAgent.NerveComplex
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -527,6 +527,7 @@ lean_object* initialize_mathlib_Mathlib_Data_Finset_Lattice_Basic(uint8_t builti
 lean_object* initialize_mathlib_Mathlib_Data_Finset_Powerset(uint8_t builtin);
 lean_object* initialize_mathlib_Mathlib_Data_Finset_Union(uint8_t builtin);
 lean_object* initialize_CohomologyFoundations_MultiAgent_MemoryPerspective(uint8_t builtin);
+lean_object* initialize_CohomologyFoundations_MultiAgent_NerveComplex(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_CohomologyFoundations_MultiAgent_MemoryConsistency(uint8_t builtin) {
 lean_object * res;
@@ -551,6 +552,9 @@ res = initialize_mathlib_Mathlib_Data_Finset_Union(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_CohomologyFoundations_MultiAgent_MemoryPerspective(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_CohomologyFoundations_MultiAgent_NerveComplex(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 lp_CohomologyFoundations_MultiAgent_RAGConsistency___redArg___closed__0 = _init_lp_CohomologyFoundations_MultiAgent_RAGConsistency___redArg___closed__0();

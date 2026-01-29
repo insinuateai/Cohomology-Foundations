@@ -1,8 +1,8 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["196c9275b3a4d754.olean"],
-  "i": "c27cbcd189bfa0a2.ilean",
+ {"o": ["579c2407fe65b449.olean"],
+  "i": "7596f0efa3761218.ilean",
   "c": "57fe35ce23598c50.c"},
  "log":
  [{"message":
@@ -34,6 +34,12 @@
    "level": "warning"},
   {"message":
    "MultiAgent/ObservationalEquivalence.lean:245:43: unused variable `sys`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/ObservationalEquivalence.lean:252:32: unused variable `sys`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message":
+   "MultiAgent/ObservationalEquivalence.lean:258:33: unused variable `sys`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
    "MultiAgent/ObservationalEquivalence.lean:261:46: unused variable `sys`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
@@ -79,7 +85,7 @@
         ["Mathlib.Logic.Equiv.Basic:importAllArts", "b2e64b80193a1f7f"],
         ["MultiAgent.AgentNetworks transitive imports (legacy)",
          "3e0d5f3bbf7fb5d0"],
-        ["MultiAgent.AgentNetworks:importAllArts", "d1e6bf35e938cf75"]]]]],
+        ["MultiAgent.AgentNetworks:importAllArts", "fe4ac6d1fc9da768"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
@@ -88,9 +94,9 @@
   ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
    "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/MultiAgent/ObservationalEquivalence.lean",
-   "b9d607acd61e41d4"],
+   "6bb43e7b199c5aef"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "794850f35147155b"}
+ "depHash": "dbf10e1765844a43"}
