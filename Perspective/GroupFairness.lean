@@ -124,14 +124,6 @@ All groups are within-group fair.
 def allGroupsWithinFair (a : Fin n → ℚ) (partition : GroupPartition n) : Prop :=
   ∀ g : Fin partition.numGroups, isWithinGroupProportional a partition g
 
-/--
-AXIOM: Equal allocation within groups is within-group proportional.
--/
-axiom equal_within_group_proportional (a : Fin n → ℚ) (partition : GroupPartition n)
-    (g : Fin partition.numGroups)
-    (h_equal : ∀ i j, i ∈ groupMembers partition g → j ∈ groupMembers partition g → a i = a j) :
-    isWithinGroupProportional a partition g
-
 /-! ## Part 3: Between-Group Fairness -/
 
 /--
@@ -151,13 +143,6 @@ def hasStatisticalParity (a : Fin n → ℚ) (partition : GroupPartition n) : Pr
     let avg₂ := groupAllocation a partition g₂ / groupSize partition g₂
     |avg₁ - avg₂| ≤ 1/10  -- Approximate parity
 
-/--
-AXIOM: Equal per-capita allocation achieves statistical parity.
--/
-axiom equal_per_capita_parity [NeZero n] (a : Fin n → ℚ) (partition : GroupPartition n)
-    (h_equal : ∀ i j : Fin n, a i = a j) :
-    hasStatisticalParity a partition
-
 /-! ## Part 4: Group Fairness Conflict -/
 
 /--
@@ -168,13 +153,6 @@ def groupFairnessConflict [NeZero n] (partition : GroupPartition n) (total : ℚ
   (∃ a ∈ feasible, allGroupsWithinFair a partition) ∧
   (∃ a ∈ feasible, isBetweenGroupProportional a partition total) ∧
   ¬∃ a ∈ feasible, allGroupsWithinFair a partition ∧ isBetweenGroupProportional a partition total
-
-/--
-THEOREM: Conflict can exist when groups have different "productivity".
--/
-axiom group_conflict_exists [NeZero n] :
-  ∃ (partition : GroupPartition n) (total : ℚ) (feasible : Set (Fin n → ℚ)),
-    groupFairnessConflict partition total feasible
 
 /-! ## Part 5: Intersectionality -/
 
@@ -207,16 +185,6 @@ def isIntersectionallyFair (a : Fin n → ℚ)
     (identities : Fin n → IntersectionalIdentity k) : Prop :=
   ∀ i j : Fin n, identities i = identities j → |a i - a j| ≤ 1/10
 
-/--
-AXIOM: Intersectional fairness implies within-category fairness.
--/
-axiom intersectional_implies_category [NeZero n] [NeZero k]
-    (a : Fin n → ℚ) (identities : Fin n → IntersectionalIdentity k)
-    (h : isIntersectionallyFair a identities)
-    (cat : Fin k) :
-    ∀ i j : Fin n, (identities i).memberships cat = (identities j).memberships cat →
-      |a i - a j| ≤ 1
-
 /-! ## Part 6: Group Fairness Measures -/
 
 /--
@@ -226,14 +194,6 @@ def groupDisparity (a : Fin n → ℚ) (partition : GroupPartition n) [NeZero pa
   let avgs := fun g => groupAllocation a partition g / max 1 (groupSize partition g)
   Finset.univ.sup' ⟨0, Finset.mem_univ 0⟩ avgs -
   Finset.univ.inf' ⟨0, Finset.mem_univ 0⟩ avgs
-
-/--
-AXIOM: Zero disparity implies statistical parity.
--/
-axiom zero_disparity_parity (a : Fin n → ℚ) (partition : GroupPartition n)
-    [NeZero partition.numGroups]
-    (h : groupDisparity a partition = 0) :
-    hasStatisticalParity a partition
 
 /--
 Within-group inequality: Gini-like measure within each group.

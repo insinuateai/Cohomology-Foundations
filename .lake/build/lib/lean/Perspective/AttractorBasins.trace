@@ -87,7 +87,7 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["Perspective.Hysteresis transitive imports (legacy)",
-         "c63a5a2bc52619e6"],
+         "988de42611eec22f"],
         ["Perspective.Hysteresis:importAllArts", "8ed9721d9f7f3b4a"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
@@ -102,4 +102,4 @@
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "decbfa3e27c2aca9"}
+ "depHash": "44796bc350a49337"}

@@ -118,37 +118,11 @@ noncomputable def assessFairness [NeZero n] (u : FairnessUniverse n)
 /-! ## Part 2: Cross-Cutting Theorems -/
 
 /--
-AXIOM: Envy-free implies proportional (for identical valuations).
-
-Standard result in fair division theory: with identical valuations,
-envy-freeness implies everyone receives at least the average share.
--/
-axiom envy_free_implies_proportional [NeZero n] (a : Fin n → ℚ) (total : ℚ)
-    (h_sum : (∑ i, a i) = total)
-    (h_ef : isEnvyFree (fun _ _ => 1) a) :
-    isProportional a total
-
-/--
-THEOREM: Leximin optimal implies Pareto efficient.
--/
-axiom leximin_implies_pareto [NeZero n] (a : Fin n → ℚ) (feasible : Set (Fin n → ℚ))
-    (h : LeximinGeodesics.isLeximinOptimal a feasible) :
-    isParetoEfficient a feasible
-
-/--
 THEOREM: Zero repair cost implies already fair.
 -/
 theorem zero_repair_iff_fair [NeZero n] (a : Fin n → ℚ) (total : ℚ) :
     repairCostL1 a (equalAllocation total) = 0 ↔ a = equalAllocation total := by
   exact FairRepair.repair_cost_l1_zero_iff a (equalAllocation total)
-
-/--
-THEOREM: High persistence implies stable fairness.
--/
-axiom high_persistence_stable [NeZero n] (pf : ParameterizedFairness n) 
-    (a : Fin n → ℚ) (εMin εMax : ℚ)
-    (h : persistenceScore pf a εMin εMax ≥ 9/10) :
-    ∀ ε ∈ Set.Icc εMin εMax, pf.satisfiesAt a ε
 
 /--
 THEOREM: Nash equilibrium allocation is strategically stable.
@@ -158,13 +132,6 @@ theorem nash_is_stable (game : AllocationGame n) (σ : FairnessGames.StrategyPro
     ∀ i s', game.utility i (game.mechanism σ) ≥ 
             game.utility i (game.mechanism (fun j => if j = i then s' else σ j)) :=
   fun i s' => h i s'
-
-/--
-THEOREM: Sublinear regret implies learning converges.
--/
-axiom sublinear_regret_converges (totalRegret : ℕ → ℚ)
-    (h : ∀ T, totalRegret T ≤ (T : ℚ) + 1) :
-    ∀ ε > 0, ∃ T₀, ∀ T ≥ T₀, totalRegret T / T < ε
 
 /-! ## Part 3: The Fairness Hierarchy -/
 

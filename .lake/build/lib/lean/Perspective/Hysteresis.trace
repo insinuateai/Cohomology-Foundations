@@ -69,7 +69,7 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["Perspective.Bifurcation transitive imports (legacy)",
-         "4fa0ee9085efc7ed"],
+         "0bf059fd50732e1c"],
         ["Perspective.Bifurcation:importAllArts", "37faa716c93f0422"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
@@ -84,4 +84,4 @@
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "2d28e1e4194da839"}
+ "depHash": "4c735025a7b0bb25"}

@@ -1,57 +1,48 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["5c050d441528f83a.olean"],
-  "i": "5093a5e10bacf675.ilean",
+ {"o": ["fd84db66147f104d.olean"],
+  "i": "a81a2032eca5c1e5.ilean",
   "c": "21eb6f2b0e835f8c.c"},
  "log":
  [{"message":
    ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.27.0/bin/lean /workspaces/Cohomology-Foundations/MultiAgent/StrategicCoordination.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/MultiAgent/StrategicCoordination.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/MultiAgent/StrategicCoordination.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/MultiAgent/StrategicCoordination.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/MultiAgent/StrategicCoordination.setup.json --json",
    "level": "trace"},
   {"message":
-   "MultiAgent/StrategicCoordination.lean:56:17: unused variable `ha`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/StrategicCoordination.lean:69:17: unused variable `ha`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/StrategicCoordination.lean:81:32: unused variable `P`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/StrategicCoordination.lean:94:32: unused variable `P`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/StrategicCoordination.lean:131:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/StrategicCoordination.lean:144:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/StrategicCoordination.lean:150:8: declaration uses 'sorry'",
+   "MultiAgent/StrategicCoordination.lean:228:60: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/StrategicCoordination.lean:207:60: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/StrategicCoordination.lean:244:5: unused variable `ha`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/StrategicCoordination.lean:223:5: unused variable `ha`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/StrategicCoordination.lean:244:25: unused variable `hb`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/StrategicCoordination.lean:223:25: unused variable `hb`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/StrategicCoordination.lean:244:45: unused variable `hab`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/StrategicCoordination.lean:223:45: unused variable `hab`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/StrategicCoordination.lean:362:58: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/StrategicCoordination.lean:242:8: declaration uses 'sorry'",
+   "MultiAgent/StrategicCoordination.lean:368:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/StrategicCoordination.lean:287:58: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/StrategicCoordination.lean:461:8: declaration uses 'sorry'",
    "level": "warning"},
   {"message":
-   "MultiAgent/StrategicCoordination.lean:293:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/StrategicCoordination.lean:517:28: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/StrategicCoordination.lean:320:8: declaration uses 'sorry'",
-   "level": "warning"},
-  {"message":
-   "MultiAgent/StrategicCoordination.lean:338:8: declaration uses 'sorry'",
-   "level": "warning"},
-  {"message":
-   "MultiAgent/StrategicCoordination.lean:366:28: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
-   "level": "warning"},
-  {"message":
-   "MultiAgent/StrategicCoordination.lean:389:19: unused variable `ch`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/StrategicCoordination.lean:540:19: unused variable `ch`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"}],
  "inputs":
  [["MultiAgent.StrategicCoordination:deps",
@@ -74,7 +65,7 @@
          "3b840309801c948c"],
         ["MultiAgent.AgentNetworks transitive imports (legacy)",
          "3e0d5f3bbf7fb5d0"],
-        ["MultiAgent.AgentNetworks:importAllArts", "fe4ac6d1fc9da768"]]]]],
+        ["MultiAgent.AgentNetworks:importAllArts", "67fbf7ffd364facf"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
@@ -83,9 +74,9 @@
   ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
    "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/MultiAgent/StrategicCoordination.lean",
-   "160a9e56f3a9dbf5"],
+   "77d04dc9ebb4000a"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "deb912929ca1a646"}
+ "depHash": "6bb9e1f6f851586d"}

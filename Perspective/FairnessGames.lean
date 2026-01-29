@@ -215,16 +215,6 @@ def averageMechanism [NeZero n] : StrategyProfile n → (Fin n → ℚ) :=
   fun σ i => (∑ j, σ j i) / n
 
 /--
-AXIOM: Average mechanism is not strategyproof.
-(Requires constructing a counterexample - agent can inflate proposal)
--/
-axiom average_not_strategyproof [NeZero n] (hn : n ≥ 2) :
-    ¬isStrategyproof { utility := simpleUtility
-                       feasible := Set.univ
-                       mechanism := (averageMechanism : StrategyProfile n → (Fin n → ℚ))
-                       mechanism_feasible := fun _ => trivial }
-
-/--
 Equal division mechanism: ignore proposals, divide equally.
 -/
 def equalDivisionMechanism [NeZero n] (total : ℚ) : StrategyProfile n → (Fin n → ℚ) :=
@@ -321,13 +311,6 @@ def kalaiSmorodinskySolution (bp : BargainingProblem n) : Fin n → ℚ :=
   -- Proportional to max achievable - disagreement
   -- Simplified: same as Nash
   nashBargainingSolution bp
-
-/--
-THEOREM: Nash solution is Pareto optimal.
--/
-axiom nash_solution_pareto (bp : BargainingProblem n) :
-    ∀ u ∈ bp.feasible, 
-      (∀ i, u i > nashBargainingSolution bp i) → False
 
 /-! ## Part 8: Fairness and Incentives -/
 

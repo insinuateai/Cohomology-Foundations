@@ -175,14 +175,6 @@ THEOREM: Optimal repair exists (for non-empty targets).
 axiom optimal_repair_exists (original : Fin n → ℚ) (target : FairnessTarget n) :
     ∃ repaired, isOptimalRepair original repaired target
 
-/--
-AXIOM: Optimal repair cost is at most distance to any fair allocation.
-This requires optimization theory (infimum characterization).
--/
-axiom optimal_cost_bound (original : Fin n → ℚ) (target : FairnessTarget n)
-    (a : Fin n → ℚ) (ha : target.satisfies a) :
-    minRepairCost original target ≤ repairCostL1 original a
-
 /-! ## Part 4: Repair Strategies -/
 
 /--
@@ -303,15 +295,6 @@ noncomputable def bestRepairWithinBudget (original : Fin n → ℚ) (target : Fa
   else interpolatedRepair original fullRepair (budget / fullCost)
 
 /--
-AXIOM: Best repair within budget respects budget.
-This requires showing interpolated repair has proportional cost.
--/
-axiom best_repair_respects_budget (original : Fin n → ℚ) (target : FairnessTarget n)
-    (budget : ℚ) (h : budget ≥ 0) :
-    repairCostL1 original (bestRepairWithinBudget original target budget) ≤
-    max budget (minRepairCost original target)
-
-/--
 Repair schedule: sequence of incremental repairs.
 -/
 def RepairSchedule (n : ℕ) := List (Fin n → ℚ)
@@ -335,21 +318,6 @@ axiom repair_cost_lower_bound [NeZero n] (original : Fin n → ℚ) (total : ℚ
     (h_sum : (∑ i, original i) = total) :
     minRepairCost original (proportionalityTarget total) ≥ totalShortfall original total
 
-/--
-AXIOM: Upper bound on repair cost: at most twice the maximum deviation.
-This requires showing direct repair to equal allocation costs at most 2 * total.
--/
-axiom repair_cost_upper_bound [NeZero n] (original : Fin n → ℚ) (total : ℚ)
-    (h_sum : (∑ i, original i) = total) :
-    minRepairCost original (proportionalityTarget total) ≤ 2 * total
-
-/--
-Repair cost is linear in problem size (for bounded deviations).
--/
-axiom repair_cost_linear [NeZero n] (original : Fin n → ℚ) (total : ℚ)
-    (maxDev : ℚ) (h : ∀ i, |original i - total / n| ≤ maxDev) :
-    minRepairCost original (proportionalityTarget total) ≤ n * maxDev
-
 /-! ## Part 8: Repair Quality Metrics -/
 
 /--
@@ -359,15 +327,6 @@ def repairEfficiency [NeZero n] (original repaired : Fin n → ℚ) (total : ℚ
   let fairnessImprovement := totalShortfall original total - totalShortfall repaired total
   let cost := repairCostL1 original repaired
   if cost = 0 then 0 else fairnessImprovement / cost
-
-/--
-AXIOM: Perfect repair has positive efficiency (when original is unfair).
-This requires showing cost is positive when original differs from equal allocation.
--/
-axiom perfect_repair_positive_efficiency [NeZero n] (original : Fin n → ℚ) (total : ℚ)
-    (h_unfair : totalShortfall original total > 0)
-    (h_sum : (∑ i, original i) = total) :
-    repairEfficiency original (equalAllocation total) > 0
 
 /--
 Pareto efficient repair: no other repair is better in all metrics.

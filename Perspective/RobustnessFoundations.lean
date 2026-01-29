@@ -90,10 +90,6 @@ theorem linf_symm {n : ℕ} (x y : Fin n → ℚ) :
 /-- AXIOM: L∞ distance is non-negative (standard metric property). -/
 axiom linf_nonneg {n : ℕ} (x y : Fin n → ℚ) : linfDistance x y ≥ 0
 
-/-- AXIOM: L∞ distance is zero iff equal (standard metric property). -/
-axiom linf_zero_iff_ax {n : ℕ} (x y : Fin n → ℚ) (hn : n ≠ 0) :
-    linfDistance x y = 0 ↔ x = y
-
 /-! ## Part 2: Perturbation Balls -/
 
 /-- ε-ball around a point (L∞ metric). -/
@@ -173,11 +169,6 @@ theorem constant_robust {n m : ℕ} (c : OutputSpace m) (eps delta : ℚ) (hdelt
 def robustnessRadius {n m : ℕ} (_f : System n m) (_x : InputSpace n) (_delta : ℚ) : ℚ :=
   1  -- Placeholder: would compute sup { eps | isRobustAt f x eps delta }
 
-/-- AXIOM: System is robust within its robustness radius. -/
-axiom robust_within_radius {n m : ℕ} (f : System n m) (x : InputSpace n) (delta : ℚ)
-    (eps : ℚ) (h : eps < robustnessRadius f x delta) :
-    isRobustAt f x eps delta
-
 /-! ## Part 4: Lipschitz Robustness -/
 
 /-- A system is L-Lipschitz if output change ≤ L × input change. -/
@@ -247,11 +238,6 @@ theorem adversarial_implies_robust {n m : ℕ} (f : System n m) (x : InputSpace 
 /-- Adversarial distance: minimum perturbation to cause misclassification. -/
 def adversarialDistance {n m : ℕ} (_f : System n m) (_x : InputSpace n) : ℚ :=
   1  -- Placeholder: would compute inf { linfDistance x x' | f x ≠ f x' }
-
-/-- AXIOM: System is adversarially robust within adversarial distance. -/
-axiom robust_within_adversarial {n m : ℕ} (f : System n m) (x : InputSpace n)
-    (eps : ℚ) (h : eps < adversarialDistance f x) :
-    isAdversariallyRobust f x eps
 
 /-! ## Part 6: Certified Robustness -/
 

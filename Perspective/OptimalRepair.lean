@@ -120,17 +120,6 @@ def feasibleRepairs {n : ℕ} (systems : Fin n → ValueSystem S)
   { plan | isFeasibleRepair systems plan epsilon }
 
 /--
-AXIOM: Identical value systems have trivial H¹.
-
-If all agents have exactly the same values, the value complex is complete,
-and complete complexes have trivial H¹ (standard algebraic topology result).
--/
-axiom identical_systems_h1_trivial {n : ℕ} (systems : Fin n → ValueSystem S)
-    (epsilon : ℚ) [Nonempty S]
-    (h_identical : ∀ i j : Fin n, systems i = systems j) :
-    Foundations.H1Trivial (valueComplex systems epsilon)
-
-/--
 AXIOM: We can always construct a feasible repair.
 
 Mathematical justification: Make all agents have identical values

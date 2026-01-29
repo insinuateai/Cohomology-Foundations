@@ -1,8 +1,8 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["a0038675db63b90d.olean"],
-  "i": "517c445fbe310da0.ilean",
+ {"o": ["88e4cd5d9f968c13.olean"],
+  "i": "081ad5b9d4cab44e.ilean",
   "c": "703f8335fb7809cf.c"},
  "log":
  [{"message":
@@ -15,8 +15,8 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["Perspective.FairnessDynamics transitive imports (legacy)",
-         "fe973f13af6ddfa5"],
-        ["Perspective.FairnessDynamics:importAllArts", "b1f9f8e26fc60d7d"]]]]],
+         "6ba17e58fa633c33"],
+        ["Perspective.FairnessDynamics:importAllArts", "418bc29150536092"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
@@ -25,9 +25,9 @@
   ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
    "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/Perspective/FairRepair.lean",
-   "63a6e5a42a8f0782"],
+   "f85f104b446920bf"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "41e85aaee7aeef83"}
+ "depHash": "5a2e2b4a2a00810f"}

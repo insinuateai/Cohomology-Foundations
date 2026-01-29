@@ -260,16 +260,6 @@ Stability margin: how much ε can decrease while maintaining fairness.
 def stabilityMargin [NeZero n] (pf : ParameterizedFairness n) (a : Fin n → ℚ) (ε : ℚ) : ℚ :=
   ε - birthThreshold pf a
 
-/--
-AXIOM: Positive stability margin means stable fairness.
-(Connection between birthThreshold and satisfiesAt requires more structure)
--/
-axiom positive_margin_stable [NeZero n] (pf : ParameterizedFairness n) (a : Fin n → ℚ)
-    (ε delta : ℚ)
-    (h_margin : stabilityMargin pf a ε > delta) (h_pos : delta > 0)
-    (h_fair : pf.satisfiesAt a ε) :
-    pf.satisfiesAt a (ε - delta)
-
 /-! ## Part 7: Fairness Persistence Score -/
 
 /--
@@ -316,16 +306,6 @@ An allocation is uniformly persistent if all criteria have high persistence.
 def isUniformlyPersistent [NeZero n] (criteria : List (ParameterizedFairness n))
     (a : Fin n → ℚ) (εMin εMax : ℚ) (threshold : ℚ) : Prop :=
   ∀ pf ∈ criteria, persistenceScore pf a εMin εMax ≥ threshold
-
-/--
-AXIOM: Uniformly persistent implies combined persistence above threshold.
-(Average of values all ≥ t is ≥ t)
--/
-axiom uniform_implies_combined [NeZero n] (criteria : List (ParameterizedFairness n))
-    (a : Fin n → ℚ) (εMin εMax : ℚ) (threshold : ℚ)
-    (h_nonempty : criteria ≠ [])
-    (h_uniform : isUniformlyPersistent criteria a εMin εMax threshold) :
-    combinedPersistence criteria a εMin εMax ≥ threshold
 
 /-! ## Part 9: Persistence Report -/
 

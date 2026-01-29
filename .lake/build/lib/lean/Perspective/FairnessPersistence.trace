@@ -1,8 +1,8 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["3123a7efc7091738.olean"],
-  "i": "bc0f83b66138f5ad.ilean",
+ {"o": ["c9b1ae45d765f15f.olean"],
+  "i": "88cead6fb192abad.ilean",
   "c": "a6c55c54abfd96fc.c"},
  "log":
  [{"message":
@@ -12,7 +12,7 @@
    "Perspective/FairnessPersistence.lean:133:31: unused variable `pf`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/FairnessPersistence.lean:289:21: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/FairnessPersistence.lean:279:21: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"}],
  "inputs":
  [["Perspective.FairnessPersistence:deps",
@@ -21,9 +21,9 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["Perspective.IndividualFairness transitive imports (legacy)",
-         "2dd0467c457d6d76"],
+         "c0487cefeaca574c"],
         ["Perspective.IndividualFairness:importAllArts",
-         "95c9231bbfef46aa"]]]]],
+         "aaa48a9d684f932d"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
@@ -32,9 +32,9 @@
   ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
    "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/Perspective/FairnessPersistence.lean",
-   "127b507fbdb62518"],
+   "80850b51f3aa9451"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "358c4d88b70cf8f7"}
+ "depHash": "4caf097261700193"}

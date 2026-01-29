@@ -1,8 +1,8 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["d9f0d619c28686c5.olean"],
-  "i": "5bfc852ab7041a72.ilean",
+ {"o": ["b39378ae8ed9ec0e.olean"],
+  "i": "959de6e413f9424f.ilean",
   "c": "99161b922a7a6d83.c"},
  "log":
  [{"message":
@@ -24,40 +24,40 @@
    "Perspective/Geodesic.lean:152:26: unused variable `epsilon`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/Geodesic.lean:278:5: unused variable `h_convex`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/Geodesic.lean:235:5: unused variable `h_convex`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/Geodesic.lean:279:26: unused variable `hq`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/Geodesic.lean:236:26: unused variable `hq`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/Geodesic.lean:280:5: unused variable `h_nearest`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/Geodesic.lean:237:5: unused variable `h_nearest`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/Geodesic.lean:295:5: unused variable `h_geo`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/Geodesic.lean:252:5: unused variable `h_geo`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/Geodesic.lean:391:25: unused variable `path`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/Geodesic.lean:318:25: unused variable `path`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/Geodesic.lean:432:44: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/Geodesic.lean:359:44: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/Geodesic.lean:433:53: unused variable `hε`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/Geodesic.lean:360:53: unused variable `hε`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/Geodesic.lean:436:5: unused variable `h_optimal`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/Geodesic.lean:363:5: unused variable `h_optimal`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/Geodesic.lean:446:0: automatically included section variable(s) unused in theorem `Geodesic.geodesic_eq_repair_cost`:\n  [Fintype S]\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [Fintype S] [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "Perspective/Geodesic.lean:373:0: automatically included section variable(s) unused in theorem `Geodesic.geodesic_eq_repair_cost`:\n  [Fintype S]\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [Fintype S] [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
    "level": "warning"},
   {"message":
-   "Perspective/Geodesic.lean:446:41: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/Geodesic.lean:373:41: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/Geodesic.lean:447:5: unused variable `systems`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/Geodesic.lean:374:5: unused variable `systems`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/Geodesic.lean:447:53: unused variable `hε`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/Geodesic.lean:374:53: unused variable `hε`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"}],
  "inputs":
  [["Perspective.Geodesic:deps",
@@ -65,7 +65,7 @@
      [["CohomologyFoundations/Perspective:extraDep",
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
-       [["Perspective.Barrier transitive imports (legacy)", "c702e5f17d9112a4"],
+       [["Perspective.Barrier transitive imports (legacy)", "72552e887061e175"],
         ["Perspective.Barrier:importAllArts", "f5543ca86335d35b"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
@@ -75,9 +75,9 @@
   ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
    "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/Perspective/Geodesic.lean",
-   "ff9dd57bef958ce3"],
+   "1f52564ddb5a789c"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "2749617d73e4cbde"}
+ "depHash": "bb65405b4e5bbdd3"}

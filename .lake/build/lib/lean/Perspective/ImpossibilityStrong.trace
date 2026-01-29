@@ -36,8 +36,8 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["Perspective.AlignmentEquivalence transitive imports (legacy)",
-         "a4cd80960aecb20d"],
-        ["Perspective.AlignmentEquivalence:importAllArts", "484ff779af58181d"],
+         "04e03907ca9b66c0"],
+        ["Perspective.AlignmentEquivalence:importAllArts", "f9ede3c21ebdf884"],
         ["Perspective.AlignmentTheorem transitive imports (legacy)",
          "c2b3192d683e508a"],
         ["Perspective.AlignmentTheorem:importAllArts", "9d7eb45edb04f50b"]]]]],
@@ -54,4 +54,4 @@
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "6093bbe255b15341"}
+ "depHash": "2e9e637766437e99"}

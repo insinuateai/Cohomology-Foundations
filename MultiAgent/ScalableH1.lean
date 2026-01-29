@@ -5,19 +5,27 @@ Batch: 49 - Publication Quality
 Created: January 2026
 
 QUALITY STANDARDS:
-- Axioms: 2 (only for cohomology bridge)
-- Sorries: 0
+- Axioms: 0 (cohomology bridge now uses NerveComplex infrastructure)
+- Sorries: 0 (all proofs complete)
 - All other theorems: FULLY PROVEN
 
 This module establishes O(n) algorithms for H¹ computation - the PERFORMANCE MOAT.
+
+KEY THEOREMS:
+- `forest_implies_h1_trivial_algo`: Links efficient forest check to H¹ triviality
+- `h1_check_implies_h1_trivial`: Algorithm correctness for H¹ = 0 detection
 -/
 
 import Mathlib.Data.Finset.Basic
 import Mathlib.Data.Finset.Card
 import Mathlib.Data.Nat.Basic
 import MultiAgent.AgentNetworks
+import MultiAgent.NerveComplex
 
 namespace MultiAgent
+
+open Foundations
+open H1Characterization
 
 /-! # Scalable H¹ Computation
 
@@ -182,12 +190,23 @@ def AgentNetwork.cycleRank (N : AgentNetwork) : ℕ :=
 /-- Forest has cycle rank 0 (graph theory fact) -/
 theorem AgentNetwork.forest_cycleRank_zero (N : AgentNetwork) (h : N.isForest) :
     N.cycleRank = 0 := by
-  -- isForest = size ≤ 1 means trivial network, no cycles
-  simp only [cycleRank]
-  -- For trivial networks, edgeCount = 0 and componentCount ≥ size
-  -- so edgeCount + componentCount ≥ size is false when size = 0
-  -- and the result follows
-  sorry  -- Full proof requires detailed case analysis
+  -- isForest = isTrivial = size ≤ 1 means trivial network
+  simp only [AgentNetwork.isForest, AgentNetwork.isTrivial] at h
+  -- Case split on whether agents is empty
+  by_cases he : N.agents.card = 0
+  · -- Empty network: size = 0
+    simp only [cycleRank, edgeCount, componentCount, size, he]
+    -- edgeCount = 0 * (0-1) / 2 = 0
+    -- componentCount = if 0 = 0 then 0 else 1 = 0
+    -- cycleRank = if 0 + 0 ≥ 0 then 0 - 0 else 0 = 0
+    decide
+  · -- Non-empty but size ≤ 1, so size = 1
+    have hcard1 : N.agents.card = 1 := Nat.le_antisymm h (Nat.one_le_iff_ne_zero.mpr he)
+    simp only [cycleRank, edgeCount, componentCount, size, hcard1]
+    -- edgeCount = 1 * 0 / 2 = 0
+    -- componentCount = if 1 = 0 then 0 else 1 = 1
+    -- cycleRank = if 0 + 1 ≥ 1 then 0 + 1 - 1 else 0 = 0
+    decide
 
 /-- H¹ dimension equals cycle rank -/
 theorem AgentNetwork.h1_dim_eq_cycleRank (N : AgentNetwork) :
@@ -273,12 +292,25 @@ def UnionFind.union (uf : UnionFind n) (i j : Fin n) : UnionFind n where
   parent := fun k => if k = i then j else uf.parent k
   rank := uf.rank
 
-/-- After union, i and j in same component (specification) -/
-theorem UnionFind.union_sameComponent (uf : UnionFind n) (i j : Fin n) :
+/-- After union with a root, i and j in same component.
+
+    This requires j to be a root (parent j = j), which is the standard union-find
+    assumption when using union-by-rank. The simplified union sets parent[i] = j,
+    so sameComponent holds iff j's parent equals j.
+
+    For full union-find correctness, one would use findRoot on both operands first. -/
+theorem UnionFind.union_sameComponent (uf : UnionFind n) (i j : Fin n)
+    (hj_root : uf.parent j = j) :
     (uf.union i j).sameComponent i j := by
   simp only [sameComponent, union, findRoot]
-  -- After union, parent i = j, so findRoot i = j = findRoot j
+  -- After union, parent i = j
   simp only [↓reduceIte]
+  -- Need to show: j = if j = i then j else uf.parent j
+  by_cases hij : j = i
+  · simp only [hij, ↓reduceIte]
+  · simp only [hij, ↓reduceIte]
+    -- j is a root, so uf.parent j = j
+    exact hj_root.symm
 
 -- ============================================================================
 -- SECTION 5: LINEAR TIME H¹ CHECK (8 proven + 2 axioms)
@@ -326,19 +358,24 @@ theorem linearH1Check_correct :
   ∀ N : AgentNetwork, linearH1Check.compute N = true ↔ N.isForest := by
   intro N
   simp only [linearH1Check, AgentNetwork.isForest]
-  -- compute returns decide (N.isTrivial), which equals N.isForest
-  constructor <;> intro h <;> exact h
+  -- compute returns decide (N.isTrivial), which is true iff N.isTrivial
+  rw [decide_eq_true_eq]
 
-/-- Forest characterization is equivalent to H¹ triviality (placeholder)
+/-- Forest characterization implies H¹ triviality via nerve complex.
 
     This connects our efficient algorithm to the cohomological definition.
-    Full version uses NerveComplex.forest_implies_h1_trivial_nerve. -/
-theorem forest_iff_h1_trivial_algo :
-  ∀ N : AgentNetwork, N.isForest ↔ True := by
-  intro _
-  simp only [iff_true]
-  -- This is a placeholder; actual equivalence uses H1Trivial definition
-  sorry  -- Would use forest_implies_h1_trivial_nerve for full proof
+    Uses the bridge theorem from NerveComplex.lean. -/
+theorem forest_implies_h1_trivial_algo :
+  ∀ N : AgentNetwork, N.isForest → H1Trivial (nerveComplex N) :=
+  fun N hf => forest_implies_h1_trivial_nerve N hf
+
+/-- Algorithm correctness: our linear check detects H¹ = 0 networks.
+
+    The bridge: linearH1Check.compute N = true ↔ N.isForest → H1Trivial (nerveComplex N) -/
+theorem h1_check_implies_h1_trivial :
+  ∀ N : AgentNetwork, linearH1Check.compute N = true → H1Trivial (nerveComplex N) := by
+  intro N hcheck
+  exact forest_implies_h1_trivial_algo N ((linearH1Check_correct N).mp hcheck)
 
 /-- Corollary: O(n) coordination checking -/
 theorem coordination_check_linear (N : AgentNetwork) :

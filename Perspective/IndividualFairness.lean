@@ -251,15 +251,6 @@ def individualGroupConflict (metric : SimilarityMetric n)
   groupFair ∧ ¬indivFair ∨ indivFair ∧ ¬groupFair
 
 /--
-AXIOM: Individual-group fairness conflicts exist.
-There exist scenarios where individual and group fairness are incompatible.
--/
-axiom individual_group_conflict_exists :
-    ∃ (n : ℕ) (_hn : NeZero n) (metric : @SimilarityMetric n)
-      (groups : Fin n → Fin 2) (treatment : Allocation n),
-      @individualGroupConflict n metric groups treatment
-
-/--
 The price of individual fairness: how much group fairness we sacrifice.
 -/
 def priceOfIndividualFairness (_metric : SimilarityMetric n)
@@ -319,13 +310,6 @@ noncomputable def minEpsilon [NeZero n] (metric : SimilarityMetric n) (L : ℚ)
     max 0 (|treatment p.1 - treatment p.2| - L * metric.dist p.1 p.2)
 
 /--
-AXIOM: minEpsilon achieves approximate fairness.
--/
-axiom min_epsilon_achieves [NeZero n] (metric : SimilarityMetric n) (L : ℚ)
-    (treatment : Allocation n) :
-    isApproxLipschitzFair metric L (minEpsilon metric L treatment) treatment
-
-/--
 THEOREM: minEpsilon is non-negative.
 -/
 theorem min_epsilon_nonneg [NeZero n] (metric : SimilarityMetric n) (L : ℚ)
@@ -340,15 +324,6 @@ theorem min_epsilon_nonneg [NeZero n] (metric : SimilarityMetric n) (L : ℚ)
   linarith
 
 /-! ## Part 7: Trivial Metric Properties -/
-
-/--
-AXIOM: The trivial metric gives the maximal Lipschitz constant.
-Any metric gives a Lipschitz constant ≤ trivial metric's constant.
--/
-axiom trivial_metric_maximal [NeZero n] (metric : SimilarityMetric n)
-    (treatment : Allocation n) :
-    optimalLipschitz metric treatment ≤
-    optimalLipschitz trivialMetric treatment
 
 /-! ## Part 8: Individual Fairness Report -/
 

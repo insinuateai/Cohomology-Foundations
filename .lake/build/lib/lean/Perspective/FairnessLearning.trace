@@ -1,8 +1,8 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["3fbf61050c74d66c.olean"],
-  "i": "47f2f3c40e1dbcb8.ilean",
+ {"o": ["af826c09f52eaef4.olean"],
+  "i": "e52acaf6dd577115.ilean",
   "c": "fc928a132b9d1308.c"},
  "log":
  [{"message":
@@ -18,16 +18,10 @@
    "Perspective/FairnessLearning.lean:102:27: unused variable `prob`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/FairnessLearning.lean:246:19: unused variable `ε`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/FairnessLearning.lean:228:19: unused variable `ε`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/FairnessLearning.lean:255:7: unused variable `alg`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
-   "level": "warning"},
-  {"message":
-   "Perspective/FairnessLearning.lean:272:29: unused variable `prob`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
-   "level": "warning"},
-  {"message":
-   "Perspective/FairnessLearning.lean:287:7: unused variable `alg`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/FairnessLearning.lean:246:29: unused variable `prob`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"}],
  "inputs":
  [["Perspective.FairnessLearning:deps",
@@ -36,8 +30,8 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["Perspective.FairnessGames transitive imports (legacy)",
-         "3506eda676f6810f"],
-        ["Perspective.FairnessGames:importAllArts", "d7bdb119e8bb61eb"]]]]],
+         "6ec86476baba05d0"],
+        ["Perspective.FairnessGames:importAllArts", "441c5992592ab626"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
@@ -46,9 +40,9 @@
   ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
    "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/Perspective/FairnessLearning.lean",
-   "890ff00e33d8758e"],
+   "1b0a9719f0935878"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "1cfb2b6983b43911"}
+ "depHash": "451690f8110122d9"}

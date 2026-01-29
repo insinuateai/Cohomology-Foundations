@@ -1,8 +1,8 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["b4597b42604ca75a.olean"],
-  "i": "32d24820f909db25.ilean",
+ {"o": ["1c8fe284d4060bee.olean"],
+  "i": "4a4c2caf8f4fa62d.ilean",
   "c": "c5a47d60c5dca59a.c"},
  "log":
  [{"message":
@@ -45,7 +45,7 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["Perspective.FairnessFoundations transitive imports (legacy)",
-         "647f0c14b0e43a41"],
+         "e8ee89699a20f678"],
         ["Perspective.FairnessFoundations:importAllArts",
          "452ca1856bcc71ee"]]]]],
     ["libs",
@@ -56,9 +56,9 @@
   ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
    "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/Perspective/ParetoTopology.lean",
-   "6598a6d4e0b4e517"],
+   "b185d9a3de1e9502"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "3c1c702afbc55d3d"}
+ "depHash": "aba458b5cb13e7a2"}

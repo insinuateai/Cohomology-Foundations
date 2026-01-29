@@ -1,8 +1,8 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["b78dd92361dd7922.olean"],
-  "i": "831785701363ea1e.ilean",
+ {"o": ["72b866b01fb0f2cb.olean"],
+  "i": "d5aba34c90e6f6cc.ilean",
   "c": "7ebed31648888a26.c"},
  "log":
  [{"message":
@@ -21,13 +21,13 @@
    "Perspective/FairnessDynamics.lean:77:10: The namespace 'FairnessDynamics' is duplicated in the declaration 'FairnessDynamics.FairnessDynamics.mk'\n\nNote: This linter can be disabled with `set_option linter.dupNamespace false`",
    "level": "warning"},
   {"message":
-   "Perspective/FairnessDynamics.lean:208:55: unused variable `attractor`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/FairnessDynamics.lean:198:55: unused variable `attractor`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/FairnessDynamics.lean:267:25: unused variable `dynamics`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/FairnessDynamics.lean:257:25: unused variable `dynamics`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/FairnessDynamics.lean:267:57: unused variable `a`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/FairnessDynamics.lean:257:57: unused variable `a`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"}],
  "inputs":
  [["Perspective.FairnessDynamics:deps",
@@ -36,9 +36,9 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["Perspective.FairnessPersistence transitive imports (legacy)",
-         "775b37cdcf21c9f0"],
+         "bca783552ed188a2"],
         ["Perspective.FairnessPersistence:importAllArts",
-         "53ef21cb64108be9"]]]]],
+         "f66f9a5885b98024"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
@@ -47,9 +47,9 @@
   ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
    "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/Perspective/FairnessDynamics.lean",
-   "621ffb3f557d3cda"],
+   "89cf0100e0e864a2"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "2ea2cdf49a2828f2"}
+ "depHash": "9c5d7fc88ba1a493"}

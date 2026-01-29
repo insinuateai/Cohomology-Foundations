@@ -1,8 +1,8 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["d49877160a8abc3d.olean"],
-  "i": "712911b91e3c8291.ilean",
+ {"o": ["44dc154ef21273a6.olean"],
+  "i": "a1b838c0a8dd7bdd.ilean",
   "c": "6410cabff506f117.c"},
  "log":
  [{"message":
@@ -24,10 +24,10 @@
    "Perspective/FairnessGames.lean:158:46: unused variable `fairnessScore`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/FairnessGames.lean:231:8: unused variable `i`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/FairnessGames.lean:221:8: unused variable `i`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/FairnessGames.lean:280:43: unused variable `i`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/FairnessGames.lean:270:43: unused variable `i`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"}],
  "inputs":
  [["Perspective.FairnessGames:deps",
@@ -36,8 +36,8 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["Perspective.FairRepair transitive imports (legacy)",
-         "b2f5df581bece517"],
-        ["Perspective.FairRepair:importAllArts", "7b39e8d78b664c8c"]]]]],
+         "be14a14009aca98e"],
+        ["Perspective.FairRepair:importAllArts", "a81ad71fc168f421"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
@@ -46,9 +46,9 @@
   ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
    "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/Perspective/FairnessGames.lean",
-   "a06ce744ea69081d"],
+   "8ba0565f6c495012"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "c990b7b88d9465b9"}
+ "depHash": "e1e2aa6676586f56"}

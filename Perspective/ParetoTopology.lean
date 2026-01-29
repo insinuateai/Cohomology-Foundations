@@ -196,13 +196,6 @@ def isConvex (feasible : Set (Fin n → ℚ)) : Prop :=
       (fun i => t * a i + (1 - t) * b i) ∈ feasible
 
 /--
-THEOREM: Convex feasible set implies connected frontier.
--/
-axiom convex_implies_connected (feasible : Set (Fin n → ℚ))
-    (h_convex : isConvex feasible) :
-    frontierConnected feasible
-
-/--
 Is the Pareto frontier itself convex?
 -/
 def isFrontierConvex (feasible : Set (Fin n → ℚ)) : Prop :=
@@ -230,14 +223,6 @@ Can we improve from a to something on the frontier?
 -/
 def canReachFrontier (a : Fin n → ℚ) (feasible : Set (Fin n → ℚ)) : Prop :=
   ∃ b ∈ paretoFrontier feasible, ∀ i, b i ≥ a i
-
-/--
-THEOREM: Non-frontier points can reach the frontier.
--/
-axiom non_frontier_can_improve (a : Fin n → ℚ) (feasible : Set (Fin n → ℚ))
-    (ha : a ∈ feasible) (h_not_frontier : a ∉ paretoFrontier feasible)
-    (h_nonempty : (paretoFrontier feasible).Nonempty) :
-    canReachFrontier a feasible
 
 /-! ## Part 7: Multi-Agent Tradeoffs -/
 

@@ -9,8 +9,21 @@ H¹ captures when coordination is strategically impossible.
 
 QUALITY STANDARDS:
 - Axioms: 2 (only for deep connections)
-- Sorries: 0
-- All other theorems: FULLY PROVEN
+- Sorries: 1 (documented below)
+
+INCOMPLETE THEOREMS:
+1. `h1_local_global_gap`: Needs explicit gap construction for non-forest networks.
+
+COMPLETED PROOFS (previously sorries):
+- `three_cycle_potential_impossible`: Proven via explicit construction of 3-agent network.
+
+DELETED FALSE THEOREMS:
+- `no_constraints_forest`: Was FALSE - networks with no constraints can have card > 1.
+  Use `no_constraints_fully_incompatible` or `no_constraints_no_edges` instead.
+
+VALID ALTERNATIVES:
+- Use `local_global_h1` with well-formedness hypothesis for the proven direction
+- Use `gap_hollow_triangle` with well-formedness for the gap characterization
 -/
 
 import Mathlib.Data.Finset.Basic
@@ -146,14 +159,22 @@ def ConstrainedCoordination.toNetwork (P : ConstrainedCoordination) : AgentNetwo
 theorem ConstrainedCoordination.toNetwork_agents (P : ConstrainedCoordination) :
     P.toNetwork.agents = P.agents := rfl
 
-/-- No constraints means no edges -/
-theorem ConstrainedCoordination.no_constraints_forest (P : CoordinationProblem) :
-    (⟨P, ∅, by simp⟩ : ConstrainedCoordination).toNetwork.isForest := by
-  -- When constraints = ∅, network has no edges
-  -- isForest = isTrivial = agents.card ≤ 1
-  -- For non-trivial agent sets, this doesn't hold in general
-  -- The theorem statement may be too strong
-  sorry
+/-- VALID: No constraints means the network is fully incompatible (no edges). -/
+theorem ConstrainedCoordination.no_constraints_fully_incompatible (P : CoordinationProblem) :
+    (⟨P, ∅, by simp⟩ : ConstrainedCoordination).toNetwork.fullyIncompatible := by
+  intro a b
+  simp only [ConstrainedCoordination.toNetwork]
+  intro ⟨_, c, hc, _⟩
+  exact (Finset.notMem_empty c hc).elim
+
+/-- VALID: No constraints means no 1-simplices in nerve (graph-theoretic forest). -/
+theorem ConstrainedCoordination.no_constraints_no_edges (P : CoordinationProblem) :
+    ∀ a b, a ∈ P.agents → b ∈ P.agents →
+      ¬(⟨P, ∅, by simp⟩ : ConstrainedCoordination).toNetwork.compatible a b := by
+  intro a b _ _ hcomp
+  simp only [ConstrainedCoordination.toNetwork] at hcomp
+  obtain ⟨_, c, hc, _⟩ := hcomp
+  exact (Finset.notMem_empty c hc).elim
 
 -- ============================================================================
 -- SECTION 3: COORDINATION PROTOCOLS (10 proven theorems)
@@ -241,9 +262,63 @@ def hasConstraintCycle (P : ConstrainedCoordination) : Prop :=
 /-- Three-agent cycle (hollow triangle in constraints) -/
 theorem three_cycle_potential_impossible :
     ∃ P : ConstrainedCoordination, P.agents.card = 3 ∧ hasConstraintCycle P := by
-  -- Construct three agents with triangle constraints
-  -- Full proof requires explicit construction showing cycle exists
-  sorry
+  -- Construct three distinct agents
+  let a0 : Agent := ⟨0⟩
+  let a1 : Agent := ⟨1⟩
+  let a2 : Agent := ⟨2⟩
+  -- The agent set
+  let agents : Finset Agent := {a0, a1, a2}
+  -- Verify distinct using Agent.id inequality
+  have h01 : a0 ≠ a1 := fun h => by injection h; omega
+  have h02 : a0 ≠ a2 := fun h => by injection h; omega
+  have h12 : a1 ≠ a2 := fun h => by injection h; omega
+  -- Card computation using membership lemmas
+  have hnotmem1 : a1 ∉ ({a2} : Finset Agent) := by
+    rw [Finset.mem_singleton]; exact h12
+  have hnotmem0 : a0 ∉ (insert a1 {a2} : Finset Agent) := by
+    rw [Finset.mem_insert, Finset.mem_singleton]
+    push_neg; exact ⟨h01, h02⟩
+  have hcard : agents.card = 3 := by
+    show (insert a0 (insert a1 ({a2} : Finset Agent))).card = 3
+    rw [Finset.card_insert_of_notMem hnotmem0, Finset.card_insert_of_notMem hnotmem1,
+        Finset.card_singleton]
+  -- The choices (any nonempty set works)
+  let choices : Finset ℕ := {0}
+  have hne : choices.Nonempty := ⟨0, Finset.mem_singleton_self 0⟩
+  -- A simple constraint (equality between a0 and a1)
+  let c01 : Constraint := Constraint.equality a0 a1
+  let constraints : Finset Constraint := {c01}
+  -- Membership proofs
+  have ha0 : a0 ∈ agents := Finset.mem_insert_self a0 _
+  have ha1 : a1 ∈ agents := Finset.mem_insert_of_mem (Finset.mem_insert_self a1 _)
+  -- Build the coordination problem
+  let P : CoordinationProblem := {
+    agents := agents
+    choices := choices
+    utility := fun _ _ _ => 0
+    choices_nonempty := hne
+  }
+  -- Build the constrained coordination
+  let CP : ConstrainedCoordination := {
+    toCoordinationProblem := P
+    constraints := constraints
+    constraints_valid := by
+      intro c hc
+      rw [Finset.mem_singleton] at hc
+      subst hc
+      exact ⟨ha0, ha1⟩
+  }
+  use CP
+  constructor
+  · -- Show agents.card = 3
+    exact hcard
+  · -- Show hasConstraintCycle = ¬isForest = agents.card > 1
+    show ¬CP.toNetwork.isForest
+    simp only [AgentNetwork.isForest, AgentNetwork.isTrivial,
+               ConstrainedCoordination.toNetwork_agents]
+    -- Need to show ¬(agents.card ≤ 1)
+    rw [hcard]
+    omega
 
 /-- Forest constraints never impossible (for coordination type)
 
@@ -312,43 +387,119 @@ def ConstrainedCoordination.isGloballyFeasible (P : ConstrainedCoordination)
 theorem global_implies_local (P : ConstrainedCoordination) (profile : ChoiceProfile)
     (h : P.isGloballyFeasible profile) : P.isLocallyFeasible profile := h.1
 
-/-- Local feasibility + H¹ = 0 → Global feasibility
+/-- Local feasibility + forest → Global feasibility (with well-formed constraints)
 
-    When the constraint network is a forest (H¹ = 0),
-    any locally feasible assignment extends to globally feasible.
-    Uses NerveComplex: forest_implies_h1_trivial_nerve shows H¹ = 0. -/
-theorem local_global_h1 (P : ConstrainedCoordination) :
+    When the constraint network is a forest (card ≤ 1 under our simplified definition)
+    AND constraints are well-formed (agent1 ≠ agent2), any locally feasible assignment
+    extends to globally feasible.
+
+    Key insight: With card ≤ 1 and well-formed constraints (distinct agents),
+    NO constraints can exist (no two distinct agents), so global feasibility
+    is vacuously satisfied.
+
+    Uses NerveComplex: forest_implies_h1_trivial_nerve shows H¹ = 0 for forests. -/
+theorem local_global_h1 (P : ConstrainedCoordination)
+    (hwf : ∀ c ∈ P.constraints, c.agent1 ≠ c.agent2) :
   P.toNetwork.isForest →
   (∀ profile, P.isLocallyFeasible profile → P.isGloballyFeasible profile) := by
   intro hforest profile hloc
-  -- Forest structure means no cycles in constraint graph
-  -- Local feasibility propagates uniquely to global
   constructor
   · exact hloc
-  · -- Global constraint satisfaction follows from forest structure
-    -- In forests, local constraints don't create circular dependencies
+  · -- Global constraint satisfaction
     intro c hc
-    -- Simplified: forest means all constraints are satisfiable together
-    sorry  -- Full proof requires constraint propagation analysis
+    -- Get constraint endpoints (both in agents)
+    obtain ⟨h1, h2⟩ := P.constraints_valid c hc
+    -- Well-formedness: agent1 ≠ agent2
+    have hne := hwf c hc
+    -- Forest means card ≤ 1
+    simp only [ConstrainedCoordination.toNetwork, AgentNetwork.isForest,
+               AgentNetwork.isTrivial] at hforest
+    -- With card ≤ 1, both agents must be equal
+    have hsame : c.agent1 = c.agent2 := Finset.card_le_one.mp hforest c.agent1 h1 c.agent2 h2
+    -- But well-formedness requires they be different - contradiction
+    exact absurd hsame hne
+
+/-- Weaker version without well-formedness: forest + any locally feasible profile
+    implies global feasibility OR the constraints are ill-formed.
+
+    This captures that the only obstruction in forests is self-contradictory constraints. -/
+theorem local_global_h1_or_illformed (P : ConstrainedCoordination) :
+  P.toNetwork.isForest →
+  (∀ profile, P.isLocallyFeasible profile →
+    P.isGloballyFeasible profile ∨ ∃ c ∈ P.constraints, c.agent1 = c.agent2) := by
+  intro hforest profile hloc
+  by_cases hwf : ∀ c ∈ P.constraints, c.agent1 ≠ c.agent2
+  · left; exact local_global_h1 P hwf hforest profile hloc
+  · right
+    push_neg at hwf
+    exact hwf
 
 /-- H¹ ≠ 0 → ∃ local not global
 
-    When constraints form cycles (H¹ ≠ 0),
-    there exist locally feasible but globally infeasible situations. -/
+    When constraints form cycles (H¹ ≠ 0), there exist locally feasible
+    but globally infeasible situations.
+
+    MATHEMATICAL NOTE: The existence of such a gap depends on the specific
+    constraint structure. For this theorem to be provable constructively,
+    we need additional hypotheses:
+    - At least 2 distinct choices in P.choices
+    - At least one constraint with a non-trivial relation
+    - The constraint network has specific cyclic structure
+
+    The general statement requires analyzing the constraint relations and
+    the network topology. For networks with ≥3 agents and non-forest structure,
+    gaps CAN exist, but the construction depends on the constraint details.
+
+    Example: Three agents {a,b,c} with equality constraints a=b, b=c, c≠a
+    form a contradiction. Profile with a↦0, b↦0, c↦1 satisfies choices
+    but violates c≠a when all should be equal.
+
+    For this formalization, we axiomatize the result. A complete proof
+    requires constraint analysis and assumes suitable constraint relations exist.
+
+    Reference: Constraint satisfaction and topological obstructions -/
 theorem h1_local_global_gap (P : ConstrainedCoordination) :
   ¬P.toNetwork.isForest → P.agents.card ≥ 3 →
   ∃ profile, P.isLocallyFeasible profile ∧ ¬P.isGloballyFeasible profile := by
-  intro hnotforest hlarge
-  -- Non-forest with ≥3 agents has a cycle
-  -- Construct profile that satisfies local but not global constraints
-  sorry  -- Full proof requires explicit gap construction
+  intro _hnotforest _hlarge
+  -- The full proof requires:
+  -- 1. Analysis of constraint relations (equality, inequality, etc.)
+  -- 2. Construction of cyclic constraint violation
+  -- 3. Ensuring at least 2 choices exist for value assignment
+  --
+  -- For disconnected constraint graphs: construct different values per component
+  -- For cyclic constraints: use contradiction via circular dependencies
+  --
+  -- Example construction (requires P.choices.card ≥ 2):
+  -- - Find cycle in constraint graph
+  -- - Assign values around cycle that violate composition
+  --
+  -- Axiomatize for now; complete proof needs constraint structure analysis
+  sorry
 
-/-- The gap is the hollow triangle -/
-theorem gap_hollow_triangle (P : ConstrainedCoordination) :
+/-- The gap is the hollow triangle (for well-formed constraints).
+
+    If there's a gap between local and global feasibility, the network cannot be a forest.
+    Requires well-formed constraints (distinct agents per constraint). -/
+theorem gap_hollow_triangle (P : ConstrainedCoordination)
+    (hwf : ∀ c ∈ P.constraints, c.agent1 ≠ c.agent2) :
     (∃ profile, P.isLocallyFeasible profile ∧ ¬P.isGloballyFeasible profile) →
     ¬P.toNetwork.isForest := by
   intro ⟨profile, hloc, hnotglob⟩ hforest
-  exact hnotglob (local_global_h1 P hforest profile hloc)
+  exact hnotglob (local_global_h1 P hwf hforest profile hloc)
+
+/-- Alternative: gap implies either not-forest OR ill-formed constraints. -/
+theorem gap_implies_cycle_or_illformed (P : ConstrainedCoordination) :
+    (∃ profile, P.isLocallyFeasible profile ∧ ¬P.isGloballyFeasible profile) →
+    ¬P.toNetwork.isForest ∨ ∃ c ∈ P.constraints, c.agent1 = c.agent2 := by
+  intro ⟨profile, hloc, hnotglob⟩
+  by_cases hforest : P.toNetwork.isForest
+  · -- Forest case
+    have h := local_global_h1_or_illformed P hforest profile hloc
+    rcases h with hglob | hillformed
+    · exact absurd hglob hnotglob
+    · right; exact hillformed
+  · left; exact hforest
 
 -- ============================================================================
 -- SECTION 6: APPLICATIONS (8 proven theorems)
@@ -411,7 +562,7 @@ theorem meeting_forest_efficient (participants : Finset Agent) (times : Finset �
   exact ⟨Protocol.trivial t, Protocol.trivial_successful _ t ht'⟩
 
 -- ============================================================================
--- SUMMARY: ~54 proven theorems, 2 axioms, ~5 sorries
+-- SUMMARY: ~55 proven theorems, 2 axioms, 1 sorry
 -- ============================================================================
 
 end MultiAgent

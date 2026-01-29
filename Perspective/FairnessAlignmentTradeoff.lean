@@ -271,15 +271,6 @@ def genuineTradeoff [NeZero n] (feasible : Set (Fin n → ℚ))
   ¬isProportional reference total ∧
   (∀ a ∈ feasible, isProportional a total → alignmentScore a reference < 1)
 
-/--
-THEOREM: Genuine tradeoff implies frontier is not a singleton.
--/
-axiom genuine_tradeoff_implies_nontrivial_frontier [NeZero n] 
-    (feasible : Set (Fin n → ℚ)) (reference : Fin n → ℚ) (total : ℚ)
-    (h_genuine : genuineTradeoff feasible reference total)
-    (h_nonempty : feasible.Nonempty) :
-    ¬∃ p, tradeoffFrontier feasible reference total = {p}
-
 /-! ## Part 7: Optimal Compromise -/
 
 /--
@@ -297,16 +288,6 @@ The optimal compromise for a given weight.
 def isOptimalCompromise [NeZero n] (a : Fin n → ℚ) (feasible : Set (Fin n → ℚ))
     (reference : Fin n → ℚ) (total : ℚ) (lam : ℚ) : Prop :=
   a ∈ feasible ∧ ∀ b ∈ feasible, compromiseScore a reference total lam ≥ compromiseScore b reference total lam
-
-/--
-THEOREM: Optimal compromise lies on the tradeoff frontier.
--/
-axiom optimal_compromise_on_frontier [NeZero n]
-    (a : Fin n → ℚ) (feasible : Set (Fin n → ℚ))
-    (reference : Fin n → ℚ) (total : ℚ) (lam : ℚ)
-    (h_lambda : 0 < lam ∧ lam < 1)
-    (h_opt : isOptimalCompromise a feasible reference total lam) :
-    allocationTradeoff a reference total ∈ tradeoffFrontier feasible reference total
 
 /-! ## Part 8: Cohomological Interpretation -/
 

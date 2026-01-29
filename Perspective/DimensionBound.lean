@@ -178,35 +178,6 @@ theorem dimension_quadratic_growth (n : ℕ) (hn : n ≥ 2) :
 
 /-! ## Part 3: Tighter Bounds Based on Structure -/
 
-/--
-AXIOM: Sparse systems have lower dimension.
-
-If each agent connects to at most d others (degree bound):
-  dim H¹ ≤ n * d / 2
-
-For sparse graphs (d << n), this is much smaller than the general bound.
-
-Mathematical justification:
-- By the handshaking lemma: |E| ≤ n * d / 2
-- β₁ = |E| - |V| + c ≤ n * d / 2 - n + c ≤ n * d / 2
--/
-axiom dimension_sparse_bound_statement :
-  -- For any graph with max degree d: β₁ ≤ n * d / 2
-  True  -- Mathematical content in docstring
-
-/--
-AXIOM: Hierarchical systems have additive dimension.
-
-For a decomposition K = A ∪ B:
-  dim H¹(K) ≤ dim H¹(A) + dim H¹(B) + dim H¹(A∩B)
-
-This follows from the Mayer-Vietoris exact sequence in cohomology.
-Misalignment at each component adds up (with intersection correction).
--/
-axiom dimension_hierarchical_bound_statement :
-  -- From Mayer-Vietoris: dim H¹(K) ≤ dim H¹(A) + dim H¹(B) + dim H¹(A∩B)
-  True  -- Mathematical content in docstring
-
 /-! ## Part 4: Lower Bounds -/
 
 /-- Axiom: Hollow triangle has dimension 1.
@@ -244,37 +215,6 @@ theorem hollow_triangle_dimension
   -- requires knowing the specific Fintype instances, which depends on
   -- the concrete representation. We axiomatize this standard computation.
   exact hollow_triangle_dimension_aux
-
-/--
-AXIOM: n-cycle has dimension exactly 1.
-
-Any simple cycle, regardless of length, has exactly one independent conflict.
-This is a standard result in graph theory: a cycle graph has Betti number β₁ = 1.
-
-Mathematical proof: n vertices, n edges, 1 connected component
-β₁ = |E| - |V| + c = n - n + 1 = 1
-
-We axiomatize this rather than constructing the simplicial complex explicitly,
-as the construction involves dependent type complexities that don't add
-mathematical insight.
--/
-axiom n_cycle_has_dimension_one (n : ℕ) (hn : n ≥ 3) :
-  -- The n-cycle graph has exactly one independent cycle, hence dimension 1
-  True  -- Placeholder; the mathematical content is in the docstring
-
-/--
-AXIOM: Complete graph has maximum dimension (n-1)(n-2)/2.
-
-For n vertices, the complete graph Kₙ has:
-- n(n-1)/2 edges
-- 1 connected component
-- β₁ = n(n-1)/2 - n + 1 = (n-1)(n-2)/2 independent cycles
-
-This is the maximum possible dimension for any graph on n vertices.
--/
-axiom complete_graph_has_max_dimension (n : ℕ) (hn : n ≥ 3) :
-  -- The complete graph achieves maximum dimension (n-1)(n-2)/2
-  True  -- Placeholder; the mathematical content is in the docstring
 
 /-! ## Part 5: Severity Score -/
 

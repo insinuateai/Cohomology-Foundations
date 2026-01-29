@@ -124,16 +124,6 @@ Average regret over T rounds.
 def averageRegret (totalRegret : ℚ) (T : ℕ) : ℚ :=
   if T = 0 then 0 else totalRegret / T
 
-/--
-THEOREM (Axiom): Sublinear regret implies vanishing average regret.
-
-Axiomatized because: Requires analysis of 1/√T → 0 which involves
-Real analysis (limits) that ℚ doesn't support.
--/
-axiom sublinear_implies_vanishing (totalRegret : ℕ → ℚ)
-    (h : ∀ T, totalRegret T ≤ (T : ℚ) + 1) :
-    ∀ ε > 0, ∃ T₀, ∀ T ≥ T₀, averageRegret (totalRegret T) T < ε
-
 /-! ## Part 3: No-Regret Algorithms -/
 
 /--
@@ -161,14 +151,6 @@ Exponential weights update for discrete actions.
 def expWeightsUpdate {m : ℕ} (params : ExpWeightsParams) (weights : Fin m → ℚ)
     (losses : Fin m → ℚ) : Fin m → ℚ :=
   fun i => weights i * (1 - params.η * losses i)  -- Linearized exponential
-
-/--
-THEOREM: Exponential weights achieves sublinear regret.
-Simplified bound: O(T) upper bound (weaker but compiles).
--/
-axiom exp_weights_regret (params : ExpWeightsParams) (T : ℕ) :
-    ∃ C : ℚ, C > 0 ∧ ∀ (prob : OnlineProblem n T),
-      regret (cumulativeLoss []) (bestFixedLoss prob) ≤ C * (T : ℚ)
 
 /-! ## Part 4: Fairness-Specific Learning -/
 
@@ -247,14 +229,6 @@ def epsilonGreedy (ε : ℚ) (bestSoFar : Action n) (randomAction : Action n)
     (explore : Bool) : Action n :=
   if explore then randomAction else bestSoFar
 
-/--
-THEOREM: Bandit algorithms have worse regret than full information.
-Simplified bound: linear lower bound (weaker but compiles).
--/
-axiom bandit_regret_lower_bound (T : ℕ) :
-    ∀ (alg : BanditAlgorithm n), ∃ (prob : OnlineProblem n T),
-      regret (cumulativeLoss []) (bestFixedLoss prob) ≥ (T : ℚ) / 10
-
 /-! ## Part 6: Adversarial vs Stochastic -/
 
 /--
@@ -278,13 +252,6 @@ Pseudo-regret: compare to expected optimal, not realized optimal.
 -/
 def pseudoRegret (algExpectedLoss optimalExpectedLoss : ℚ) (T : ℕ) : ℚ :=
   T * (algExpectedLoss - optimalExpectedLoss)
-
-/--
-THEOREM: Stochastic setting allows better regret bounds.
-Simplified bound: variance-scaled linear bound.
--/
-axiom stochastic_better_regret (prob : StochasticProblem n) (T : ℕ) :
-    ∃ (alg : OnlineAlgorithm n), pseudoRegret 0 0 T ≤ (T : ℚ) * prob.varianceBound
 
 /-! ## Part 7: Constrained Online Learning -/
 
@@ -356,19 +323,6 @@ def scalarizedLoss (obj : MultiObjective n) (weights : Fin obj.numObjectives →
     (a : Action n) : ℚ :=
   ∑ k, weights k * obj.objectiveLoss k a
 
-/--
-THEOREM (Axiom): No-regret for scalarized loss gives Pareto no-regret.
-
-Axiomatized because: Requires careful decomposition of weighted sum
-and showing each component is bounded by total/weight.
--/
-axiom scalarized_implies_pareto (obj : MultiObjective n)
-    (weights : Fin obj.numObjectives → ℚ)
-    (h_pos : ∀ k, weights k > 0) (h_sum : (∑ k, weights k) = 1)
-    (allocations : List (Action n)) (scalarRegret : ℚ)
-    (h_regret : cumulativeLoss (allocations.map (scalarizedLoss obj weights)) ≤ scalarRegret) :
-    ∀ k, paretoRegret obj allocations k ≤ scalarRegret / weights k
-
 /-! ## Part 9: Adaptive Fairness Learning -/
 
 /--
@@ -388,14 +342,6 @@ Simplified: linear decay instead of sqrt to avoid rational exponents.
 -/
 def adagradLearningRate (params : AdaptiveParams) (sumSquaredGradients : ℚ) : ℚ :=
   params.η₀ / (1 + params.α * sumSquaredGradients)
-
-/--
-THEOREM: Adaptive algorithms achieve data-dependent regret.
-Simplified: linear bound instead of sqrt.
--/
-axiom adaptive_regret_bound (params : AdaptiveParams) (T : ℕ)
-    (gradientNormSum : ℚ) :
-    ∃ C : ℚ, regret 0 0 ≤ C * gradientNormSum
 
 /-! ## Part 10: Learning Report -/
 

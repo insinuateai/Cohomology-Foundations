@@ -66,7 +66,7 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["Perspective.EscapeTime transitive imports (legacy)",
-         "1b5fd82b928c229f"],
+         "101dc8b832e15e5f"],
         ["Perspective.EscapeTime:importAllArts", "789c77997d38d3d8"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
@@ -81,4 +81,4 @@
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "b57c5a40c455d9ec"}
+ "depHash": "489b30dba104f2ac"}

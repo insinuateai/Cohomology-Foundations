@@ -1,81 +1,69 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["2e5652af43282a37.olean"],
-  "i": "4236cc931abc4358.ilean",
-  "c": "f90bc7756a2b10ca.c"},
+ {"o": ["f9070a0eca41518c.olean"],
+  "i": "17451559fcc06274.ilean",
+  "c": "366b49db546ce43d.c"},
  "log":
  [{"message":
    ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.27.0/bin/lean /workspaces/Cohomology-Foundations/MultiAgent/GameTheoreticH1.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/MultiAgent/GameTheoreticH1.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/MultiAgent/GameTheoreticH1.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/MultiAgent/GameTheoreticH1.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/MultiAgent/GameTheoreticH1.setup.json --json",
    "level": "trace"},
   {"message":
-   "MultiAgent/GameTheoreticH1.lean:80:43: unused variable `hab`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/GameTheoreticH1.lean:81:43: unused variable `hab`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/GameTheoreticH1.lean:197:28: This simp argument is unused:\n  isBestResponse\n\nHint: Omit it from the simp argument list.\n  simp only [G, defect,̵ ̵i̵s̵B̵e̵s̵t̵R̵e̵s̵p̵o̵n̵s̵e̵]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "MultiAgent/GameTheoreticH1.lean:198:28: This simp argument is unused:\n  isBestResponse\n\nHint: Omit it from the simp argument list.\n  simp only [G, defect,̵ ̵i̵s̵B̵e̵s̵t̵R̵e̵s̵p̵o̵n̵s̵e̵]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/GameTheoreticH1.lean:218:46: This simp argument is unused:\n  hab\n\nHint: Omit it from the simp argument list.\n  simp only [ha̵b,̵ ̵h̵b̵a, ↓reduceIte, and_self]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "MultiAgent/GameTheoreticH1.lean:219:46: This simp argument is unused:\n  hab\n\nHint: Omit it from the simp argument list.\n  simp only [ha̵b,̵ ̵h̵b̵a, ↓reduceIte, and_self]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/GameTheoreticH1.lean:218:51: This simp argument is unused:\n  hba\n\nHint: Omit it from the simp argument list.\n  simp only [hab, h̵b̵a̵,̵ ̵↓reduceIte, and_self]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "MultiAgent/GameTheoreticH1.lean:219:51: This simp argument is unused:\n  hba\n\nHint: Omit it from the simp argument list.\n  simp only [hab, h̵b̵a̵,̵ ̵↓reduceIte, and_self]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/GameTheoreticH1.lean:223:36: This simp argument is unused:\n  hab\n\nHint: Omit it from the simp argument list.\n  simp only [G, coop, defect, h̵a̵b̵,̵ ̵↓reduceIte, and_self]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
-   "level": "warning"},
-  {"message": "MultiAgent/GameTheoreticH1.lean:274:8: declaration uses 'sorry'",
+   "MultiAgent/GameTheoreticH1.lean:224:36: This simp argument is unused:\n  hab\n\nHint: Omit it from the simp argument list.\n  simp only [G, coop, defect, h̵a̵b̵,̵ ̵↓reduceIte, and_self]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/GameTheoreticH1.lean:296:24: This simp argument is unused:\n  ha\n\nHint: Omit it from the simp argument list.\n  simp only [profile, h̵a̵,̵ ̵↓reduceDIte]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "MultiAgent/GameTheoreticH1.lean:292:21: unused variable `G`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/GameTheoreticH1.lean:296:28: This simp argument is unused:\n  ↓reduceDIte\n\nHint: Omit it from the simp argument list.\n  simp only [profile, ha,̵ ̵↓̵r̵e̵d̵u̵c̵e̵D̵I̵t̵e̵]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "MultiAgent/GameTheoreticH1.lean:313:30: unused variable `G`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/GameTheoreticH1.lean:329:21: unused variable `G`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/GameTheoreticH1.lean:319:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/GameTheoreticH1.lean:350:30: unused variable `G`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/GameTheoreticH1.lean:390:53: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "level": "warning"},
+  {"message": "MultiAgent/GameTheoreticH1.lean:398:8: declaration uses 'sorry'",
+   "level": "warning"},
+  {"message": "MultiAgent/GameTheoreticH1.lean:431:8: declaration uses 'sorry'",
+   "level": "warning"},
+  {"message": "MultiAgent/GameTheoreticH1.lean:448:8: declaration uses 'sorry'",
    "level": "warning"},
   {"message":
-   "MultiAgent/GameTheoreticH1.lean:356:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
-   "level": "warning"},
-  {"message": "MultiAgent/GameTheoreticH1.lean:363:8: declaration uses 'sorry'",
+   "MultiAgent/GameTheoreticH1.lean:457:5: unused variable `hfin`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/GameTheoreticH1.lean:388:24: This simp argument is unused:\n  ha\n\nHint: Omit it from the simp argument list.\n  simp only [profile, h̵a̵,̵ ̵↓reduceDIte]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "MultiAgent/GameTheoreticH1.lean:457:33: unused variable `hacts`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/GameTheoreticH1.lean:388:28: This simp argument is unused:\n  ↓reduceDIte\n\nHint: Omit it from the simp argument list.\n  simp only [profile, ha,̵ ̵↓̵r̵e̵d̵u̵c̵e̵D̵I̵t̵e̵]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "MultiAgent/GameTheoreticH1.lean:511:22: This simp argument is unused:\n  hab\n\nHint: Omit it from the simp argument list.\n  simp only [G, h̵a̵b̵,̵ ̵↓reduceIte, ha0, hb1] at h\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/GameTheoreticH1.lean:416:53: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
-   "level": "warning"},
-  {"message": "MultiAgent/GameTheoreticH1.lean:424:8: declaration uses 'sorry'",
-   "level": "warning"},
-  {"message": "MultiAgent/GameTheoreticH1.lean:457:8: declaration uses 'sorry'",
-   "level": "warning"},
-  {"message": "MultiAgent/GameTheoreticH1.lean:474:8: declaration uses 'sorry'",
+   "MultiAgent/GameTheoreticH1.lean:517:22: This simp argument is unused:\n  hab\n\nHint: Omit it from the simp argument list.\n  simp only [G, h̵a̵b̵,̵ ̵↓reduceIte, ha1, hb0] at h\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/GameTheoreticH1.lean:483:5: unused variable `hfin`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/GameTheoreticH1.lean:542:57: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/GameTheoreticH1.lean:483:33: unused variable `hacts`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
-   "level": "warning"},
-  {"message": "MultiAgent/GameTheoreticH1.lean:487:8: declaration uses 'sorry'",
+   "MultiAgent/GameTheoreticH1.lean:543:5: unused variable `hne`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/GameTheoreticH1.lean:512:57: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/GameTheoreticH1.lean:562:13: unused variable `hv`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/GameTheoreticH1.lean:513:5: unused variable `hne`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
-   "level": "warning"},
-  {"message":
-   "MultiAgent/GameTheoreticH1.lean:532:13: unused variable `hv`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
-   "level": "warning"},
-  {"message":
-   "MultiAgent/GameTheoreticH1.lean:592:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/GameTheoreticH1.lean:622:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"}],
  "inputs":
  [["MultiAgent.GameTheoreticH1:deps",
@@ -99,9 +87,12 @@
          "0a6362fb62507083"],
         ["Mathlib.Algebra.BigOperators.Group.Finset.Basic:importAllArts",
          "3b840309801c948c"],
+        ["Mathlib.Tactic.Linarith transitive imports (legacy)",
+         "ce772c6328488cbe"],
+        ["Mathlib.Tactic.Linarith:importAllArts", "614a124a5d966b77"],
         ["MultiAgent.AgentNetworks transitive imports (legacy)",
          "3e0d5f3bbf7fb5d0"],
-        ["MultiAgent.AgentNetworks:importAllArts", "fe4ac6d1fc9da768"]]]]],
+        ["MultiAgent.AgentNetworks:importAllArts", "67fbf7ffd364facf"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
@@ -110,9 +101,9 @@
   ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
    "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/MultiAgent/GameTheoreticH1.lean",
-   "6a5c35ff25d09203"],
+   "1180a75d4dd8fb53"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "333fab901e4aeaa7"}
+ "depHash": "13f55bb1e62fdbcf"}

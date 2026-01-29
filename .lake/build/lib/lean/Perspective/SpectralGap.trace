@@ -1,8 +1,8 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["5818553e356899f2.olean"],
-  "i": "752d51f4c68a1308.ilean",
+ {"o": ["b2048318d465fc34.olean"],
+  "i": "9e6eb40dfb0fe422.ilean",
   "c": "67568940b8e8c462.c"},
  "log":
  [{"message":
@@ -15,12 +15,12 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["Perspective.Persistence transitive imports (legacy)",
-         "7152040ea7b3004e"],
+         "7d1a7031f3c09ea2"],
         ["Perspective.Persistence:importAllArts", "dec644909e2a2154"],
         ["H1Characterization.Characterization transitive imports (legacy)",
-         "d44eae2e266df7c7"],
+         "6dd290b409dda9ed"],
         ["H1Characterization.Characterization:importAllArts",
-         "16ed3fa50b836d3f"]]]]],
+         "6477c517f2848d8b"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
@@ -29,9 +29,9 @@
   ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
    "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/Perspective/SpectralGap.lean",
-   "d5bfde970dac4da7"],
+   "843b5084d5c20977"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "1ce5cb46c0b49e87"}
+ "depHash": "6c2b7065daabf92d"}

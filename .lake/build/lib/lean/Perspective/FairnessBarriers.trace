@@ -1,8 +1,8 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["d338b1abb966bee2.olean"],
-  "i": "047f2362f52736cc.ilean",
+ {"o": ["a0d9ac3603d0d60e.olean"],
+  "i": "08eb2dd793db178b.ilean",
   "c": "5117d26352ea956a.c"},
  "log":
  [{"message":
@@ -18,7 +18,7 @@
    "Perspective/FairnessBarriers.lean:280:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/FairnessBarriers.lean:305:7: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/FairnessBarriers.lean:298:7: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"}],
  "inputs":
  [["Perspective.FairnessBarriers:deps",
@@ -27,8 +27,8 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["Perspective.LeximinGeodesics transitive imports (legacy)",
-         "f4c349421a3450ac"],
-        ["Perspective.LeximinGeodesics:importAllArts", "89ba5b6255245bcc"]]]]],
+         "37a39ed7a9689b7c"],
+        ["Perspective.LeximinGeodesics:importAllArts", "11a2f97485dbe041"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
@@ -37,9 +37,9 @@
   ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
    "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/Perspective/FairnessBarriers.lean",
-   "aedc2036951de28f"],
+   "3ee60a0f09310825"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "db09538626686416"}
+ "depHash": "c8e5f6b50fb5970e"}

@@ -1,7 +1,7 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["879e24f382523cd9.olean"],
+ {"o": ["760d4d45e89f14b2.olean"],
   "i": "7725c9897158385e.ilean",
   "c": "3f02556eba1829d9.c"},
  "log":
@@ -57,8 +57,8 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["H1Characterization.PathIntegral transitive imports (legacy)",
-         "e35171a6ba01b7c1"],
-        ["H1Characterization.PathIntegral:importAllArts", "33f6cb09f760c3eb"],
+         "52e6d15cc5cf6b1d"],
+        ["H1Characterization.PathIntegral:importAllArts", "6cc8dad856ea7d8d"],
         ["Mathlib.Algebra.BigOperators.Fin transitive imports (legacy)",
          "6c69af254338a9ac"],
         ["Mathlib.Algebra.BigOperators.Fin:importAllArts",
@@ -76,4 +76,4 @@
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "9ad571f841116525"}
+ "depHash": "8baa1d9e16d8e381"}

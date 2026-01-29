@@ -1,8 +1,8 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["61bc05db9067b75a.olean"],
-  "i": "6eb17b56a7e3ce4a.ilean",
+ {"o": ["bdc7031123bc2eca.olean"],
+  "i": "ff399412b1a6c914.ilean",
   "c": "52bd1b0b965a8442.c"},
  "log":
  [{"message":
@@ -15,8 +15,8 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["Perspective.EnvyFreeness transitive imports (legacy)",
-         "ff37e20807cf8fe4"],
-        ["Perspective.EnvyFreeness:importAllArts", "aa9932dec5aafbe5"]]]]],
+         "94843c7e6df31178"],
+        ["Perspective.EnvyFreeness:importAllArts", "149804d3078e7f28"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
@@ -25,9 +25,9 @@
   ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
    "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/Perspective/Proportionality.lean",
-   "49cfde6798f1a259"],
+   "d654072ef99d4dc7"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "acad46bfa7f6e558"}
+ "depHash": "b22f9d1649b9c702"}

@@ -204,49 +204,6 @@ def isGeodesicToAlignment {n : ℕ} {S : Type*} [Fintype S] [DecidableEq S]
     isAligned other.finish epsilon →
     path.length ≤ other.length
 
-/-! ## Part 4: Geodesic Existence -/
-
-/--
-AXIOM: Geodesic to alignment exists (when alignment is possible).
-
-If alignment is achievable, there exists a shortest path to it.
-
-**Mathematical justification:** This is a standard result from metric geometry.
-In finite-dimensional spaces (which ValuePoint is, being Fin n → S → ℚ),
-the infimum of distances to a non-empty closed set is achieved.
-The aligned region, defined by H¹ = 0, is closed under the L1 topology.
-
-Reference: Any metric geometry text, e.g., Burago-Burago-Ivanov "A Course in Metric Geometry"
--/
-axiom geodesic_exists {n : ℕ} {S' : Type*} [Fintype S'] [DecidableEq S']
-    (hn : n ≥ 1)
-    (p : ValuePoint n S') (epsilon : ℚ) (hε : epsilon > 0)
-    [Nonempty S']
-    (h_possible : ∃ q : ValuePoint n S', isAligned q epsilon) :
-    ∃ (path : ValuePath n S'), path.start = p ∧ isGeodesicToAlignment path epsilon
-
-/--
-AXIOM: Geodesic is unique in convex case.
-
-If the aligned region is convex, the geodesic is unique.
-
-**Mathematical justification:** The projection onto a convex set in a strictly convex
-normed space is unique. While L1 is not strictly convex, the aligned region's structure
-(defined by linear constraints from the cohomology condition) typically yields uniqueness.
-
-Reference: Convex analysis texts, e.g., Rockafellar "Convex Analysis"
--/
-axiom geodesic_unique_convex {n : ℕ}
-    (p : ValuePoint n S) (epsilon : ℚ) [Nonempty S]
-    (h_convex : ∀ q r : ValuePoint n S, isAligned q epsilon → isAligned r epsilon →
-      ∀ t : ℚ, 0 ≤ t → t ≤ 1 →
-        isAligned (fun i s => (1 - t) * q i s + t * r i s) epsilon)
-    (path1 path2 : ValuePath n S)
-    (h1 : isGeodesicToAlignment path1 epsilon)
-    (h2 : isGeodesicToAlignment path2 epsilon)
-    (h_start : path1.start = path2.start) :
-    path1.finish = path2.finish
-
 /-! ## Part 5: Geodesic Computation -/
 
 /--
@@ -337,42 +294,12 @@ def geodesicLowerBound' (maxDisagreement epsilon : ℚ) : ℚ :=
   max 0 ((maxDisagreement - 2 * epsilon) / 2)
 
 /--
-AXIOM: Geodesic length is at least the lower bound.
-
-**Mathematical justification:** For any path reaching alignment, the disagreement
-between agents must be resolved. If agents i and j disagree by amount d > 2ε on
-some situation, at least one of them must move at least (d - 2ε)/2 units to bring
-disagreement within ε. This gives the lower bound on total movement.
-
-This connects geodesic length to optimal repair cost (Batch 13).
--/
-axiom geodesic_lower_bound
-    (pathLength maxDisagreement epsilon : ℚ)
-    (h_geodesic : True)  -- Placeholder for: pathLength is length of a geodesic to alignment
-    : pathLength ≥ geodesicLowerBound' maxDisagreement epsilon
-
-/--
 Upper bound: move everyone to average.
 The upper bound is the sum over all situations of the sum of distances to the average.
 
 This is an abstract upper bound; actual value depends on the configuration.
 -/
 def geodesicUpperBound' (bound : ℚ) : ℚ := bound
-
-/--
-AXIOM: Geodesic length is at most the upper bound.
-
-**Mathematical justification:** The path where every agent moves to the average
-value achieves alignment (all agents agree perfectly after). This path has length
-equal to the sum of distances from each agent to the average. Since the geodesic
-is the shortest path, its length cannot exceed this constructive upper bound.
-
-This provides a concrete certificate: geodesic ≤ "move everyone to average".
--/
-axiom geodesic_upper_bound
-    (pathLength moveToAvgCost : ℚ)
-    (h_geodesic : True)  -- Placeholder for: pathLength is length of a geodesic to alignment
-    : pathLength ≤ geodesicUpperBound' moveToAvgCost
 
 /-! ## Part 8: Step-by-Step Geodesic -/
 

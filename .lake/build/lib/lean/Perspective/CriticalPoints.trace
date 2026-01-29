@@ -72,7 +72,7 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["Perspective.Curvature transitive imports (legacy)",
-         "ed5e3a6eccdd0b84"],
+         "4ef7362680827698"],
         ["Perspective.Curvature:importAllArts", "ecbba6789a2971ea"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
@@ -87,4 +87,4 @@
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "354fbe6ad7b19e4b"}
+ "depHash": "20e962e829eae006"}

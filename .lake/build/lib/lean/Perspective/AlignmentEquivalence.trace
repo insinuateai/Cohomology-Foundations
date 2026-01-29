@@ -1,7 +1,7 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["f01ea6d152a79957.olean"],
+ {"o": ["3a9c89e831140be4.olean"],
   "i": "cb9e36acfd9c5928.ilean",
   "c": "e0d28a255b621e36.c"},
  "log":
@@ -96,9 +96,9 @@
          "a9f5a65a5c53e7ff"],
         ["Mathlib.Tactic.FieldSimp:importAllArts", "d86f3e97acfd9745"],
         ["H1Characterization.ForestCoboundary transitive imports (legacy)",
-         "0a1f3c816699fee1"],
+         "91a9c576400569d6"],
         ["H1Characterization.ForestCoboundary:importAllArts",
-         "7ae3fa2978b2f3b7"]]]]],
+         "1434ca26f97f57e2"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
@@ -112,4 +112,4 @@
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "fc831ad304b88ddf"}
+ "depHash": "2e7acb9c234256bf"}

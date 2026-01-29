@@ -48,12 +48,12 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["Perspective.SpectralGap transitive imports (legacy)",
-         "7ba39701725d490f"],
-        ["Perspective.SpectralGap:importAllArts", "dec3b1037d235c60"],
+         "82bd6f75c453305f"],
+        ["Perspective.SpectralGap:importAllArts", "df56b26254752790"],
         ["H1Characterization.Characterization transitive imports (legacy)",
-         "d44eae2e266df7c7"],
+         "6dd290b409dda9ed"],
         ["H1Characterization.Characterization:importAllArts",
-         "16ed3fa50b836d3f"]]]]],
+         "6477c517f2848d8b"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
@@ -67,4 +67,4 @@
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "72226c91ea5b2736"}
+ "depHash": "679fec687f22a433"}

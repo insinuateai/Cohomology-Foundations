@@ -1,8 +1,8 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["8a6ba260a2a7db40.olean"],
-  "i": "9709d0a9b697feab.ilean",
+ {"o": ["55d22019dca1c8cb.olean"],
+  "i": "b79ba75297ef6076.ilean",
   "c": "789a878549e2a379.c"},
  "log":
  [{"message":
@@ -18,46 +18,46 @@
    "Perspective/MayerVietoris.lean:139:19: unused variable `he`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/MayerVietoris.lean:162:5: unused variable `c`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/MayerVietoris.lean:154:5: unused variable `c`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/MayerVietoris.lean:219:30: This simp argument is unused:\n  Set.sep_mem_eq\n\nHint: Omit it from the simp argument list.\n  simp only [Set.mem_setOf,̵ ̵S̵e̵t̵.̵s̵e̵p̵_̵m̵e̵m̵_̵e̵q̵] at hs\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "Perspective/MayerVietoris.lean:211:30: This simp argument is unused:\n  Set.sep_mem_eq\n\nHint: Omit it from the simp argument list.\n  simp only [Set.mem_setOf,̵ ̵S̵e̵t̵.̵s̵e̵p̵_̵m̵e̵m̵_̵e̵q̵] at hs\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
    "level": "warning"},
   {"message":
-   "Perspective/MayerVietoris.lean:223:30: This simp argument is unused:\n  Set.sep_mem_eq\n\nHint: Omit it from the simp argument list.\n  simp only [Set.mem_setOf,̵ ̵S̵e̵t̵.̵s̵e̵p̵_̵m̵e̵m̵_̵e̵q̵] at hs\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "Perspective/MayerVietoris.lean:215:30: This simp argument is unused:\n  Set.sep_mem_eq\n\nHint: Omit it from the simp argument list.\n  simp only [Set.mem_setOf,̵ ̵S̵e̵t̵.̵s̵e̵p̵_̵m̵e̵m̵_̵e̵q̵] at hs\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
    "level": "warning"},
   {"message":
-   "Perspective/MayerVietoris.lean:227:45: This simp argument is unused:\n  Set.sep_mem_eq\n\nHint: Omit it from the simp argument list.\n  simp only [Set.mem_union, Set.mem_setOf,̵ ̵S̵e̵t̵.̵s̵e̵p̵_̵m̵e̵m̵_̵e̵q̵]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "Perspective/MayerVietoris.lean:219:45: This simp argument is unused:\n  Set.sep_mem_eq\n\nHint: Omit it from the simp argument list.\n  simp only [Set.mem_union, Set.mem_setOf,̵ ̵S̵e̵t̵.̵s̵e̵p̵_̵m̵e̵m̵_̵e̵q̵]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
    "level": "warning"},
   {"message":
-   "Perspective/MayerVietoris.lean:262:32: This simp argument is unused:\n  Set.sep_mem_eq\n\nHint: Omit it from the simp argument list.\n  simp only [Set.mem_setOf, S̵e̵t̵.̵s̵e̵p̵_̵m̵e̵m̵_̵e̵q̵,̵ ̵isATouching] at hs ⊢\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "Perspective/MayerVietoris.lean:254:32: This simp argument is unused:\n  Set.sep_mem_eq\n\nHint: Omit it from the simp argument list.\n  simp only [Set.mem_setOf, S̵e̵t̵.̵s̵e̵p̵_̵m̵e̵m̵_̵e̵q̵,̵ ̵isATouching] at hs ⊢\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
    "level": "warning"},
   {"message":
-   "Perspective/MayerVietoris.lean:273:32: This simp argument is unused:\n  Set.sep_mem_eq\n\nHint: Omit it from the simp argument list.\n  simp only [Set.mem_setOf, S̵e̵t̵.̵s̵e̵p̵_̵m̵e̵m̵_̵e̵q̵,̵ ̵isATouching] at hs ⊢\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "Perspective/MayerVietoris.lean:265:32: This simp argument is unused:\n  Set.sep_mem_eq\n\nHint: Omit it from the simp argument list.\n  simp only [Set.mem_setOf, S̵e̵t̵.̵s̵e̵p̵_̵m̵e̵m̵_̵e̵q̵,̵ ̵isATouching] at hs ⊢\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
    "level": "warning"},
   {"message":
-   "Perspective/MayerVietoris.lean:287:32: This simp argument is unused:\n  Set.sep_mem_eq\n\nHint: Omit it from the simp argument list.\n  simp only [Set.mem_setOf, S̵e̵t̵.̵s̵e̵p̵_̵m̵e̵m̵_̵e̵q̵,̵ ̵isBTouching] at hs ⊢\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "Perspective/MayerVietoris.lean:279:32: This simp argument is unused:\n  Set.sep_mem_eq\n\nHint: Omit it from the simp argument list.\n  simp only [Set.mem_setOf, S̵e̵t̵.̵s̵e̵p̵_̵m̵e̵m̵_̵e̵q̵,̵ ̵isBTouching] at hs ⊢\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
    "level": "warning"},
   {"message":
-   "Perspective/MayerVietoris.lean:297:32: This simp argument is unused:\n  Set.sep_mem_eq\n\nHint: Omit it from the simp argument list.\n  simp only [Set.mem_setOf, S̵e̵t̵.̵s̵e̵p̵_̵m̵e̵m̵_̵e̵q̵,̵ ̵isBTouching] at hs ⊢\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "Perspective/MayerVietoris.lean:289:32: This simp argument is unused:\n  Set.sep_mem_eq\n\nHint: Omit it from the simp argument list.\n  simp only [Set.mem_setOf, S̵e̵t̵.̵s̵e̵p̵_̵m̵e̵m̵_̵e̵q̵,̵ ̵isBTouching] at hs ⊢\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
    "level": "warning"},
   {"message":
-   "Perspective/MayerVietoris.lean:308:30: This simp argument is unused:\n  Set.sep_mem_eq\n\nHint: Omit it from the simp argument list.\n  simp only [Set.mem_setOf,̵ ̵S̵e̵t̵.̵s̵e̵p̵_̵m̵e̵m̵_̵e̵q̵] at hs\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "Perspective/MayerVietoris.lean:300:30: This simp argument is unused:\n  Set.sep_mem_eq\n\nHint: Omit it from the simp argument list.\n  simp only [Set.mem_setOf,̵ ̵S̵e̵t̵.̵s̵e̵p̵_̵m̵e̵m̵_̵e̵q̵] at hs\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
    "level": "warning"},
   {"message":
-   "Perspective/MayerVietoris.lean:312:30: This simp argument is unused:\n  Set.sep_mem_eq\n\nHint: Omit it from the simp argument list.\n  simp only [Set.mem_setOf,̵ ̵S̵e̵t̵.̵s̵e̵p̵_̵m̵e̵m̵_̵e̵q̵] at hs\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "Perspective/MayerVietoris.lean:304:30: This simp argument is unused:\n  Set.sep_mem_eq\n\nHint: Omit it from the simp argument list.\n  simp only [Set.mem_setOf,̵ ̵S̵e̵t̵.̵s̵e̵p̵_̵m̵e̵m̵_̵e̵q̵] at hs\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
    "level": "warning"},
   {"message":
-   "Perspective/MayerVietoris.lean:316:45: This simp argument is unused:\n  Set.sep_mem_eq\n\nHint: Omit it from the simp argument list.\n  simp only [Set.mem_union, Set.mem_setOf, S̵e̵t̵.̵s̵e̵p̵_̵m̵e̵m̵_̵e̵q̵,̵ ̵isATouching, isBTouching]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "Perspective/MayerVietoris.lean:308:45: This simp argument is unused:\n  Set.sep_mem_eq\n\nHint: Omit it from the simp argument list.\n  simp only [Set.mem_union, Set.mem_setOf, S̵e̵t̵.̵s̵e̵p̵_̵m̵e̵m̵_̵e̵q̵,̵ ̵isATouching, isBTouching]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
    "level": "warning"},
   {"message":
-   "Perspective/MayerVietoris.lean:420:42: unused variable `hk`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/MayerVietoris.lean:412:42: unused variable `hk`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/MayerVietoris.lean:420:55: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/MayerVietoris.lean:412:55: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/MayerVietoris.lean:427:28: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/MayerVietoris.lean:419:28: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"}],
  "inputs":
  [["Perspective.MayerVietoris:deps",
@@ -66,12 +66,12 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["Perspective.HierarchicalAlignment transitive imports (legacy)",
-         "674d256d628b01f6"],
+         "0d5b87d9f884b5f9"],
         ["Perspective.HierarchicalAlignment:importAllArts", "9dfc195179b9275c"],
         ["H1Characterization.Characterization transitive imports (legacy)",
-         "d44eae2e266df7c7"],
+         "6dd290b409dda9ed"],
         ["H1Characterization.Characterization:importAllArts",
-         "16ed3fa50b836d3f"]]]]],
+         "6477c517f2848d8b"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
@@ -80,9 +80,9 @@
   ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
    "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/Perspective/MayerVietoris.lean",
-   "e0b5bb38827ac3e9"],
+   "3ab787bb3c9cf76f"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "b0a79a7a9798798b"}
+ "depHash": "391a00fc3eb1a55f"}

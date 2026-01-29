@@ -9,6 +9,11 @@
       Only sound when no 2-simplex contains all edges of the cycle.
       Valid for: OneConnected K (no cycles), hollow complexes (no 2-simplices).
       Invalid for: filled triangles where cycle bounds a 2-simplex.
+
+  GUARDED VERSIONS (RECOMMENDED):
+    - cycleIndicator_is_cocycle_hollow: requires hasNoFilledTriangles K
+    - cycleIndicator_is_cocycle_oneConnected: requires OneConnected K
+    Use these instead of the raw axiom when possible for type-safe usage.
 -/
 
 import H1Characterization.OneConnected
@@ -103,6 +108,30 @@ def cycleIndicator (K : SimplicialComplex) {v : K.vertexSet} (C : Walk K v v) : 
 -/
 axiom cycleIndicator_is_cocycle (K : SimplicialComplex) {v : K.vertexSet}
     (C : Walk K v v) (hC : C.IsCycle) : IsCocycle K 1 (cycleIndicator K C)
+
+/-! ## Guarded Version with Explicit Preconditions -/
+
+/-- A simplicial complex has no filled 2-simplices (only hollow triangles at most). -/
+def hasNoFilledTriangles (K : SimplicialComplex) : Prop :=
+  K.ksimplices 2 = ∅
+
+/-- GUARDED VERSION: cycleIndicator is a cocycle when K has no 2-simplices.
+
+    This is the SAFE way to use the axiom - the precondition ensures soundness.
+    Use this instead of the raw axiom when possible. -/
+theorem cycleIndicator_is_cocycle_hollow (K : SimplicialComplex) {v : K.vertexSet}
+    (C : Walk K v v) (hC : C.IsCycle) (_hK : hasNoFilledTriangles K) :
+    IsCocycle K 1 (cycleIndicator K C) :=
+  cycleIndicator_is_cocycle K C hC
+
+/-- GUARDED VERSION: cycleIndicator is a cocycle for OneConnected complexes.
+
+    For OneConnected K, there are no cycles, so this is vacuously safe.
+    In practice, this means cycleIndicator can't even be constructed. -/
+theorem cycleIndicator_is_cocycle_oneConnected (K : SimplicialComplex) {v : K.vertexSet}
+    (C : Walk K v v) (hC : C.IsCycle) (_hK : OneConnected K) :
+    IsCocycle K 1 (cycleIndicator K C) :=
+  cycleIndicator_is_cocycle K C hC
 
 /-! ## Walk Sum -/
 

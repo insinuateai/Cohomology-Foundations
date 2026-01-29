@@ -27,7 +27,7 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["Perspective.FluctuationBounds transitive imports (legacy)",
-         "ba1094480ea5232e"],
+         "86e06f19905851ac"],
         ["Perspective.FluctuationBounds:importAllArts", "55a36039c2d81ffe"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
@@ -42,4 +42,4 @@
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "4ccc994fd4409337"}
+ "depHash": "6ae419a5118121b9"}

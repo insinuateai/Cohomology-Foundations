@@ -162,18 +162,6 @@ allocation is strictly leximin-better.
 def isLeximinOptimal [NeZero n] (a : Fin n → ℚ) (feasible : Set (Fin n → ℚ)) : Prop :=
   a ∈ feasible ∧ ∀ b ∈ feasible, ¬leximinLT b a
 
-/--
-AXIOM: Leximin optimal implies maximin optimal.
-
-This is a standard result in social choice theory: if an allocation is
-leximin-optimal (no feasible allocation has lexicographically greater
-sorted utility vector), then it is also maximin-optimal (maximizes
-the minimum utility). The proof requires showing that the minimum
-utility is the first element of the sorted utility vector.
--/
-axiom leximin_implies_maximin [NeZero n] (a : Fin n → ℚ) (feasible : Set (Fin n → ℚ))
-    (h : isLeximinOptimal a feasible) : isMaximin a feasible
-
 /-! ## Part 4: Geodesic Path -/
 
 /--
@@ -208,12 +196,6 @@ theorem straight_path_connects (a b : Fin n → ℚ) :
   constructor
   · ext i; ring
   · ext i; ring
-
-/--
-THEOREM: Straight path has length equal to distance.
--/
-axiom straight_path_length (a b : Fin n → ℚ) (steps : ℕ) (h : steps > 0) :
-    pathLength (straightPath a b) steps = allocationDistance a b
 
 /-! ## Part 5: Geodesic to Leximin -/
 
@@ -306,16 +288,6 @@ def gradientFlowConverges [NeZero n] (a : Fin n → ℚ) (feasible : Set (Fin n 
   ∃ (limit : Fin n → ℚ), isLeximinOptimal limit feasible ∧
     ∀ ε > 0, ∃ T : ℕ, ∀ t ≥ T, 
       allocationDistance (geodesicToLeximin a (t / (t + 1))) limit < ε
-
-/--
-THEOREM: Gradient flow from any allocation converges.
--/
-axiom gradient_flow_converges [NeZero n] (a : Fin n → ℚ) (feasible : Set (Fin n → ℚ))
-    (ha : a ∈ feasible)
-    (h_convex : ∀ b ∈ feasible, ∀ c ∈ feasible, ∀ t : ℚ, 0 ≤ t → t ≤ 1 →
-      (fun i => (1-t) * b i + t * c i) ∈ feasible)
-    (h_contains_equal : equalAllocation (∑ i, a i) ∈ feasible) :
-    gradientFlowConverges a feasible
 
 /-! ## Part 8: Path Cost -/
 

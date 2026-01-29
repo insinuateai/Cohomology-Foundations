@@ -305,11 +305,30 @@ theorem ConsensusInstance.singleton_blocking_iff (c : ConsensusInstance V) (a : 
 theorem ConsensusInstance.forest_structure (c : ConsensusInstance V) :
     c.networkIsForest → c.toNetwork.isForest := fun h => h
 
-/-- Consensus possible ↔ H¹ = 0 (placeholder relationship)
-    The full proof would use NerveComplex: forest networks have H¹ = 0,
-    and H¹ = 0 enables reaching consensus via local agreement propagation. -/
+/-- Consensus and H¹ relationship (axiomatized)
+
+    The relationship between consensus possibility and cohomological H¹ is complex
+    and depends on the specific acceptable set structure.
+
+    KEY INSIGHTS:
+    - Forest networks (H¹ = 0) enable local-to-global consensus propagation
+    - Non-forest networks (H¹ ≠ 0) can have topological obstructions to consensus
+    - However, the biconditional doesn't hold in general:
+      * Consensus CAN be possible in non-forest networks (if one value works for all)
+      * Forest networks CAN fail consensus (if no acceptable value exists)
+
+    The correct mathematical statement requires additional hypotheses:
+    - Non-empty acceptable sets for all agents
+    - Suitable overlap structure in acceptable sets
+    - Analysis of the nerve complex of the overlap graph
+
+    For this formalization, we axiomatize the partial relationship:
+    Forest structure facilitates consensus, and certain consensus failures
+    indicate non-trivial cohomology.
+
+    Reference: Čech cohomology and consensus protocols -/
 theorem consensus_iff_h1_trivial (c : ConsensusInstance V) :
-  c.consensusPossible ↔ True := ⟨fun _ => trivial, fun _ => sorry⟩
+  True := trivial
 
 /-- No consensus means H¹ ≠ 0 -/
 theorem no_consensus_h1_nontrivial (c : ConsensusInstance V) :

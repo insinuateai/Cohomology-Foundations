@@ -293,14 +293,6 @@ def envyReductionStep (valuations : Fin n → Fin n → ℚ) (a : Fin n → ℚ)
            else if k = j then a j - transfer
            else a k
 
-/--
-THEOREM: Small transfer from envied to envier reduces envy (under conditions).
--/
-axiom transfer_reduces_envy (valuations : Fin n → Fin n → ℚ) (a : Fin n → ℚ)
-    (i j : Fin n) (h_envy : envies valuations a i j)
-    (transfer : ℚ) (h_small : transfer > 0) (h_bounded : transfer ≤ envyAmount valuations a i j / 2) :
-    totalEnvy valuations (envyReductionStep valuations a i j transfer) < totalEnvy valuations a
-
 /-! ## Part 9: Envy-Free and Pareto -/
 
 /--

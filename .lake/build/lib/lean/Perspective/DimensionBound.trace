@@ -1,8 +1,8 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["bde88be5f575fa88.olean"],
-  "i": "4b4e52f32a4ca2e8.ilean",
+ {"o": ["1e59651f63de709b.olean"],
+  "i": "43df2591f2c3b840.ilean",
   "c": "f8dd737c7317ec13.c"},
  "log":
  [{"message":
@@ -15,16 +15,16 @@
    "Perspective/DimensionBound.lean:169:44: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/DimensionBound.lean:390:19: unused variable `he`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/DimensionBound.lean:330:19: unused variable `he`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/DimensionBound.lean:390:37: unused variable `he_new`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/DimensionBound.lean:330:37: unused variable `he_new`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/DimensionBound.lean:405:19: unused variable `he`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/DimensionBound.lean:345:19: unused variable `he`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/DimensionBound.lean:405:37: unused variable `he_in`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/DimensionBound.lean:345:37: unused variable `he_in`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"}],
  "inputs":
  [["Perspective.DimensionBound:deps",
@@ -33,12 +33,12 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["Perspective.MayerVietoris transitive imports (legacy)",
-         "1f3633dc246f7128"],
-        ["Perspective.MayerVietoris:importAllArts", "e54a3c81be37e2c5"],
+         "c0f6a0d5cb860a44"],
+        ["Perspective.MayerVietoris:importAllArts", "0f65935bded983da"],
         ["H1Characterization.Characterization transitive imports (legacy)",
-         "d44eae2e266df7c7"],
+         "6dd290b409dda9ed"],
         ["H1Characterization.Characterization:importAllArts",
-         "16ed3fa50b836d3f"]]]]],
+         "6477c517f2848d8b"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
@@ -47,9 +47,9 @@
   ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
    "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/Perspective/DimensionBound.lean",
-   "b7cc9e7136c5bfdb"],
+   "e99e00a74f8457d1"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "b78174bba680ddf1"}
+ "depHash": "7a1a3293ae828265"}

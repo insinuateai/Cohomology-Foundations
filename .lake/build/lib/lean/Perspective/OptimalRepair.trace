@@ -1,72 +1,72 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["71a32b2b8a1199e7.olean"],
-  "i": "600740e9eb073386.ilean",
+ {"o": ["607b6b6621023f61.olean"],
+  "i": "938e544ad22a176e.ilean",
   "c": "4d5f0a918e81b61c.c"},
  "log":
  [{"message":
    ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.27.0/bin/lean /workspaces/Cohomology-Foundations/Perspective/OptimalRepair.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/OptimalRepair.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/OptimalRepair.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/OptimalRepair.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/OptimalRepair.setup.json --json",
    "level": "trace"},
   {"message":
-   "Perspective/OptimalRepair.lean:162:45: unused variable `systems`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/OptimalRepair.lean:151:45: unused variable `systems`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/OptimalRepair.lean:163:5: unused variable `epsilon`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/OptimalRepair.lean:152:5: unused variable `epsilon`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/OptimalRepair.lean:247:35: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/OptimalRepair.lean:236:35: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/OptimalRepair.lean:248:53: unused variable `hε`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/OptimalRepair.lean:237:53: unused variable `hε`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/OptimalRepair.lean:269:45: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/OptimalRepair.lean:258:45: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/OptimalRepair.lean:276:36: unused variable `systems`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/OptimalRepair.lean:265:36: unused variable `systems`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/OptimalRepair.lean:277:5: unused variable `s`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/OptimalRepair.lean:266:5: unused variable `s`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/OptimalRepair.lean:277:13: unused variable `threshold`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/OptimalRepair.lean:266:13: unused variable `threshold`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/OptimalRepair.lean:320:31: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/OptimalRepair.lean:309:31: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/OptimalRepair.lean:342:0: automatically included section variable(s) unused in theorem `OptimalRepair.moveToAverage_cost_formula`:\n  [Fintype S]\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [Fintype S] [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "Perspective/OptimalRepair.lean:331:0: automatically included section variable(s) unused in theorem `OptimalRepair.moveToAverage_cost_formula`:\n  [Fintype S]\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [Fintype S] [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
    "level": "warning"},
   {"message":
-   "Perspective/OptimalRepair.lean:356:0: automatically included section variable(s) unused in theorem `OptimalRepair.optimal_le_average`:\n  [Fintype S]\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [Fintype S] [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "Perspective/OptimalRepair.lean:345:0: automatically included section variable(s) unused in theorem `OptimalRepair.optimal_le_average`:\n  [Fintype S]\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [Fintype S] [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
    "level": "warning"},
   {"message":
-   "Perspective/OptimalRepair.lean:357:61: unused variable `hε`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/OptimalRepair.lean:346:61: unused variable `hε`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/OptimalRepair.lean:359:5: unused variable `h_single`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/OptimalRepair.lean:348:5: unused variable `h_single`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/OptimalRepair.lean:385:37: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/OptimalRepair.lean:374:37: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/OptimalRepair.lean:386:5: unused variable `systems`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/OptimalRepair.lean:375:5: unused variable `systems`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/OptimalRepair.lean:386:39: unused variable `epsilon`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/OptimalRepair.lean:375:39: unused variable `epsilon`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/OptimalRepair.lean:430:0: automatically included section variable(s) unused in theorem `OptimalRepair.incremental_repair_converges`:\n  [Fintype S]\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [Fintype S] [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
+   "Perspective/OptimalRepair.lean:419:0: automatically included section variable(s) unused in theorem `OptimalRepair.incremental_repair_converges`:\n  [Fintype S]\n  [DecidableEq S]\nconsider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:\n  omit [Fintype S] [DecidableEq S] in theorem ...\n\nNote: This linter can be disabled with `set_option linter.unusedSectionVars false`",
    "level": "warning"},
   {"message":
-   "Perspective/OptimalRepair.lean:430:46: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/OptimalRepair.lean:419:46: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/OptimalRepair.lean:431:5: unused variable `systems`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/OptimalRepair.lean:420:5: unused variable `systems`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/OptimalRepair.lean:431:53: unused variable `hε`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/OptimalRepair.lean:420:53: unused variable `hε`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"}],
  "inputs":
  [["Perspective.OptimalRepair:deps",
@@ -75,12 +75,12 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["Perspective.InformationBound transitive imports (legacy)",
-         "e2857fc800bf909a"],
+         "b3a4931e89d88663"],
         ["Perspective.InformationBound:importAllArts", "53a9e87c0b07de41"],
         ["H1Characterization.Characterization transitive imports (legacy)",
-         "d44eae2e266df7c7"],
+         "6dd290b409dda9ed"],
         ["H1Characterization.Characterization:importAllArts",
-         "16ed3fa50b836d3f"]]]]],
+         "6477c517f2848d8b"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
@@ -89,9 +89,9 @@
   ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
    "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/Perspective/OptimalRepair.lean",
-   "d2a583759d5970e7"],
+   "af32906bbaca0fc1"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "99ec1a5e559e7263"}
+ "depHash": "79b73f978f898f74"}

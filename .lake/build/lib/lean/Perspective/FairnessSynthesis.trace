@@ -1,21 +1,21 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["0c9e3b04011a8acb.olean"],
-  "i": "07285b858dccc452.ilean",
+ {"o": ["f0e3816d7329d5ac.olean"],
+  "i": "6b7246f5e59938b1.ilean",
   "c": "fa50c7748fd58d46.c"},
  "log":
  [{"message":
    ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.27.0/bin/lean /workspaces/Cohomology-Foundations/Perspective/FairnessSynthesis.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/FairnessSynthesis.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/FairnessSynthesis.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/FairnessSynthesis.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/FairnessSynthesis.setup.json --json",
    "level": "trace"},
   {"message":
-   "Perspective/FairnessSynthesis.lean:226:42: unused variable `ht`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/FairnessSynthesis.lean:193:42: unused variable `ht`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/FairnessSynthesis.lean:266:5: unused variable `h_sum`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/FairnessSynthesis.lean:233:5: unused variable `h_sum`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "Perspective/FairnessSynthesis.lean:305:16: unused variable `a`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/FairnessSynthesis.lean:272:16: unused variable `a`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"}],
  "inputs":
  [["Perspective.FairnessSynthesis:deps",
@@ -24,8 +24,8 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["Perspective.FairnessLearning transitive imports (legacy)",
-         "ab98e0bf9c661e30"],
-        ["Perspective.FairnessLearning:importAllArts", "a0114f7edbbfdf98"]]]]],
+         "11db2f6e9bd06a8e"],
+        ["Perspective.FairnessLearning:importAllArts", "60776b168029b69e"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
@@ -34,9 +34,9 @@
   ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
    "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/Perspective/FairnessSynthesis.lean",
-   "0f24802a06c013a8"],
+   "56a737cac1f5682f"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "dbe8b96e0b08ebcd"}
+ "depHash": "53262e068656ff90"}

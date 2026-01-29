@@ -130,16 +130,6 @@ structure ClassifiedBifurcation (n : ℕ) where
   /-- Fairness threshold at bifurcation -/
   threshold : ℚ
 
-/--
-AXIOM: Bifurcation points are isolated (generically).
--/
-axiom bifurcation_isolated (dynamics : FairnessDynamics n) (a : Fin n → ℚ)
-    (lam₁ lam₂ : ℚ) (threshold : ℚ)
-    (h1 : isBifurcationPoint dynamics a lam₁ threshold)
-    (h2 : isBifurcationPoint dynamics a lam₂ threshold)
-    (h_close : |lam₁ - lam₂| < 1/100) :
-    lam₁ = lam₂
-
 /-! ## Part 3: Stability Analysis -/
 
 /--

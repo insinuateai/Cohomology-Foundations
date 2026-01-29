@@ -27,12 +27,12 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["Perspective.ConflictResolution transitive imports (legacy)",
-         "666313cabefee511"],
-        ["Perspective.ConflictResolution:importAllArts", "5187c2f38376d132"],
+         "12b431621d73580f"],
+        ["Perspective.ConflictResolution:importAllArts", "f1e20e7ff9575775"],
         ["H1Characterization.Characterization transitive imports (legacy)",
-         "d44eae2e266df7c7"],
+         "6dd290b409dda9ed"],
         ["H1Characterization.Characterization:importAllArts",
-         "16ed3fa50b836d3f"]]]]],
+         "6477c517f2848d8b"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
@@ -46,4 +46,4 @@
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "4f45687d8c96cb50"}
+ "depHash": "c891d5ff5802b77a"}

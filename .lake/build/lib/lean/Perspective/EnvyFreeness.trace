@@ -1,8 +1,8 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["2ac98603c737792b.olean"],
-  "i": "40996214d02e9beb.ilean",
+ {"o": ["fa9b32b1a0037131.olean"],
+  "i": "ebaa8338eb9f53aa.ilean",
   "c": "d7ce147092731c29.c"},
  "log":
  [{"message":
@@ -18,8 +18,8 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["Perspective.ParetoTopology transitive imports (legacy)",
-         "50cc2512a687c455"],
-        ["Perspective.ParetoTopology:importAllArts", "fd3e93e833b0a2ff"]]]]],
+         "2948cfd0eb18d3c2"],
+        ["Perspective.ParetoTopology:importAllArts", "b5f415a823bba03c"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
@@ -28,9 +28,9 @@
   ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
    "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/Perspective/EnvyFreeness.lean",
-   "a4b5b9db9498d89e"],
+   "9f8820dc158ba7d5"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "ff4672afa8d28741"}
+ "depHash": "b24ff833ef52c815"}

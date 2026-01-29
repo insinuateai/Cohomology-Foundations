@@ -42,7 +42,7 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["Perspective.Recurrence transitive imports (legacy)",
-         "bbb80506a9fed1e9"],
+         "f301c0017fbbd0cc"],
         ["Perspective.Recurrence:importAllArts", "a6e873ae351e001e"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
@@ -57,4 +57,4 @@
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "b07c71972dabf480"}
+ "depHash": "f80c205daf106550"}

@@ -279,13 +279,6 @@ Number of connected components of feasible region.
 noncomputable def componentCount (base : Set (Fin n → ℚ)) (constraints : List (Constraint n)) : ℕ :=
   if h : ∀ a ∈ base, satisfiesAll a constraints then 1 else 2
 
-/--
-AXIOM: More barriers can increase component count.
--/
-axiom more_barriers_more_components (base : Set (Fin n → ℚ))
-    (c1 c2 : List (Constraint n)) (h : c1 ⊆ c2) :
-    componentCount base c1 ≤ componentCount base c2
-
 /-! ## Part 7: Crossing Barriers -/
 
 /--
@@ -305,13 +298,6 @@ noncomputable def minCrossingCost (a b : Fin n → ℚ) (barriers : List (Classi
     if h : bar.satisfies a ∧ bar.satisfies b then 0
     else crossingCost bar 1)).sum
 
-/--
-AXIOM: Same-component allocations have zero crossing cost.
--/
-axiom same_component_zero_crossing (a b : Fin n → ℚ) (barriers : List (ClassifiedBarrier n))
-    (h : sameComponent a b (barriers.map (·.toConstraint))) :
-    minCrossingCost a b barriers = 0
-
 /-! ## Part 8: Barrier Decomposition -/
 
 /--
@@ -329,16 +315,6 @@ def fairnessAchievableBySoftRemoval [NeZero n] (barriers : List (ClassifiedBarri
     (total : ℚ) : Prop :=
   let (_, hard) := decomposeBarriers barriers
   ∀ b ∈ hard, b.satisfies (equalAllocation total)
-
-/--
-AXIOM: If all hard barriers satisfied by equal, fairness achievable.
--/
-axiom soft_removal_sufficient [NeZero n] (barriers : List (ClassifiedBarrier n)) (total : ℚ)
-    (h : fairnessAchievableBySoftRemoval barriers total) :
-    ∃ (removals : List (ClassifiedBarrier n)),
-      (∀ r ∈ removals, r.severity = BarrierSeverity.soft) ∧
-      satisfiesAll (equalAllocation total)
-        ((barriers.filter (fun b => b ∉ removals)).map (·.toConstraint))
 
 /-! ## Part 9: Barrier Report -/
 

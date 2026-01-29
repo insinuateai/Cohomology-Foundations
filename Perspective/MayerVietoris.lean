@@ -141,14 +141,6 @@ def connectingMap (K : SimplicialComplex) (c : Cover K) :
     -- This is where the math gets technical
     0  -- Simplified placeholder
 
-/-- The connecting map sends cocycles to cocycles.
-    Since connectingMap currently returns 0 for all edges, this is trivially true. -/
-axiom connectingMap_well_defined (K : SimplicialComplex) (c : Cover K)
-    (f : Cochain c.intersection 0) (hf : IsCocycle c.intersection 0 f) :
-    IsCocycle K 1 (connectingMap K c f)
--- Proof sketch: connectingMap returns 0 on all edges.
--- For any 2-simplex s, (δ(connectingMap f))(s) = Σ sign(i) * connectingMap(face i) = Σ sign(i) * 0 = 0
-
 /-! ## Part 4: Exactness -/
 
 /-- 

@@ -243,19 +243,6 @@ def proportionalityEfficiencyConflict [NeZero n] (total : ℚ) (feasible : Set (
 /-! ## Part 6: Proportionality and Envy-Freeness -/
 
 /--
-THEOREM: For equal entitlements, envy-freeness implies proportionality
-when allocations sum to total.
-
-If no one envies anyone and the pie is fully distributed,
-everyone gets at least 1/n.
--/
-axiom envy_free_implies_proportional [NeZero n]
-    (a : Fin n → ℚ) (total : ℚ)
-    (h_sum : ∑ i : Fin n, a i = total)
-    (h_ef : isEnvyFree (fun _ _ => 1) a) :
-    isProportional a total
-
-/--
 The converse is FALSE: proportionality does NOT imply envy-freeness.
 Example: Agent 1 gets 40%, Agent 2 gets 60%. Both get ≥ 50%? No.
 But with 3 agents: 1 gets 34%, 2 gets 33%, 3 gets 33%.
@@ -277,15 +264,6 @@ Maximin allocation: maximizes the minimum utility.
 -/
 def isMaximin [NeZero n] (a : Fin n → ℚ) (feasible : Set (Fin n → ℚ)) : Prop :=
   a ∈ feasible ∧ ∀ b ∈ feasible, minUtility a ≥ minUtility b
-
-/--
-THEOREM: Maximin allocations are proportional when feasible set allows it.
--/
-axiom maximin_implies_proportional [NeZero n]
-    (a : Fin n → ℚ) (total : ℚ) (feasible : Set (Fin n → ℚ))
-    (h_maximin : isMaximin a feasible)
-    (h_exists_prop : ∃ b ∈ feasible, isProportional b total) :
-    isProportional a total
 
 /-! ## Part 8: Leximin Fairness -/
 

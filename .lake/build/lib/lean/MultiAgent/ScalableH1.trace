@@ -1,30 +1,30 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["e1a14926f0ec2f60.olean"],
-  "i": "94fac070d78c2f56.ilean",
-  "c": "c00891f2d4930a34.c"},
+ {"o": ["edef8ec70d8a0fad.olean"],
+  "i": "1cebd4c9ab298cc8.ilean",
+  "c": "94857079b7543a09.c"},
  "log":
  [{"message":
    ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.27.0/bin/lean /workspaces/Cohomology-Foundations/MultiAgent/ScalableH1.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/MultiAgent/ScalableH1.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/MultiAgent/ScalableH1.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/MultiAgent/ScalableH1.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/MultiAgent/ScalableH1.setup.json --json",
    "level": "trace"},
   {"message":
-   "MultiAgent/ScalableH1.lean:184:42: unused variable `N`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/ScalableH1.lean:212:42: unused variable `N`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/ScalableH1.lean:205:42: unused variable `N`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/ScalableH1.lean:233:42: unused variable `N`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/ScalableH1.lean:323:35: unused variable `N`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/ScalableH1.lean:381:35: unused variable `N`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/ScalableH1.lean:327:35: unused variable `N`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/ScalableH1.lean:385:35: unused variable `N`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/ScalableH1.lean:338:42: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/ScalableH1.lean:396:42: unused variable `hn`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/ScalableH1.lean:361:34: unused variable `N`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/ScalableH1.lean:419:34: unused variable `N`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"}],
  "inputs":
  [["MultiAgent.ScalableH1:deps",
@@ -43,7 +43,10 @@
         ["Mathlib.Data.Nat.Basic:importAllArts", "6b6f0b430b3c98ea"],
         ["MultiAgent.AgentNetworks transitive imports (legacy)",
          "3e0d5f3bbf7fb5d0"],
-        ["MultiAgent.AgentNetworks:importAllArts", "fe4ac6d1fc9da768"]]]]],
+        ["MultiAgent.AgentNetworks:importAllArts", "67fbf7ffd364facf"],
+        ["MultiAgent.NerveComplex transitive imports (legacy)",
+         "2b8b5ac0ac8a0d16"],
+        ["MultiAgent.NerveComplex:importAllArts", "00dbdc4ae890b1a8"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
@@ -52,9 +55,9 @@
   ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
    "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/MultiAgent/ScalableH1.lean",
-   "3bfd97f8511d1f20"],
+   "cd6811c0d2cfc75d"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "ab0470fe61555b5f"}
+ "depHash": "b419226b35a90f41"}

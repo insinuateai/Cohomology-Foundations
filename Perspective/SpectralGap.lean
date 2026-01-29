@@ -113,17 +113,9 @@ We axiomatize this since eigenvalue computation in Lean is complex.
 axiom laplacianEigenvalues (K : SimplicialComplex) [Fintype K.vertexSet] :
   List ℚ
 
-/-- First eigenvalue is always 0 -/
-axiom first_eigenvalue_zero (K : SimplicialComplex) [Fintype K.vertexSet] :
-  (laplacianEigenvalues K).head? = some 0
-
 /-- Eigenvalues are non-negative (L is positive semidefinite) -/
 axiom eigenvalues_nonneg (K : SimplicialComplex) [Fintype K.vertexSet] :
   ∀ ev ∈ laplacianEigenvalues K, ev ≥ 0
-
-/-- Eigenvalues are sorted -/
-axiom eigenvalues_sorted (K : SimplicialComplex) [Fintype K.vertexSet] :
-  (laplacianEigenvalues K).Pairwise (· ≤ ·)
 
 /--
 The spectral gap: second smallest eigenvalue λ₂.
@@ -146,16 +138,6 @@ theorem spectralGap_nonneg (K : SimplicialComplex) [Fintype K.vertexSet] :
   | some lam2 =>
     have : lam2 ∈ laplacianEigenvalues K := List.mem_of_getElem? h
     exact eigenvalues_nonneg K lam2 this
-
-/--
-THEOREM: Spectral gap > 0 iff graph is connected.
-
-λ₂ = 0 means there are multiple connected components.
-λ₂ > 0 means the graph is connected.
--/
-axiom spectralGap_pos_iff_connected (K : SimplicialComplex)
-    [Fintype K.vertexSet] [Nonempty K.vertexSet] :
-    spectralGap K > 0 ↔ (oneSkeleton K).Connected
 
 /-! ## Part 3: Convergence Time -/
 
@@ -240,27 +222,6 @@ theorem path_graph_spectral_gap (n : ℕ) (_hn : n ≥ 2) :
     -- λ₂(Pₙ) ≈ π²/n² (very small for large n)
     True := by
   trivial
-
-/--
-THEOREM: Adding edges increases spectral gap.
-
-More connections → faster convergence.
--/
-axiom add_edge_increases_gap (K : SimplicialComplex) [Fintype K.vertexSet]
-    (e : Foundations.Simplex) (he : e.card = 2) (he_new : e ∉ K.simplices) :
-    -- spectralGap(K + e) ≥ spectralGap(K)
-    True
-
-/--
-THEOREM: Cheeger inequality relates spectral gap to connectivity.
-
-λ₂/2 ≤ h(G) ≤ √(2·λ₂)
-
-where h(G) is the Cheeger constant (edge expansion).
--/
-axiom cheeger_inequality (K : SimplicialComplex) [Fintype K.vertexSet] :
-    -- Spectral gap is bounded by edge expansion
-    True
 
 /-! ## Part 5: Alignment Dynamics -/
 

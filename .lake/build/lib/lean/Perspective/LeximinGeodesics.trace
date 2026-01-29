@@ -1,15 +1,15 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["1d1dc3dd3fc98133.olean"],
-  "i": "38da61ca54465130.ilean",
+ {"o": ["023ebf58fba46cfe.olean"],
+  "i": "50a8d51fd36dc0c6.ilean",
   "c": "3181ae78df6ee73b.c"},
  "log":
  [{"message":
    ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.27.0/bin/lean /workspaces/Cohomology-Foundations/Perspective/LeximinGeodesics.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/LeximinGeodesics.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/Perspective/LeximinGeodesics.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/LeximinGeodesics.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/Perspective/LeximinGeodesics.setup.json --json",
    "level": "trace"},
   {"message":
-   "Perspective/LeximinGeodesics.lean:223:50: unused variable `feasible`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Perspective/LeximinGeodesics.lean:205:50: unused variable `feasible`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"}],
  "inputs":
  [["Perspective.LeximinGeodesics:deps",
@@ -18,9 +18,9 @@
        [["@CohomologyFoundations:extraDep", "00000000000006bb"]]],
       ["imports",
        [["Perspective.FairnessAlignmentTradeoff transitive imports (legacy)",
-         "20e476aa815d0a13"],
+         "c405d14d52950458"],
         ["Perspective.FairnessAlignmentTradeoff:importAllArts",
-         "f07129304721e512"]]]]],
+         "2401d72968a6fbf6"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
@@ -29,9 +29,9 @@
   ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
    "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/Perspective/LeximinGeodesics.lean",
-   "5e95cf5fec758cc3"],
+   "89e9455d6343e7f8"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "429cf6d1b4249683"}
+ "depHash": "d97da5b0b0224b52"}

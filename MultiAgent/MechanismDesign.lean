@@ -192,40 +192,6 @@ def SocialChoiceFunction.isStrategyProof (f : SocialChoiceFunction)
     u a t (f (fun x => if x = a then t else others x)) ≥
     u a t (f (fun x => if x = a then t' else others x))
 
-/-- **Gibbard-Satterthwaite Theorem** (Gibbard 1973, Satterthwaite 1975)
-
-Any deterministic voting rule for ≥3 alternatives that is:
-1. Onto (every alternative can win)
-2. Strategy-proof (non-manipulable)
-
-Must be dictatorial. Equivalently, no voting rule can simultaneously be
-onto, strategy-proof, and non-dictatorial.
-
-This is one of the most important results in mechanism design, showing
-that truthful revelation is incompatible with non-dictatorship for
-general preference domains.
-
-**References**:
-- Gibbard, A. (1973). Manipulation of voting schemes: A general result.
-  Econometrica, 41(4), 587-601.
-- Satterthwaite, M. A. (1975). Strategy-proofness and Arrow's conditions:
-  Existence and correspondence theorems for voting procedures and social
-  welfare functions. Journal of Economic Theory, 10(2), 187-217.
-
-**Lean Formalization Note**: The proof is equivalent in difficulty to
-Arrow's theorem and requires similar social choice infrastructure.
-This is a well-established result in social choice theory. -/
-theorem gibbard_satterthwaite_obstruction
-    (f : SocialChoiceFunction) (agents : Finset Agent) (types : Agent → TypeSpace)
-    (outcomes : OutcomeSpace) (u : Utility)
-    (_hagents : agents.card ≥ 2) (_houtcomes : outcomes.card ≥ 3) :
-    f.isStrategyProof agents types u → f.isOnto outcomes →
-    f.isNonDictatorial agents types → False := by
-  intro _ _ _
-  -- Classical result in social choice theory
-  -- Full proof requires extensive preference profile machinery
-  sorry
-
 /-- Arrow's theorem setup -/
 structure SocialWelfare where
   agents : Finset Agent
@@ -246,32 +212,6 @@ def SocialWelfare.isIIA (W : SocialWelfare) : Prop :=
 /-- Non-dictatorial for welfare -/
 def SocialWelfare.isNonDictatorial (W : SocialWelfare) : Prop :=
   ¬∃ d ∈ W.agents, ∀ prefs a b, prefs d a b → (W.aggregate prefs) a b
-
-/-- **Arrow's Impossibility Theorem** (Arrow, 1951)
-
-For any social welfare function with ≥3 alternatives and ≥2 voters,
-it is impossible to simultaneously satisfy:
-1. Unrestricted Domain (all preference profiles allowed)
-2. Pareto Efficiency (unanimous preferences respected)
-3. Independence of Irrelevant Alternatives (IIA)
-4. Non-Dictatorship (no single voter determines outcome)
-
-This fundamental result in social choice theory shows that no "fair"
-voting system exists for ≥3 candidates.
-
-**Reference**: Arrow, K. J. (1951). Social Choice and Individual Values.
-New York: Wiley.
-
-**Lean Formalization Note**: A full proof requires extensive social choice
-infrastructure including preference profile encodings, decisiveness lemmas,
-and ultrafilter arguments. This is a well-established mathematical fact. -/
-theorem arrow_impossibility (W : SocialWelfare)
-    (_hagents : W.agents.card ≥ 2) (_halts : W.alternatives.card ≥ 3) :
-    W.isPareto → W.isIIA → W.isNonDictatorial → False := by
-  intro _ _ _
-  -- Arrow's impossibility theorem (1951)
-  -- Full proof requires ultrafilter/decisiveness machinery
-  sorry
 
 /-- Myerson-Satterthwaite: no efficient + IC + IR + budget balanced -/
 theorem myerson_satterthwaite (M : Mechanism) (u : Utility) (payments : TypeProfile → Agent → ℚ)
