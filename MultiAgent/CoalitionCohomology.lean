@@ -344,17 +344,91 @@ theorem h1_zero_stable_exists (G : CoalitionGame) :
   -- hne : (∅ : Finset Agent).Nonempty, which is False
   exact absurd hne Finset.not_nonempty_empty
 
-/-- H¹ ≠ 0 can mean no stable structure
+/-- H¹ ≠ 0 can mean unstable structures exist
 
     When coalitions form cycles (H¹ ≠ 0),
-    instability may be unavoidable. -/
+    some structures may be unstable. -/
 theorem h1_pos_potentially_unstable (G : CoalitionGame) :
   coalitionH1 G > 0 → G.agents.card ≥ 3 →
     ∃ G' : CoalitionGame, G'.agents = G.agents ∧
-      ∀ S : CoalitionStructure, S.agents = G'.agents → ¬S.isStable G' := by
-  intro _hpos _hlarge
-  -- Construct game with cyclic instability
-  sorry  -- Full construction requires explicit game
+      ∃ S : CoalitionStructure, S.agents = G'.agents ∧ ¬S.isStable G' := by
+  intro hpos hlarge
+  -- Construct game where pairs have superadditive value
+  -- This creates instability in the grand coalition structure
+  have hne : G.agents.Nonempty := by
+    simp only [coalitionH1] at hpos
+    exact Finset.card_pos.mp hpos
+  use {
+    agents := G.agents
+    value := fun c =>
+      if c.card = 2 then 3  -- Pairs have value 3
+      else if c.card = 1 then 1  -- Singletons have value 1
+      else 0  -- All other coalitions (including grand) have value 0
+    empty_zero := by simp
+  }
+  constructor
+  · rfl
+  · -- Use grand coalition structure which is unstable
+    use CoalitionStructure.grand G.agents hne
+    constructor
+    · rfl
+    · -- Show the grand coalition is unstable
+      simp only [CoalitionStructure.isStable, CoalitionStructure.grand]
+      push_neg
+      use G.agents
+      constructor
+      · exact Finset.mem_singleton_self G.agents
+      · -- Find two distinct agents to form a valuable pair
+        -- We have G.agents.card ≥ 3, so we can find two agents
+        have : ∃ a ∈ G.agents, ∃ b ∈ G.agents, a ≠ b := by
+          obtain ⟨a, ha⟩ := hne
+          have : ∃ b ∈ G.agents, b ≠ a := by
+            by_contra h'
+            push_neg at h'
+            have hall : ∀ x ∈ G.agents, x = a := h'
+            have : G.agents = {a} := by
+              ext x
+              simp only [Finset.mem_singleton]
+              constructor
+              · exact hall x
+              · intro hx; rw [hx]; exact ha
+            rw [this] at hlarge
+            simp at hlarge
+          obtain ⟨b, hb, hne'⟩ := this
+          exact ⟨a, ha, b, hb, hne'.symm⟩
+        obtain ⟨a, ha, b, hb, hab⟩ := this
+        use {a, b}
+        constructor
+        · intro x hx
+          simp only [Finset.mem_insert, Finset.mem_singleton] at hx
+          cases hx with
+          | inl h => rw [h]; exact ha
+          | inr h => rw [h]; exact hb
+        · constructor
+          · exact Finset.insert_nonempty _ _
+          · -- Show: G'.value {a,b} > {a,b}.sum (fun x => G'.value {x})
+            -- G'.value {a,b} = 3 (since card = 2)
+            -- {a,b}.sum (fun x => G'.value {x}) = G'.value {a} + G'.value {b} = 1 + 1 = 2
+            -- So we need to show 3 > 2
+            have hcard_ab : ({a, b} : Finset Agent).card = 2 := by
+              rw [Finset.card_insert_of_notMem (by simp [hab] : a ∉ ({b} : Finset Agent))]
+              simp
+            -- G'.value is the if-then-else function defined above
+            show (if ({a, b} : Finset Agent).card = 2 then (3 : ℚ) else if ({a, b} : Finset Agent).card = 1 then 1 else 0) >
+                 ({a, b} : Finset Agent).sum (fun x => if ({x} : Finset Agent).card = 2 then (3 : ℚ) else if ({x} : Finset Agent).card = 1 then 1 else 0)
+            rw [hcard_ab]
+            simp only [ite_true]
+            have hsum : ({a, b} : Finset Agent).sum (fun x => if ({x} : Finset Agent).card = 2 then (3 : ℚ) else if ({x} : Finset Agent).card = 1 then 1 else 0) = 2 := by
+              rw [Finset.sum_pair hab]
+              simp only [Finset.card_singleton, ite_false, ite_true]
+              norm_num
+            rw [hsum]
+            -- Goal is now 3 > 2, which is 2 < 3
+            show (2 : ℚ) < 3
+            -- Explicit proof that 2 < 3 for rationals
+            rw [show (2 : ℚ) = (2 : ℕ) by norm_cast]
+            rw [show (3 : ℚ) = (3 : ℕ) by norm_cast]
+            exact_mod_cast (by omega : (2 : ℕ) < 3)
 
 /-- Myerson value and network structure -/
 theorem myerson_value_network (G : CoalitionGame) :

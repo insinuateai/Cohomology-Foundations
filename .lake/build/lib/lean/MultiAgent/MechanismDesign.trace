@@ -1,8 +1,8 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["70ca87163497b6d6.olean"],
-  "i": "debefff670a11a99.ilean",
+ {"o": ["5bf28e06c53419bc.olean"],
+  "i": "267b3055ced9efe1.ilean",
   "c": "5a24662f3e138b1f.c"},
  "log":
  [{"message":
@@ -18,40 +18,37 @@
    "MultiAgent/MechanismDesign.lean:185:29: unused variable `types`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/MechanismDesign.lean:272:5: unused variable `hagents`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/MechanismDesign.lean:218:5: unused variable `hagents`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/MechanismDesign.lean:292:44: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/MechanismDesign.lean:238:44: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/MechanismDesign.lean:299:60: This simp argument is unused:\n  AgentNetwork.size\n\nHint: Omit it from the simp argument list.\n  simp only [AgentNetwork.isForest, AgentNetwork.isTrivial, A̵g̵e̵n̵t̵N̵e̵t̵w̵o̵r̵k̵.̵s̵i̵z̵e̵,̵\n  ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵ ̵mechanismNetwork]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+   "MultiAgent/MechanismDesign.lean:249:51: unused variable `u`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/MechanismDesign.lean:304:51: unused variable `u`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/MechanismDesign.lean:250:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/MechanismDesign.lean:305:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/MechanismDesign.lean:266:51: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/MechanismDesign.lean:321:51: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/MechanismDesign.lean:270:51: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/MechanismDesign.lean:325:51: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/MechanismDesign.lean:278:43: unused variable `u`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/MechanismDesign.lean:333:43: unused variable `u`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/MechanismDesign.lean:288:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/MechanismDesign.lean:343:5: unused variable `h`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/MechanismDesign.lean:351:51: unused variable `valuations`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/MechanismDesign.lean:382:51: unused variable `valuations`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/MechanismDesign.lean:352:5: unused variable `hne`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/MechanismDesign.lean:383:5: unused variable `hne`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
-   "level": "warning"},
-  {"message":
-   "MultiAgent/MechanismDesign.lean:410:49: unused variable `hne`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/MechanismDesign.lean:379:49: unused variable `hne`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"}],
  "inputs":
  [["MultiAgent.MechanismDesign:deps",
@@ -77,7 +74,7 @@
          "3b840309801c948c"],
         ["MultiAgent.AgentNetworks transitive imports (legacy)",
          "3e0d5f3bbf7fb5d0"],
-        ["MultiAgent.AgentNetworks:importAllArts", "d1e6bf35e938cf75"]]]]],
+        ["MultiAgent.AgentNetworks:importAllArts", "67fbf7ffd364facf"]]]]],
     ["libs",
      [["import dynlibs", "00000000000006bb"],
       ["package external libraries", "00000000000006bb"],
@@ -86,9 +83,9 @@
   ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
    "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/MultiAgent/MechanismDesign.lean",
-   "fef724a679a83ef4"],
+   "6bd1169d61f013c2"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "be8d5ecfd9f6d9cf"}
+ "depHash": "9cd7874995ed5d90"}

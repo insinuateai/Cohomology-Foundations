@@ -1,45 +1,42 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["29348261a80270a4.olean"],
-  "i": "1f5726484f9f4077.ilean",
+ {"o": ["e4b2e176a14d5d9e.olean"],
+  "i": "b265e9c7e96749be.ilean",
   "c": "1def769483f7c67e.c"},
  "log":
  [{"message":
    ".> LEAN_PATH=/workspaces/Cohomology-Foundations/.lake/packages/Cli/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/batteries/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/Qq/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/aesop/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/proofwidgets/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/importGraph/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/plausible/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/packages/mathlib/.lake/build/lib/lean:/workspaces/Cohomology-Foundations/.lake/build/lib/lean /home/vscode/.elan/toolchains/leanprover--lean4---v4.27.0/bin/lean /workspaces/Cohomology-Foundations/MultiAgent/GlobalLocalDuality.lean -o /workspaces/Cohomology-Foundations/.lake/build/lib/lean/MultiAgent/GlobalLocalDuality.olean -i /workspaces/Cohomology-Foundations/.lake/build/lib/lean/MultiAgent/GlobalLocalDuality.ilean -c /workspaces/Cohomology-Foundations/.lake/build/ir/MultiAgent/GlobalLocalDuality.c --setup /workspaces/Cohomology-Foundations/.lake/build/ir/MultiAgent/GlobalLocalDuality.setup.json --json",
    "level": "trace"},
   {"message":
-   "MultiAgent/GlobalLocalDuality.lean:301:64: unused variable `hS`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/GlobalLocalDuality.lean:302:64: unused variable `hS`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/GlobalLocalDuality.lean:310:54: unused variable `hne`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/GlobalLocalDuality.lean:311:54: unused variable `hne`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/GlobalLocalDuality.lean:316:19: unused variable `N`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/GlobalLocalDuality.lean:317:19: unused variable `N`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/GlobalLocalDuality.lean:351:22: unused variable `N`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/GlobalLocalDuality.lean:352:22: unused variable `N`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/GlobalLocalDuality.lean:379:8: declaration uses 'sorry'",
+   "MultiAgent/GlobalLocalDuality.lean:462:21: unused variable `N`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/GlobalLocalDuality.lean:437:21: unused variable `N`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/GlobalLocalDuality.lean:465:25: unused variable `N`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/GlobalLocalDuality.lean:440:25: unused variable `N`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/GlobalLocalDuality.lean:472:24: unused variable `N`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/GlobalLocalDuality.lean:447:24: unused variable `N`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/GlobalLocalDuality.lean:500:24: unused variable `N`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/GlobalLocalDuality.lean:475:24: unused variable `N`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/GlobalLocalDuality.lean:507:28: unused variable `assignments`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"},
   {"message":
-   "MultiAgent/GlobalLocalDuality.lean:482:28: unused variable `assignments`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
-   "level": "warning"},
-  {"message":
-   "MultiAgent/GlobalLocalDuality.lean:553:25: unused variable `N`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "MultiAgent/GlobalLocalDuality.lean:578:25: unused variable `N`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "level": "warning"}],
  "inputs":
  [["MultiAgent.GlobalLocalDuality:deps",
@@ -67,9 +64,9 @@
   ["Lean 4.27.0, commit db93fe1608548721853390a10cd40580fe7d22ae",
    "9a2be90fd35343e5"],
   ["/workspaces/Cohomology-Foundations/MultiAgent/GlobalLocalDuality.lean",
-   "e2a4efaee50c9da4"],
+   "459f8c68e76cc858"],
   ["options",
    [["-Dpp.unicode.fun=true", "9b94070140457fab"],
     ["-DautoImplicit=false", "4a85acb881fd49d0"]]],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "cca94bb36980e11d"}
+ "depHash": "f51ba946aad54002"}

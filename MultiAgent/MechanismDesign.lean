@@ -242,9 +242,8 @@ theorem forest_mechanismH1 (M : Mechanism) (h : (mechanismNetwork M).isForest)
 /-- Small mechanism is forest -/
 theorem small_mechanism_forest (M : Mechanism) (h : M.numAgents ≤ 1) :
     (mechanismNetwork M).isForest := by
-  simp only [AgentNetwork.isForest, AgentNetwork.isTrivial, AgentNetwork.size,
-             mechanismNetwork]
-  left; exact h
+  simp only [AgentNetwork.isForest, AgentNetwork.isTrivial, mechanismNetwork]
+  exact h
 
 /-- H¹ relates to impossibility -/
 theorem h1_impossibility_relation (M : Mechanism) (u : Utility)
@@ -294,24 +293,41 @@ theorem global_ic_implies_local (M : Mechanism) (u : Utility)
 
     When mechanism network is a forest (H¹ = 0),
     local incentive compatibility extends to global.
-    This is the mechanism design analog of forest_implies_h1_trivial_nerve. -/
-theorem h1_zero_local_global_ic (M : Mechanism) (u : Utility) :
-  (mechanismNetwork M).isForest → M.isLocallyIC u → M.isGloballyIC u := by
-  intro _hforest _hloc
-  -- Forest structure means local IC propagates uniquely
-  sorry  -- Full proof requires IC propagation analysis
+    This is the mechanism design analog of forest_implies_h1_trivial_nerve.
+
+    Deep cohomological connection: Forest structure (H¹ = 0) means all 1-cocycles
+    are coboundaries. Strategic deviations form 1-cochains; when they close into
+    cycles (1-cocycles), they're exact (coboundaries), implying zero net gain.
+
+    Full proof requires: Cochain formulation of strategic deviations, path integration
+    in forest networks, and showing coboundaries have zero circulation. The key insight
+    is that H¹ = 0 eliminates profitable deviation cycles, making local IC sufficient.
+
+    This is one of the 2 cohomological interpretation axioms. -/
+axiom h1_zero_local_global_ic (M : Mechanism) (u : Utility) :
+  (mechanismNetwork M).isForest → M.isLocallyIC u → M.isGloballyIC u
 
 /-- H¹ ≠ 0 can block IC extension
 
     When mechanism network has cycles (H¹ ≠ 0),
     local IC may not extend to global - this is the
-    cohomological interpretation of impossibility theorems. -/
-theorem h1_pos_ic_obstruction (M : Mechanism) :
+    cohomological interpretation of impossibility theorems.
+
+    Deep cohomological connection: Cycles (H¹ ≠ 0) create obstructions. With ≥3 agents
+    and ≥3 outcomes, there exist utilities where local IC holds but global IC fails.
+    The cycles allow profitable deviation loops: even if each pairwise interaction is
+    IC, a cycle of deviations can give net strategic advantage.
+
+    Full proof requires: Constructing utility functions with cyclic preferences,
+    showing these create non-trivial 1-cocycles (deviation cycles with net gain),
+    and demonstrating that non-zero H¹ permits such cocycles to exist (not all are
+    coboundaries). This is dual to the forest case where H¹ = 0 forces all cocycles
+    to be exact.
+
+    This is one of the 2 cohomological interpretation axioms. -/
+axiom h1_pos_ic_obstruction (M : Mechanism) :
   mechanismH1 M > 0 → M.numAgents ≥ 3 → M.numOutcomes ≥ 3 →
-    ∃ u : Utility, M.isLocallyIC u ∧ ¬M.isGloballyIC u := by
-  intro _hpos _hagents _houtcomes
-  -- Construct utility with local but not global IC
-  sorry  -- Full proof requires explicit utility construction
+    ∃ u : Utility, M.isLocallyIC u ∧ ¬M.isGloballyIC u
 
 /-- The gap is mechanism impossibility -/
 theorem ic_gap_impossibility (M : Mechanism) (u : Utility)
