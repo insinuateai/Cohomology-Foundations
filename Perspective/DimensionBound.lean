@@ -43,6 +43,7 @@ AXIOMS: Will need some (novel territory)
 import Perspective.MayerVietoris
 import H1Characterization.Characterization
 import Infrastructure.GraphTheoryUtils
+import Infrastructure.TreeGraphInfra
 
 namespace DimensionBound
 
@@ -124,18 +125,8 @@ lemma edge_component_lower_bound (G : SimpleGraph V) [Fintype V] [DecidableRel G
     have hV : Fintype.card V = 0 := Fintype.card_eq_zero
     simp only [hV, zero_le]
   · push_neg at h_empty
-    -- Non-empty case: use the fact that components partition vertices
-    -- and each component contributes at least n_i - 1 to edge count.
-    --
-    -- The formal proof would sum over components:
-    -- - Consider a spanning forest (maximal acyclic subgraph)
-    -- - A spanning forest has exactly |V| - c edges
-    -- - The original graph has at least as many edges
-    -- - Therefore |E| ≥ |V| - c, so |E| + c ≥ |V|
-    --
-    -- This is a standard graph theory result that requires summing
-    -- over connected components. We use sorry with mathematical justification.
-    sorry
+    -- Non-empty case: use the infrastructure from TreeGraphInfra
+    exact Infrastructure.edges_plus_components_ge_vertices G
 
 /-- Forward direction: If a graph is acyclic, then |E| + c = |V|.
 
@@ -161,24 +152,8 @@ lemma acyclic_implies_euler_eq (G : SimpleGraph V) [Fintype V] [DecidableRel G.A
       obtain ⟨v, rfl⟩ := c.exists_rep
       exact SimpleGraph.ConnectedComponent.eq.mpr (h_conn.preconnected v (Classical.arbitrary V))
     omega
-  · -- Disconnected case: multiple components, each is a tree
-    -- This requires summing the tree formula over all components.
-    -- Each component i has n_i vertices and n_i - 1 edges.
-    -- Sum: |E| = Σ(n_i - 1) = Σn_i - c = |V| - c
-    -- So |E| + c = |V|.
-    --
-    -- The formal proof requires:
-    -- 1. Partition vertices by component: Σn_i = |V|
-    -- 2. Partition edges by component (edges only within components for acyclic)
-    -- 3. Apply tree formula to each component: |E_i| = n_i - 1
-    -- 4. Sum: |E| = Σ|E_i| = Σ(n_i - 1) = |V| - c
-    --
-    -- We prove this by showing that the total edge count plus component count
-    -- equals the vertex count through the spanning forest argument.
-    --
-    -- Using the fact that a spanning forest (maximal acyclic spanning subgraph)
-    -- of an acyclic graph is the graph itself, with exactly |V| - c edges.
-    sorry
+  · -- Disconnected case: use the infrastructure from TreeGraphInfra
+    exact Infrastructure.acyclic_euler_eq G h_acyclic
 
 /-- Backward direction: If |E| + c = |V|, then the graph is acyclic.
 
@@ -190,27 +165,8 @@ lemma euler_eq_implies_acyclic (G : SimpleGraph V) [Fintype V] [DecidableEq V] [
     [Fintype G.edgeSet] [Fintype G.ConnectedComponent]
     (h_euler : G.edgeFinset.card + Fintype.card G.ConnectedComponent = Fintype.card V) :
     G.IsAcyclic := by
-  -- Proof by contraposition: if not acyclic, then |E| + c ≠ |V|
-  by_contra h_not_acyclic
-  -- G has a cycle: use the equivalence (∃ v p, p.IsCycle) ↔ ¬IsAcyclic
-  have h_has_cycle := (Infrastructure.has_cycle_iff_not_acyclic G).mpr h_not_acyclic
-  obtain ⟨v, p, hp⟩ := h_has_cycle
-  -- A cycle in component c means that component has more edges than a tree would
-  -- Tree with n vertices: n - 1 edges
-  -- This component: at least n edges (one extra for the cycle)
-  -- So |E| > |V| - c, contradicting |E| + c = |V|
-  --
-  -- The key insight: in a component with a cycle, removing one cycle edge
-  -- keeps the component connected, so that component has > n_i - 1 edges.
-  --
-  -- Formal proof requires:
-  -- 1. Identify the component containing the cycle
-  -- 2. Show that component has at least n_i edges (not n_i - 1)
-  -- 3. All other components contribute at least n_j - 1 edges
-  -- 4. Sum shows |E| > |V| - c
-  --
-  -- For now we use the standard graph theory result.
-  sorry
+  -- Use the infrastructure from TreeGraphInfra
+  exact Infrastructure.euler_eq_implies_acyclic' G h_euler
 
 /-- The forest-Euler characterization: A graph is acyclic iff |E| + c = |V|. -/
 theorem acyclic_iff_euler_eq (G : SimpleGraph V) [Fintype V] [DecidableEq V] [DecidableRel G.Adj]

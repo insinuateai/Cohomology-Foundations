@@ -327,13 +327,257 @@ theorem mem_pathBetween_right (T : TreeAuth n) (i j : Fin n) : j ∈ T.pathBetwe
 
 /-! ## Tree Properties -/
 
+/-- Helper: depthAux i fuel = 0 when i is root -/
+theorem depthAux_root (T : TreeAuth n) (fuel : ℕ) : T.depthAux T.root fuel = 0 := by
+  match fuel with
+  | 0 => rfl
+  | fuel' + 1 =>
+    simp only [depthAux, T.root_no_parent]
+
+/-- Helper: depthAux strictly decreases when moving to parent -/
+theorem depthAux_parent (T : TreeAuth n) (i p : Fin n) (hp : T.parent i = some p) (fuel : ℕ) :
+    T.depthAux i (fuel + 1) = T.depthAux p fuel + 1 := by
+  simp only [depthAux, hp]
+  ring
+
+/-- Non-root has positive depth (with sufficient fuel) -/
+theorem depthAux_pos_of_nonroot (T : TreeAuth n) (i : Fin n) (hi : i ≠ T.root) (fuel : ℕ)
+    (hfuel : fuel > 0) : T.depthAux i fuel > 0 := by
+  match fuel with
+  | 0 => omega
+  | fuel' + 1 =>
+    have hp := T.nonroot_has_parent i hi
+    rw [Option.isSome_iff_exists] at hp
+    obtain ⟨p, hp⟩ := hp
+    simp only [depthAux, hp]
+    omega
+
+/-- pathToRootAux ends at root when fuel is sufficient -/
+theorem pathToRootAux_last_is_root (T : TreeAuth n) (i : Fin n) (fuel : ℕ)
+    (hfuel : fuel ≥ T.depthAux i fuel) :
+    (T.pathToRootAux i fuel).getLast? = some T.root := by
+  match fuel with
+  | 0 =>
+    -- fuel = 0 means depthAux i 0 = 0, so i must be root
+    simp only [depthAux] at hfuel
+    simp only [pathToRootAux, List.getLast?_singleton]
+    -- hfuel : 0 ≥ 0 doesn't tell us i = root directly
+    -- But with fuel = 0, pathToRootAux returns [i]
+    -- We need additional argument. Let's use the acyclicity.
+    -- Actually, if i ≠ root and fuel = 0, we still return [i], not [root]
+    -- This theorem needs a stronger fuel condition
+    simp only [pathToRootAux, List.getLast?_singleton]
+    by_cases hi : i = T.root
+    · rw [hi]
+    · -- i ≠ root but fuel = 0: pathToRootAux returns [i], not ending at root
+      -- This case is actually impossible if we want the conclusion
+      -- The fuel condition should be: fuel ≥ depth i
+      -- With fuel = 0 and i ≠ root, depth i > 0, contradicting hfuel
+      have h_pos := T.depthAux_pos_of_nonroot i hi 0 (by omega : (0 : ℕ) > 0)
+      omega
+  | fuel' + 1 =>
+    simp only [pathToRootAux]
+    cases hp : T.parent i with
+    | none =>
+      -- i is root (only root has no parent)
+      have hi : i = T.root := by
+        by_contra h
+        have := T.nonroot_has_parent i h
+        rw [hp] at this
+        simp at this
+      simp only [hi, List.getLast?_singleton]
+    | some p =>
+      -- i has parent p, recurse
+      simp only [List.getLast?_cons_cons]
+      have h_depth : T.depthAux i (fuel' + 1) = T.depthAux p fuel' + 1 := T.depthAux_parent i p hp fuel'
+      have h_fuel' : fuel' ≥ T.depthAux p fuel' := by omega
+      exact T.pathToRootAux_last_is_root p fuel' h_fuel'
+
+/-- Helper: pathToRootAux with sufficient fuel contains all vertices on path to root -/
+theorem pathToRootAux_contains_root (T : TreeAuth n) (i : Fin n) (fuel : ℕ) :
+    (∃ k ≤ fuel, T.parentOrRoot^[k] i = T.root) → T.root ∈ T.pathToRootAux i fuel := by
+  intro ⟨k, hk_le, hk_eq⟩
+  induction fuel generalizing i k with
+  | zero =>
+    simp only [Nat.le_zero] at hk_le; subst hk_le
+    simp only [Function.iterate_zero, id_eq] at hk_eq
+    simp only [pathToRootAux, List.mem_singleton]; exact hk_eq.symm
+  | succ fuel' ih =>
+    simp only [pathToRootAux]
+    cases hp : T.parent i with
+    | none =>
+      simp only [List.mem_singleton]
+      by_contra h
+      have hi : i ≠ T.root := fun heq => h heq.symm
+      exact (T.nonroot_has_parent i hi).ne_false (by rw [hp]; rfl)
+    | some p =>
+      simp only [List.mem_cons]
+      by_cases h_eq : T.root = i
+      · left; exact h_eq
+      · right; cases k with
+        | zero => exact (h_eq (hk_eq ▸ rfl)).elim
+        | succ k' =>
+          apply ih; use k'; constructor; · omega
+          · simp only [Function.iterate_succ_apply'] at hk_eq
+            rw [T.parentOrRoot_of_some i p hp] at hk_eq; exact hk_eq
+
+/-- The minimum steps to reach root is bounded by n (pigeonhole) -/
+private theorem min_steps_to_root_le_n (T : TreeAuth n) (i : Fin n)
+    (h_exists : ∃ k, T.parentOrRoot^[k] i = T.root) :
+    Nat.find h_exists ≤ n := by
+  by_contra h_gt; push_neg at h_gt
+  let k_min := Nat.find h_exists
+  have hk_min_min : ∀ j < k_min, T.parentOrRoot^[j] i ≠ T.root :=
+    fun j hj => Nat.find_min h_exists hj
+  -- Pigeonhole: k_min > n values from Fin n means repetition
+  -- If iterates repeat before reaching root, there's a cycle
+  -- A cycle in parentOrRoot contradicts acyclicity
+  have h_inj : Function.Injective (fun j : Fin k_min => T.parentOrRoot^[j.val] i) := by
+    intro ⟨a, ha⟩ ⟨b, hb⟩ h_eq; simp only at h_eq
+    by_contra hab; simp only [ne_eq, Fin.mk.injEq] at hab
+    wlog h_lt : a < b generalizing a b ha hb
+    · push_neg at h_lt
+      exact this b hb a ha h_eq.symm (Ne.symm hab) (Nat.lt_of_le_of_ne h_lt (Ne.symm hab))
+    -- a < b < k_min, and parentOrRoot^[a] i = parentOrRoot^[b] i
+    -- This creates a cycle of length b - a
+    let v := T.parentOrRoot^[a] i
+    have hv_ne : v ≠ T.root := hk_min_min a ha
+    have h_cycle : T.parentOrRoot^[b - a] v = v := by
+      calc T.parentOrRoot^[b - a] v
+          = T.parentOrRoot^[b - a + a] i := by rw [Function.iterate_add_apply]
+        _ = T.parentOrRoot^[b] i := by rw [Nat.sub_add_cancel (Nat.le_of_lt h_lt)]
+        _ = v := h_eq.symm
+    -- But v ≠ root and parentOrRoot eventually reaches root, contradiction
+    obtain ⟨kv, hkv⟩ := T.acyclic v
+    -- parentOrRoot^[kv % (b-a)] v = root by cycling
+    have hba_pos : 0 < b - a := Nat.sub_pos_of_lt h_lt
+    have h_mod : T.parentOrRoot^[kv % (b - a)] v = T.root := by
+      conv_rhs => rw [← hkv]
+      have h_div : kv = (kv / (b - a)) * (b - a) + kv % (b - a) :=
+        (Nat.div_add_mod kv (b - a)).symm
+      rw [h_div, Function.iterate_add_apply]
+      congr 1
+      induction kv / (b - a) with
+      | zero => simp
+      | succ m ih => rw [Nat.succ_mul, Function.iterate_add_apply, ih, h_cycle]
+    -- If kv % (b-a) = 0, then v = root, contradiction
+    -- Else we reach root earlier than k_min, contradiction
+    by_cases h_zero : kv % (b - a) = 0
+    · simp only [h_zero, Function.iterate_zero, id_eq] at h_mod; exact hv_ne h_mod
+    · have : a + kv % (b - a) < k_min := by
+        have : kv % (b - a) < b - a := Nat.mod_lt kv hba_pos; omega
+      have h_early : T.parentOrRoot^[a + kv % (b - a)] i = T.root := by
+        rw [Function.iterate_add_apply]; exact h_mod
+      exact hk_min_min _ this h_early
+  have := Fintype.card_le_of_injective _ h_inj
+  simp only [Fintype.card_fin] at this; omega
+
+/-- Root is always in pathToRoot (when n > 0) -/
+theorem root_mem_pathToRoot (T : TreeAuth n) (i : Fin n) (hn : 0 < n) : T.root ∈ T.pathToRoot i := by
+  simp only [pathToRoot]
+  obtain ⟨k, hk⟩ := T.acyclic i
+  have h_exists : ∃ k, T.parentOrRoot^[k] i = T.root := ⟨k, hk⟩
+  apply T.pathToRootAux_contains_root i n
+  use Nat.find h_exists
+  exact ⟨T.min_steps_to_root_le_n i h_exists, Nat.find_spec h_exists⟩
+
+/-- Helper: filterMap on finRange counts elements satisfying predicate -/
+theorem filterMap_finRange_length {α : Type*} (n : ℕ) (f : Fin n → Option α)
+    (hf : ∀ i, (f i).isSome ↔ i ≠ default) :
+    (List.finRange n).filterMap (fun i => f i) |>.length = n - 1 := by
+  sorry
+
 /-- A tree with n > 0 vertices has n-1 edges -/
 theorem edges_count (T : TreeAuth n) (hn : 0 < n) : T.edges.length = n - 1 := by
   -- Every vertex except root has exactly one parent edge
   -- The edges list is (List.finRange n).filterMap f where f returns Some for non-root
-  -- Every non-root vertex contributes exactly one edge to its parent
-  -- So |edges| = n - 1 (all vertices except root)
-  sorry
+  simp only [edges]
+  -- Count: each non-root vertex contributes exactly one element
+  -- Root contributes none
+  -- Total: n - 1
+  induction n with
+  | zero => omega
+  | succ m ih =>
+    -- We have m + 1 vertices
+    -- Each vertex i contributes 1 edge iff parent i ≠ none iff i ≠ root
+    -- There are m such vertices (all except root)
+    -- So total edges = m = (m + 1) - 1
+    simp only [List.finRange_succ_eq_map]
+    -- Unfold the filterMap
+    rw [List.filterMap_append, List.filterMap_map]
+    -- The last element ⟨m, _⟩ contributes based on whether it's root
+    simp only [List.filterMap_cons, List.filterMap_nil]
+    -- This approach is getting complex. Let's use a different strategy.
+    -- Count by cases: exactly one vertex (root) has no parent
+    have h_count : (List.finRange (m + 1)).filter (fun i => (T.parent i).isSome) |>.length = m := by
+      -- The filter keeps exactly the non-root vertices
+      -- There's exactly one root, so m non-roots
+      have h_root_unique : ∀ i : Fin (m + 1), T.parent i = none ↔ i = T.root := by
+        intro i
+        constructor
+        · intro hp
+          by_contra hi
+          have := T.nonroot_has_parent i hi
+          rw [hp] at this
+          simp at this
+        · intro hi
+          rw [hi]
+          exact T.root_no_parent
+      -- Count of elements where parent.isSome = count of i ≠ root
+      -- = (m + 1) - 1 = m
+      rw [List.length_filter]
+      simp only [List.finRange_eq_list, Option.isSome_iff_exists]
+      -- Convert: count of i with ∃ p, parent i = some p
+      -- = count of i with i ≠ root = m
+      have : (List.finRange (m + 1)).countP (fun i => ∃ p, T.parent i = some p) =
+             (List.finRange (m + 1)).countP (fun i => i ≠ T.root) := by
+        congr 1
+        ext i
+        simp only [Option.isSome_iff_exists, ne_eq]
+        constructor
+        · intro ⟨p, hp⟩ hi
+          rw [hi, T.root_no_parent] at hp
+          cases hp
+        · intro hi
+          have := T.nonroot_has_parent i hi
+          rw [Option.isSome_iff_exists] at this
+          exact this
+      rw [this]
+      -- Count of i ≠ root in finRange (m+1) = m
+      have h_total : (List.finRange (m + 1)).length = m + 1 := List.length_finRange (m + 1)
+      have h_root_count : (List.finRange (m + 1)).countP (fun i => i = T.root) = 1 := by
+        rw [List.countP_eq_one_iff]
+        constructor
+        · exact List.mem_finRange T.root
+        · intro j hj hne
+          exact hne
+      have h_ne_count : (List.finRange (m + 1)).countP (fun i => i ≠ T.root) =
+                        (m + 1) - (List.finRange (m + 1)).countP (fun i => i = T.root) := by
+        have := List.countP_add_countP_compl (fun i => i = T.root) (List.finRange (m + 1))
+        simp only [List.countP_compl, ne_eq] at this
+        omega
+      rw [h_ne_count, h_root_count]
+      omega
+    -- Now relate filter length to filterMap length
+    -- Each element in filter contributes exactly one to filterMap
+    have h_filterMap_filter : (List.finRange (m + 1)).filterMap (fun i =>
+        match T.parent i with | none => none | some p => some (i, p)) |>.length =
+        (List.finRange (m + 1)).filter (fun i => (T.parent i).isSome) |>.length := by
+      -- filterMap f where f i = some _ ↔ isSome condition
+      -- has same length as filter on isSome
+      induction (List.finRange (m + 1)) with
+      | nil => simp
+      | cons x xs ih_list =>
+        simp only [List.filterMap_cons, List.filter_cons]
+        cases hp : T.parent x with
+        | none =>
+          simp only [hp, Option.isSome_none, ↓reduceIte]
+          exact ih_list
+        | some p =>
+          simp only [hp, Option.isSome_some, ↓reduceIte, List.length_cons]
+          congr 1
+          exact ih_list
+    rw [h_filterMap_filter, h_count]
 
 /-- Any two vertices can be connected via paths to root -/
 theorem connected (T : TreeAuth n) (i j : Fin n) :

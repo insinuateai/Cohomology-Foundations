@@ -271,4 +271,494 @@ theorem hollowTetrahedron_h2_structure :
    hollowTetrahedron_no_3simplices,
    hollowTetrahedron_all_2cocycles⟩
 
+/-! ## Edges Enumeration -/
+
+/-- The hollow tetrahedron has exactly 6 edges (1-simplices) -/
+lemma hollowTetrahedron_edges_finite :
+    hollowTetrahedron.ksimplices 1 =
+    {Simplex.edge 0 1, Simplex.edge 0 2, Simplex.edge 0 3,
+     Simplex.edge 1 2, Simplex.edge 1 3, Simplex.edge 2 3} := by
+  ext s
+  simp only [SimplicialComplex.ksimplices, Set.mem_setOf_eq, Set.mem_insert_iff,
+             Set.mem_singleton_iff]
+  constructor
+  · intro ⟨hs, hcard⟩
+    simp only [hollowTetrahedron, Set.mem_setOf_eq] at hs
+    have ⟨hv, _⟩ := hs
+    -- s has 2 elements, all < 4
+    have h2 : s.card = 2 := hcard
+    -- s is a 2-element subset of {0,1,2,3}
+    have hsub : s ⊆ ({0, 1, 2, 3} : Finset ℕ) := by
+      intro x hx
+      simp only [Finset.mem_insert, Finset.mem_singleton]
+      have := hv x hx
+      omega
+    have hsub_mem : s ∈ ({0, 1, 2, 3} : Finset ℕ).powerset.filter (fun t => t.card = 2) := by
+      simp only [Finset.mem_filter, Finset.mem_powerset]
+      exact ⟨hsub, h2⟩
+    have enum : ({0, 1, 2, 3} : Finset ℕ).powerset.filter (fun t => t.card = 2) =
+               {Simplex.edge 0 1, Simplex.edge 0 2, Simplex.edge 0 3,
+                Simplex.edge 1 2, Simplex.edge 1 3, Simplex.edge 2 3} := by
+      native_decide
+    rw [enum] at hsub_mem
+    simp only [Finset.mem_insert, Finset.mem_singleton] at hsub_mem
+    rcases hsub_mem with h | h | h | h | h | h <;> (first | left; exact h | right; assumption)
+  · intro h
+    rcases h with h | h | h | h | h | h <;> (
+      subst h
+      constructor
+      · exact hollowTetrahedron_has_all_edges _ _ (by decide)
+      · simp only [Simplex.edge]; native_decide
+    )
+
+/-! ## H² Non-Triviality -/
+
+/-- The witness 2-cochain: assigns 1 to triangle {0,1,2} and 0 to others -/
+def witness2Cochain : Cochain hollowTetrahedron 2 :=
+  fun ⟨s, _⟩ => if s = Simplex.triangle 0 1 2 then 1 else 0
+
+/-- The witness 2-cochain has value 1 on triangle {0,1,2} -/
+lemma witness2Cochain_on_012 :
+    witness2Cochain ⟨Simplex.triangle 0 1 2,
+      ⟨hollowTetrahedron_has_all_triangles 0 1 2 (by decide) (by decide) (by decide),
+       by simp [Simplex.triangle]; native_decide⟩⟩ = 1 := by
+  simp [witness2Cochain]
+
+/-- The witness 2-cochain has value 0 on triangle {0,1,3} -/
+lemma witness2Cochain_on_013 :
+    witness2Cochain ⟨Simplex.triangle 0 1 3,
+      ⟨hollowTetrahedron_has_all_triangles 0 1 3 (by decide) (by decide) (by decide),
+       by simp [Simplex.triangle]; native_decide⟩⟩ = 0 := by
+  simp only [witness2Cochain]
+  have h : Simplex.triangle 0 1 3 ≠ Simplex.triangle 0 1 2 := by
+    simp [Simplex.triangle]; native_decide
+  simp [h]
+
+/-- The witness 2-cochain has value 0 on triangle {0,2,3} -/
+lemma witness2Cochain_on_023 :
+    witness2Cochain ⟨Simplex.triangle 0 2 3,
+      ⟨hollowTetrahedron_has_all_triangles 0 2 3 (by decide) (by decide) (by decide),
+       by simp [Simplex.triangle]; native_decide⟩⟩ = 0 := by
+  simp only [witness2Cochain]
+  have h : Simplex.triangle 0 2 3 ≠ Simplex.triangle 0 1 2 := by
+    simp [Simplex.triangle]; native_decide
+  simp [h]
+
+/-- The witness 2-cochain has value 0 on triangle {1,2,3} -/
+lemma witness2Cochain_on_123 :
+    witness2Cochain ⟨Simplex.triangle 1 2 3,
+      ⟨hollowTetrahedron_has_all_triangles 1 2 3 (by decide) (by decide) (by decide),
+       by simp [Simplex.triangle]; native_decide⟩⟩ = 0 := by
+  simp only [witness2Cochain]
+  have h : Simplex.triangle 1 2 3 ≠ Simplex.triangle 0 1 2 := by
+    simp [Simplex.triangle]; native_decide
+  simp [h]
+
+/-- Helper: membership proof for an edge in the hollow tetrahedron -/
+lemma edge_mem_hollowTetrahedron (i j : Fin 4) (hij : i ≠ j) :
+    Simplex.edge i.val j.val ∈ hollowTetrahedron.ksimplices 1 := by
+  simp only [SimplicialComplex.ksimplices, Set.mem_setOf_eq]
+  constructor
+  · exact hollowTetrahedron_has_all_edges i j hij
+  · simp only [Simplex.edge]
+    have h : ({i.val, j.val} : Finset ℕ).card = 2 := by
+      rw [Finset.card_insert_of_not_mem, Finset.card_singleton]
+      simp only [Finset.mem_singleton]
+      intro h; exact hij (Fin.ext h)
+    exact h
+
+/-- For any 1-cochain g, the coboundary δ¹g applied to each triangle gives
+    a specific linear combination of edge values.
+
+    For triangle {v₀, v₁, v₂} (sorted): (δg)(t) = g({v₁,v₂}) - g({v₀,v₂}) + g({v₀,v₁})
+-/
+
+/-- Key lemma: The sum of coboundary values over all 4 triangles equals 0
+    for any 1-cochain g.
+
+    Mathematical insight: Each edge appears in exactly 2 triangles with opposite signs.
+    - Edge {0,1} appears in {0,1,2} with sign +1 and in {0,1,3} with sign +1
+      (but wait, we need to track carefully)
+
+    Actually, let's use a different approach: the sum of all triangle coboundaries
+    should cancel appropriately.
+
+    For any 1-cochain g:
+      δg({0,1,2}) + δg({0,1,3}) + δg({0,2,3}) + δg({1,2,3})
+    = (g({1,2}) - g({0,2}) + g({0,1})) + (g({1,3}) - g({0,3}) + g({0,1}))
+    + (g({2,3}) - g({0,3}) + g({0,2})) + (g({2,3}) - g({1,3}) + g({1,2}))
+
+    Let a = g({0,1}), b = g({0,2}), c = g({0,3}), d = g({1,2}), e = g({1,3}), f = g({2,3})
+
+    = (d - b + a) + (e - c + a) + (f - c + b) + (f - e + d)
+    = 2a + 2d + 2f - 2c
+    = 2(a + d + f - c)
+
+    This doesn't give 0 directly. Let me verify the coboundary formula.
+
+    Actually, the key insight is that for f = witness (1,0,0,0), if f = δg then:
+    - δg({0,1,2}) = 1
+    - δg({0,1,3}) = 0
+    - δg({0,2,3}) = 0
+    - δg({1,2,3}) = 0
+
+    These 4 equations in 6 unknowns lead to a contradiction.
+-/
+
+/-- The witness 2-cochain is not a 2-coboundary.
+
+    Proof: Suppose witness = δ¹(g) for some 1-cochain g.
+    Let a = g({0,1}), b = g({0,2}), c = g({0,3}), d = g({1,2}), e = g({1,3}), f = g({2,3}).
+
+    The coboundary formula gives:
+    - δg({0,1,2}) = d - b + a = 1  (witness value on {0,1,2})
+    - δg({0,1,3}) = e - c + a = 0  (witness value on {0,1,3})
+    - δg({0,2,3}) = f - c + b = 0  (witness value on {0,2,3})
+    - δg({1,2,3}) = f - e + d = 0  (witness value on {1,2,3})
+
+    From equations (2), (3), (4):
+    - e = c - a          (from 2)
+    - f = c - b          (from 3)
+    - f = e - d          (from 4)
+
+    From f = c - b and f = e - d:
+      c - b = e - d
+      c - b = (c - a) - d     (substituting e = c - a)
+      -b = -a - d
+      d = a - b
+
+    Substituting into equation (1):
+      d - b + a = 1
+      (a - b) - b + a = 1
+      2a - 2b = 1
+
+    But wait, this is still consistent if we pick a, b correctly.
+
+    Let me redo this more carefully. The key is that after substitution,
+    we should get 0 = 1 or similar.
+
+    From (4): f - e + d = 0, so f = e - d
+    From (3): f - c + b = 0, so f = c - b
+    Therefore: e - d = c - b, which gives e = c - b + d
+
+    From (2): e - c + a = 0, so e = c - a
+    Combining: c - a = c - b + d, so d = b - a
+
+    Substituting into (1): d - b + a = (b - a) - b + a = 0 ≠ 1
+
+    This is the contradiction.
+-/
+theorem witness_not_coboundary : ¬Is2Coboundary hollowTetrahedron witness2Cochain := by
+  intro ⟨g, hg⟩
+  -- g is a 1-cochain such that δg = witness
+  -- We'll derive a contradiction from the 4 triangle equations
+
+  -- Define the edge values (using the actual subtype membership proofs)
+  let mem_01 : Simplex.edge 0 1 ∈ hollowTetrahedron.ksimplices 1 :=
+    edge_mem_hollowTetrahedron 0 1 (by decide)
+  let mem_02 : Simplex.edge 0 2 ∈ hollowTetrahedron.ksimplices 1 :=
+    edge_mem_hollowTetrahedron 0 2 (by decide)
+  let mem_03 : Simplex.edge 0 3 ∈ hollowTetrahedron.ksimplices 1 :=
+    edge_mem_hollowTetrahedron 0 3 (by decide)
+  let mem_12 : Simplex.edge 1 2 ∈ hollowTetrahedron.ksimplices 1 :=
+    edge_mem_hollowTetrahedron 1 2 (by decide)
+  let mem_13 : Simplex.edge 1 3 ∈ hollowTetrahedron.ksimplices 1 :=
+    edge_mem_hollowTetrahedron 1 3 (by decide)
+  let mem_23 : Simplex.edge 2 3 ∈ hollowTetrahedron.ksimplices 1 :=
+    edge_mem_hollowTetrahedron 2 3 (by decide)
+
+  -- Edge values
+  let a := g ⟨Simplex.edge 0 1, mem_01⟩  -- g({0,1})
+  let b := g ⟨Simplex.edge 0 2, mem_02⟩  -- g({0,2})
+  let c := g ⟨Simplex.edge 0 3, mem_03⟩  -- g({0,3})
+  let d := g ⟨Simplex.edge 1 2, mem_12⟩  -- g({1,2})
+  let e := g ⟨Simplex.edge 1 3, mem_13⟩  -- g({1,3})
+  let f := g ⟨Simplex.edge 2 3, mem_23⟩  -- g({2,3})
+
+  -- The coboundary formula applied to each triangle gives an equation.
+  -- We need to compute δg on each triangle and equate it to the witness value.
+
+  -- Triangle {0,1,2} membership proof
+  have mem_012 : Simplex.triangle 0 1 2 ∈ hollowTetrahedron.ksimplices 2 := by
+    rw [hollowTetrahedron_triangles_finite]
+    simp only [Set.mem_insert_iff, Set.mem_singleton_iff]
+    left; rfl
+
+  -- Triangle {0,1,3} membership proof
+  have mem_013 : Simplex.triangle 0 1 3 ∈ hollowTetrahedron.ksimplices 2 := by
+    rw [hollowTetrahedron_triangles_finite]
+    simp only [Set.mem_insert_iff, Set.mem_singleton_iff]
+    right; left; rfl
+
+  -- Triangle {0,2,3} membership proof
+  have mem_023 : Simplex.triangle 0 2 3 ∈ hollowTetrahedron.ksimplices 2 := by
+    rw [hollowTetrahedron_triangles_finite]
+    simp only [Set.mem_insert_iff, Set.mem_singleton_iff]
+    right; right; left; rfl
+
+  -- Triangle {1,2,3} membership proof
+  have mem_123 : Simplex.triangle 1 2 3 ∈ hollowTetrahedron.ksimplices 2 := by
+    rw [hollowTetrahedron_triangles_finite]
+    simp only [Set.mem_insert_iff, Set.mem_singleton_iff]
+    right; right; right; rfl
+
+  -- From hg : δg = witness, we get equations for each triangle
+  -- Equation 1: δg({0,1,2}) = 1
+  have eq1 : (δ hollowTetrahedron 1 g) ⟨Simplex.triangle 0 1 2, mem_012⟩ = 1 := by
+    have := congrFun hg ⟨Simplex.triangle 0 1 2, mem_012⟩
+    simp only [witness2Cochain] at this
+    simp only [ite_true] at this
+    exact this
+
+  -- Equation 2: δg({0,1,3}) = 0
+  have eq2 : (δ hollowTetrahedron 1 g) ⟨Simplex.triangle 0 1 3, mem_013⟩ = 0 := by
+    have := congrFun hg ⟨Simplex.triangle 0 1 3, mem_013⟩
+    simp only [witness2Cochain] at this
+    have hne : Simplex.triangle 0 1 3 ≠ Simplex.triangle 0 1 2 := by
+      simp [Simplex.triangle]; native_decide
+    simp only [hne, ite_false] at this
+    exact this
+
+  -- Equation 3: δg({0,2,3}) = 0
+  have eq3 : (δ hollowTetrahedron 1 g) ⟨Simplex.triangle 0 2 3, mem_023⟩ = 0 := by
+    have := congrFun hg ⟨Simplex.triangle 0 2 3, mem_023⟩
+    simp only [witness2Cochain] at this
+    have hne : Simplex.triangle 0 2 3 ≠ Simplex.triangle 0 1 2 := by
+      simp [Simplex.triangle]; native_decide
+    simp only [hne, ite_false] at this
+    exact this
+
+  -- Equation 4: δg({1,2,3}) = 0
+  have eq4 : (δ hollowTetrahedron 1 g) ⟨Simplex.triangle 1 2 3, mem_123⟩ = 0 := by
+    have := congrFun hg ⟨Simplex.triangle 1 2 3, mem_123⟩
+    simp only [witness2Cochain] at this
+    have hne : Simplex.triangle 1 2 3 ≠ Simplex.triangle 0 1 2 := by
+      simp [Simplex.triangle]; native_decide
+    simp only [hne, ite_false] at this
+    exact this
+
+  -- Now we need to expand the coboundary formula and relate to a, b, c, d, e, f.
+  -- The coboundary δg on a triangle is:
+  -- (δg)(s) = Σᵢ sign(i) * g(face i)
+
+  -- For triangle {0,1,2}: sorted = [0,1,2], faces are {1,2}, {0,2}, {0,1}
+  -- (δg)({0,1,2}) = sign(0)*g({1,2}) + sign(1)*g({0,2}) + sign(2)*g({0,1})
+  --               = 1*d + (-1)*b + 1*a = d - b + a
+
+  -- Let's compute the coboundary explicitly
+  -- First, expand the coboundary definition for triangle {0,1,2}
+  simp only [coboundary] at eq1 eq2 eq3 eq4
+
+  -- The sum is over Fin 3 (since triangle has 3 vertices)
+  -- We need to show the face structure explicitly
+
+  -- Face computations for triangle {0,1,2}:
+  -- face 0 removes vertex 0, giving {1,2}
+  -- face 1 removes vertex 1, giving {0,2}
+  -- face 2 removes vertex 2, giving {0,1}
+
+  have face_012_0 : (Simplex.triangle 0 1 2).face ⟨0, by native_decide⟩ = Simplex.edge 1 2 := by
+    simp only [Simplex.face, Simplex.triangle, Simplex.edge]
+    native_decide
+
+  have face_012_1 : (Simplex.triangle 0 1 2).face ⟨1, by native_decide⟩ = Simplex.edge 0 2 := by
+    simp only [Simplex.face, Simplex.triangle, Simplex.edge]
+    native_decide
+
+  have face_012_2 : (Simplex.triangle 0 1 2).face ⟨2, by native_decide⟩ = Simplex.edge 0 1 := by
+    simp only [Simplex.face, Simplex.triangle, Simplex.edge]
+    native_decide
+
+  -- Face computations for triangle {0,1,3}:
+  have face_013_0 : (Simplex.triangle 0 1 3).face ⟨0, by native_decide⟩ = Simplex.edge 1 3 := by
+    simp only [Simplex.face, Simplex.triangle, Simplex.edge]
+    native_decide
+
+  have face_013_1 : (Simplex.triangle 0 1 3).face ⟨1, by native_decide⟩ = Simplex.edge 0 3 := by
+    simp only [Simplex.face, Simplex.triangle, Simplex.edge]
+    native_decide
+
+  have face_013_2 : (Simplex.triangle 0 1 3).face ⟨2, by native_decide⟩ = Simplex.edge 0 1 := by
+    simp only [Simplex.face, Simplex.triangle, Simplex.edge]
+    native_decide
+
+  -- Face computations for triangle {0,2,3}:
+  have face_023_0 : (Simplex.triangle 0 2 3).face ⟨0, by native_decide⟩ = Simplex.edge 2 3 := by
+    simp only [Simplex.face, Simplex.triangle, Simplex.edge]
+    native_decide
+
+  have face_023_1 : (Simplex.triangle 0 2 3).face ⟨1, by native_decide⟩ = Simplex.edge 0 3 := by
+    simp only [Simplex.face, Simplex.triangle, Simplex.edge]
+    native_decide
+
+  have face_023_2 : (Simplex.triangle 0 2 3).face ⟨2, by native_decide⟩ = Simplex.edge 0 2 := by
+    simp only [Simplex.face, Simplex.triangle, Simplex.edge]
+    native_decide
+
+  -- Face computations for triangle {1,2,3}:
+  have face_123_0 : (Simplex.triangle 1 2 3).face ⟨0, by native_decide⟩ = Simplex.edge 2 3 := by
+    simp only [Simplex.face, Simplex.triangle, Simplex.edge]
+    native_decide
+
+  have face_123_1 : (Simplex.triangle 1 2 3).face ⟨1, by native_decide⟩ = Simplex.edge 1 3 := by
+    simp only [Simplex.face, Simplex.triangle, Simplex.edge]
+    native_decide
+
+  have face_123_2 : (Simplex.triangle 1 2 3).face ⟨2, by native_decide⟩ = Simplex.edge 1 2 := by
+    simp only [Simplex.face, Simplex.triangle, Simplex.edge]
+    native_decide
+
+  -- Triangle cardinalities for unfolding the sum
+  have hcard_012 : (Simplex.triangle 0 1 2).card = 3 := by native_decide
+  have hcard_013 : (Simplex.triangle 0 1 3).card = 3 := by native_decide
+  have hcard_023 : (Simplex.triangle 0 2 3).card = 3 := by native_decide
+  have hcard_123 : (Simplex.triangle 1 2 3).card = 3 := by native_decide
+
+  -- Expand the sums over Fin 3
+  -- For eq1: sum over i = 0, 1, 2 of sign(i) * g(face i)
+  have eq1_expand : d - b + a = 1 := by
+    -- The sum is sign(0)*g(face0) + sign(1)*g(face1) + sign(2)*g(face2)
+    -- = 1*d + (-1)*b + 1*a = d - b + a
+    have h := eq1
+    simp only [Finset.sum_fin_eq_sum_range, Finset.range_succ] at h
+    -- Need to expand more carefully. Let's use Fin3 directly.
+    -- The Finset.univ for Fin 3 is {0, 1, 2}
+    conv at h =>
+      arg 2
+      rw [show Finset.univ = ({0, 1, 2} : Finset (Fin 3)) by native_decide]
+      rw [Finset.sum_insert (by native_decide : (0 : Fin 3) ∉ ({1, 2} : Finset (Fin 3)))]
+      arg 2
+      arg 2
+      rw [Finset.sum_insert (by native_decide : (1 : Fin 3) ∉ ({2} : Finset (Fin 3)))]
+      arg 2
+      arg 2
+      rw [Finset.sum_singleton]
+    simp only [sign] at h
+    -- Simplify the signs
+    have hs0 : sign 0 = 1 := by native_decide
+    have hs1 : sign 1 = -1 := by native_decide
+    have hs2 : sign 2 = 1 := by native_decide
+    simp only [hs0, hs1, hs2, one_mul, neg_one_mul] at h
+    -- Now we need to connect the faces to our edge variables
+    -- Face 0 of {0,1,2} = {1,2}, so g(face 0) = d
+    -- Face 1 of {0,1,2} = {0,2}, so g(face 1) = b
+    -- Face 2 of {0,1,2} = {0,1}, so g(face 2) = a
+
+    -- The g values are on subtypes, so we need congruence
+    have hg0 : g ⟨(Simplex.triangle 0 1 2).face ⟨0, by native_decide⟩, _⟩ = d := by
+      congr 1
+      exact Subtype.ext face_012_0
+    have hg1 : g ⟨(Simplex.triangle 0 1 2).face ⟨1, by native_decide⟩, _⟩ = b := by
+      congr 1
+      exact Subtype.ext face_012_1
+    have hg2 : g ⟨(Simplex.triangle 0 1 2).face ⟨2, by native_decide⟩, _⟩ = a := by
+      congr 1
+      exact Subtype.ext face_012_2
+    simp only [hg0, hg1, hg2] at h
+    linarith
+
+  have eq2_expand : e - c + a = 0 := by
+    have h := eq2
+    conv at h =>
+      arg 2
+      rw [show Finset.univ = ({0, 1, 2} : Finset (Fin 3)) by native_decide]
+      rw [Finset.sum_insert (by native_decide : (0 : Fin 3) ∉ ({1, 2} : Finset (Fin 3)))]
+      arg 2
+      arg 2
+      rw [Finset.sum_insert (by native_decide : (1 : Fin 3) ∉ ({2} : Finset (Fin 3)))]
+      arg 2
+      arg 2
+      rw [Finset.sum_singleton]
+    simp only [sign] at h
+    have hs0 : sign 0 = 1 := by native_decide
+    have hs1 : sign 1 = -1 := by native_decide
+    have hs2 : sign 2 = 1 := by native_decide
+    simp only [hs0, hs1, hs2, one_mul, neg_one_mul] at h
+    have hg0 : g ⟨(Simplex.triangle 0 1 3).face ⟨0, by native_decide⟩, _⟩ = e := by
+      congr 1; exact Subtype.ext face_013_0
+    have hg1 : g ⟨(Simplex.triangle 0 1 3).face ⟨1, by native_decide⟩, _⟩ = c := by
+      congr 1; exact Subtype.ext face_013_1
+    have hg2 : g ⟨(Simplex.triangle 0 1 3).face ⟨2, by native_decide⟩, _⟩ = a := by
+      congr 1; exact Subtype.ext face_013_2
+    simp only [hg0, hg1, hg2] at h
+    linarith
+
+  have eq3_expand : f - c + b = 0 := by
+    have h := eq3
+    conv at h =>
+      arg 2
+      rw [show Finset.univ = ({0, 1, 2} : Finset (Fin 3)) by native_decide]
+      rw [Finset.sum_insert (by native_decide : (0 : Fin 3) ∉ ({1, 2} : Finset (Fin 3)))]
+      arg 2
+      arg 2
+      rw [Finset.sum_insert (by native_decide : (1 : Fin 3) ∉ ({2} : Finset (Fin 3)))]
+      arg 2
+      arg 2
+      rw [Finset.sum_singleton]
+    simp only [sign] at h
+    have hs0 : sign 0 = 1 := by native_decide
+    have hs1 : sign 1 = -1 := by native_decide
+    have hs2 : sign 2 = 1 := by native_decide
+    simp only [hs0, hs1, hs2, one_mul, neg_one_mul] at h
+    have hg0 : g ⟨(Simplex.triangle 0 2 3).face ⟨0, by native_decide⟩, _⟩ = f := by
+      congr 1; exact Subtype.ext face_023_0
+    have hg1 : g ⟨(Simplex.triangle 0 2 3).face ⟨1, by native_decide⟩, _⟩ = c := by
+      congr 1; exact Subtype.ext face_023_1
+    have hg2 : g ⟨(Simplex.triangle 0 2 3).face ⟨2, by native_decide⟩, _⟩ = b := by
+      congr 1; exact Subtype.ext face_023_2
+    simp only [hg0, hg1, hg2] at h
+    linarith
+
+  have eq4_expand : f - e + d = 0 := by
+    have h := eq4
+    conv at h =>
+      arg 2
+      rw [show Finset.univ = ({0, 1, 2} : Finset (Fin 3)) by native_decide]
+      rw [Finset.sum_insert (by native_decide : (0 : Fin 3) ∉ ({1, 2} : Finset (Fin 3)))]
+      arg 2
+      arg 2
+      rw [Finset.sum_insert (by native_decide : (1 : Fin 3) ∉ ({2} : Finset (Fin 3)))]
+      arg 2
+      arg 2
+      rw [Finset.sum_singleton]
+    simp only [sign] at h
+    have hs0 : sign 0 = 1 := by native_decide
+    have hs1 : sign 1 = -1 := by native_decide
+    have hs2 : sign 2 = 1 := by native_decide
+    simp only [hs0, hs1, hs2, one_mul, neg_one_mul] at h
+    have hg0 : g ⟨(Simplex.triangle 1 2 3).face ⟨0, by native_decide⟩, _⟩ = f := by
+      congr 1; exact Subtype.ext face_123_0
+    have hg1 : g ⟨(Simplex.triangle 1 2 3).face ⟨1, by native_decide⟩, _⟩ = e := by
+      congr 1; exact Subtype.ext face_123_1
+    have hg2 : g ⟨(Simplex.triangle 1 2 3).face ⟨2, by native_decide⟩, _⟩ = d := by
+      congr 1; exact Subtype.ext face_123_2
+    simp only [hg0, hg1, hg2] at h
+    linarith
+
+  -- Now derive contradiction from the 4 equations:
+  -- eq1: d - b + a = 1
+  -- eq2: e - c + a = 0  =>  e = c - a
+  -- eq3: f - c + b = 0  =>  f = c - b
+  -- eq4: f - e + d = 0  =>  f = e - d
+
+  -- From eq3 and eq4: c - b = e - d
+  -- Substituting e = c - a: c - b = (c - a) - d  =>  d = b - a
+  -- Substituting d = b - a into eq1: (b - a) - b + a = 0 ≠ 1
+
+  have hd : d = b - a := by linarith
+  have hcontra : (0 : ℚ) = 1 := by linarith
+  exact absurd hcontra.symm one_ne_zero
+
+/-- The hollow tetrahedron has non-trivial H² -/
+theorem hollowTetrahedron_h2_nontrivial : ¬H2Trivial hollowTetrahedron := by
+  intro h
+  -- h says every 2-cocycle is a 2-coboundary
+  -- witness2Cochain is a 2-cocycle (since there are no 3-simplices)
+  have hw_cocycle : Is2Cocycle hollowTetrahedron witness2Cochain :=
+    hollowTetrahedron_all_2cocycles witness2Cochain
+  -- So witness2Cochain should be a 2-coboundary
+  have hw_cobdry : Is2Coboundary hollowTetrahedron witness2Cochain := h _ hw_cocycle
+  -- But we proved it's not
+  exact witness_not_coboundary hw_cobdry
+
 end H2Characterization

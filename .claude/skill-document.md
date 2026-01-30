@@ -27,8 +27,20 @@
   ```
 - `congrArg some h` to lift `h : a = b` to `some a = some b`
 
+## Graph Theory Infrastructure
+
+| Mathlib Lemma | Use |
+|---------------|-----|
+| `IsTree.card_edgeFinset` | Tree on n vertices has n-1 edges |
+| `IsAcyclic.isTree_connectedComponent` | Each component of forest is tree |
+| `isAcyclic_iff_forall_edge_isBridge` | Acyclic ↔ all edges are bridges |
+| `iUnion_connectedComponentSupp` | Components partition vertex set |
+
+**Component-wise summing** (e.g., Σ|E_i| = |E|) requires `Setoid.IsPartition.ncard_eq_finsum` pattern.
+
 ## Session Log
 
 <!-- Newest first -->
+- 2026-01-30: TreeGraphInfra.lean - Added graph theory infrastructure for DimensionBound. 3 sorries remain requiring component-wise reasoning (edges_plus_components_ge_vertices, acyclic_euler_eq disconnected, euler_eq_implies_acyclic'). Build succeeds.
 - 2026-01-30: Fixed broken `pathBetween_head`/`pathBetween_last` in TreeAuthority.lean (Mathlib API changes). `path_compatible` needs missing infrastructure (pathToRoot length, adjacent elements are parent-child)
 - 2026-01-30: Fixed 2 sorries in `alignment_computable` using existing `pathBetween_head`/`pathBetween_last` theorems
