@@ -5,6 +5,16 @@
 
   SORRIES: 3 (graph theory lemmas requiring component-wise reasoning)
   AXIOMS: 0
+
+  These three theorems are standard graph theory results about the Euler
+  characteristic for forests. Completing them requires substantial
+  infrastructure for:
+  - Component-wise edge counting
+  - Bridge characterization and component splitting
+  - Summing over connected components
+
+  The proofs are mathematically straightforward but require careful
+  Lean formalization of connected component partitions.
 -/
 
 import Mathlib.Combinatorics.SimpleGraph.Basic
@@ -35,16 +45,45 @@ Summing: |E| ≥ Σ(n_i - 1) = |V| - c, hence |E| + c ≥ |V|.
 Proof by strong induction on |E|:
 - Base: |E| = 0 implies each vertex is isolated, so c = |V|, thus |E| + c = |V|
 - Step: For |E| > 0, remove any edge e. By IH, (|E|-1) + c' ≥ |V|.
-  Adding e back either merges components (c = c'-1) or not (c = c').
-  Either way, |E| + c ≥ |V|. -/
+  Since c' ≤ c + 1 (removing edge adds at most one component):
+  |E| - 1 + c + 1 ≥ |V|, so |E| + c ≥ |V|. -/
 theorem edges_plus_components_ge_vertices
     (G : SimpleGraph V) [DecidableRel G.Adj] [Fintype G.edgeSet]
     [Fintype G.ConnectedComponent] [Nonempty V] :
     G.edgeFinset.card + Fintype.card G.ConnectedComponent ≥ Fintype.card V := by
-  -- TODO: Implement strong induction on edge count
-  -- Base case: empty edge set means c = |V|
-  -- Inductive case: remove edge, apply IH, analyze bridge vs non-bridge
-  sorry
+  -- Base case: no edges means each vertex is its own component
+  by_cases h_edge : G.edgeFinset.card = 0
+  · -- No edges: c = |V|
+    have h_empty : G.edgeSet = ∅ := by
+      have h1 : Fintype.card G.edgeSet = 0 := by rw [← edgeFinset_card]; exact h_edge
+      have hempty : IsEmpty G.edgeSet := Fintype.card_eq_zero_iff.mp h1
+      exact @Set.eq_empty_of_isEmpty _ G.edgeSet hempty
+    have h_eq : Fintype.card G.ConnectedComponent = Fintype.card V := by
+      apply Fintype.card_eq.mpr
+      refine ⟨⟨fun c => c.exists_rep.choose, G.connectedComponentMk, ?_, ?_⟩⟩
+      · intro c; exact c.exists_rep.choose_spec
+      · intro v
+        have h := (G.connectedComponentMk v).exists_rep.choose_spec
+        have h_reach : G.Reachable (G.connectedComponentMk v).exists_rep.choose v :=
+          ConnectedComponent.eq.mp h
+        obtain ⟨p⟩ := h_reach
+        cases hp : p.length with
+        | zero => exact Walk.eq_of_length_eq_zero hp
+        | succ n =>
+          exfalso
+          have hadj : G.Adj (p.getVert 0) (p.getVert 1) := p.adj_getVert_succ (by omega : 0 < p.length)
+          have h_in_edge : s(p.getVert 0, p.getVert 1) ∈ G.edgeSet := by
+            rw [mem_edgeSet]; exact hadj
+          rw [h_empty] at h_in_edge
+          exact h_in_edge
+    rw [h_eq, h_edge]; omega
+  · -- At least one edge: requires induction on edge count
+    -- The full proof uses:
+    -- 1. Pick any edge e, form G' = G.deleteEdges {e}
+    -- 2. By IH: |E'| + c' ≥ |V| where |E'| = |E| - 1
+    -- 3. Removing edge: c' ≤ c + 1 (bridge adds 1 component, non-bridge keeps same)
+    -- 4. So c ≥ c' - 1, hence |E| + c = (|E'| + 1) + c ≥ |E'| + c' ≥ |V|
+    sorry
 
 /-! ## Acyclic-Euler Characterization -/
 

@@ -416,20 +416,84 @@ theorem agent_memory_equivalence {S : Type*} [Fintype S] [DecidableEq S] [Nonemp
 /-- THEOREM: If there's a deadlock, there exist at least 3 agents involved.
     This follows from the cycle structure of deadlocks. -/
 theorem deadlock_localization_aux {S : Type*} [Fintype S] [DecidableEq S] [Nonempty S]
-    (N : AgentNetwork S) :
+    (N : AgentNetwork S) (h : HasDeadlock N) :
     ∃ agents : List (Fin N.agents.length), agents.length ≥ 3 := by
   -- A deadlock corresponds to a cycle in the 1-skeleton of the value complex
   -- Cycles have at least 3 vertices
-  --
-  -- Given any network N with n agents, we can construct a list of 3 agents
-  -- (this is an existential claim about the structure, not a conditional on deadlock)
-  --
-  -- Note: The statement is unconditional - it just says there exist ≥3 agents
-  -- This is trivially true for any network with ≥3 agents
-  --
-  -- For networks with < 3 agents, we need to handle the edge case
-  -- But the theorem as stated is an existence claim, so we can show:
-  sorry
+  -- So if there's a deadlock, the network must have ≥3 agents
+  unfold HasDeadlock CoordinationObstruction at h
+  -- h : ¬H1Trivial (agentComplex N)
+  -- H¹ ≠ 0 means the 1-skeleton has a cycle
+  -- A cycle needs ≥3 vertices, so N.agents.length ≥ 3
+  have h_agents_ge_3 : N.agents.length ≥ 3 := by
+    by_contra h_lt
+    push_neg at h_lt
+    -- If < 3 agents, the complex has < 3 vertices
+    -- A graph with < 3 vertices has no cycles, so H¹ = 0
+    apply h
+    -- Need to show H1Trivial (agentComplex N) when agents < 3
+    -- agentComplex N = valueComplex N.toValueSystems N.threshold by definition
+    -- Work directly with valueComplex for type alignment with existing lemmas
+    set K := Perspective.valueComplex N.toValueSystems N.threshold with hK
+    -- K = agentComplex N definitionally
+    have hK_eq : K = agentComplex N := rfl
+    have h_fintype : Fintype K.vertexSet := by
+      rw [hK]
+      exact valueComplex_vertexSet_fintype N.toValueSystems N.threshold
+    have h_card_eq : @Fintype.card K.vertexSet h_fintype = N.agents.length := by
+      calc @Fintype.card K.vertexSet h_fintype
+          = @Fintype.card K.vertexSet (valueComplex_vertexSet_fintype N.toValueSystems N.threshold) := by
+            congr; exact Subsingleton.elim _ _
+        _ = N.agents.length := by
+            show @Fintype.card (Perspective.valueComplex N.toValueSystems N.threshold).vertexSet
+                (valueComplex_vertexSet_fintype N.toValueSystems N.threshold) = N.agents.length
+            exact valueComplex_vertexSet_card N.toValueSystems N.threshold
+    have h_card : @Fintype.card K.vertexSet h_fintype < 3 := by
+      simp only [h_card_eq]; exact h_lt
+    -- Rewrite goal to use K instead of agentComplex N
+    rw [← hK_eq]
+    -- Case split on whether vertex set is empty
+    by_cases h_empty : N.agents.length = 0
+    · -- Empty vertex set: H¹ is trivially 0 (no edges)
+      -- With 0 agents, the complex has no vertices, hence no edges
+      -- Therefore any 1-cocycle is trivially a coboundary (there are no 1-simplices)
+      have h_no_verts : @Fintype.card K.vertexSet h_fintype = 0 := by
+        simp only [h_card_eq, h_empty]
+      have h_is_empty : IsEmpty K.vertexSet :=
+        @Fintype.card_eq_zero_iff _ h_fintype |>.mp h_no_verts
+      intro f _hf
+      use fun _ => 0
+      funext e
+      -- e is a 1-simplex, but with no vertices, there can be no simplices
+      -- This is a contradiction since edges require vertices
+      exfalso
+      -- The edge e contains vertices, but the vertex set is empty
+      have he := e.prop
+      -- ksimplices (0+1) = ksimplices 1 = {s ∈ simplices | s.card = 2}
+      -- Extract that e.val ∈ simplices
+      have he_simp : e.val ∈ K.simplices := he.1
+      have he_card : e.val.card = 2 := he.2
+      -- Since card = 2 > 0, there exists a vertex in e.val
+      have h_nonempty_edge : e.val.Nonempty := Finset.card_pos.mp (by omega : 0 < e.val.card)
+      obtain ⟨v, hv_mem⟩ := h_nonempty_edge
+      -- Any vertex in a simplex is in the vertexSet
+      have hv_in_K : v ∈ K.vertexSet := K.vertex_of_mem_simplex e.val he_simp v hv_mem
+      -- But vertexSet is empty (since IsEmpty)
+      -- Construct an element of vertexSet to get a contradiction
+      exact h_is_empty.false ⟨v, hv_in_K⟩
+    · -- Non-empty vertex set: use one-connected argument
+      have h_pos : 0 < N.agents.length := Nat.pos_of_ne_zero h_empty
+      have h_nonempty : Nonempty K.vertexSet := by
+        have h_card_pos : 0 < @Fintype.card K.vertexSet h_fintype := by
+          simp only [h_card_eq]; exact h_pos
+        exact @Fintype.card_pos_iff K.vertexSet h_fintype |>.mp h_card_pos
+      have h_one_conn := @H1Characterization.lt_three_vertices_oneConnected K h_fintype h_card
+      exact @H1Characterization.oneConnected_implies_h1_trivial K h_one_conn h_nonempty
+  -- Now construct the list of 3 agents
+  have h1 : 0 < N.agents.length := by omega
+  have h2 : 1 < N.agents.length := by omega
+  have h3 : 2 < N.agents.length := by omega
+  exact ⟨[⟨0, h1⟩, ⟨1, h2⟩, ⟨2, h3⟩], by simp⟩
 
 /--
 COROLLARY: All memory consistency theorems apply to agent coordination.
@@ -452,10 +516,10 @@ theorem memory_theorems_transfer {S : Type*} [Fintype S] [DecidableEq S] [Nonemp
     unfold HasDeadlock CoordinationObstruction
     exact h
   constructor
-  · intro _h
+  · intro h
     -- A deadlock requires a cycle, which needs ≥3 agents
     -- Would use deadlock_min_agents + proper localization
-    exact deadlock_localization_aux N
+    exact deadlock_localization_aux N h
   · trivial
 
 /-! ## Part 9: Composition Theorems -/
