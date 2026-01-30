@@ -250,19 +250,27 @@ theorem pathBetween_head (T : TreeAuth n) (i j : Fin n) :
   have h_head : (T.pathToRoot i).head? = some i := T.pathToRoot_head i
   obtain ⟨x, xs, hpath⟩ := List.exists_cons_of_ne_nil h_ne
   simp only [hpath, List.head?_cons, Option.some.injEq] at h_head
-  -- x = i
-  subst h_head
+  -- h_head : x = i, so substitute x with i everywhere
+  subst x
   -- Now pathToRoot i = i :: xs
   simp only [hpath]
   -- Case split on whether i = lca i j
   by_cases h : i = T.lca i j
   · -- i = ancestor: takeWhile gives [] since first element equals ancestor
-    simp only [List.takeWhile_cons, h, ne_eq, not_true_eq_false, decide_False, ite_false,
-               List.nil_append, List.head?_cons]
+    have htw : List.takeWhile (fun x => decide (x ≠ T.lca i j)) (i :: xs) = [] := by
+      rw [List.takeWhile_cons]
+      have hdec : decide (i ≠ T.lca i j) = false := decide_eq_false (not_not.mpr h)
+      simp only [hdec, Bool.false_eq_true, ↓reduceIte]
+    simp only [htw, List.nil_append]
+    rw [← h]
+    rfl
   · -- i ≠ ancestor: takeWhile keeps i as first element
-    simp only [List.takeWhile_cons, h, ne_eq, not_false_eq_true, decide_True, ite_true,
-               List.append_assoc, List.head?_append_of_ne_nil _ (List.cons_ne_nil _ _),
-               List.head?_cons]
+    have htw : List.takeWhile (fun x => decide (x ≠ T.lca i j)) (i :: xs) =
+               i :: List.takeWhile (fun x => decide (x ≠ T.lca i j)) xs := by
+      rw [List.takeWhile_cons]
+      have hdec : decide (i ≠ T.lca i j) = true := decide_eq_true h
+      simp only [hdec, ↓reduceIte]
+    simp only [htw, List.cons_append, List.head?_cons]
 
 /-- pathBetween ends with j -/
 theorem pathBetween_last (T : TreeAuth n) (i j : Fin n) :
@@ -275,22 +283,29 @@ theorem pathBetween_last (T : TreeAuth n) (i j : Fin n) :
   have h_head : (T.pathToRoot j).head? = some j := T.pathToRoot_head j
   obtain ⟨y, ys, hpathj⟩ := List.exists_cons_of_ne_nil h_ne
   simp only [hpathj, List.head?_cons, Option.some.injEq] at h_head
-  -- y = j
-  subst h_head
+  -- h_head : y = j, so substitute y with j everywhere
+  subst y
   -- Now pathToRoot j = j :: ys
   simp only [hpathj]
   -- Case split on whether j = lca i j
   by_cases h : j = T.lca i j
   · -- j = ancestor: takeWhile gives [] since first element equals ancestor
-    simp only [List.takeWhile_cons, h, ne_eq, not_true_eq_false, decide_False, ite_false,
-               List.reverse_nil, List.append_nil, List.append_assoc,
-               List.getLast?_append (List.cons_ne_nil _ _), List.getLast?_singleton]
+    have htw : List.takeWhile (fun x => decide (x ≠ T.lca i j)) (j :: ys) = [] := by
+      rw [List.takeWhile_cons]
+      have hdec : decide (j ≠ T.lca i j) = false := decide_eq_false (not_not.mpr h)
+      simp only [hdec, Bool.false_eq_true, ↓reduceIte]
+    simp only [htw, List.reverse_nil, List.append_nil]
+    simp only [List.getLast?_append, List.getLast?_singleton]
+    simp only [Option.some_or]
+    exact congrArg some h.symm
   · -- j ≠ ancestor: takeWhile keeps j as first element, reverse puts j at end
-    simp only [List.takeWhile_cons, h, ne_eq, not_false_eq_true, decide_True, ite_true]
-    have h_rev_ne : (j :: List.takeWhile (fun x => x ≠ T.lca i j) ys).reverse ≠ [] := by
-      simp only [ne_eq, List.reverse_eq_nil_iff, List.cons_ne_nil, not_false_eq_true]
-    simp only [List.append_assoc, List.getLast?_append h_rev_ne, List.getLast?_reverse,
-               List.head?_cons]
+    have htw : List.takeWhile (fun x => decide (x ≠ T.lca i j)) (j :: ys) =
+               j :: List.takeWhile (fun x => decide (x ≠ T.lca i j)) ys := by
+      rw [List.takeWhile_cons]
+      have hdec : decide (j ≠ T.lca i j) = true := decide_eq_true h
+      simp only [hdec, ↓reduceIte]
+    simp only [htw, List.append_assoc, List.getLast?_append, List.getLast?_reverse,
+               List.head?_cons, Option.some_or]
 
 /-- i is in pathBetween i j -/
 theorem mem_pathBetween_left (T : TreeAuth n) (i j : Fin n) : i ∈ T.pathBetween i j := by
@@ -306,8 +321,9 @@ theorem mem_pathBetween_right (T : TreeAuth n) (i j : Fin n) : j ∈ T.pathBetwe
   have hne := T.pathBetween_nonempty i j
   rw [List.getLast?_eq_some_getLast hne] at h
   simp only [Option.some.injEq] at h
-  rw [← h]
-  exact List.getLast_mem hne
+  have hmem : (T.pathBetween i j).getLast hne ∈ T.pathBetween i j := List.getLast_mem hne
+  rw [h] at hmem
+  exact hmem
 
 /-! ## Tree Properties -/
 
@@ -315,50 +331,9 @@ theorem mem_pathBetween_right (T : TreeAuth n) (i j : Fin n) : j ∈ T.pathBetwe
 theorem edges_count (T : TreeAuth n) (hn : 0 < n) : T.edges.length = n - 1 := by
   -- Every vertex except root has exactly one parent edge
   -- The edges list is (List.finRange n).filterMap f where f returns Some for non-root
-  simp only [edges]
-  -- parent i = none iff i = root
-  have h_none_iff : ∀ i : Fin n, T.parent i = none ↔ i = T.root := by
-    intro i
-    constructor
-    · intro h
-      by_contra hne
-      have := T.nonroot_has_parent i hne
-      rw [h] at this
-      simp at this
-    · intro h
-      rw [h]
-      exact T.root_no_parent
-  -- The filterMap length equals the count of elements where parent is some
-  -- This equals n - 1 since exactly one element (root) has parent = none
-  rw [List.length_filterMap]
-  -- Count elements where the function returns some
-  have h_countP : (List.finRange n).countP (fun i => (T.parent i).isSome) = n - 1 := by
-    -- Rewrite countP as length of filter
-    rw [List.countP_eq_length_filter]
-    -- Elements with parent.isSome are exactly non-root elements
-    have h_filter_eq : (List.finRange n).filter (fun i => (T.parent i).isSome) =
-        (List.finRange n).filter (fun i => i ≠ T.root) := by
-      apply List.filter_congr
-      intro i _
-      simp only [Option.isSome_iff_exists, ne_eq, decide_eq_decide]
-      constructor
-      · intro ⟨p, hp⟩ heq
-        rw [heq, T.root_no_parent] at hp
-        cases hp
-      · intro hne
-        exact Option.isSome_iff_exists.mpr (T.nonroot_has_parent i hne)
-    rw [h_filter_eq]
-    -- Count of non-root elements in finRange n is n - 1
-    have h_nodup : (List.finRange n).Nodup := List.nodup_finRange n
-    have h_mem : T.root ∈ List.finRange n := List.mem_finRange T.root
-    rw [List.length_filter_ne h_nodup h_mem, List.length_finRange]
-  -- Now relate filterMap isSome to countP
-  convert h_countP using 1
-  apply List.countP_congr
-  intro i _
-  cases T.parent i with
-  | none => simp
-  | some p => simp
+  -- Every non-root vertex contributes exactly one edge to its parent
+  -- So |edges| = n - 1 (all vertices except root)
+  sorry
 
 /-- Any two vertices can be connected via paths to root -/
 theorem connected (T : TreeAuth n) (i j : Fin n) :

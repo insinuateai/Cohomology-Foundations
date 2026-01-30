@@ -13,6 +13,12 @@ Lean4 formalization of cohomology theory with applications to multi-agent coordi
 - **0 sorries** - All proofs must be complete, no placeholders
 - **0 axioms** - Prove everything from Mathlib foundations
 
+## Context Efficiency
+
+- **Complex proofs:** Prioritize understanding over speed—load full dependency chains
+- **Simple fixes:** Keep context minimal, use targeted file reads
+- **Exploration:** Use focused searches (specific files/functions) before broad sweeps
+
 ## Quick Reference
 
 - **Build:** `lake build`

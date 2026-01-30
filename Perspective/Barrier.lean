@@ -120,52 +120,19 @@ def NoBarrier {n : ℕ} (systems : Fin n → ValueSystem S) (epsilon : ℚ)
 
 /-! ## Part 3: Barrier Detection -/
 
-/--
-AXIOM: Hollow triangle creates a barrier.
+/-
+NOTE: The hollow_triangle_barrier axiom was removed because it was logically
+inconsistent with the definition of HasBarrier. The HasBarrier definition
+quantifies over ALL adjusted systems, independent of the original systems.
+This means any condition on the original systems (like hollow triangle structure)
+cannot determine HasBarrier, since we can always construct adjusted systems
+(e.g., all-zero values) that achieve H1 = 0.
 
-Mathematical justification:
-A hollow triangle (3 vertices, 3 edges, no 2-simplex) has H¹ ≅ ℤ.
-The boundary of the "missing" triangle is a 1-cycle that is not a 1-boundary.
-This non-trivial H¹ persists under any value adjustment that maintains
-the hollow structure.
-
-This is standard algebraic topology: π₁(S¹) ≅ ℤ, and H¹ ≅ π₁^ab.
+The correct statement about hollow triangles creating barriers is in
+Infrastructure/AxiomElimination.lean as:
+  theorem hollow_triangle_barrier : ∃ cycle → ¬H1Trivial K
+which states that IF a complex has a cycle, THEN H1 is not trivial.
 -/
-axiom hollow_triangle_barrier_ax {n : ℕ} (hn : n ≥ 3)
-    (systems : Fin n → ValueSystem S) (epsilon : ℚ) (hε : epsilon > 0)
-    [Nonempty S]
-    (i j k : Fin n) (hij : i ≠ j) (hjk : j ≠ k) (hik : i ≠ k)
-    (h_ij : ∃ s : S, |(systems i).values s - (systems j).values s| ≤ 2 * epsilon)
-    (h_jk : ∃ s : S, |(systems j).values s - (systems k).values s| ≤ 2 * epsilon)
-    (h_ik : ∃ s : S, |(systems i).values s - (systems k).values s| ≤ 2 * epsilon)
-    (h_no_common : ∀ s : S,
-      |(systems i).values s - (systems j).values s| ≤ 2 * epsilon →
-      |(systems j).values s - (systems k).values s| ≤ 2 * epsilon →
-      |(systems i).values s - (systems k).values s| > 2 * epsilon) :
-    HasBarrier systems epsilon
-
-/--
-THEOREM: Hollow triangle creates a barrier.
-
-If three agents form a hollow triangle (pairwise compatible but
-no common agreement point), no value adjustment can achieve alignment.
--/
-theorem hollow_triangle_barrier {n : ℕ} (hn : n ≥ 3)
-    (systems : Fin n → ValueSystem S) (epsilon : ℚ) (hε : epsilon > 0)
-    [Nonempty S]
-    -- Three agents i, j, k that pairwise agree but can't all agree
-    (i j k : Fin n) (hij : i ≠ j) (hjk : j ≠ k) (hik : i ≠ k)
-    -- Pairwise agreement exists
-    (h_ij : ∃ s : S, |(systems i).values s - (systems j).values s| ≤ 2 * epsilon)
-    (h_jk : ∃ s : S, |(systems j).values s - (systems k).values s| ≤ 2 * epsilon)
-    (h_ik : ∃ s : S, |(systems i).values s - (systems k).values s| ≤ 2 * epsilon)
-    -- No common agreement point
-    (h_no_common : ∀ s : S,
-      |(systems i).values s - (systems j).values s| ≤ 2 * epsilon →
-      |(systems j).values s - (systems k).values s| ≤ 2 * epsilon →
-      |(systems i).values s - (systems k).values s| > 2 * epsilon) :
-    HasBarrier systems epsilon :=
-  hollow_triangle_barrier_ax hn systems epsilon hε i j k hij hjk hik h_ij h_jk h_ik h_no_common
 
 /--
 THEOREM: Small systems (n ≤ 2) have no barriers.
@@ -318,21 +285,15 @@ theorem remove_agent_can_break_barrier_ax {n : ℕ} (hn : n ≥ 3)
     exact no_barrier_small_ax (by omega : 2 ≤ 2) (removeAgent systems ⟨0, by omega⟩) epsilon hε
   · -- n > 3 case: construct a system with no barrier
     -- Key insight: NoBarrier just requires EXISTENCE of adjusted systems with H¹ = 0
-    -- We construct linearly spaced systems that form a PATH graph (tree)
-    -- Path graphs are acyclic, hence have H¹ = 0
+    -- SIMPLE APPROACH: Make agents so far apart that NO edges exist
+    -- An edgeless graph is trivially acyclic
     use ⟨0, by omega⟩
     unfold NoBarrier
-    -- Construct linearly spaced adjusted systems for the n-1 agents
+    -- Construct widely spaced adjusted systems: agent i gets value i * 10 * ε
+    -- Distance between any i ≠ j is |i - j| * 10 * ε ≥ 10 * ε > 2ε, so NO edges
     let adjusted : Fin (n - 1) → ValueSystem S := fun i =>
-      { values := fun _ => (i.val : ℚ) * (3 / 2) * epsilon }
+      { values := fun _ => (i.val : ℚ) * 10 * epsilon }
     use adjusted
-    -- For linearly spaced systems:
-    -- - Distance between agents i and j = |i - j| * (3/2) * ε
-    -- - Edge exists iff |i - j| * (3/2) * ε ≤ 2ε, i.e., |i - j| ≤ 4/3
-    -- - Since i,j are integers, edge exists iff |i - j| ≤ 1
-    -- - This creates a PATH graph: 0-1-2-...-(n-2)
-    -- - Path graphs are trees (connected, acyclic)
-    -- - By h1_trivial_iff_oneConnected: H¹ = 0 iff 1-skeleton is acyclic
     -- For n-1 ≤ 2, use small graph theorem
     by_cases hsmall : n - 1 < 3
     · letI ft : Fintype (valueComplex adjusted epsilon).vertexSet :=
@@ -344,561 +305,94 @@ theorem remove_agent_can_break_barrier_ax {n : ℕ} (hn : n ≥ 3)
         rw [AgentCoordination.valueComplex_vertexSet_card]
         exact hsmall
       exact @H1Characterization.h1_trivial_small (valueComplex adjusted epsilon) ft _ hcard
-    · -- n - 1 ≥ 3: prove the path graph is acyclic
+    · -- n - 1 ≥ 3: prove the edgeless graph is acyclic
       push_neg at hsmall
       have h_nm1_ge_3 : n - 1 ≥ 3 := hsmall
+      have h_nm1_pos : n - 1 > 0 := by omega
       haveI : Nonempty (valueComplex adjusted epsilon).vertexSet := by
         rw [AgentCoordination.valueComplex_vertexSet_eq]
-        exact ⟨⟨0, by omega⟩⟩
+        exact ⟨⟨0, h_nm1_pos⟩⟩
       rw [H1Characterization.h1_trivial_iff_oneConnected]
-      -- Show the path graph is acyclic using cycle structure analysis
+      -- A cycle requires at least one edge, but NO edges exist
       intro v p hp
-      have h_len := hp.three_le_length
-      have h_nodup := hp.support_nodup
       exfalso
-      -- EDGE STRUCTURE: For linearly spaced systems,
-      -- oneSkeleton.Adj u w implies |u.val - w.val| = 1
-      have h_edge_structure : ∀ u w : (valueComplex adjusted epsilon).vertexSet,
-          (H1Characterization.oneSkeleton (valueComplex adjusted epsilon)).Adj u w →
-          (u.val + 1 = w.val ∨ w.val + 1 = u.val) := by
-        intro u w hadj
-        simp only [H1Characterization.oneSkeleton, SimpleGraph.Adj] at hadj
-        obtain ⟨hne, hedge⟩ := hadj
-        simp only [valueComplex, Set.mem_setOf_eq] at hedge
-        obtain ⟨hvert, hpairs⟩ := hedge
-        by_cases hlt : u.val < w.val
-        · have hedge' := hpairs u.val w.val (Finset.mem_insert_self _ _)
-              (Finset.mem_insert_of_mem (Finset.mem_singleton_self _)) hlt
-              (hvert u.val (Finset.mem_insert_self _ _))
-              (hvert w.val (Finset.mem_insert_of_mem (Finset.mem_singleton_self _)))
-          obtain ⟨s, hs⟩ := hedge'
-          simp only [adjusted] at hs
-          have h1 : (w.val : ℚ) - u.val ≥ 0 := by simp; omega
-          have h2 : |(((u.val : ℕ) : ℚ) * (3/2) * epsilon - ((w.val : ℕ) : ℚ) * (3/2) * epsilon)|
-                  = ((w.val : ℚ) - u.val) * (3/2) * epsilon := by
-            rw [abs_sub_comm]
-            have h3 : ((w.val : ℕ) : ℚ) * (3/2) * epsilon - ((u.val : ℕ) : ℚ) * (3/2) * epsilon
-                    = ((w.val : ℚ) - u.val) * (3/2) * epsilon := by ring
-            rw [h3, abs_of_nonneg]
-            apply mul_nonneg; apply mul_nonneg h1; linarith
-          rw [h2] at hs
-          have hε3 : (3/2 : ℚ) * epsilon > 0 := by linarith
-          have h4 : ((w.val : ℚ) - u.val) * (3/2) ≤ 2 := by nlinarith
-          have h5 : (w.val : ℚ) - u.val ≤ 4/3 := by linarith
-          have h6 : w.val - u.val ≤ 1 := by
-            have h7 : ((w.val - u.val : ℕ) : ℚ) ≤ 4/3 := by
-              simp only [Nat.cast_sub (le_of_lt hlt)]
-              exact h5
-            omega
-          have h8 : w.val - u.val ≥ 1 := Nat.one_le_sub_of_lt hlt
-          have h9 : w.val - u.val = 1 := by omega
-          right; omega
-        · push_neg at hlt
-          have hne' : u.val ≠ w.val := fun h => hne (Subtype.ext h)
-          have hlt' : w.val < u.val := Nat.lt_of_le_of_ne hlt (Ne.symm hne')
-          have hedge' := hpairs w.val u.val (Finset.mem_insert_of_mem (Finset.mem_singleton_self _))
-              (Finset.mem_insert_self _ _) hlt'
-              (hvert w.val (Finset.mem_insert_of_mem (Finset.mem_singleton_self _)))
-              (hvert u.val (Finset.mem_insert_self _ _))
-          obtain ⟨s, hs⟩ := hedge'
-          simp only [adjusted] at hs
-          have h1 : (u.val : ℚ) - w.val ≥ 0 := by simp; omega
-          have h2 : |(((w.val : ℕ) : ℚ) * (3/2) * epsilon - ((u.val : ℕ) : ℚ) * (3/2) * epsilon)|
-                  = ((u.val : ℚ) - w.val) * (3/2) * epsilon := by
-            rw [abs_sub_comm]
-            have h3 : ((u.val : ℕ) : ℚ) * (3/2) * epsilon - ((w.val : ℕ) : ℚ) * (3/2) * epsilon
-                    = ((u.val : ℚ) - w.val) * (3/2) * epsilon := by ring
-            rw [h3, abs_of_nonneg]
-            apply mul_nonneg; apply mul_nonneg h1; linarith
-          rw [h2] at hs
-          have hε3 : (3/2 : ℚ) * epsilon > 0 := by linarith
-          have h4 : ((u.val : ℚ) - w.val) * (3/2) ≤ 2 := by nlinarith
-          have h5 : (u.val : ℚ) - w.val ≤ 4/3 := by linarith
-          have h6 : u.val - w.val ≤ 1 := by
-            have h7 : ((u.val - w.val : ℕ) : ℚ) ≤ 4/3 := by
-              simp only [Nat.cast_sub (le_of_lt hlt')]
-              exact h5
-            omega
-          have h8 : u.val - w.val ≥ 1 := Nat.one_le_sub_of_lt hlt'
-          have h9 : u.val - w.val = 1 := by omega
-          left; omega
-      -- Now use cycle properties to derive contradiction
-      -- Key insight: In a path graph with edges only between adjacent indices,
-      -- any cycle of length ≥ 3 requires the first and last edges both touch v
-      -- The first vertex after v has index v.val ± 1
-      -- The second-to-last vertex has index v.val ± 1
-      -- These must be different vertices (nodup), so one is v+1 and one is v-1
-      -- But then the walk from v+1 to v-1 (avoiding v) requires crossing v.val
-      -- This is impossible with ±1 steps - discrete IVT contradiction
-      -- Use the walk's chain property to extract adjacencies
+      -- A cycle has length ≥ 3
+      have h_len := hp.three_le_length
+      -- Get the first two vertices of the cycle
+      have h_supp_ne_nil : p.support ≠ [] := SimpleGraph.Walk.support_ne_nil p
       have h_chain := p.chain'_adj_support
       have h_supp_len : p.support.length = p.length + 1 := SimpleGraph.Walk.length_support p
-      -- Get first two vertices
-      have h_supp_ne_nil : p.support ≠ [] := SimpleGraph.Walk.support_ne_nil p
-      match h_supp : p.support with
-      | [] => exact absurd rfl h_supp_ne_nil
-      | [_] =>
-        -- Single element list means length 0, contradicts h_len ≥ 3
-        have h0 : p.support.length = 1 := by rw [h_supp]; simp
-        rw [h_supp_len] at h0
-        omega
-      | v0 :: v1 :: rest =>
-        -- v0 = v (start of cycle), v1 is first step
-        have hv0_eq : v0 = v := by
-          have := SimpleGraph.Walk.support_eq_cons p
-          rw [h_supp] at this
-          exact (List.cons.inj this).1
-        -- Get adjacency v → v1
-        have h_adj_01 : (H1Characterization.oneSkeleton (valueComplex adjusted epsilon)).Adj v0 v1 := by
-          have hc := h_chain
-          rw [h_supp] at hc
-          exact List.Chain'.rel_head hc
-        rw [hv0_eq] at h_adj_01
-        have h_v1_diff := h_edge_structure v v1 h_adj_01
-        -- The last vertex in support is also v (cycle returns)
-        have h_last_eq_v : p.support.getLast h_supp_ne_nil = v :=
-          SimpleGraph.Walk.getLast_support p
-        -- Get the second-to-last vertex
-        have h_len_ge_4 : p.support.length ≥ 4 := by rw [h_supp_len]; omega
-        have h_rest_len : (v1 :: rest).length ≥ 3 := by
-          have : p.support.length = (v0 :: v1 :: rest).length := by rw [h_supp]
-          simp at this ⊢
+      -- Support has length ≥ 4, so at least 2 distinct vertices after v
+      have h_supp_ge_4 : p.support.length ≥ 4 := by omega
+      -- Extract first two elements
+      obtain ⟨v0, v1, rest, h_supp⟩ : ∃ v0 v1 rest, p.support = v0 :: v1 :: rest := by
+        match h : p.support with
+        | [] => exact (h_supp_ne_nil h).elim
+        | [_] =>
+          have hlen : p.support.length = 1 := by rw [h]; simp
           omega
-        -- rest has length ≥ 2, so rest = r1 :: r2 :: ... :: [last]
-        match h_rest : rest with
-        | [] =>
-          -- rest = [], so support = [v0, v1], length = 2, but we need ≥ 4
-          have : p.support.length = 2 := by rw [h_supp, h_rest]; simp
-          omega
-        | r1 :: rest' =>
-          -- support = [v0, v1, r1, ...rest'...], length ≥ 4
-          -- The second-to-last element is adjacent to the last (which is v)
-          -- Need to find the second-to-last
-          have h_supp' : p.support = v0 :: v1 :: r1 :: rest' := by rw [h_supp, h_rest]
-          -- The tail = [v1, r1, ...rest'...] is nodup (from h_nodup)
-          have h_tail_nodup : (v1 :: r1 :: rest').Nodup := by
-            have : p.support.tail = (v0 :: v1 :: r1 :: rest').tail := by rw [h_supp']
-            simp at this
-            rw [← this]
-            exact h_nodup
-          -- v1 is the first element of tail (index v.val ± 1)
-          -- The second-to-last in tail is adjacent to the last (which is v)
-          -- Get the second-to-last element
-          let tail := v1 :: r1 :: rest'
-          have h_tail_len : tail.length = p.length := by
-            have : p.support.length = (v0 :: tail).length := by rw [h_supp']
-            simp at this
-            rw [h_supp_len] at this
-            omega
-          -- tail.length ≥ 3 (since p.length ≥ 3)
-          have h_tail_ge_3 : tail.length ≥ 3 := by rw [h_tail_len]; exact h_len
-          -- The last element of tail is v (since support ends with v and tail = support.tail)
-          have h_tail_last : tail.getLast (by simp [tail]) = v := by
-            have h1 : p.support.getLast h_supp_ne_nil = (v0 :: tail).getLast (by simp) := by
-              rw [h_supp']
-            rw [h_last_eq_v] at h1
-            simp at h1
-            exact h1
-          -- Get the second-to-last element of tail
-          have h_tail_ne_nil : tail ≠ [] := by simp [tail]
-          have h_tail_init_ne_nil : tail.dropLast ≠ [] := by
-            simp [tail, List.dropLast]
-            intro h
-            have : tail.length = 1 := by
-              cases rest' with
-              | nil => simp [tail] at h
-              | cons _ _ => simp [List.dropLast] at h
-            omega
-          let second_last := tail.dropLast.getLast h_tail_init_ne_nil
-          -- second_last is adjacent to last (= v) by chain property
-          have h_adj_sl : (H1Characterization.oneSkeleton (valueComplex adjusted epsilon)).Adj second_last v := by
-            -- Use chain property: consecutive elements are adjacent
-            -- second_last and v are consecutive in tail
-            have hc := h_chain
-            rw [h_supp'] at hc
-            -- Need: Chain' Adj on [v0, v1, r1, ...rest'...]
-            -- This gives Adj between any consecutive pair
-            -- second_last = (v1 :: r1 :: rest').dropLast.getLast
-            -- v = (v1 :: r1 :: rest').getLast
-            -- They are consecutive in tail
-            have h_chain_tail : List.Chain' (H1Characterization.oneSkeleton (valueComplex adjusted epsilon)).Adj tail := by
-              exact List.Chain'.tail hc
-            -- In a chain, dropLast.getLast is adjacent to getLast
-            have h_adj := List.Chain'.getLast_rel_getLast h_chain_tail h_tail_init_ne_nil
-            convert h_adj using 1
-            exact h_tail_last.symm
-          have h_sl_diff := h_edge_structure second_last v h_adj_sl
-          -- Now we have:
-          -- h_v1_diff: v.val + 1 = v1.val ∨ v1.val + 1 = v.val
-          -- h_sl_diff: second_last.val + 1 = v.val ∨ v.val + 1 = second_last.val
-          -- h_tail_nodup: [v1, r1, ...rest'] is nodup
-          -- v1 and second_last are both in tail (v1 at position 0, second_last at position length-2)
-          -- The last element of tail is v
-          -- If v1.val = second_last.val, then v1 = second_last (vertices identified by val)
-          -- But they're at different positions in the nodup list (0 vs length-2, with length ≥ 3)
-          -- Contradiction!
-          -- If v1.val ≠ second_last.val, then one is v.val+1 and one is v.val-1
-          -- The walk from v1 to second_last in tail avoids v (since v is only at the end)
-          -- But going from v.val+1 to v.val-1 with ±1 steps requires hitting v.val
-          -- Discrete IVT contradiction!
-          by_cases h_eq : v1.val = second_last.val
-          · -- Case 1: v1.val = second_last.val implies v1 = second_last
-            have h_v1_eq_sl : v1 = second_last := Subtype.ext h_eq
-            -- v1 is at position 0 in tail, second_last is at position length-2
-            -- With length ≥ 3, these are different positions
-            -- Nodup means different positions have different elements
-            have h_pos_v1 : v1 = tail.get ⟨0, by simp [tail]⟩ := by simp [tail]
-            have h_pos_sl : second_last = tail.dropLast.getLast h_tail_init_ne_nil := rfl
-            -- Position of second_last in tail is tail.length - 2
-            have h_sl_idx : second_last = tail.get ⟨tail.length - 2, by omega⟩ := by
-              simp only [second_last]
-              have h1 : tail.dropLast.length = tail.length - 1 := List.length_dropLast tail
-              have h2 : tail.dropLast.getLast h_tail_init_ne_nil =
-                       tail.dropLast.get ⟨tail.dropLast.length - 1, by
-                         rw [h1]; omega⟩ := by
-                apply List.getLast_eq_get
-              rw [h2]
-              have h3 : tail.dropLast.get ⟨tail.dropLast.length - 1, _⟩ =
-                       tail.get ⟨tail.dropLast.length - 1, by rw [h1]; omega⟩ := by
-                apply List.get_dropLast
-              rw [h3, h1]
-              congr 1
-              omega
-            rw [h_v1_eq_sl, h_pos_v1, h_sl_idx] at h_tail_nodup
-            -- Now h_tail_nodup says tail is nodup but tail.get 0 = tail.get (length-2)
-            -- With length ≥ 3, these indices are different, so elements must differ
-            have h_idx_diff : (0 : ℕ) ≠ tail.length - 2 := by omega
-            have h_nodup_get := List.Nodup.get_inj_iff h_tail_nodup
-            have h_contra : (⟨0, by simp [tail]⟩ : Fin tail.length) ≠
-                           ⟨tail.length - 2, by omega⟩ := by
-              intro heq
-              have := Fin.val_eq_of_eq heq
-              simp at this
-              omega
-            have := h_nodup_get.mp (by rfl : tail.get ⟨0, _⟩ = tail.get ⟨tail.length - 2, _⟩)
-            exact h_contra this
-          · -- Case 2: v1.val ≠ second_last.val
-            -- One is v.val + 1, the other is v.val - 1
-            -- Discrete IVT: walk from one to other with ±1 steps must cross v.val
-            -- But all intermediate vertices in tail (except last) have val ≠ v.val
-            -- This is the key contradiction
-            -- First, establish that v1.val and second_last.val are on opposite sides of v.val
-            have h_v1_side : v1.val = v.val + 1 ∨ v1.val + 1 = v.val := h_v1_diff
-            have h_sl_side : second_last.val = v.val + 1 ∨ second_last.val + 1 = v.val := by
-              cases h_sl_diff with
-              | inl h => right; omega
-              | inr h => left; omega
-            -- Since v1.val ≠ second_last.val and both are v.val ± 1,
-            -- one must be v.val + 1 and the other v.val - 1
-            have h_opposite : (v1.val = v.val + 1 ∧ second_last.val + 1 = v.val) ∨
-                             (v1.val + 1 = v.val ∧ second_last.val = v.val + 1) := by
-              cases h_v1_side with
-              | inl hv1 =>
-                cases h_sl_side with
-                | inl hsl => exfalso; exact h_eq (by omega)
-                | inr hsl => left; exact ⟨hv1, hsl⟩
-              | inr hv1 =>
-                cases h_sl_side with
-                | inl hsl => right; exact ⟨hv1, hsl⟩
-                | inr hsl => exfalso; exact h_eq (by omega)
-            -- All elements of tail except the last are ≠ v (by nodup and last = v)
-            have h_tail_not_v : ∀ i : Fin (tail.length - 1), tail.get ⟨i.val, by omega⟩ ≠ v := by
-              intro i
-              intro heq
-              have h_last_pos : tail.getLast h_tail_ne_nil = tail.get ⟨tail.length - 1, by omega⟩ := by
-                apply List.getLast_eq_get
-              rw [h_tail_last] at h_last_pos
-              have h_nodup_get := List.Nodup.get_inj_iff h_tail_nodup
-              have h_same := h_nodup_get.mp (heq.trans h_last_pos.symm)
-              have h_i_lt : i.val < tail.length - 1 := i.isLt
-              have : i.val = tail.length - 1 := by
-                have := Fin.val_eq_of_eq h_same
-                simp at this
-                exact this
-              omega
-            -- In particular, all indices in tail (except last) are ≠ v.val
-            have h_idx_not_v : ∀ i : Fin (tail.length - 1), (tail.get ⟨i.val, by omega⟩).val ≠ v.val := by
-              intro i hcontra
-              exact h_tail_not_v i (Subtype.ext hcontra)
-            -- The walk in tail goes: v1 → r1 → ... → second_last → v
-            -- Each step changes index by ±1 (by edge structure and chain)
-            -- From v1 (at v.val ± 1) to second_last (at v.val ∓ 1)
-            -- Without touching v.val in between
-            -- This requires crossing v.val - contradiction!
-            -- Formalize: consider the sequence of .val for tail elements 0 to length-2
-            -- This sequence starts at v1.val, ends at second_last.val
-            -- Each step is ±1, none equal v.val
-            -- But v1.val and second_last.val are on opposite sides of v.val
-            -- So the sequence must cross v.val - contradiction
-            cases h_opposite with
-            | inl h =>
-              -- v1.val = v.val + 1, second_last.val = v.val - 1
-              have hv1_above : v1.val = v.val + 1 := h.1
-              have hsl_below : second_last.val + 1 = v.val := h.2
-              -- v1.val > v.val > second_last.val
-              -- Walk from v1 (position 0) to second_last (position length-2) with ±1 steps
-              -- Must cross v.val
-              -- Position 0 has value v.val + 1
-              -- Position length-2 has value v.val - 1
-              -- There exists position j with value = v.val (discrete IVT)
-              -- But h_idx_not_v says no such j exists for j < length-1
-              -- And length-2 < length-1, so second_last satisfies this
-              -- Contradiction: we need some intermediate index to equal v.val
-              -- But that would mean some tail element (not last) equals v
-              -- Use chain to show consecutive elements differ by ±1
-              have h_chain_tail : List.Chain' (H1Characterization.oneSkeleton (valueComplex adjusted epsilon)).Adj tail :=
-                List.Chain'.tail h_chain
-              -- Define the index sequence
-              let idx_seq : Fin (tail.length) → ℕ := fun i => (tail.get i).val
-              have h_step : ∀ i : Fin (tail.length - 1),
-                  (idx_seq ⟨i.val + 1, by omega⟩ = idx_seq ⟨i.val, by omega⟩ + 1) ∨
-                  (idx_seq ⟨i.val, by omega⟩ = idx_seq ⟨i.val + 1, by omega⟩ + 1) := by
-                intro i
-                have h_adj : (H1Characterization.oneSkeleton (valueComplex adjusted epsilon)).Adj
-                    (tail.get ⟨i.val, by omega⟩) (tail.get ⟨i.val + 1, by omega⟩) := by
-                  exact List.Chain'.get_rel h_chain_tail ⟨i.val, by omega⟩
-                exact h_edge_structure _ _ h_adj
-              -- idx_seq starts at v.val + 1, ends at v.val - 1 (at position length-2)
-              have h_start : idx_seq ⟨0, by simp [tail]⟩ = v.val + 1 := by
-                simp only [idx_seq, tail]
-                exact hv1_above
-              have h_end : idx_seq ⟨tail.length - 2, by omega⟩ = v.val - 1 := by
-                simp only [idx_seq]
-                have : tail.get ⟨tail.length - 2, _⟩ = second_last := by
-                  simp only [second_last]
-                  have h1 : tail.dropLast.length = tail.length - 1 := List.length_dropLast tail
-                  have h2 : tail.dropLast.getLast h_tail_init_ne_nil =
-                           tail.dropLast.get ⟨tail.dropLast.length - 1, by rw [h1]; omega⟩ := by
-                    apply List.getLast_eq_get
-                  rw [h2]
-                  have h3 : tail.dropLast.get ⟨tail.dropLast.length - 1, _⟩ =
-                           tail.get ⟨tail.dropLast.length - 1, by rw [h1]; omega⟩ := by
-                    apply List.get_dropLast
-                  rw [h3, h1]
-                  congr 1
-                  omega
-                rw [this]
-                omega
-              -- Now apply discrete IVT: sequence from v.val+1 to v.val-1 with ±1 steps
-              -- must hit v.val at some point
-              -- But h_idx_not_v says no position in 0..length-2 has value v.val
-              -- This is a contradiction we need to formalize
-              -- The total change is (v.val - 1) - (v.val + 1) = -2
-              -- In tail.length - 2 steps (from pos 0 to pos length-2)
-              -- Each step contributes ±1
-              -- To go from value > v.val to value < v.val, must pass through v.val
-              -- Proof by strong induction on distance from v.val
-              -- Actually simpler: if we're at v.val + 1 and take a -1 step, we hit v.val
-              -- If we take a +1 step, we go to v.val + 2
-              -- From v.val + 2, to reach v.val - 1, we eventually need to decrease
-              -- The first time we go below v.val + 1, we hit v.val
-              -- This is essentially the IVT argument
-              -- For Lean proof, use that the sequence cannot avoid v.val
-              -- Specifically: sequence starts above v.val, ends below v.val,
-              -- with ±1 steps, so must equal v.val somewhere
-              have h_starts_above : idx_seq ⟨0, _⟩ > v.val := by rw [h_start]; omega
-              have h_ends_below : idx_seq ⟨tail.length - 2, _⟩ < v.val := by rw [h_end]; omega
-              -- Find the first position where sequence ≤ v.val
-              -- The previous position was > v.val, so the step was -1
-              -- This means current position = previous - 1 = v.val + 1 - 1 = v.val
-              -- But that contradicts h_idx_not_v
-              -- Actually, let's just show a direct contradiction
-              -- We have: start = v.val + 1, end = v.val - 1
-              -- All intermediate values ≠ v.val
-              -- Steps are ±1
-              -- This is impossible
-              -- Proof: Let k be minimal such that idx_seq k ≤ v.val
-              -- k > 0 (since idx_seq 0 = v.val + 1 > v.val)
-              -- idx_seq (k-1) > v.val, so idx_seq (k-1) ≥ v.val + 1
-              -- Step from k-1 to k is ±1, and idx_seq k ≤ v.val
-              -- So idx_seq k = idx_seq (k-1) - 1 ≥ v.val
-              -- Combined: idx_seq k ≥ v.val and idx_seq k ≤ v.val
-              -- So idx_seq k = v.val
-              -- But if k < tail.length - 1, this contradicts h_idx_not_v
-              -- If k = tail.length - 1, then idx_seq k = v (the last element), which is fine
-              -- But wait, idx_seq (tail.length - 2) = v.val - 1 < v.val
-              -- So k ≤ tail.length - 2 < tail.length - 1
-              -- Contradiction!
-              -- Let's find this k explicitly
-              -- Define: positions where idx_seq ≤ v.val
-              let below_or_eq := { i : Fin (tail.length) | idx_seq i ≤ v.val }
-              have h_end_in : (⟨tail.length - 2, by omega⟩ : Fin tail.length) ∈ below_or_eq := by
-                simp only [Set.mem_setOf_eq, below_or_eq]
-                omega
-              have h_ne : below_or_eq.Nonempty := ⟨_, h_end_in⟩
-              -- Find the minimum such position
-              -- This requires decidability, let's just use a direct argument
-              -- Since positions 0 to length-2 are all < length-1, h_idx_not_v applies to all
-              -- So for i < length - 1, idx_seq i ≠ v.val
-              -- In particular, for i ≤ length - 2 < length - 1, idx_seq i ≠ v.val
-              -- But we need to show idx_seq hits v.val, not just ≠
-              -- The key is the IVT: continuous functions hit intermediate values
-              -- For integers with ±1 steps, this is: if start > target > end, hit target
-              -- Or if start < target < end, hit target
-              -- Here: start = v.val + 1 > v.val > v.val - 1 = end
-              -- So we must hit v.val
-              -- Formalize using well-founded recursion or explicit enumeration
-              -- Actually simpler: use contradiction by showing no valid sequence exists
-              -- Consider the "crossing point" - must exist but violates h_idx_not_v
-              -- Use Nat.find to get minimum k with idx_seq k ≤ v.val
-              have h_exists_le : ∃ k : ℕ, k < tail.length ∧ idx_seq ⟨k, by omega⟩ ≤ v.val := by
-                use tail.length - 2
-                exact ⟨by omega, by rw [h_end]; omega⟩
-              -- Get minimum such k
-              have h_dec : DecidablePred (fun k => k < tail.length ∧ idx_seq ⟨k, by omega⟩ ≤ v.val) := by
-                intro k
-                by_cases hk : k < tail.length
-                · by_cases hv : idx_seq ⟨k, hk⟩ ≤ v.val
-                  · exact isTrue ⟨hk, hv⟩
-                  · exact isFalse (fun ⟨_, hv'⟩ => hv hv')
-                · exact isFalse (fun ⟨hk', _⟩ => hk hk')
-              let k := Nat.find h_exists_le
-              have hk_spec := Nat.find_spec h_exists_le
-              have hk_lt : k < tail.length := hk_spec.1
-              have hk_le : idx_seq ⟨k, hk_lt⟩ ≤ v.val := hk_spec.2
-              have hk_pos : k > 0 := by
-                by_contra hk0
-                push_neg at hk0
-                have : k = 0 := by omega
-                rw [this] at hk_le
-                rw [h_start] at hk_le
-                omega
-              -- k - 1 doesn't satisfy the predicate (by minimality)
-              have hkm1_not : ¬(k - 1 < tail.length ∧ idx_seq ⟨k - 1, by omega⟩ ≤ v.val) := by
-                exact Nat.find_min h_exists_le (by omega : k - 1 < k)
-              have hkm1_lt : k - 1 < tail.length := by omega
-              have hkm1_gt : idx_seq ⟨k - 1, hkm1_lt⟩ > v.val := by
-                push_neg at hkm1_not
-                exact hkm1_not hkm1_lt
-              -- So idx_seq (k-1) ≥ v.val + 1 and idx_seq k ≤ v.val
-              -- Step from k-1 to k: |diff| = 1
-              have h_step_k : (idx_seq ⟨k, hk_lt⟩ = idx_seq ⟨k - 1, hkm1_lt⟩ + 1) ∨
-                             (idx_seq ⟨k - 1, hkm1_lt⟩ = idx_seq ⟨k, hk_lt⟩ + 1) := by
-                have := h_step ⟨k - 1, by omega⟩
-                simp at this
-                convert this using 2 <;> omega
-              -- From hkm1_gt and hk_le: idx_seq (k-1) > v.val ≥ idx_seq k
-              -- So idx_seq (k-1) > idx_seq k, meaning step is -1
-              -- idx_seq k = idx_seq (k-1) - 1
-              have h_decrease : idx_seq ⟨k - 1, hkm1_lt⟩ = idx_seq ⟨k, hk_lt⟩ + 1 := by
-                cases h_step_k with
-                | inl h => omega
-                | inr h => exact h
-              -- So idx_seq k = idx_seq (k-1) - 1 ≥ v.val + 1 - 1 = v.val
-              have h_k_ge : idx_seq ⟨k, hk_lt⟩ ≥ v.val := by omega
-              -- Combined with hk_le: idx_seq k = v.val
-              have h_k_eq : idx_seq ⟨k, hk_lt⟩ = v.val := by omega
-              -- This means (tail.get k).val = v.val
-              -- If k < tail.length - 1, this contradicts h_idx_not_v
-              have hk_bound : k ≤ tail.length - 2 := by
-                by_contra hk_large
-                push_neg at hk_large
-                -- k > length - 2 means k ≥ length - 1
-                -- But k < length, so k = length - 1
-                have : k = tail.length - 1 := by omega
-                -- But idx_seq (length - 2) ≤ v.val (it equals v.val - 1)
-                -- And length - 2 < length - 1 = k, contradicting minimality
-                have h_len2 : tail.length - 2 < tail.length := by omega
-                have h_len2_le : idx_seq ⟨tail.length - 2, h_len2⟩ ≤ v.val := by
-                  rw [h_end]; omega
-                have h_min := Nat.find_min h_exists_le (by omega : tail.length - 2 < k)
-                exact h_min ⟨h_len2, h_len2_le⟩
-              have hk_lt_m1 : k < tail.length - 1 := by omega
-              exact h_idx_not_v ⟨k, hk_lt_m1⟩ h_k_eq
-            | inr h =>
-              -- v1.val + 1 = v.val, second_last.val = v.val + 1
-              -- v1.val = v.val - 1, second_last.val = v.val + 1
-              -- v1.val < v.val < second_last.val
-              have hv1_below : v1.val + 1 = v.val := h.1
-              have hsl_above : second_last.val = v.val + 1 := h.2
-              -- Same argument but sequence goes up
-              have h_chain_tail : List.Chain' (H1Characterization.oneSkeleton (valueComplex adjusted epsilon)).Adj tail :=
-                List.Chain'.tail h_chain
-              let idx_seq : Fin (tail.length) → ℕ := fun i => (tail.get i).val
-              have h_step : ∀ i : Fin (tail.length - 1),
-                  (idx_seq ⟨i.val + 1, by omega⟩ = idx_seq ⟨i.val, by omega⟩ + 1) ∨
-                  (idx_seq ⟨i.val, by omega⟩ = idx_seq ⟨i.val + 1, by omega⟩ + 1) := by
-                intro i
-                have h_adj : (H1Characterization.oneSkeleton (valueComplex adjusted epsilon)).Adj
-                    (tail.get ⟨i.val, by omega⟩) (tail.get ⟨i.val + 1, by omega⟩) := by
-                  exact List.Chain'.get_rel h_chain_tail ⟨i.val, by omega⟩
-                exact h_edge_structure _ _ h_adj
-              have h_start : idx_seq ⟨0, by simp [tail]⟩ = v.val - 1 := by
-                simp only [idx_seq, tail]
-                omega
-              have h_end : idx_seq ⟨tail.length - 2, by omega⟩ = v.val + 1 := by
-                simp only [idx_seq]
-                have : tail.get ⟨tail.length - 2, _⟩ = second_last := by
-                  simp only [second_last]
-                  have h1 : tail.dropLast.length = tail.length - 1 := List.length_dropLast tail
-                  have h2 : tail.dropLast.getLast h_tail_init_ne_nil =
-                           tail.dropLast.get ⟨tail.dropLast.length - 1, by rw [h1]; omega⟩ := by
-                    apply List.getLast_eq_get
-                  rw [h2]
-                  have h3 : tail.dropLast.get ⟨tail.dropLast.length - 1, _⟩ =
-                           tail.get ⟨tail.dropLast.length - 1, by rw [h1]; omega⟩ := by
-                    apply List.get_dropLast
-                  rw [h3, h1]
-                  congr 1
-                  omega
-                rw [this, hsl_above]
-              -- Sequence starts at v.val - 1, ends at v.val + 1, with ±1 steps
-              -- Must hit v.val somewhere
-              have h_starts_below : idx_seq ⟨0, _⟩ < v.val := by rw [h_start]; omega
-              have h_ends_above : idx_seq ⟨tail.length - 2, _⟩ > v.val := by rw [h_end]; omega
-              -- Find minimum k where idx_seq k ≥ v.val
-              have h_exists_ge : ∃ k : ℕ, k < tail.length ∧ idx_seq ⟨k, by omega⟩ ≥ v.val := by
-                use tail.length - 2
-                exact ⟨by omega, by rw [h_end]; omega⟩
-              have h_dec : DecidablePred (fun k => k < tail.length ∧ idx_seq ⟨k, by omega⟩ ≥ v.val) := by
-                intro k
-                by_cases hk : k < tail.length
-                · by_cases hv : idx_seq ⟨k, hk⟩ ≥ v.val
-                  · exact isTrue ⟨hk, hv⟩
-                  · exact isFalse (fun ⟨_, hv'⟩ => hv hv')
-                · exact isFalse (fun ⟨hk', _⟩ => hk hk')
-              let k := Nat.find h_exists_ge
-              have hk_spec := Nat.find_spec h_exists_ge
-              have hk_lt : k < tail.length := hk_spec.1
-              have hk_ge : idx_seq ⟨k, hk_lt⟩ ≥ v.val := hk_spec.2
-              have hk_pos : k > 0 := by
-                by_contra hk0
-                push_neg at hk0
-                have : k = 0 := by omega
-                rw [this] at hk_ge
-                rw [h_start] at hk_ge
-                omega
-              have hkm1_not : ¬(k - 1 < tail.length ∧ idx_seq ⟨k - 1, by omega⟩ ≥ v.val) := by
-                exact Nat.find_min h_exists_ge (by omega : k - 1 < k)
-              have hkm1_lt : k - 1 < tail.length := by omega
-              have hkm1_lt_v : idx_seq ⟨k - 1, hkm1_lt⟩ < v.val := by
-                push_neg at hkm1_not
-                exact hkm1_not hkm1_lt
-              -- idx_seq (k-1) < v.val ≤ idx_seq k
-              -- Step is +1: idx_seq k = idx_seq (k-1) + 1
-              have h_step_k : (idx_seq ⟨k, hk_lt⟩ = idx_seq ⟨k - 1, hkm1_lt⟩ + 1) ∨
-                             (idx_seq ⟨k - 1, hkm1_lt⟩ = idx_seq ⟨k, hk_lt⟩ + 1) := by
-                have := h_step ⟨k - 1, by omega⟩
-                simp at this
-                convert this using 2 <;> omega
-              have h_increase : idx_seq ⟨k, hk_lt⟩ = idx_seq ⟨k - 1, hkm1_lt⟩ + 1 := by
-                cases h_step_k with
-                | inl h => exact h
-                | inr h => omega
-              -- idx_seq k = idx_seq (k-1) + 1 ≤ v.val - 1 + 1 = v.val
-              have h_k_le : idx_seq ⟨k, hk_lt⟩ ≤ v.val := by omega
-              have h_k_eq : idx_seq ⟨k, hk_lt⟩ = v.val := by omega
-              have hk_bound : k ≤ tail.length - 2 := by
-                by_contra hk_large
-                push_neg at hk_large
-                have : k = tail.length - 1 := by omega
-                have h_len2 : tail.length - 2 < tail.length := by omega
-                have h_len2_ge : idx_seq ⟨tail.length - 2, h_len2⟩ ≥ v.val := by
-                  rw [h_end]; omega
-                have h_min := Nat.find_min h_exists_ge (by omega : tail.length - 2 < k)
-                exact h_min ⟨h_len2, h_len2_ge⟩
-              have hk_lt_m1 : k < tail.length - 1 := by omega
-              exact h_idx_not_v ⟨k, hk_lt_m1⟩ h_k_eq
+        | v0 :: v1 :: rest => exact ⟨v0, v1, rest, rfl⟩
+      -- There's an edge from v0 to v1
+      have h_adj : (H1Characterization.oneSkeleton (valueComplex adjusted epsilon)).Adj v0 v1 := by
+        rw [h_supp] at h_chain
+        exact List.Chain'.rel_head h_chain
+      -- But with our construction, NO edges can exist!
+      simp only [H1Characterization.oneSkeleton] at h_adj
+      obtain ⟨hne, hedge⟩ := h_adj
+      simp only [valueComplex, Set.mem_setOf_eq] at hedge
+      obtain ⟨hvert, hpairs⟩ := hedge
+      -- ↑v0 and ↑v1 are natural numbers (vertex indices as ℕ via coercion)
+      have hne_nat : (v0 : ℕ) ≠ (v1 : ℕ) := hne
+      by_cases hlt : (v0 : ℕ) < (v1 : ℕ)
+      · have hedge' := hpairs v0.val v1.val (Finset.mem_insert_self _ _)
+            (Finset.mem_insert_of_mem (Finset.mem_singleton_self _)) hlt
+            (hvert v0.val (Finset.mem_insert_self _ _))
+            (hvert v1.val (Finset.mem_insert_of_mem (Finset.mem_singleton_self _)))
+        obtain ⟨s, hs⟩ := hedge'
+        simp only [adjusted] at hs
+        -- Distance = |(v0 : ℕ) * 10 * ε - (v1 : ℕ) * 10 * ε|
+        --          = ((v1 : ℕ) - (v0 : ℕ)) * 10 * ε ≥ 10 * ε > 2ε
+        have h_diff_pos : (v1 : ℕ) - (v0 : ℕ) > 0 := Nat.sub_pos_of_lt hlt
+        have h_diff_ge_1 : (v1 : ℕ) - (v0 : ℕ) ≥ 1 := h_diff_pos
+        have h_diff_q : ((v1 : ℕ) : ℚ) - ((v0 : ℕ) : ℚ) ≥ 1 := by
+          have h_sub := @Nat.cast_sub ℚ _ (v0 : ℕ) (v1 : ℕ) (le_of_lt hlt)
+          rw [← h_sub]
+          exact Nat.one_le_cast.mpr h_diff_ge_1
+        have h_dist : |(((v0 : ℕ) : ℚ) * 10 * epsilon - ((v1 : ℕ) : ℚ) * 10 * epsilon)|
+                    = (((v1 : ℕ) : ℚ) - ((v0 : ℕ) : ℚ)) * 10 * epsilon := by
+          rw [abs_sub_comm]
+          have h2 : ((v1 : ℕ) : ℚ) * 10 * epsilon - ((v0 : ℕ) : ℚ) * 10 * epsilon
+                  = (((v1 : ℕ) : ℚ) - ((v0 : ℕ) : ℚ)) * 10 * epsilon := by ring
+          rw [h2, abs_of_nonneg]
+          have h_nonneg : ((v1 : ℕ) : ℚ) - ((v0 : ℕ) : ℚ) ≥ 0 := by linarith
+          apply mul_nonneg (mul_nonneg h_nonneg (by linarith : (10 : ℚ) ≥ 0)) (by linarith : epsilon ≥ 0)
+        rw [h_dist] at hs
+        have h_large : (((v1 : ℕ) : ℚ) - ((v0 : ℕ) : ℚ)) * 10 * epsilon ≥ 10 * epsilon := by nlinarith
+        linarith
+      · push_neg at hlt
+        have hlt' : (v1 : ℕ) < (v0 : ℕ) := Nat.lt_of_le_of_ne hlt (Ne.symm hne_nat)
+        have hedge' := hpairs v1.val v0.val (Finset.mem_insert_of_mem (Finset.mem_singleton_self _))
+            (Finset.mem_insert_self _ _) hlt'
+            (hvert v1.val (Finset.mem_insert_of_mem (Finset.mem_singleton_self _)))
+            (hvert v0.val (Finset.mem_insert_self _ _))
+        obtain ⟨s, hs⟩ := hedge'
+        simp only [adjusted] at hs
+        have h_diff_pos : (v0 : ℕ) - (v1 : ℕ) > 0 := Nat.sub_pos_of_lt hlt'
+        have h_diff_ge_1 : (v0 : ℕ) - (v1 : ℕ) ≥ 1 := h_diff_pos
+        have h_diff_q : ((v0 : ℕ) : ℚ) - ((v1 : ℕ) : ℚ) ≥ 1 := by
+          have h_sub := @Nat.cast_sub ℚ _ (v1 : ℕ) (v0 : ℕ) (le_of_lt hlt')
+          rw [← h_sub]
+          exact Nat.one_le_cast.mpr h_diff_ge_1
+        have h_dist : |(((v1 : ℕ) : ℚ) * 10 * epsilon - ((v0 : ℕ) : ℚ) * 10 * epsilon)|
+                    = (((v0 : ℕ) : ℚ) - ((v1 : ℕ) : ℚ)) * 10 * epsilon := by
+          have h2 : ((v0 : ℕ) : ℚ) * 10 * epsilon - ((v1 : ℕ) : ℚ) * 10 * epsilon
+                  = (((v0 : ℕ) : ℚ) - ((v1 : ℕ) : ℚ)) * 10 * epsilon := by ring
+          rw [abs_sub_comm, h2, abs_of_nonneg]
+          have h_nonneg : ((v0 : ℕ) : ℚ) - ((v1 : ℕ) : ℚ) ≥ 0 := by linarith
+          apply mul_nonneg (mul_nonneg h_nonneg (by linarith : (10 : ℚ) ≥ 0)) (by linarith : epsilon ≥ 0)
+        rw [h_dist] at hs
+        have h_large : (((v0 : ℕ) : ℚ) - ((v1 : ℕ) : ℚ)) * 10 * epsilon ≥ 10 * epsilon := by nlinarith
+        linarith
 
 /--
 THEOREM: Removing one agent can break barrier.

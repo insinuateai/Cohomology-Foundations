@@ -174,6 +174,9 @@ theorem path_compatible (H : HierarchicalNetwork S) (hwf : H.wellFormed)
       (∀ m (hm : m + 1 < path.length),
         H.compatible (path.get ⟨m, Nat.lt_of_succ_lt hm⟩) (path.get ⟨m + 1, hm⟩)) := by
   -- The path to root provides such a sequence
+  -- Proof requires: (1) pathToRoot length = depth + 1
+  --                 (2) adjacent elements in pathToRoot are parent-child pairs
+  -- Both require additional infrastructure theorems
   sorry
 
 end HierarchicalNetwork
