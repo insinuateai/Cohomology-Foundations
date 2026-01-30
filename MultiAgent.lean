@@ -9,9 +9,17 @@ import MultiAgent.PerspectiveSheaf
 import MultiAgent.LensFormalism
 import MultiAgent.EncounterPrimitives
 import MultiAgent.GlobalLocalDuality
+import MultiAgent.BridgeUtilities
+import MultiAgent.NerveComplex
 -- Game Theory Module (Batches 59-63)
 import MultiAgent.GameTheoreticH1
 import MultiAgent.StrategicCoordination
 import MultiAgent.EquilibriumTopology
 import MultiAgent.CoalitionCohomology
 import MultiAgent.MechanismDesign
+-- Tree/Hierarchy Module
+import MultiAgent.TreeComposition
+import MultiAgent.TreeAuthority
+import MultiAgent.TreeAuthorityH1
+import MultiAgent.HierarchicalNetwork
+import MultiAgent.CoalitionH2

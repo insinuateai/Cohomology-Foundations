@@ -11,3 +11,6 @@ import Infrastructure.H1BridgeProofs
 import Infrastructure.AxiomElimination
 import Infrastructure.GameTheoryBridge
 import Infrastructure.SmallGraphsFixed
+import Infrastructure.GraphComposition
+import Infrastructure.SmallComplexH2
+import Infrastructure.TreeGraphInfra  -- Has errors: needs fixes

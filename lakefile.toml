@@ -22,10 +22,13 @@ name = "H1Characterization"
 name = "Perspective"
 
 [[lean_lib]]
-name = "AgentCoordination"
-
-[[lean_lib]]
 name = "MultiAgent"
 
 [[lean_lib]]
 name = "Infrastructure"
+
+[[lean_lib]]
+name = "DeltaSquaredZero"
+
+[[lean_lib]]
+name = "ForestEulerFormula"
