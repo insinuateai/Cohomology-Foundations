@@ -5,7 +5,7 @@
   Includes tree characterization by edge count, forest-Euler relations,
   and cycle creation when adding edges to connected graphs.
 
-  SORRIES: 1 (complex walk argument in add_edge_creates_cycle)
+  SORRIES: 0
   AXIOMS: 0
 -/
 
@@ -148,9 +148,15 @@ theorem forest_iff_euler (G : SimpleGraph V) [DecidableRel G.Adj] [Fintype G.edg
 
 /-! ## Section 7: Adding Edges Creates Cycles -/
 
+/-- Helper lemma: mapLe preserves edges of a walk -/
+lemma mapLe_edges_eq' {V' : Type*} {G H : SimpleGraph V'} (hle : G ≤ H) {u v : V'} (p : G.Walk u v) :
+    (p.mapLe hle).edges = p.edges := by
+  rw [Walk.mapLe, Walk.edges_map]
+  have h1 : ⇑(Hom.ofLE hle) = @id V' := rfl
+  rw [h1, Sym2.map_id, List.map_id]
+
 /-- Adding an edge between reachable distinct non-adjacent vertices creates a cycle.
-    This follows from the fact that u,v are reachable, so adding edge v→u closes a cycle.
-    The detailed walk argument for constructing the cycle is deferred (see sorry). -/
+    This follows from the fact that u,v are reachable, so adding edge v→u closes a cycle. -/
 theorem add_edge_creates_cycle (G : SimpleGraph V) [DecidableRel G.Adj]
     (u v : V) (h_neq : u ≠ v) (h_reach : G.Reachable u v) (h_not_adj : ¬G.Adj u v) :
     ¬(G ⊔ SimpleGraph.fromEdgeSet {s(u, v)}).IsAcyclic := by
@@ -182,14 +188,54 @@ theorem add_edge_creates_cycle (G : SimpleGraph V) [DecidableRel G.Adj]
   -- Trail: edges nodup (pp is a path, and new edge is not in pp since ¬G.Adj u v)
   -- Support nodup: tail of support is nodup (pp is a path with u at start)
   have h_is_cycle : c.IsCycle := by
-    -- c = pp'.concat h_sup_adj where pp' is a path lifted to augmented graph
-    -- IsCycle requires: IsCircuit (IsTrail + ne_nil) + support.tail.Nodup
-    -- Key facts:
-    -- 1. pp' is a path (hence trail with nodup edges)
-    -- 2. The new edge s(v,u) is not in pp' since ¬G.Adj u v
-    -- 3. Support tail nodup follows from pp' being a path
-    -- TODO: Complete using Walk.IsTrail and Walk.IsPath properties
-    sorry
+    -- Path pp has IsPath property
+    have hpp_path : pp'.IsPath := pp.property.mapLe le_sup_left
+    -- IsPath implies IsTrail
+    have hpp_trail : pp'.IsTrail := hpp_path.isTrail
+    -- The new edge s(v, u) is not in pp'.edges
+    have h_edge_not_in : s(v, u) ∉ pp'.edges := by
+      intro h_in
+      -- pp' = pp.val.mapLe le_sup_left, so its edges come from G
+      have h_in_G : s(v, u) ∈ G.edgeSet := by
+        rw [mapLe_edges_eq'] at h_in
+        exact Walk.edges_subset_edgeSet pp.val h_in
+      -- But s(v, u) ∈ G.edgeSet means G.Adj v u
+      rw [mem_edgeSet] at h_in_G
+      exact h_not_adj (G.adj_symm h_in_G)
+    -- Build IsTrail for concat
+    have h_c_trail : c.IsTrail := by
+      constructor
+      rw [Walk.edges_concat]
+      rw [List.nodup_concat]
+      exact ⟨h_edge_not_in, hpp_trail.edges_nodup⟩
+    -- Build ne_nil
+    have h_c_ne_nil : c ≠ Walk.nil := Walk.concat_ne_nil pp' h_sup_adj
+    -- Build support.tail.Nodup
+    have h_c_support_nodup : c.support.tail.Nodup := by
+      rw [Walk.support_concat]
+      -- (pp'.support.concat u).tail = pp'.support.tail.concat u
+      cases hp : pp'.support with
+      | nil => exact absurd hp (Walk.support_ne_nil pp')
+      | cons x xs =>
+        simp only [List.concat_cons, List.tail_cons]
+        -- Need: (xs.concat u).Nodup
+        have h_supp_nodup := hpp_path.support_nodup
+        rw [hp] at h_supp_nodup
+        have h_xs_nodup := h_supp_nodup.tail
+        rw [List.nodup_concat]
+        constructor
+        · -- u ∉ xs: x = u (since pp' starts at u)
+          have h_x_eq_u : x = u := by
+            have := Walk.support_eq_cons pp'
+            rw [hp] at this
+            exact (List.cons.inj this).1
+          intro h_u_in_xs
+          rw [← h_x_eq_u] at h_u_in_xs
+          have := List.nodup_cons.mp h_supp_nodup
+          exact this.1 h_u_in_xs
+        · exact h_xs_nodup
+    -- Construct IsCycle
+    exact ⟨⟨h_c_trail, h_c_ne_nil⟩, h_c_support_nodup⟩
   -- But h_acyc says no cycles exist - contradiction
   exact h_acyc c h_is_cycle
 

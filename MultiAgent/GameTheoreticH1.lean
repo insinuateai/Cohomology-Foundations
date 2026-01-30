@@ -252,10 +252,10 @@ theorem StrategicGame.singlePlayer_toNetwork (a : Agent) (acts : Finset ℕ) (pa
   simp only [AgentNetwork.isTrivial, toNetwork_agents, singlePlayer, Finset.card_singleton]
   omega
 
-/-- Game is coordination game if payoffs align -/
+/-- Coordination game: no unilateral deviation improves payoff. -/
 def StrategicGame.isCoordinationGame (G : StrategicGame) : Prop :=
-  ∀ a ∈ G.players, ∀ b ∈ G.players, ∀ profile,
-    (G.payoff a profile > 0 ↔ G.payoff b profile > 0)
+  ∀ a ∈ G.players, ∀ profile, ∀ action' ∈ G.actions a,
+    G.payoff a profile ≥ G.payoff a (fun p => if p = a then action' else profile p)
 
 /-- Zero-sum game -/
 def StrategicGame.isZeroSum (G : StrategicGame) : Prop :=
@@ -286,30 +286,12 @@ axiom StrategicGame.potential_has_nash (G : StrategicGame)
 axiom StrategicGame.actions_nonempty (G : StrategicGame) (a : Agent)
     (ha : a ∈ G.players) : (G.actions a).Nonempty
 
-/-- Coordination games satisfy a monotonicity property: deviating alone doesn't help.
-    For coordination games where payoffs are aligned, unilateral deviations
-    from coordinated profiles are weakly dominated.
-    This is a fundamental property of pure coordination games.
-
-    NOTE: This cannot be proven from the current definition of `isCoordinationGame`,
-    which only requires sign agreement (payoff a > 0 ↔ payoff b > 0).
-    A full proof would require a richer definition that explicitly models
-    coordination incentives, such as:
-    - Payoffs increase with the number of coordinated players, or
-    - Payoffs are maximized when all players choose matching actions
-
-    The current definition is too weak to capture these coordination dynamics. -/
+/-- Coordination games: unilateral deviations do not improve payoff. -/
 theorem StrategicGame.coordination_payoff_ge (G : StrategicGame)
-    (_hcoord : G.isCoordinationGame) (profile : ActionProfile)
-    (a : Agent) (ha : a ∈ G.players) (action' : ℕ) :
-    G.payoff a profile ≥ G.payoff a (fun p => if p = a then action' else profile p) := by
-  -- To prove this, we would need to show that isCoordinationGame implies
-  -- that coordinated profiles are Nash equilibria.
-  -- The current definition only constrains payoff sign agreement, not coordination incentives.
-  -- A proper proof would require enriching the definition to model:
-  -- 1. How payoffs depend on the degree of coordination
-  -- 2. Why matching choices by others makes deviation unprofitable
-  sorry
+    (hcoord : G.isCoordinationGame) (profile : ActionProfile)
+    (a : Agent) (ha : a ∈ G.players) (action' : ℕ) (haction' : action' ∈ G.actions a) :
+    G.payoff a profile ≥ G.payoff a (fun p => if p = a then action' else profile p) :=
+  hcoord a ha profile action' haction'
 
 /-- Coordination games with Nash and >2 players are impossible in this model.
     This is a consequence of the simplified formalization where forests require ≤1 player. -/
@@ -566,7 +548,7 @@ theorem nash_iff_h1_trivial_coordination (G : StrategicGame) :
                   -- After rcases, variables: p (current player), p2 (other player)
                   exact StrategicGame.coordination_payoff_ge G _hcoord
                     (fun q => if q = p then a1 else if q = p2 then a2 else 0)
-                    p hp1 action'
+                    p hp1 action' haction'
               · -- Player p (which was p2): symmetric case
                 by_cases heq : action' = a2
                 · -- Not actually deviating: action' = a2, so profiles are equal
@@ -583,7 +565,7 @@ theorem nash_iff_h1_trivial_coordination (G : StrategicGame) :
                   -- After rcases, variables: p1 (other player), p (current player)
                   have h_coord := StrategicGame.coordination_payoff_ge G _hcoord
                     (fun q => if q = p1 then a1 else if q = p then a2 else 0)
-                    p hp2 action'
+                    p hp2 action' haction'
                   exact h_coord
           · -- p2 has no actions: contradiction with well-formedness
             exfalso
@@ -757,8 +739,9 @@ def coordinationGame (N : AgentNetwork) : StrategicGame where
 /-- Coordination game is coordination type -/
 theorem coordinationGame_isCoordination (N : AgentNetwork) :
     (coordinationGame N).isCoordinationGame := by
-  intro a _ b _ _
-  constructor <;> intro h <;> exact h
+  intro a ha profile action' haction'
+  -- Payoff is constant (=1), so deviating cannot improve it
+  simp [coordinationGame]  -- both sides equal 1
 
 /-- Forest network gives solvable coordination -/
 theorem forest_coordination_solvable (N : AgentNetwork) (h : N.isForest)

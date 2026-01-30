@@ -169,9 +169,17 @@ This is feasible because identical systems have trivial H¹.
 private lemma makeAllIdenticalPlan_not_agent0 {n : ℕ} (hn : n ≥ 1)
     (systems : Fin n → ValueSystem S) [Nonempty S] :
     ∀ r ∈ makeAllIdenticalPlan hn systems, r.agent ≠ ⟨0, by omega⟩ := by
-  -- All repairs in the plan come from agents with i.val > 0
-  -- TODO: Complete using List.mem_flatten/join API
-  sorry
+  intro r hr
+  unfold makeAllIdenticalPlan at hr
+  rw [List.mem_flatten] at hr
+  obtain ⟨inner, ⟨hi_mem, hr_inner⟩⟩ := hr
+  rw [List.mem_map] at hi_mem
+  obtain ⟨i, hi_filter, rfl⟩ := hi_mem
+  rw [List.mem_map] at hr_inner
+  obtain ⟨s, _, rfl⟩ := hr_inner
+  simp only [Finset.mem_toList, Finset.mem_filter, Finset.mem_univ, true_and] at hi_filter
+  simp only [ne_eq, Fin.ext_iff]
+  omega
 
 -- Helper: For i > 0 and situation s, the plan contains the repair setting to agent0's value
 private lemma makeAllIdenticalPlan_contains {n : ℕ} (hn : n ≥ 1)
@@ -180,8 +188,125 @@ private lemma makeAllIdenticalPlan_contains {n : ℕ} (hn : n ≥ 1)
     let agent0 := systems ⟨0, by omega⟩
     { agent := i, situation := s, newValue := agent0.values s : AtomicRepair n } ∈
       makeAllIdenticalPlan hn systems := by
-  -- TODO: Refactor for new Mathlib API
-  sorry
+  unfold makeAllIdenticalPlan
+  rw [List.mem_flatten]
+  use (Finset.univ : Finset S).toList.map fun s' =>
+      { agent := i, situation := s', newValue := (systems ⟨0, by omega⟩).values s' }
+  constructor
+  · rw [List.mem_map]
+    refine ⟨i, ?_, rfl⟩
+    simp only [Finset.mem_toList, Finset.mem_filter, Finset.mem_univ, true_and]
+    exact hi
+  · rw [List.mem_map]
+    exact ⟨s, Finset.mem_toList.mpr (Finset.mem_univ s), rfl⟩
+
+-- Helper: foldl preserves values when no repair targets this agent
+private lemma foldl_no_target {n : ℕ} (V₀ : ValueSystem S) (plan : RepairPlan n S)
+    (i : Fin n) (h_none : ∀ r ∈ plan, r.agent ≠ i) :
+    (plan.foldl (fun V r => applyAtomicRepair V r (r.agent = i)) V₀) = V₀ := by
+  induction plan generalizing V₀ with
+  | nil => rfl
+  | cons r rs ih =>
+    simp only [List.foldl_cons, applyAtomicRepair, decide_eq_true_eq]
+    have hr_ne : r.agent ≠ i := h_none r (List.mem_cons_self ..)
+    simp only [hr_ne, ↓reduceIte]
+    have ih' := ih V₀ (fun r' hr' => h_none r' (List.mem_cons_of_mem r hr'))
+    simp only [applyAtomicRepair, decide_eq_true_eq] at ih'
+    exact ih'
+
+-- Helper: foldl preserves a value at s when no repair targets (i, s)
+private lemma foldl_preserves_value {n : ℕ} (V₀ : ValueSystem S) (plan : RepairPlan n S)
+    (i : Fin n) (s : S) (h_none : ∀ r ∈ plan, r.agent = i → r.situation ≠ s) :
+    (plan.foldl (fun V r => applyAtomicRepair V r (r.agent = i)) V₀).values s = V₀.values s := by
+  induction plan generalizing V₀ with
+  | nil => rfl
+  | cons r rs ih =>
+    simp only [List.foldl_cons, applyAtomicRepair, decide_eq_true_eq]
+    have h_rs : ∀ r' ∈ rs, r'.agent = i → r'.situation ≠ s :=
+      fun r' hr' => h_none r' (List.mem_cons_of_mem r hr')
+    split_ifs with h_agent
+    · have h_sit : r.situation ≠ s := h_none r (List.mem_cons_self ..) h_agent
+      let V₁ : ValueSystem S := { values := fun s' => if s' = r.situation then r.newValue else V₀.values s' }
+      have hV₁ : V₁.values s = V₀.values s := if_neg (Ne.symm h_sit)
+      have ih' := ih V₁ h_rs
+      simp only [applyAtomicRepair, decide_eq_true_eq] at ih'
+      rw [ih', hV₁]
+    · have ih' := ih V₀ h_rs
+      simp only [applyAtomicRepair, decide_eq_true_eq] at ih'
+      exact ih'
+
+-- Helper: After applying a repair for (i, s) with value v, if all repairs for (i, s)
+-- have the same value, then the final value at s is v
+private lemma foldl_last_repair_wins {n : ℕ} (V₀ : ValueSystem S) (plan : RepairPlan n S)
+    (i : Fin n) (s : S) (v : ℚ)
+    (h_exists : ∃ r ∈ plan, r.agent = i ∧ r.situation = s ∧ r.newValue = v)
+    (h_all_same : ∀ r ∈ plan, r.agent = i → r.situation = s → r.newValue = v) :
+    (plan.foldl (fun V r => applyAtomicRepair V r (r.agent = i)) V₀).values s = v := by
+  induction plan generalizing V₀ with
+  | nil =>
+    obtain ⟨r, hr, _⟩ := h_exists
+    exact (List.not_mem_nil hr).elim
+  | cons r rs ih =>
+    simp only [List.foldl_cons, applyAtomicRepair, decide_eq_true_eq]
+    have h_all_rs : ∀ r' ∈ rs, r'.agent = i → r'.situation = s → r'.newValue = v :=
+      fun r' hr' => h_all_same r' (List.mem_cons_of_mem r hr')
+    split_ifs with h_agent
+    · -- r targets agent i
+      by_cases hr_sit : r.situation = s
+      · -- r targets situation s, so it sets value to v
+        have hr_val : r.newValue = v := h_all_same r (List.mem_cons_self ..) h_agent hr_sit
+        by_cases h_later : ∃ r' ∈ rs, r'.agent = i ∧ r'.situation = s
+        · -- There's a later repair for (i, s)
+          obtain ⟨r', hr'_mem, hr'_agent, hr'_sit⟩ := h_later
+          have h_exists_rs : ∃ r' ∈ rs, r'.agent = i ∧ r'.situation = s ∧ r'.newValue = v :=
+            ⟨r', hr'_mem, hr'_agent, hr'_sit, h_all_same r' (List.mem_cons_of_mem r hr'_mem) hr'_agent hr'_sit⟩
+          let V₁ : ValueSystem S := { values := fun s' => if s' = r.situation then r.newValue else V₀.values s' }
+          have ih' := ih V₁ h_exists_rs h_all_rs
+          simp only [applyAtomicRepair, decide_eq_true_eq] at ih'
+          exact ih'
+        · -- No later repair for (i, s)
+          push_neg at h_later
+          simp only [hr_sit, ↓reduceIte, hr_val]
+          let V₂ : ValueSystem S := { values := fun s' => if s' = s then v else V₀.values s' }
+          have hp := foldl_preserves_value V₂ rs i s h_later
+          simp only [applyAtomicRepair, decide_eq_true_eq] at hp
+          simp only [V₂, ↓reduceIte] at hp
+          exact hp
+      · -- r targets i but different situation
+        obtain ⟨r', hr'_mem, hr'_eq⟩ := h_exists
+        have h_exists_rs : ∃ r' ∈ rs, r'.agent = i ∧ r'.situation = s ∧ r'.newValue = v := by
+          cases hr'_mem with
+          | head => exact absurd hr'_eq.2.1 hr_sit
+          | tail _ h => exact ⟨r', h, hr'_eq⟩
+        have ih' := ih { values := fun s' => if s' = r.situation then r.newValue else V₀.values s' } h_exists_rs h_all_rs
+        simp only [applyAtomicRepair, decide_eq_true_eq] at ih'
+        exact ih'
+    · -- r doesn't target agent i
+      obtain ⟨r', hr'_mem, hr'_eq⟩ := h_exists
+      have h_exists_rs : ∃ r' ∈ rs, r'.agent = i ∧ r'.situation = s ∧ r'.newValue = v := by
+        cases hr'_mem with
+        | head => exact absurd hr'_eq.1 h_agent
+        | tail _ h => exact ⟨r', h, hr'_eq⟩
+      have ih' := ih V₀ h_exists_rs h_all_rs
+      simp only [applyAtomicRepair, decide_eq_true_eq] at ih'
+      exact ih'
+
+-- Helper: All repairs for (i, s) in makeAllIdenticalPlan have the same newValue
+private lemma makeAllIdenticalPlan_same_value {n : ℕ} (hn : n ≥ 1)
+    (systems : Fin n → ValueSystem S) [Nonempty S]
+    (i : Fin n) (s : S) :
+    ∀ r ∈ makeAllIdenticalPlan hn systems,
+      r.agent = i → r.situation = s → r.newValue = (systems ⟨0, by omega⟩).values s := by
+  intro r hr hr_agent hr_sit
+  unfold makeAllIdenticalPlan at hr
+  rw [List.mem_flatten] at hr
+  obtain ⟨inner, ⟨hi_mem, hr_inner⟩⟩ := hr
+  rw [List.mem_map] at hi_mem
+  obtain ⟨j, _, rfl⟩ := hi_mem
+  rw [List.mem_map] at hr_inner
+  obtain ⟨s', _, rfl⟩ := hr_inner
+  simp only at hr_sit
+  rw [hr_sit]
 
 -- THEOREM: After applying makeAllIdenticalPlan, all agents have agent 0's values
 theorem makeAllIdenticalPlan_works {n : ℕ} (hn : n ≥ 1)
@@ -189,8 +314,21 @@ theorem makeAllIdenticalPlan_works {n : ℕ} (hn : n ≥ 1)
     ∀ i : Fin n, ∀ s : S,
       (applyRepairPlan systems (makeAllIdenticalPlan hn systems) i).values s =
       (systems ⟨0, by omega⟩).values s := by
-  -- TODO: Refactor for new Mathlib API (foldl_same_target_value needed)
-  sorry
+  intro i s
+  unfold applyRepairPlan
+  by_cases hi : i.val = 0
+  · -- Case i = 0: No repairs target agent 0
+    have h0 : i = ⟨0, by omega⟩ := Fin.ext hi
+    rw [h0]
+    have h_no_target := makeAllIdenticalPlan_not_agent0 hn systems
+    rw [foldl_no_target _ _ _ h_no_target]
+  · -- Case i > 0: Plan contains repair setting value to agent0's
+    have hi_pos : i.val > 0 := Nat.pos_of_ne_zero hi
+    have h_contains := makeAllIdenticalPlan_contains hn systems i hi_pos s
+    have h_same := makeAllIdenticalPlan_same_value hn systems i s
+    apply foldl_last_repair_wins
+    · exact ⟨_, h_contains, rfl, rfl, rfl⟩
+    · exact h_same
 
 theorem feasible_repair_exists {n : ℕ} (hn : n ≥ 1)
     (systems : Fin n → ValueSystem S) (epsilon : ℚ) (hε : epsilon > 0)
@@ -375,6 +513,59 @@ private lemma applyAtomicRepair_other_agent {n : ℕ} (V : ValueSystem S)
   have : decide (r.agent = i) = false := decide_eq_false h
   simp [this]
 
+-- Helper: folding repairs that don't target agent i preserves everything
+private lemma foldl_applyAtomicRepair_preserves_when_not_target {n : ℕ} (V : ValueSystem S)
+    (repairs : List (AtomicRepair n (S := S))) (i : Fin n)
+    (h : ∀ r ∈ repairs, r.agent ≠ i) :
+    repairs.foldl (fun V r => applyAtomicRepair V r (r.agent = i)) V = V := by
+  induction repairs generalizing V with
+  | nil => simp [List.foldl]
+  | cons r rs ih =>
+    simp only [List.foldl_cons]
+    have hr : r.agent ≠ i := h r (by simp)
+    rw [applyAtomicRepair_other_agent V r i hr]
+    exact ih V (fun r' hr' => h r' (by simp [hr']))
+
+-- Helper: applying repair for agent i at situation s sets that value
+private lemma applyAtomicRepair_same_agent_sets {n : ℕ} (V : ValueSystem S)
+    (r : AtomicRepair n (S := S)) (i : Fin n) (h : r.agent = i) :
+    (applyAtomicRepair V r (r.agent = i)).values r.situation = r.newValue := by
+  unfold applyAtomicRepair
+  have : decide (r.agent = i) = true := decide_eq_true h
+  simp [this]
+
+-- Helper: applying repair for agent i at different situation preserves value at s
+private lemma applyAtomicRepair_same_agent_diff_situation {n : ℕ} (V : ValueSystem S)
+    (r : AtomicRepair n (S := S)) (i : Fin n) (s : S) (h_agent : r.agent = i)
+    (h_sit : r.situation ≠ s) :
+    (applyAtomicRepair V r (r.agent = i)).values s = V.values s := by
+  unfold applyAtomicRepair
+  have : decide (r.agent = i) = true := decide_eq_true h_agent
+  simp [this, h_sit.symm]
+
+-- Helper: folding repairs preserves value at s when repairs don't target (i, s)
+private lemma foldl_applyAtomicRepair_preserves_at_s {n : ℕ} (V : ValueSystem S)
+    (repairs : List (AtomicRepair n (S := S))) (i : Fin n) (s : S)
+    (h : ∀ r ∈ repairs, r.agent ≠ i ∨ r.situation ≠ s) :
+    (repairs.foldl (fun V r => applyAtomicRepair V r (r.agent = i)) V).values s = V.values s := by
+  induction repairs generalizing V with
+  | nil => simp [List.foldl]
+  | cons r rs ih =>
+    simp only [List.foldl_cons]
+    have hr := h r (by simp)
+    rw [ih]
+    · cases hr with
+      | inl h_agent =>
+        have : applyAtomicRepair V r (r.agent = i) = V := applyAtomicRepair_other_agent V r i h_agent
+        rw [this]
+      | inr h_sit =>
+        by_cases h_agent : r.agent = i
+        · exact applyAtomicRepair_same_agent_diff_situation V r i s h_agent h_sit
+        · have : applyAtomicRepair V r (r.agent = i) = V := applyAtomicRepair_other_agent V r i h_agent
+          rw [this]
+    · intro r' hr'
+      exact h r' (by simp [hr'])
+
 -- Helper lemma: The moveTowardAverage plan contains a repair for agent i setting value to avg
 private lemma moveTowardAverage_contains_repair {n : ℕ} (hn : n ≥ 1)
     (systems : Fin n → ValueSystem S) (s : S) (i : Fin n) [Nonempty S] :
@@ -394,17 +585,76 @@ private lemma foldl_applyAtomicRepair_sets_value {n : ℕ} (V : ValueSystem S)
     let repair_i := { agent := i, situation := s, newValue := v : AtomicRepair n }
     ((repairs_before ++ [repair_i] ++ repairs_after).foldl
       (fun V r => applyAtomicRepair V r (r.agent = i)) V).values s = v := by
-  -- TODO: Complete proof using foldl_append and preservation lemmas
-  sorry
+  -- Step 1: Fold over repairs_before (doesn't affect agent i)
+  simp only [List.foldl_append]
+  -- After repairs_before, we still have V
+  have h1 : repairs_before.foldl (fun V r => applyAtomicRepair V r (r.agent = i)) V = V :=
+    foldl_applyAtomicRepair_preserves_when_not_target V repairs_before i h_before
+  rw [h1]
+  -- Step 2: Apply repair_i (sets value to v)
+  simp only [List.foldl_cons, List.foldl_nil]
+  -- After applying repair_i with condition (i = i) = true, we get V' where V'.values s = v
+  have h_cond : decide (i = i) = true := decide_eq_true rfl
+  simp only [h_cond, applyAtomicRepair, ↓reduceIte]
+  -- Now we have: fold repairs_after over {values := if _ = s then v else V.values _}.values s = v
+  -- Step 3: Fold over repairs_after (preserves value at s)
+  have h3 : ∀ W : ValueSystem S, W.values s = v →
+      (repairs_after.foldl (fun V r => applyAtomicRepair V r (r.agent = i)) W).values s = v := by
+    intro W hW
+    have hp := foldl_applyAtomicRepair_preserves_at_s W repairs_after i s h_after
+    exact hp.trans hW
+  apply h3
+  simp
 
 -- Helper: folding repairs that all target agent i at situation s with same value
-private lemma foldl_same_target_value {n : ℕ} (V : ValueSystem S)
+lemma foldl_same_target_value {n : ℕ} (V : ValueSystem S)
     (repairs : List (AtomicRepair n (S := S))) (i : Fin n) (s : S) (v : ℚ)
     (h_contains : ∃ r ∈ repairs, r.agent = i ∧ r.situation = s ∧ r.newValue = v)
     (h_all_same : ∀ r ∈ repairs, r.agent = i ∧ r.situation = s → r.newValue = v) :
     (repairs.foldl (fun V r => applyAtomicRepair V r (r.agent = i)) V).values s = v := by
-  -- TODO: Complete proof with induction on repairs list
-  sorry
+  induction repairs generalizing V with
+  | nil =>
+    -- Contradiction: h_contains says there exists r ∈ [], impossible
+    obtain ⟨r, hr, _⟩ := h_contains
+    simp at hr
+  | cons r rs ih =>
+    simp only [List.foldl_cons]
+    set V' := applyAtomicRepair V r (r.agent = i) with hV'
+    by_cases h_target : r.agent = i ∧ r.situation = s
+    · -- This repair targets (i, s), so it sets the value
+      have h_agent := h_target.1
+      have h_sit := h_target.2
+      have h_val : r.newValue = v := h_all_same r (by simp) h_target
+      -- After this repair, value at s is r.newValue = v
+      -- Check if rs contains another repair targeting (i, s)
+      by_cases h_rs : ∃ r' ∈ rs, r'.agent = i ∧ r'.situation = s ∧ r'.newValue = v
+      · -- rs also contains such a repair, use IH
+        exact ih V' h_rs (fun r' hr' h' => h_all_same r' (by simp [hr']) h')
+      · -- rs doesn't contain such a repair
+        -- So all repairs in rs either don't target i, or target different situation
+        have h_rs_no_target : ∀ r' ∈ rs, r'.agent ≠ i ∨ r'.situation ≠ s := by
+          intro r' hr'
+          by_contra h_neg
+          push_neg at h_neg
+          have h_val' := h_all_same r' (by simp [hr']) ⟨h_neg.1, h_neg.2⟩
+          exact h_rs ⟨r', hr', h_neg.1, h_neg.2, h_val'⟩
+        -- folding rs preserves value at s
+        have h_preserve := foldl_applyAtomicRepair_preserves_at_s V' rs i s h_rs_no_target
+        calc (rs.foldl (fun V r => applyAtomicRepair V r (r.agent = i)) V').values s
+            = V'.values s := h_preserve
+          _ = v := by simp only [hV', applyAtomicRepair, decide_eq_true h_agent, h_sit, h_val, ↓reduceIte]
+    · -- This repair doesn't target (i, s)
+      -- h_target : ¬(r.agent = i ∧ r.situation = s)
+      -- h_contains still applies to rs (since r doesn't contribute)
+      obtain ⟨r', hr', h_agent', h_sit', h_val'⟩ := h_contains
+      simp only [List.mem_cons] at hr'
+      rcases hr' with rfl | hr'_rs
+      · -- r' = r, but we said r doesn't target (i, s) - contradiction
+        exact absurd (And.intro h_agent' h_sit') h_target
+      · -- r' ∈ rs
+        have h_contains_rs : ∃ r'' ∈ rs, r''.agent = i ∧ r''.situation = s ∧ r''.newValue = v :=
+          ⟨r', hr'_rs, h_agent', h_sit', h_val'⟩
+        exact ih V' h_contains_rs (fun r'' hr'' h'' => h_all_same r'' (by simp [hr'']) h'')
 
 -- THEOREM: moveToAverage sets all agents to the average at situation s
 theorem moveToAverage_at_s {n : ℕ} (hn : n ≥ 1)

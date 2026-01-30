@@ -607,19 +607,9 @@ theorem exists_inconsistent_system :
 /-!
 ## Summary
 
-### Key Changes from Original (FALSE) Version
+### Corrected Sheaf Condition
 
-The original file contained:
-```
-theorem perspectiveSheaf_isSheaf (sys : Agent → Finset ℕ) (N : AgentNetwork) :
-    IsSheaf (perspectiveSheaf sys N) := sorry
-```
-
-This was **MATHEMATICALLY FALSE**. An arbitrary system is NOT a sheaf.
-
-### Corrected Version
-
-We now have:
+We have:
 1. `LocallyConsistent`: Predicate for when sys satisfies sheaf precondition
 2. `ConsistentAgentSystem`: Structure bundling sys + consistency proof
 3. `perspectiveSheaf_isSheaf_iff`: The CORRECT characterization (↔)

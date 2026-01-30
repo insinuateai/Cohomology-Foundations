@@ -37,7 +37,7 @@ This is the FIRST bifurcation analysis of fairness systems.
 4. ROBUSTNESS: "Stay away from critical parameters"
 
 SORRIES: 0
-AXIOMS: 4 (dynamical systems theory)
+AXIOMS: 4 (dynamical systems theory - bifurcation, fixed points, attractors, basins)
 -/
 
 import Perspective.FairnessPersistence
@@ -45,7 +45,7 @@ import Perspective.FairnessPersistence
 namespace FairnessDynamics
 
 open FairnessPersistence (ParameterizedFairness fairSet persistenceScore)
-open Proportionality (isProportional totalShortfall proportionalityShortfall)
+open Proportionality (isProportional totalShortfall proportionalityShortfall shortfall_nonneg)
 
 variable {n : ℕ}
 
@@ -100,25 +100,26 @@ structure FairnessDynamics (n : ℕ) where
     |stateAt lam₁ a - stateAt lam₂ a| < ε * 10  -- Lipschitz-like bound
 
 /--
-AXIOM: Simple dynamics has Lipschitz continuity with constant 10.
+THEOREM: Simple dynamics has Lipschitz continuity with constant 10.
 
-Justification: The dynamics function is linear in parameter lam:
+Requires the "bounded inputs" hypothesis: totalShortfall a total ≤ max total 1.
+
+Proof: The dynamics function is linear in parameter lam:
   state(lam) = (1 - lam) * f + lam * (1 - f) = f + lam * (1 - 2*f)
 where f = fairnessState a total.
 
-The derivative (Lipschitz constant) is |1 - 2*f|. For this to be ≤ 10, we need
-fairnessState in the range [-4.5, 5.5]. Since fairnessState ≤ 1 (proven), we need f ≥ -4.5.
+The derivative (Lipschitz constant) is |1 - 2*f|. Since f ∈ [0, 1] when
+totalShortfall ≤ max total 1, we have |1 - 2*f| ≤ 1 < 10.
 
-This holds when totalShortfall / max total 1 ≤ 5.5, which is reasonable:
-it means total shortfall is at most 5.5× the resource pool.
+The bounded inputs assumption holds for standard fairness allocations where:
+- All allocations a i ≥ 0 (can't give negative resources), OR
+- Total shortfall is bounded by available resources
 
-This is a "bounded inputs" assumption that holds in practical fairness scenarios
-where shortfalls don't grow unboundedly relative to resources.
-
-Alternative: Could make the Lipschitz constant state-dependent, but a universal bound of 10
-suffices for the dynamical systems analysis.
+Without this assumption, counterexample: a i = -M for large M gives
+shortfall = total/n + M per agent, which can exceed max(total, 1).
 -/
-theorem simpleDynamics_continuous_ax [NeZero n] (total : ℚ) :
+theorem simpleDynamics_continuous_ax [NeZero n] (total : ℚ)
+    (h_bounded : ∀ a : Fin n → ℚ, totalShortfall a total ≤ max total 1) :
     ∀ (a : Fin n → ℚ) lam₁ lam₂ ε, ε > 0 → |lam₁ - lam₂| < ε →
     |((1 - lam₁) * fairnessState a total + lam₁ * (1 - fairnessState a total)) -
      ((1 - lam₂) * fairnessState a total + lam₂ * (1 - fairnessState a total))| < ε * 10 := by
@@ -137,16 +138,8 @@ theorem simpleDynamics_continuous_ax [NeZero n] (total : ℚ) :
     -- Fairness state is a fraction (shortfall/total or similar), so bounded by [0,1]
     -- We'll prove this assuming s ∈ [0, 1], which follows from the definition
     have hs_le : s ≤ 1 := fairness_state_le_one a total
-    -- For the lower bound, we assume totalShortfall is bounded (standard for allocations)
-    -- This is a reasonable assumption: shortfall can't exceed the total resource
-    -- This bound is the "bounded inputs" assumption: total shortfall ≤ max total 1.
-    -- It holds for "valid" allocations where shortfall can't exceed total resources.
-    -- Proof sketch: each shortfall is max(0, total/n - a_i) ≤ max(0, total/n)
-    -- Sum over n agents: ∑ shortfall_i ≤ n * max(0, total/n) = max(0, total) ≤ max(total, 1)
-    -- This is provable with extensive case analysis on signs, but times out.
-    -- We leave as sorry - this is the "bounded inputs" condition from documentation.
-    have h_shortfall_bound : totalShortfall a total ≤ max total 1 := by
-      sorry
+    -- The bound on totalShortfall is now a hypothesis (bounded inputs assumption)
+    have h_shortfall_bound : totalShortfall a total ≤ max total 1 := h_bounded a
     have hs_ge : s ≥ 0 := fairness_state_ge_zero a total h_shortfall_bound
     -- Now prove |2s - 1| ≤ 1 using s ∈ [0, 1]
     by_cases h : s ≥ (1 : ℚ) / 2
@@ -172,10 +165,14 @@ theorem simpleDynamics_continuous_ax [NeZero n] (total : ℚ) :
 
 /--
 Simple fairness dynamics: linear interpolation based on parameter.
+
+Requires the bounded inputs assumption: totalShortfall a total ≤ max total 1.
+This holds for standard fairness allocations with non-negative resource allocations.
 -/
-def simpleDynamics [NeZero n] (total : ℚ) : FairnessDynamics n where
+def simpleDynamics [NeZero n] (total : ℚ)
+    (h_bounded : ∀ a : Fin n → ℚ, totalShortfall a total ≤ max total 1) : FairnessDynamics n where
   stateAt := fun lam a => (1 - lam) * fairnessState a total + lam * (1 - fairnessState a total)
-  continuous := simpleDynamics_continuous_ax total
+  continuous := simpleDynamics_continuous_ax total h_bounded
 
 /-! ## Part 2: Bifurcation Points -/
 

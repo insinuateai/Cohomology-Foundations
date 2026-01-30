@@ -626,11 +626,147 @@ theorem graphForest_iff_h1_trivial_nerve (N : AgentNetwork) :
     -- from nerve vertex IDs to agents. This requires showing that every vertex
     -- in the nerve corresponds to an agent, and that the walk structure is preserved.
 
-    -- For now, we note that the isomorphism compatibilityGraph_iso_oneSkeleton
-    -- provides the edge correspondence, but mapping entire walks requires
-    -- additional infrastructure for inverse vertex mapping and walk structure preservation.
+    -- Every vertex in the nerve has a corresponding agent
+    have vertex_from_agent : ∀ v : (nerveComplex N).vertexSet,
+        ∃ a ∈ N.agents, a.id = v.val := by
+      intro ⟨v, hv⟩
+      rw [Foundations.SimplicialComplex.mem_vertexSet_iff] at hv
+      simp only [nerveComplex, nerveSimplices, Set.mem_setOf_eq] at hv
+      rcases hv with hempty | ⟨_, hAgents, _⟩
+      · -- {v} = ∅, contradiction
+        exfalso
+        have : v ∈ ({v} : Simplex) := Finset.mem_singleton_self v
+        simp only [Finset.singleton_eq_empty] at hempty
+      · exact hAgents v (Finset.mem_singleton_self v)
 
-    sorry
+    -- Pick canonical agent for each vertex using Classical.choice
+    let pickAgent : (nerveComplex N).vertexSet → N.agents := fun v =>
+      ⟨(vertex_from_agent v).choose, (vertex_from_agent v).choose_spec.1⟩
+
+    -- The picked agent has the correct ID
+    have pickAgent_id : ∀ v, (pickAgent v).val.id = v.val := fun v =>
+      (vertex_from_agent v).choose_spec.2
+
+    -- pickAgent is injective (different vertices → different agents)
+    have pickAgent_inj : Function.Injective pickAgent := by
+      intro v w h
+      have hv_id := pickAgent_id v
+      have hw_id := pickAgent_id w
+      have heq : (pickAgent v).val.id = (pickAgent w).val.id := by rw [h]
+      have hid_eq : v.val = w.val := hv_id.symm.trans (heq.trans hw_id)
+      exact Subtype.ext hid_eq
+
+    -- Key lemma: adjacent vertices in 1-skeleton → adjacent agents in compat graph
+    have adj_preserved : ∀ v w : (nerveComplex N).vertexSet,
+        (oneSkeleton (nerveComplex N)).Adj v w →
+        (compatibilityGraph N).Adj (pickAgent v) (pickAgent w) := by
+      intro v w hadj
+      simp only [oneSkeleton] at hadj
+      obtain ⟨hne_val, hsimplex⟩ := hadj
+      simp only [nerveComplex, nerveSimplices, Set.mem_setOf_eq] at hsimplex
+      rcases hsimplex with hempty | ⟨_, hAgents, hCompat⟩
+      · exfalso
+        have : v.val ∈ ({v.val, w.val} : Simplex) := Finset.mem_insert_self _ _
+        rw [hempty] at this
+        exact Finset.not_mem_empty _ this
+      · have hv_mem : v.val ∈ ({v.val, w.val} : Simplex) := Finset.mem_insert_self _ _
+        have hw_mem : w.val ∈ ({v.val, w.val} : Simplex) :=
+          Finset.mem_insert_of_mem (Finset.mem_singleton_self _)
+        obtain ⟨a', b', ha'_in, hb'_in, ha'_id, hb'_id, hcompat⟩ :=
+          hCompat v.val w.val hv_mem hw_mem hne_val
+        -- pickAgent v = a' and pickAgent w = b' (by ID uniqueness)
+        have hv_eq : (pickAgent v).val = a' :=
+          Agent.id_inj _ _ ((pickAgent_id v).trans ha'_id.symm)
+        have hw_eq : (pickAgent w).val = b' :=
+          Agent.id_inj _ _ ((pickAgent_id w).trans hb'_id.symm)
+        simp only [compatibilityGraph]
+        rw [hv_eq, hw_eq]
+        exact hcompat
+
+    -- Build inverse walk by induction
+    have walkBack : ∀ {u w : (nerveComplex N).vertexSet}
+        (q : SimpleGraph.Walk (oneSkeleton (nerveComplex N)) u w),
+        SimpleGraph.Walk (compatibilityGraph N) (pickAgent u) (pickAgent w) := by
+      intro u w q
+      induction q with
+      | nil => exact SimpleGraph.Walk.nil
+      | cons hadj qtail ih =>
+        exact SimpleGraph.Walk.cons (adj_preserved _ _ hadj) ih
+
+    -- Helper: walkBack preserves length
+    have walkBack_length : ∀ {u w : (nerveComplex N).vertexSet}
+        (q : SimpleGraph.Walk (oneSkeleton (nerveComplex N)) u w),
+        (walkBack q).length = q.length := by
+      intro u w q
+      induction q with
+      | nil => rfl
+      | cons _ _ ih => simp only [SimpleGraph.Walk.length_cons, ih]
+
+    -- Helper: walkBack preserves support structure
+    have walkBack_support : ∀ {u w : (nerveComplex N).vertexSet}
+        (q : SimpleGraph.Walk (oneSkeleton (nerveComplex N)) u w),
+        (walkBack q).support = q.support.map pickAgent := by
+      intro u w q
+      induction q with
+      | nil => simp only [SimpleGraph.Walk.support_nil, List.map_cons, List.map_nil]
+      | cons _ _ ih =>
+        simp only [SimpleGraph.Walk.support_cons, List.map_cons]
+        congr 1
+        exact ih
+
+    -- Helper: walkBack preserves edges structure
+    have walkBack_edges : ∀ {u w : (nerveComplex N).vertexSet}
+        (q : SimpleGraph.Walk (oneSkeleton (nerveComplex N)) u w),
+        (walkBack q).edges = q.edges.map (Sym2.map pickAgent) := by
+      intro u w q
+      induction q with
+      | nil => simp only [SimpleGraph.Walk.edges_nil, List.map_nil]
+      | cons _ _ ih =>
+        simp only [SimpleGraph.Walk.edges_cons, List.map_cons, Sym2.map_pair_eq]
+        congr 1
+        exact ih
+
+    -- Apply walkBack to our cycle p'
+    let p_compat := walkBack p'
+
+    -- Show p_compat is a cycle in the compatibility graph
+    have hp_compat : p_compat.IsCycle := by
+      have hp'_circuit := hp'.isCircuit
+      have hp'_trail := hp'_circuit.isTrail
+      have hp'_ne_nil := hp'_circuit.ne_nil
+      have hp'_support_nodup := hp'.support_nodup
+      have hp'_edges_nodup := hp'_trail.edges_nodup
+
+      constructor
+      · -- IsCircuit: ne_nil ∧ IsTrail
+        constructor
+        · -- ne_nil
+          intro hcontra
+          have : p_compat.length = 0 := SimpleGraph.Walk.length_eq_zero_iff.mpr hcontra
+          rw [walkBack_length] at this
+          have h_len_pos : 0 < p'.length := by
+            have := hp'.three_le_length
+            omega
+          omega
+        · -- IsTrail: edges.Nodup
+          rw [walkBack_edges]
+          exact List.Nodup.map (Sym2.map_injective pickAgent_inj) hp'_edges_nodup
+      · -- support.tail.Nodup
+        rw [walkBack_support]
+        -- Prove (l.map f).tail = l.tail.map f inline
+        have h_tail_map : ∀ (l : List _), (l.map pickAgent).tail = l.tail.map pickAgent := by
+          intro l
+          cases l with
+          | nil => simp
+          | cons _ _ => simp [List.tail_cons]
+        rw [h_tail_map]
+        exact List.Nodup.map pickAgent_inj hp'_support_nodup
+
+    -- Contradiction: hgf says compatibility graph is acyclic
+    -- hgf : N.isGraphForest = (compatibilityGraph N).IsAcyclic
+    -- which is ∀ v, ∀ p : Walk v v, ¬p.IsCycle
+    simp only [AgentNetwork.isGraphForest, SimpleGraph.IsAcyclic] at hgf
+    exact hgf (pickAgent v') p_compat hp_compat
   · exact h1_trivial_implies_graphForest_nerve N
 
 /-! # Section 7: Derived Bridge Theorems

@@ -846,4 +846,11 @@ def delta1 (K : SimplicialComplex) (f : Cochain K 1) : Cochain K 2 := δ K 1 f
 theorem delta1_delta0_zero (K : SimplicialComplex) (f : Cochain K 0) :
   delta1 K (delta0 K f) = 0 := delta_sq_zero K 0 f
 
+/-- δ² specialized: for a tetrahedron, alternating sum of triangular faces -/
+def delta2 (K : SimplicialComplex) (f : Cochain K 2) : Cochain K 3 := δ K 2 f
+
+/-- Specific case: δ² ∘ δ¹ = 0 -/
+theorem delta2_delta1_zero (K : SimplicialComplex) (f : Cochain K 1) :
+  delta2 K (delta1 K f) = 0 := delta_sq_zero K 1 f
+
 end Foundations
