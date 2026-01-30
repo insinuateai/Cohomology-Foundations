@@ -645,7 +645,7 @@ PROVEN THEOREMS: ~55
 
 AXIOMS: 0 (all false axioms REMOVED)
 
-SORRIES: 2 (in H¹ connection proofs only - deep cohomology theory)
+SORRIES: 1 (in H¹ connection proof only - deep cohomology theory)
 
 ### Mathematical Integrity
 

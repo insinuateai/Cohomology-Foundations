@@ -112,7 +112,7 @@ Will perturbations eventually cause recurrence?
 def willRecur {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S)
     (epsilon : ℚ) (model : PerturbationModel) [Nonempty S] : Bool :=
   -- If perturbations can accumulate past basin boundary, recurrence is possible
-  let margin := distanceToBoundary (Geodesic.toValuePoint systems)
+  let _margin := distanceToBoundary (Geodesic.toValuePoint systems)
     { point := Geodesic.toValuePoint systems, isAligned := true, stability := 1 }
     epsilon
   model.maxStep > 0 && model.probability > 0
@@ -139,9 +139,9 @@ THEOREM: No perturbation means no recurrence.
 If the system is static (no external changes), alignment is permanent.
 -/
 theorem no_perturbation_no_recurrence {n : ℕ} [NeZero n]
-    (systems : Fin n → ValueSystem S) (epsilon : ℚ) (hε : epsilon > 0)
+    (systems : Fin n → ValueSystem S) (epsilon : ℚ) (_hε : epsilon > 0)
     [Nonempty S]
-    (h_aligned : misalignment systems epsilon = 0)
+    (_h_aligned : misalignment systems epsilon = 0)
     (model : PerturbationModel) (h_static : model.maxStep = 0) :
     ¬willRecur systems epsilon model := by
   unfold willRecur
@@ -153,7 +153,7 @@ THEOREM: Large margin reduces recurrence risk.
 If safety margin is large, recurrence probability is low.
 -/
 theorem large_margin_low_recurrence {n : ℕ} [NeZero n]
-    (systems : Fin n → ValueSystem S) (epsilon : ℚ) (hε : epsilon > 0)
+    (systems : Fin n → ValueSystem S) (epsilon : ℚ) (_hε : epsilon > 0)
     [Nonempty S]
     (h_large_margin : distanceToBoundary (Geodesic.toValuePoint systems)
       { point := Geodesic.toValuePoint systems, isAligned := true, stability := 1 }
@@ -203,7 +203,7 @@ almost every state eventually returns arbitrarily close to itself.
 
 For alignment: if the dynamics are "mixing", misalignment can recur.
 -/
-def isPoincaréRecurrent {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S)
+def isPoincaréRecurrent {n : ℕ} [NeZero n] (_systems : Fin n → ValueSystem S)
     [Nonempty S] : Bool :=
   -- Alignment dynamics are typically NOT Poincaré recurrent
   -- because gradient descent is dissipative, not volume-preserving
@@ -271,7 +271,7 @@ Check for early warning signs.
 -/
 def checkRecurrenceWarning {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S)
     (epsilon : ℚ) [Nonempty S] : Option RecurrenceWarning :=
-  let margin := minTriggerSize systems epsilon
+  let _margin := minTriggerSize systems epsilon
   let risk := recurrenceProbability systems epsilon
   if risk > 1/5 then
     some {
@@ -312,9 +312,9 @@ structure RecurrenceStats where
 /--
 Compute recurrence statistics from a trajectory.
 -/
-def computeRecurrenceStats {n : ℕ} [NeZero n] 
-    (trajectory : List (Fin n → ValueSystem S))
-    (epsilon : ℚ) [Nonempty S] : RecurrenceStats :=
+def computeRecurrenceStats {n : ℕ} [NeZero n]
+    (_trajectory : List (Fin n → ValueSystem S))
+    (_epsilon : ℚ) [Nonempty S] : RecurrenceStats :=
   -- Simplified: return default stats
   { count := 0, avgInterval := 1000, minInterval := 1000, maxInterval := 1000 }
 
@@ -338,8 +338,8 @@ structure RecurrenceReport (n : ℕ) where
   warning : Option String
 
 /-- Generate a recurrence report -/
-def generateRecurrenceReport {n : ℕ} [NeZero n] (hn : n ≥ 1)
-    (systems : Fin n → ValueSystem S) (epsilon : ℚ) (hε : epsilon > 0)
+def generateRecurrenceReport {n : ℕ} [NeZero n] (_hn : n ≥ 1)
+    (systems : Fin n → ValueSystem S) (epsilon : ℚ) (_hε : epsilon > 0)
     [Nonempty S] : RecurrenceReport n :=
   let aligned := misalignment systems epsilon = 0
   let prob := recurrenceProbability systems epsilon
@@ -376,13 +376,13 @@ We provide:
 This enables LONG-TERM alignment management.
 -/
 theorem recurrence_product {n : ℕ} [NeZero n]
-    (systems : Fin n → ValueSystem S) (epsilon : ℚ) (hε : epsilon > 0)
+    (systems : Fin n → ValueSystem S) (epsilon : ℚ) (_hε : epsilon > 0)
     [Nonempty S] :
     -- Recurrence framework is well-defined
     recurrenceProbability systems epsilon ≥ 0 ∧
     recurrenceProbability systems epsilon ≤ 1 := by
   unfold recurrenceProbability
-  simp only [ge_iff_le, le_refl, and_self]
+  simp only [ge_iff_le]
   constructor
   · -- All branches are ≥ 0
     split_ifs

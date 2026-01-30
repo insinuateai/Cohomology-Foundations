@@ -223,14 +223,14 @@ theorem oriented_edge_coboundary (K : SimplicialComplex) (g : Cochain K 0)
       simp only [OrientedEdge.toSimplex]
       have h_ne' : oe.src.val ∉ ({oe.tgt.val} : Finset ℕ) := by simp [ne_of_lt hslt]
       have h_insert : ({oe.src.val, oe.tgt.val} : Finset ℕ) = insert oe.src.val {oe.tgt.val} := by
-        ext x; simp [Finset.mem_insert, Finset.mem_singleton, or_comm]
+        ext x; simp [Finset.mem_insert, Finset.mem_singleton]
       rw [h_insert, Finset.sort_insert (r := (· ≤ ·))]
       · simp only [Finset.sort_singleton]
       · intro x hx; simp only [Finset.mem_singleton] at hx; rw [hx]; exact le_of_lt hslt
       · exact h_ne'
     have h_face0 : oe.toSimplex.face i0 = {oe.tgt.val} := by
-      simp only [Simplex.face, h_sort, List.get_eq_getElem, List.getElem_cons_zero]
-      ext x; simp only [Finset.mem_erase, Finset.mem_insert, Finset.mem_singleton]
+      simp only [Simplex.face, h_sort, List.get_eq_getElem]
+      ext x; simp only [Finset.mem_erase, Finset.mem_singleton]
       constructor
       · intro ⟨hne', hx⟩
         simp only [OrientedEdge.toSimplex] at hx
@@ -240,9 +240,8 @@ theorem oriented_edge_coboundary (K : SimplicialComplex) (g : Cochain K 0)
       · intro rfl; simp only [OrientedEdge.toSimplex]
         exact ⟨ne_of_gt hslt, by simp⟩
     have h_face1 : oe.toSimplex.face i1 = {oe.src.val} := by
-      simp only [Simplex.face, h_sort, List.get_eq_getElem, List.getElem_cons_succ,
-                 List.getElem_cons_zero]
-      ext x; simp only [Finset.mem_erase, Finset.mem_insert, Finset.mem_singleton]
+      simp only [Simplex.face, h_sort, List.get_eq_getElem]
+      ext x; simp only [Finset.mem_erase, Finset.mem_singleton]
       constructor
       · intro ⟨hne', hx⟩
         simp only [OrientedEdge.toSimplex] at hx
@@ -292,8 +291,8 @@ theorem oriented_edge_coboundary (K : SimplicialComplex) (g : Cochain K 0)
       · intro x hx; simp only [Finset.mem_singleton] at hx; rw [hx]; exact le_of_lt htls
       · exact h_ne'
     have h_face0 : oe.toSimplex.face i0 = {oe.src.val} := by
-      simp only [Simplex.face, h_sort, List.get_eq_getElem, List.getElem_cons_zero]
-      ext x; simp only [Finset.mem_erase, Finset.mem_insert, Finset.mem_singleton]
+      simp only [Simplex.face, h_sort, List.get_eq_getElem]
+      ext x; simp only [Finset.mem_erase, Finset.mem_singleton]
       constructor
       · intro ⟨hne', hx⟩
         simp only [OrientedEdge.toSimplex] at hx
@@ -303,9 +302,8 @@ theorem oriented_edge_coboundary (K : SimplicialComplex) (g : Cochain K 0)
       · intro rfl; simp only [OrientedEdge.toSimplex]
         exact ⟨ne_of_gt htls, by simp⟩
     have h_face1 : oe.toSimplex.face i1 = {oe.tgt.val} := by
-      simp only [Simplex.face, h_sort, List.get_eq_getElem, List.getElem_cons_succ,
-                 List.getElem_cons_zero]
-      ext x; simp only [Finset.mem_erase, Finset.mem_insert, Finset.mem_singleton]
+      simp only [Simplex.face, h_sort, List.get_eq_getElem]
+      ext x; simp only [Finset.mem_erase, Finset.mem_singleton]
       constructor
       · intro ⟨hne', hx⟩
         simp only [OrientedEdge.toSimplex] at hx
@@ -385,7 +383,7 @@ private lemma trail_dart_edge_unique' {v w : K.vertexSet}
 
 -- Helper: toSimplex equality means same unordered pair
 private lemma toSimplex_eq_iff_same_pair' (a b c d : K.vertexSet)
-    (hab : a.val ≠ b.val) (hcd : c.val ≠ d.val) :
+    (hab : a.val ≠ b.val) (_hcd : c.val ≠ d.val) :
     ({a.val, b.val} : Finset ℕ) = {c.val, d.val} ↔
     (a.val = c.val ∧ b.val = d.val) ∨ (a.val = d.val ∧ b.val = c.val) := by
   constructor
@@ -470,13 +468,13 @@ private lemma countP_le_of_imp {α : Type*} (l : List α) {p q : α → Bool}
       simp only [hqa, hpa, ite_true]
       exact Nat.add_le_add_right ih 1
     · simp only [Bool.not_eq_true] at hqa
-      simp only [hqa, ite_false]
+      simp only [hqa]
       by_cases hpa : p a = true
       · simp only [hpa, ite_true]
         calc as.countP q ≤ as.countP p := ih
           _ ≤ as.countP p + 1 := Nat.le_add_right _ _
       · simp only [Bool.not_eq_true] at hpa
-        simp only [hpa, ite_false]
+        simp only [hpa]
         exact ih
 
 -- Helper: countP ≥ 1 when element in list satisfies predicate

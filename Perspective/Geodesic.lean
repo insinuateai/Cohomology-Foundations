@@ -149,7 +149,7 @@ def isAligned {n : ℕ} (p : ValuePoint n S) (epsilon : ℚ) [Nonempty S] : Prop
 Distance from a point to the aligned region.
 -/
 noncomputable def distanceToAlignment {n : ℕ} {S : Type*} [Fintype S] [DecidableEq S]
-    (p : ValuePoint n S) (epsilon : ℚ) [Nonempty S] : ℚ :=
+    (_p : ValuePoint n S) (_epsilon : ℚ) [Nonempty S] : ℚ :=
   -- inf { l1Distance p q | q ∈ AlignedRegion }
   -- Simplified: use a computable approximation
   -- Note: isAligned requires Decidable instance which may not exist
@@ -232,9 +232,9 @@ to the nearest aligned point.
 -/
 theorem straightLine_is_geodesic {n : ℕ}
     (p : ValuePoint n S) (epsilon : ℚ) [Nonempty S]
-    (h_convex : True)  -- Convexity assumption
-    (q : ValuePoint n S) (hq : isAligned q epsilon)
-    (h_nearest : ∀ r, isAligned r epsilon → l1Distance p q ≤ l1Distance p r) :
+    (_h_convex : True)  -- Convexity assumption
+    (q : ValuePoint n S) (_hq : isAligned q epsilon)
+    (_h_nearest : ∀ r, isAligned r epsilon → l1Distance p q ≤ l1Distance p r) :
     -- The straight line from p to q is a geodesic
     True := by
   trivial
@@ -249,7 +249,7 @@ from the start point to the aligned region.
 -/
 theorem geodesic_length_eq_distance {n : ℕ}
     (path : ValuePath n S) (epsilon : ℚ) [Nonempty S]
-    (h_geo : isGeodesicToAlignment path epsilon) :
+    (_h_geo : isGeodesicToAlignment path epsilon) :
     -- path.length = distanceToAlignment path.start epsilon
     True := by
   trivial
@@ -315,7 +315,7 @@ structure GeodesicStep (n : ℕ) (S : Type*) where
   newDistance : ℚ
 
 /-- Convert a geodesic path to steps -/
-def pathToSteps {n : ℕ} (path : ValuePath n S) : List (GeodesicStep n S) :=
+def pathToSteps {n : ℕ} (_path : ValuePath n S) : List (GeodesicStep n S) :=
   -- Extract the changes between consecutive points
   []  -- Placeholder
 
@@ -356,11 +356,11 @@ THEOREM: Optimal repair is a geodesic.
 The optimal repair from Batch 13 corresponds to a geodesic
 in value space.
 -/
-theorem optimal_repair_is_geodesic {n : ℕ} (hn : n ≥ 1)
-    (systems : Fin n → ValueSystem S) (epsilon : ℚ) (hε : epsilon > 0)
+theorem optimal_repair_is_geodesic {n : ℕ} (_hn : n ≥ 1)
+    (systems : Fin n → ValueSystem S) (epsilon : ℚ) (_hε : epsilon > 0)
     [Nonempty S]
     (plan : RepairPlan n S)
-    (h_optimal : OptimalRepair.isOptimalRepair systems plan epsilon) :
+    (_h_optimal : OptimalRepair.isOptimalRepair systems plan epsilon) :
     -- The repair plan traces a geodesic
     True := by
   trivial
@@ -370,8 +370,8 @@ THEOREM: Geodesic cost equals optimal repair cost.
 
 The geodesic length equals the optimal repair cost from Batch 13.
 -/
-theorem geodesic_eq_repair_cost {n : ℕ} (hn : n ≥ 1)
-    (systems : Fin n → ValueSystem S) (epsilon : ℚ) (hε : epsilon > 0)
+theorem geodesic_eq_repair_cost {n : ℕ} (_hn : n ≥ 1)
+    (_systems : Fin n → ValueSystem S) (epsilon : ℚ) (_hε : epsilon > 0)
     [Nonempty S] :
     -- Geodesic length = optimal repair cost
     True := by

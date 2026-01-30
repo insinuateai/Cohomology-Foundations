@@ -80,7 +80,7 @@ NOTE: The [Nonempty S] constraint is essential because:
 - But alignability should require actual situations to agree on
 - With [Nonempty S], we ensure the situation space is meaningful
 -/
-theorem two_system_alignable_iff [Nonempty S] (H A : ValueSystem S) (ε : ℚ) (hε : 0 < ε) :
+theorem two_system_alignable_iff [Nonempty S] (H A : ValueSystem S) (ε : ℚ) (_hε : 0 < ε) :
     Alignable H A ε ↔ ∀ s : S, |H.values s - A.values s| ≤ 2 * ε := by
   constructor
   · -- Alignable → bounded disagreement
@@ -161,7 +161,7 @@ theorem alignable_iff_bounded_disagreement [Nonempty S] (H A : ValueSystem S) (�
 NOTE: This theorem naturally requires a witness situation s : S, so [Nonempty S] is implicit
 in having such a witness. We add the constraint for consistency and clarity.
 -/
-theorem not_alignable_of_large_disagreement [Nonempty S] (H A : ValueSystem S) (ε : ℚ) (hε : 0 < ε)
+theorem not_alignable_of_large_disagreement [Nonempty S] (H A : ValueSystem S) (ε : ℚ) (_hε : 0 < ε)
     (s : S) (h : |H.values s - A.values s| > 2 * ε) :
     ¬Alignable H A ε := by
   intro ⟨r⟩
@@ -568,7 +568,7 @@ theorem hollow_triangle_h1_nontrivial :
   constructor
   · -- Prove f is a cocycle: δ¹f = 0
     -- This is true because there are no 2-simplices in hollowTriangle
-    simp only [IsCocycle, coboundary]
+    simp only [IsCocycle]
     funext ⟨s, hs⟩
     simp only [SimplicialComplex.ksimplices, Set.mem_setOf_eq, hollowTriangle] at hs
     simp only [Cochain.zero_apply]
@@ -789,7 +789,7 @@ Key insights:
 
 /-- Helper lemma: Define a situation-wise reconciler from the average.
     This is a key construction for the theorem. -/
-def averageValueSystem {n : ℕ} (hn_pos : 0 < n) (systems : Fin n → ValueSystem S) : ValueSystem S where
+def averageValueSystem {n : ℕ} (_hn_pos : 0 < n) (systems : Fin n → ValueSystem S) : ValueSystem S where
   values s := (Finset.univ.sum fun i : Fin n => (systems i).values s) / n
 
 /-- Helper: In a value complex, each 0-simplex (vertex) corresponds to a system index. -/
@@ -805,7 +805,7 @@ def vertexToIndex {n : ℕ} (systems : Fin n → ValueSystem S) (ε : ℚ)
 
 /-- If R reconciles all systems, then any two systems agree within 2ε everywhere -/
 lemma reconciliation_implies_pairwise_agreement {n : ℕ}
-    (systems : Fin n → ValueSystem S) (ε : ℚ) (hε : ε > 0)
+    (systems : Fin n → ValueSystem S) (ε : ℚ) (_hε : ε > 0)
     (R : ValueSystem S) (hR : ∀ i : Fin n, Reconciles R (systems i) ε)
     (i j : Fin n) (s : S) :
     |(systems i).values s - (systems j).values s| ≤ 2 * ε := by
@@ -824,7 +824,7 @@ lemma reconciliation_implies_pairwise_agreement {n : ℕ}
 /-- If all systems agree pairwise within ε (not 2ε), the average value system reconciles all.
     NOTE: The bound is ε for pairwise agreement, which gives ε for the average. -/
 lemma pairwise_agreement_implies_average_reconciles {n : ℕ} (hn : n ≥ 1)
-    (systems : Fin n → ValueSystem S) (ε : ℚ) (hε : ε > 0)
+    (systems : Fin n → ValueSystem S) (ε : ℚ) (_hε : ε > 0)
     (h_agree : ∀ i j : Fin n, ∀ s : S, |(systems i).values s - (systems j).values s| ≤ ε) :
     ∀ i : Fin n, Reconciles (averageValueSystem (by omega : 0 < n) systems) (systems i) ε := by
   intro i₀ s
@@ -949,8 +949,8 @@ axiom complete_complex_coboundary_aux' {S' : Type*} [Fintype S'] [DecidableEq S'
     established. The proof uses the fact that in a complete complex, all triangles
     exist, so the cocycle condition can be applied to show any 1-cocycle is a coboundary.
 -/
-theorem h1_trivial_of_complete_complex {n : ℕ} (hn : n ≥ 2)
-    (systems : Fin n → ValueSystem S) (ε : ℚ) (hε : ε > 0)
+theorem h1_trivial_of_complete_complex {n : ℕ} (_hn : n ≥ 2)
+    (systems : Fin n → ValueSystem S) (ε : ℚ) (_hε : ε > 0)
     (h_complete : ∀ (i j : ℕ) (hi : i < n) (hj : j < n), i < j →
       ∃ s : S, |(systems ⟨i, hi⟩).values s - (systems ⟨j, hj⟩).values s| ≤ 2 * ε) :
     H1Trivial (valueComplex systems ε) := by
@@ -1079,9 +1079,9 @@ could be proven with current techniques:
 If a reconciler exists and the complex is "simple enough" (e.g., a tree or forest),
 then H¹ = 0. This is more tractable than the full theorem.
 -/
-theorem reconciliation_implies_h1_zero_simple_case {n : ℕ} (hn : n ≥ 2)
-    (systems : Fin n → ValueSystem S) (ε : ℚ) (hε : ε > 0)
-    (R : ValueSystem S) (hR : ∀ i : Fin n, Reconciles R (systems i) ε)
+theorem reconciliation_implies_h1_zero_simple_case {n : ℕ} (_hn : n ≥ 2)
+    (systems : Fin n → ValueSystem S) (ε : ℚ) (_hε : ε > 0)
+    (R : ValueSystem S) (_hR : ∀ i : Fin n, Reconciles R (systems i) ε)
     -- Additional hypothesis: the complex is a tree (no cycles)
     (h_tree : ∀ f : Cochain (valueComplex systems ε) 1,
       IsCocycle (valueComplex systems ε) 1 f →

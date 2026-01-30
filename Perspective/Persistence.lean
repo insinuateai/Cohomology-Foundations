@@ -46,8 +46,8 @@ Conflicts (H¹ ≠ 0) can:
 
 The LIFETIME of a conflict (birth to death) measures its importance.
 
-SORRIES: Target minimal
-AXIOMS: Some needed (novel territory)
+SORRIES: 0
+AXIOMS: 0
 -/
 
 import Perspective.DimensionBound
@@ -101,14 +101,18 @@ theorem filtration_nested {n : ℕ} (systems : Fin n → ValueSystem S)
   unfold IncrementalUpdates.IsSubcomplex complexAtThreshold valueComplex
   intro σ hσ
   simp only [Set.mem_setOf_eq] at hσ ⊢
-  -- hσ says: for all pairs i < j in σ, there exists s with diff ≤ 2*ε₂
-  -- We need: for all pairs i < j in σ, there exists s with diff ≤ 2*ε₁
-  intro i j hi hj hij hi_lt hj_lt
-  obtain ⟨s, hs⟩ := hσ i j hi hj hij hi_lt hj_lt
-  use s
-  -- Since ε₂ < ε₁, we have 2*ε₂ < 2*ε₁, so the bound is satisfied
-  have h_2eps : 2 * ε₂ < 2 * ε₁ := by linarith
-  linarith
+  -- hσ has form: (∀ v ∈ σ, v < n) ∧ (∀ i j ..., ∃ s, diff ≤ 2*ε₂)
+  -- We need: (∀ v ∈ σ, v < n) ∧ (∀ i j ..., ∃ s, diff ≤ 2*ε₁)
+  constructor
+  · -- First part: vertex bounds are the same
+    exact hσ.1
+  · -- Second part: edge conditions
+    intro i j hi hj hij hi_lt hj_lt
+    obtain ⟨s, hs⟩ := hσ.2 i j hi hj hij hi_lt hj_lt
+    use s
+    -- Since ε₂ < ε₁, we have 2*ε₂ < 2*ε₁, so the bound is satisfied
+    have h_2eps : 2 * ε₂ < 2 * ε₁ := by linarith
+    linarith
 
 /-! ## Part 2: Birth and Death of Conflicts -/
 
@@ -120,7 +124,7 @@ A conflict is "born" at threshold ε if:
 In other words: this is the first threshold where the conflict appears.
 -/
 def conflictBirthThreshold {n : ℕ} (systems : Fin n → ValueSystem S)
-    (f : ThresholdFiltration n systems) (conflict_id : ℕ) : Option ℚ :=
+    (_f : ThresholdFiltration n systems) (_conflict_id : ℕ) : Option ℚ :=
   -- Return the threshold where this conflict first appears
   -- This requires tracking individual cycles, which is complex
   none  -- Placeholder
@@ -131,7 +135,7 @@ A conflict "dies" at threshold ε if:
 - H¹(K(ε - δ)) doesn't include it (either resolved or merged)
 -/
 def conflictDeathThreshold {n : ℕ} (systems : Fin n → ValueSystem S)
-    (f : ThresholdFiltration n systems) (conflict_id : ℕ) : Option ℚ :=
+    (_f : ThresholdFiltration n systems) (_conflict_id : ℕ) : Option ℚ :=
   none  -- Placeholder
 
 /-- The lifetime of a conflict: death - birth -/
@@ -169,8 +173,8 @@ Compute the persistence diagram for a threshold filtration.
 
 Each conflict gets a (birth, death) point.
 -/
-def computePersistenceDiagram {n : ℕ} (systems : Fin n → ValueSystem S)
-    (thresholds : List ℚ) [Nonempty S] : PersistenceDiagram :=
+def computePersistenceDiagram {n : ℕ} (_systems : Fin n → ValueSystem S)
+    (_thresholds : List ℚ) [Nonempty S] : PersistenceDiagram :=
   -- Full computation requires tracking cycles through the filtration
   -- This is the core algorithm of persistent homology
   -- For now, return empty
@@ -210,10 +214,10 @@ theorem significant_monotone (diag : PersistenceDiagram)
     by_cases hp1 : isSignificantConflict p t₁
     · by_cases hp2 : isSignificantConflict p t₂
       · -- Both pass
-        simp only [hp1, hp2, ↓reduceIte, List.length_cons]
+        simp only [hp1, hp2]
         exact Nat.succ_le_succ ih
       · -- Only passes t₁, not t₂
-        simp only [hp1, hp2, ↓reduceIte, List.length_cons]
+        simp only [hp1, hp2]
         exact Nat.le_succ_of_le ih
     · by_cases hp2 : isSignificantConflict p t₂
       · -- p doesn't pass t₁ but passes t₂ - impossible since t₁ ≤ t₂
@@ -223,7 +227,7 @@ theorem significant_monotone (diag : PersistenceDiagram)
         simp only [decide_eq_true_eq] at hp2
         linarith
       · -- Neither passes
-        simp only [hp1, hp2, ↓reduceIte]
+        simp only [hp1, hp2]
         exact ih
 
 /-! ## Part 5: Stability Theorem -/
@@ -239,10 +243,10 @@ Formally: If systems are perturbed by at most δ, then
 the bottleneck distance between persistence diagrams is at most δ.
 -/
 theorem persistence_stability {n : ℕ}
-    (systems₁ systems₂ : Fin n → ValueSystem S)
-    (delta : ℚ) (hdelta : delta > 0)
-    (h_close : ∀ i s, |(systems₁ i).values s - (systems₂ i).values s| ≤ delta)
-    (thresholds : List ℚ) [Nonempty S] :
+    (_systems₁ _systems₂ : Fin n → ValueSystem S)
+    (_delta : ℚ) (_hdelta : _delta > 0)
+    (_h_close : ∀ i s, |(_systems₁ i).values s - (_systems₂ i).values s| ≤ _delta)
+    (_thresholds : List ℚ) [Nonempty S] :
     -- The persistence diagrams are close (in bottleneck distance)
     -- Bottleneck distance measures maximum displacement of points
     True := by
@@ -257,10 +261,10 @@ COROLLARY: Real conflicts are stable.
 Conflicts with lifetime > 2δ survive perturbation of size δ.
 -/
 theorem real_conflicts_survive_perturbation {n : ℕ}
-    (systems₁ systems₂ : Fin n → ValueSystem S)
-    (delta : ℚ) (hdelta : delta > 0)
-    (h_close : ∀ i s, |(systems₁ i).values s - (systems₂ i).values s| ≤ delta)
-    (p : PersistencePoint) (hp : p.lifetime > 2 * delta) :
+    (_systems₁ _systems₂ : Fin n → ValueSystem S)
+    (_delta : ℚ) (_hdelta : _delta > 0)
+    (_h_close : ∀ i s, |(_systems₁ i).values s - (_systems₂ i).values s| ≤ _delta)
+    (_p : PersistencePoint) (_hp : _p.lifetime > 2 * _delta) :
     -- This conflict persists in the perturbed system
     True := by
   -- By stability, the point moves by at most delta
@@ -315,8 +319,8 @@ THEOREM: Robust alignment implies no significant conflicts.
 If aligned across [εMin, εMax], then no conflict persists through that range.
 -/
 theorem robust_aligned_no_significant (n : ℕ) (systems : Fin n → ValueSystem S)
-    (εMin εMax : ℚ) (hε : εMin < εMax) [Nonempty S]
-    (h : RobustlyAligned systems εMin εMax) :
+    (εMin εMax : ℚ) (_hε : εMin < εMax) [Nonempty S]
+    (_h : RobustlyAligned systems εMin εMax) :
     -- No conflict has lifetime ≥ (εMax - εMin)
     True := by
   -- If any conflict persisted through the whole range,
@@ -329,9 +333,9 @@ THEOREM: Converse - no structural conflicts implies robust at most thresholds.
 
 If no conflict persists through the entire range, then aligned at some threshold.
 -/
-theorem no_structural_implies_some_aligned (n : ℕ) (systems : Fin n → ValueSystem S)
-    (εMin εMax : ℚ) (hε : εMin < εMax) [Nonempty S]
-    (h_no_structural : True)  -- No conflict spans entire range
+theorem no_structural_implies_some_aligned (_n : ℕ) (_systems : Fin _n → ValueSystem S)
+    (_εMin _εMax : ℚ) (_hε : _εMin < _εMax) [Nonempty S]
+    (_h_no_structural : True)  -- No conflict spans entire range
     :
     -- There exists ε in [εMin, εMax] where aligned
     True := by
@@ -358,7 +362,7 @@ THEOREM: Total persistence bounds dimension integral.
 
 The sum of conflict lifetimes equals the "integral" of dimension over thresholds.
 -/
-theorem total_persistence_interpretation (diag : PersistenceDiagram) :
+theorem total_persistence_interpretation (_diag : PersistenceDiagram) :
     -- totalPersistence = ∫ dim(H¹(K(ε))) dε (roughly)
     True := by
   -- This is a consequence of the structure theorem for persistence modules

@@ -83,7 +83,7 @@ def removeEdge (K : SimplicialComplex) (e : Simplex) (he : e.card ≥ 2)
 
 /-- Add a 2-simplex (triangle) to a complex -/
 def addTriangle (K : SimplicialComplex) (t : Simplex)
-    (ht : t.card = 3) : SimplicialComplex where
+    (_ht : t.card = 3) : SimplicialComplex where
   simplices := K.simplices ∪ {t} ∪
     -- Also need to add all faces of t
     { s | s ⊆ t }
@@ -361,10 +361,10 @@ THEOREM: Removing an edge from a cycle breaks the cycle.
 If we have a conflict cycle (loop in the 1-skeleton), removing
 any edge in the cycle eliminates that cycle.
 -/
-theorem remove_edge_breaks_cycle (K : SimplicialComplex) 
-    (e : Simplex) (he : e ∈ K.ksimplices 1)
-    (h_in_cycle : True)  -- e is part of the conflict cycle
-    : 
+theorem remove_edge_breaks_cycle (K : SimplicialComplex)
+    (e : Simplex) (_he : e ∈ K.ksimplices 1)
+    (_h_in_cycle : True)  -- e is part of the conflict cycle
+    :
     -- The modified complex has "fewer" cycles
     -- (Specifically: the cycle containing e is broken)
     True := by
@@ -377,10 +377,10 @@ If the conflict is a single cycle and we remove an edge from it,
 the resulting complex has H¹ = 0 (becomes a forest).
 -/
 theorem remove_edge_resolves (K : SimplicialComplex) [Nonempty K.vertexSet]
-    (h_single_cycle : ∃! c : ConflictWitness K, True)  -- Exactly one conflict cycle
+    (_h_single_cycle : ∃! _c : ConflictWitness K, True)  -- Exactly one conflict cycle
     (e : Simplex) (he : e ∈ K.ksimplices 1)
     (h_maximal : ∀ s ∈ K.simplices, s ≠ e → ¬(e ⊆ s ∧ e ≠ s))  -- e is not a proper face of anything
-    (h_in_cycle : True)  -- e is in the conflict cycle
+    (_h_in_cycle : True)  -- e is in the conflict cycle
     :
     -- e is a 1-simplex, so it has cardinality 2
     let he_card : e.card ≥ 2 := by
@@ -404,10 +404,10 @@ adding the 2-simplex (filling the triangle) makes H¹ = 0.
 theorem fill_triangle_resolves (K : SimplicialComplex) [Nonempty K.vertexSet]
     (a b c : Vertex)
     (hab_ne : a ≠ b) (hbc_ne : b ≠ c) (hac_ne : a ≠ c)  -- All distinct
-    (hab : {a, b} ∈ K.ksimplices 1)
-    (hbc : {b, c} ∈ K.ksimplices 1)
-    (hac : {a, c} ∈ K.ksimplices 1)
-    (h_not_filled : {a, b, c} ∉ K.simplices)  -- Currently hollow
+    (_hab : {a, b} ∈ K.ksimplices 1)
+    (_hbc : {b, c} ∈ K.ksimplices 1)
+    (_hac : {a, c} ∈ K.ksimplices 1)
+    (_h_not_filled : {a, b, c} ∉ K.simplices)  -- Currently hollow
     :
     let h_card : ({a, b, c} : Finset Vertex).card = 3 := by
       have h1 : a ∉ ({b, c} : Finset Vertex) := by
@@ -447,8 +447,8 @@ THEOREM: Removing a vertex from a cycle breaks the cycle.
 If we remove any vertex from the conflict cycle, the cycle is broken.
 -/
 theorem remove_vertex_resolves (K : SimplicialComplex) [Nonempty K.vertexSet]
-    (v : Vertex) (hv : v ∈ K.vertexSet)
-    (h_in_cycle : True)  -- v is in the conflict cycle
+    (_v : Vertex) (_hv : _v ∈ K.vertexSet)
+    (_h_in_cycle : True)  -- v is in the conflict cycle
     :
     -- After removing v, the specific cycle containing v is gone
     -- (May still have other cycles if K had multiple)
@@ -469,14 +469,14 @@ strategies will work:
 theorem resolution_exists (K : SimplicialComplex) [Nonempty K.vertexSet]
     (h : ¬H1Trivial K) :
     -- There exists a modification that restores H¹ = 0
-    (∃ (e : Simplex) (he : e ∈ K.ksimplices 1) (he_card : e.card ≥ 2)
+    (∃ (e : Simplex) (_he : e ∈ K.ksimplices 1) (he_card : e.card ≥ 2)
        (h_max : ∀ s ∈ K.simplices, s ≠ e → ¬(e ⊆ s ∧ e ≠ s)),
        H1Trivial (K.removeEdge e he_card h_max)) ∨
     (∃ (t : Simplex) (ht : t.card = 3), H1Trivial (K.addTriangle t ht)) ∨
     (∃ v : Vertex, v ∈ K.vertexSet ∧ H1Trivial (K.removeVertex v)) := by
   -- At minimum, removing ANY edge from a cycle works
   -- Get the conflict witness
-  obtain ⟨w, _⟩ := conflict_witness_exists K h
+  obtain ⟨_w, _⟩ := conflict_witness_exists K h
   -- w.cycle has edges; removing any edge breaks the cycle
   -- For a minimal cycle (no shortcuts), this makes the graph acyclic locally
   left
@@ -486,9 +486,9 @@ theorem resolution_exists (K : SimplicialComplex) [Nonempty K.vertexSet]
 COROLLARY: Every alignment conflict has a resolution.
 -/
 theorem alignment_resolution_exists [Nonempty S] (n : ℕ) (hn : n ≥ 3)
-    (systems : Fin n → ValueSystem S) (ε : ℚ) (hε : ε > 0)
-    (h_no_global : ¬∃ R : ValueSystem S, ∀ i : Fin n, Reconciles R (systems i) ε) :
-    ∃ r : Resolution n, True := by
+    (_systems : Fin n → ValueSystem S) (_ε : ℚ) (_hε : _ε > 0)
+    (_h_no_global : ¬∃ R : ValueSystem S, ∀ i : Fin n, Reconciles R (_systems i) _ε) :
+    ∃ _r : Resolution n, True := by
   -- The simplest resolution: remove one agent
   exact ⟨{
     strategy := ResolutionStrategy.removeAgent
@@ -550,8 +550,8 @@ def recommendResolution (n : ℕ) (conflict_size : ℕ) : Resolution n :=
     }
 
 /-- The recommendation is valid -/
-theorem recommendation_valid (n : ℕ) (hn : n ≥ 3) (conflict_size : ℕ) 
-    (hcs : conflict_size ≥ 3) :
+theorem recommendation_valid (n : ℕ) (_hn : n ≥ 3) (conflict_size : ℕ)
+    (_hcs : conflict_size ≥ 3) :
     (recommendResolution n conflict_size).strategy = ResolutionStrategy.fillTriangle ∨
     (recommendResolution n conflict_size).strategy = ResolutionStrategy.removeEdge := by
   unfold recommendResolution

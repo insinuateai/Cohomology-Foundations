@@ -178,7 +178,7 @@ Construction:
 This is the PUBLISHABLE result.
 -/
 theorem no_universal_reconciler_strong [Nonempty S] (n : ℕ) (hn : n ≥ 3) :
-    ∃ (ε : ℚ) (hε : ε > 0) (systems : Fin n → ValueSystem S),
+    ∃ (ε : ℚ) (_hε : ε > 0) (systems : Fin n → ValueSystem S),
       -- All consecutive pairs agree within 2ε
       (∀ i : Fin n, ∀ hi : i.val + 1 < n, 
         ∀ s : S, |(systems i).values s - (systems ⟨i.val + 1, hi⟩).values s| ≤ 2 * ε) ∧
@@ -224,7 +224,7 @@ theorem no_universal_reconciler_strong [Nonempty S] (n : ℕ) (hn : n ≥ 3) :
 
 /-- The hollow triangle (n=3) is a special case -/
 theorem hollow_triangle_is_special_case [Nonempty S] :
-    ∃ (ε : ℚ) (hε : ε > 0) (systems : Fin 3 → ValueSystem S),
+    ∃ (ε : ℚ) (_hε : ε > 0) (systems : Fin 3 → ValueSystem S),
       (∀ i : Fin 3, ∀ hi : i.val + 1 < 3, 
         ∀ s : S, |(systems i).values s - (systems ⟨i.val + 1, hi⟩).values s| ≤ 2 * ε) ∧
       (¬∃ R : ValueSystem S, ∀ i : Fin 3, Reconciles R (systems i) ε) :=

@@ -2,7 +2,8 @@
   H1Characterization/OneConnected.lean
 
   Defines when a simplicial complex is "1-connected" (1-skeleton is acyclic).
-  SORRIES: 1 (euler_iff_acyclic - Euler's formula for forests)
+
+  SORRIES: 0
   AXIOMS: 0
 -/
 

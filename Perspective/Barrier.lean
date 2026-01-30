@@ -93,9 +93,9 @@ A BARRIER exists when no value adjustment can achieve alignment.
 Formally: For all possible value systems (with same agents),
 H¹ ≠ 0.
 -/
-def HasBarrier {n : ℕ} (systems : Fin n → ValueSystem S) (epsilon : ℚ) 
+def HasBarrier {n : ℕ} (_systems : Fin n → ValueSystem S) (epsilon : ℚ)
     [Nonempty S] : Prop :=
-  ∀ (adjusted : Fin n → ValueSystem S), 
+  ∀ (adjusted : Fin n → ValueSystem S),
     ¬H1Trivial (valueComplex adjusted epsilon)
 
 /--
@@ -190,7 +190,45 @@ theorem no_barrier_small_ax {n : ℕ} (hn : n ≤ 2)
   -- The valueComplex is thus complete on n ≤ 2 vertices
   -- A complete complex on ≤2 vertices is OneConnected (no cycles possible)
   -- By H1Characterization: OneConnected ↔ H1Trivial
-  sorry
+  -- Handle n = 0 case separately (empty complex)
+  by_cases hn0 : n = 0
+  · -- n = 0: The complex has no 1-simplices, so H1Trivial is vacuously true
+    subst hn0
+    unfold H1Trivial
+    intro f _hf
+    -- f : Cochain K 1 where K has no 1-simplices
+    -- Show f is a coboundary
+    unfold Foundations.IsCoboundary
+    -- Need: ∃ g : Cochain K 0, δ K 0 g = f
+    use 0  -- Use the zero 0-cochain
+    -- Both δ K 0 0 and f are functions from empty set (no 1-simplices)
+    funext ⟨s, hs⟩
+    -- s is a 1-simplex in K, but K has no 1-simplices (n = 0)
+    simp only [SimplicialComplex.ksimplices, Set.mem_setOf_eq] at hs
+    -- s ∈ K.simplices and s.card = 2, but all vertices must be < 0
+    simp only [valueComplex, Set.mem_setOf_eq] at hs
+    have h_false : False := by
+      obtain ⟨⟨hv, _⟩, hcard⟩ := hs
+      -- s has 2 vertices (edge), pick any vertex v ∈ s
+      have h_nonempty : s.Nonempty := Finset.card_pos.mp (by omega : s.card > 0)
+      obtain ⟨v, hv_mem⟩ := h_nonempty
+      -- v < 0 is impossible
+      exact Nat.not_lt_zero v (hv v hv_mem)
+    exact h_false.elim
+  · -- n > 0: Use small graph theorem
+    have hn_pos : n > 0 := Nat.pos_of_ne_zero hn0
+    -- Get Fintype instance for valueComplex.vertexSet
+    letI ft : Fintype (valueComplex adjusted epsilon).vertexSet :=
+      AgentCoordination.valueComplex_vertexSet_fintype adjusted epsilon
+    -- Get Nonempty instance for valueComplex.vertexSet
+    haveI : Nonempty (valueComplex adjusted epsilon).vertexSet := by
+      rw [AgentCoordination.valueComplex_vertexSet_eq]
+      exact ⟨⟨0, hn_pos⟩⟩
+    -- Show cardinality < 3
+    have hcard : @Fintype.card (valueComplex adjusted epsilon).vertexSet ft < 3 := by
+      rw [AgentCoordination.valueComplex_vertexSet_card]
+      omega
+    exact @H1Characterization.h1_trivial_small (valueComplex adjusted epsilon) ft _ hcard
 
 /--
 THEOREM: No barrier for two agents.

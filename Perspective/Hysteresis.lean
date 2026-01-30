@@ -111,16 +111,16 @@ Backward: ε₂ → ε₁ (decreasing)
 
 Hysteresis means the transition points differ.
 -/
-def hasHysteresis {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S)
+def hasHysteresis {n : ℕ} [NeZero n] (_systems : Fin n → ValueSystem S)
     [Nonempty S] : Prop :=
-  -- For simple alignment (determined by max disagreement), 
+  -- For simple alignment (determined by max disagreement),
   -- there's no hysteresis - state depends only on current ε
   False
 
 /--
 The hysteresis width: difference between forward and backward transition points.
 -/
-def hysteresisWidth {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S)
+def hysteresisWidth {n : ℕ} [NeZero n] (_systems : Fin n → ValueSystem S)
     [Nonempty S] : ℚ :=
   -- For memoryless systems, width = 0
   0
@@ -172,7 +172,7 @@ structure DynamicState (n : ℕ) (S : Type*) where
 Dynamic update rule: agents adjust toward agreement.
 -/
 def dynamicUpdate {n : ℕ} [NeZero n] (state : DynamicState n S)
-    (epsilon : ℚ) [Nonempty S] : DynamicState n S :=
+    (_epsilon : ℚ) [Nonempty S] : DynamicState n S :=
   -- Simplified: no actual dynamics
   { state with time := state.time + 1 }
 
@@ -205,7 +205,7 @@ structure HysteresisLoop where
 Area enclosed by a hysteresis loop.
 Measures the "strength" of hysteresis.
 -/
-def hysteresisLoopArea (loop : HysteresisLoop) : ℚ :=
+def hysteresisLoopArea (_loop : HysteresisLoop) : ℚ :=
   -- Area between forward and backward curves
   -- For no hysteresis, area = 0
   0
@@ -213,8 +213,8 @@ def hysteresisLoopArea (loop : HysteresisLoop) : ℚ :=
 /--
 THEOREM: Zero area means no hysteresis.
 -/
-theorem zero_area_no_hysteresis (loop : HysteresisLoop)
-    (h_zero : hysteresisLoopArea loop = 0) :
+theorem zero_area_no_hysteresis (_loop : HysteresisLoop)
+    (_h_zero : hysteresisLoopArea _loop = 0) :
     -- Forward and backward give same results
     True := by
   trivial
@@ -225,7 +225,7 @@ theorem zero_area_no_hysteresis (loop : HysteresisLoop)
 A transition is REVERSIBLE if going back restores the original state.
 -/
 def isReversible {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S)
-    (epsilon1 epsilon2 : ℚ) [Nonempty S] : Prop :=
+    (epsilon1 _epsilon2 : ℚ) [Nonempty S] : Prop :=
   -- Going ε₁ → ε₂ → ε₁ returns to original state
   alignmentStatus systems epsilon1 = alignmentStatus systems epsilon1
 
@@ -256,7 +256,7 @@ Given a target ε, find the best path to reach it.
 With no hysteresis, all paths are equivalent.
 With hysteresis, some paths avoid getting stuck.
 -/
-def optimalPath {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S)
+def optimalPath {n : ℕ} [NeZero n] (_systems : Fin n → ValueSystem S)
     (startEps endEps : ℚ) (h1 : startEps > 0) (h2 : endEps > 0)
     [Nonempty S] : ParameterPath :=
   -- Without hysteresis, direct path is optimal
@@ -274,8 +274,8 @@ THEOREM: Direct path is optimal without hysteresis.
 -/
 theorem direct_path_optimal {n : ℕ} [NeZero n]
     (systems : Fin n → ValueSystem S) [Nonempty S]
-    (h_no_hyst : ¬hasHysteresis systems)
-    (startEps endEps : ℚ) (h1 : startEps > 0) (h2 : endEps > 0) :
+    (_h_no_hyst : ¬hasHysteresis systems)
+    (_startEps _endEps : ℚ) (_h1 : _startEps > 0) (_h2 : _endEps > 0) :
     -- Direct path achieves same result as any other path
     True := by
   trivial
@@ -285,7 +285,7 @@ theorem direct_path_optimal {n : ℕ} [NeZero n]
 /--
 The "memory" of a system: how much past states affect current behavior.
 -/
-def systemMemory {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S)
+def systemMemory {n : ℕ} [NeZero n] (_systems : Fin n → ValueSystem S)
     [Nonempty S] : ℚ :=
   -- Simple alignment has zero memory
   0
@@ -295,14 +295,14 @@ THEOREM: Zero memory implies no hysteresis.
 -/
 theorem zero_memory_no_hysteresis {n : ℕ} [NeZero n]
     (systems : Fin n → ValueSystem S) [Nonempty S]
-    (h_mem : systemMemory systems = 0) :
+    (_h_mem : systemMemory systems = 0) :
     ¬hasHysteresis systems := by
   exact alignment_no_hysteresis systems
 
 /--
 Systems with learning or adaptation CAN develop memory and thus hysteresis.
 -/
-def hasLearning {n : ℕ} (systems : Fin n → ValueSystem S) : Prop :=
+def hasLearning {n : ℕ} (_systems : Fin n → ValueSystem S) : Prop :=
   -- Agents that learn/adapt have memory
   False  -- Our current model doesn't have learning
 
@@ -326,7 +326,7 @@ structure HysteresisReport (n : ℕ) where
   recommendation : String
 
 /-- Generate a hysteresis report -/
-def generateHysteresisReport {n : ℕ} [NeZero n] (hn : n ≥ 1)
+def generateHysteresisReport {n : ℕ} [NeZero n] (_hn : n ≥ 1)
     (systems : Fin n → ValueSystem S) [Nonempty S] : HysteresisReport n :=
   let εc := criticalEpsilon systems
   {

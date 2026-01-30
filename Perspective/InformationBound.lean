@@ -122,7 +122,7 @@ noncomputable def sharedInformation (V₁ V₂ : ValueSystem S) : ℚ :=
 theorem sharedInfo_nonneg (V₁ V₂ : ValueSystem S) :
     0 ≤ sharedInformation V₁ V₂ := by
   unfold sharedInformation
-  simp [le_min_iff, le_max_iff]
+  simp only [le_min_iff, le_max_iff, le_refl, true_or, true_and, zero_le_one]
 
 /-- Shared information is at most 1 -/
 theorem sharedInfo_le_one (V₁ V₂ : ValueSystem S) :
@@ -175,7 +175,7 @@ theorem informationThreshold_bounded (epsilon : ℚ) (valueRange : ℚ) :
     informationThreshold epsilon valueRange ≤ 1 := by
   unfold informationThreshold
   constructor
-  · split_ifs <;> simp [le_max_iff, le_min_iff]
+  · split_ifs <;> simp only [le_max_iff, le_refl, true_or, zero_le_one]
   · split_ifs with h1 h2
     · calc max 0 (min 1 (1 - epsilon / valueRange))
           ≤ max 0 1 := max_le_max_left 0 (min_le_left 1 _)
@@ -306,7 +306,7 @@ noncomputable def findBottleneckPair {n : ℕ} (hn : n ≥ 2)
 /--
 THEOREM: Improving the bottleneck improves alignment feasibility.
 -/
-theorem bottleneck_improvement_helps {S' : Type*} :
+theorem bottleneck_improvement_helps {_S' : Type*} :
     -- Increasing shared info for the bottleneck pair reduces the gap
     True := trivial
 

@@ -292,17 +292,17 @@ theorem deadlock_min_agents_aux {S : Type*} [Fintype S] [DecidableEq S] [Nonempt
 
   -- The 1-skeleton is acyclic when there are ≤ 2 vertices
   have h_acyclic : (oneSkeleton K).IsAcyclic := by
-    apply @H1Characterization.small_complex_acyclic K h_fintype
-    -- Show that card K.vertexSet ≤ 2
-    -- Use the axiom that cardinality = n and the fact that n ≤ 2
-    calc @Fintype.card K.vertexSet h_fintype
-        = @Fintype.card K.vertexSet (valueComplex_vertexSet_fintype N.toValueSystems N.threshold) := by
-          congr; exact Subsingleton.elim _ _
-      _ = N.agents.length := by
-          show @Fintype.card (Perspective.valueComplex N.toValueSystems N.threshold).vertexSet
-              (valueComplex_vertexSet_fintype N.toValueSystems N.threshold) = N.agents.length
-          exact valueComplex_vertexSet_card N.toValueSystems N.threshold
-      _ ≤ 2 := by unfold AgentNetwork.size at h_contra; omega
+    -- Show that card K.vertexSet < 3
+    have h_card_lt : @Fintype.card K.vertexSet h_fintype < 3 := by
+      calc @Fintype.card K.vertexSet h_fintype
+          = @Fintype.card K.vertexSet (valueComplex_vertexSet_fintype N.toValueSystems N.threshold) := by
+            congr; exact Subsingleton.elim _ _
+        _ = N.agents.length := by
+            show @Fintype.card (Perspective.valueComplex N.toValueSystems N.threshold).vertexSet
+                (valueComplex_vertexSet_fintype N.toValueSystems N.threshold) = N.agents.length
+            exact valueComplex_vertexSet_card N.toValueSystems N.threshold
+        _ < 3 := by unfold AgentNetwork.size at h_contra; omega
+    exact @H1Characterization.lt_three_vertices_oneConnected K h_fintype h_card_lt
 
   -- The vertexSet must be nonempty (otherwise H¹ would be trivial)
   have h_nonempty : Nonempty K.vertexSet := by

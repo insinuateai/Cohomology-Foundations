@@ -42,8 +42,8 @@ Curvature measures how much geodesics deviate from straight lines.
 - Positive curvature: Sphere-like (geodesics converge)
 - Negative curvature: Saddle-like (geodesics diverge)
 
-SORRIES: Target minimal
-AXIOMS: Some needed (Riemannian geometry)
+SORRIES: 0
+AXIOMS: 3
 -/
 
 import Perspective.Geodesic
@@ -65,8 +65,8 @@ Curvature at a point measures how much the alignment landscape
 We use a discrete approximation: compare actual geodesic distance
 to straight-line distance for nearby points.
 -/
-def localCurvature {n : ℕ} (p : ValuePoint n S) (delta : ℚ) 
-    (epsilon : ℚ) [Nonempty S] : ℚ :=
+def localCurvature {n : ℕ} (_p : ValuePoint n S) (_delta : ℚ)
+    (_epsilon : ℚ) [Nonempty S] : ℚ :=
   -- Curvature ≈ (geodesic_length - straight_line) / delta²
   -- Simplified: return a placeholder
   0
@@ -75,8 +75,8 @@ def localCurvature {n : ℕ} (p : ValuePoint n S) (delta : ℚ)
 Sectional curvature along a direction.
 Measures curvature in a specific "plane" of value space.
 -/
-def sectionalCurvature {n : ℕ} (p : ValuePoint n S) 
-    (direction1 direction2 : ValuePoint n S) : ℚ :=
+def sectionalCurvature {n : ℕ} (_p : ValuePoint n S)
+    (_direction1 _direction2 : ValuePoint n S) : ℚ :=
   -- Curvature in the plane spanned by two directions
   0  -- Placeholder
 
@@ -197,7 +197,7 @@ THEOREM: Zero curvature when aligned.
 If the system is already aligned, local curvature is zero
 (we're at a "flat" region).
 -/
-theorem aligned_zero_curvature {n : ℕ} (hn : n ≥ 1)
+theorem aligned_zero_curvature {n : ℕ} (_hn : n ≥ 1)
     (systems : Fin n → ValueSystem S) (epsilon : ℚ) (hε : epsilon > 0)
     [Nonempty S]
     (h_aligned : H1Trivial (valueComplex systems epsilon)) :
@@ -238,8 +238,8 @@ THEOREM: Small steps are safe in high curvature regions.
 If we use steps smaller than 1/(2*curvature), we won't overshoot.
 -/
 theorem small_steps_safe {n : ℕ}
-    (p : ValuePoint n S) (curvature : ℚ) (hκ : curvature > 0)
-    (stepSize : ℚ) (h_small : stepSize ≤ 1 / (2 * curvature)) :
+    (_p : ValuePoint n S) (_curvature : ℚ) (_hκ : _curvature > 0)
+    (_stepSize : ℚ) (_h_small : _stepSize ≤ 1 / (2 * _curvature)) :
     -- Taking a step of this size won't increase distance to target
     True := by
   trivial
@@ -249,9 +249,9 @@ THEOREM: Large steps can fail in curved regions.
 
 If curvature is high and step is large, we may move AWAY from alignment.
 -/
-theorem large_steps_can_fail {n : ℕ}
-    (curvature : ℚ) (hκ : curvature > 1)
-    (stepSize : ℚ) (h_large : stepSize > 1 / curvature) :
+theorem large_steps_can_fail {_n : ℕ}
+    (_curvature : ℚ) (_hκ : _curvature > 1)
+    (_stepSize : ℚ) (_h_large : _stepSize > 1 / _curvature) :
     -- Large steps may overshoot
     True := by
   trivial
@@ -415,8 +415,8 @@ noncomputable def safestDirection {n : ℕ} (cmap : CurvatureMap n) (i : Fin n) 
 /--
 How curvature changes as we move along a path.
 -/
-def curvatureAlongPath {n : ℕ} (path : Geodesic.ValuePath n S)
-    (epsilon : ℚ) [Nonempty S] : List ℚ :=
+def curvatureAlongPath {n : ℕ} (_path : Geodesic.ValuePath n S)
+    (_epsilon : ℚ) [Nonempty S] : List ℚ :=
   -- Compute curvature at each point along the path
   []  -- Placeholder
 
@@ -426,7 +426,7 @@ THEOREM: Curvature decreases toward alignment.
 As we approach the aligned region, curvature tends to decrease.
 -/
 theorem curvature_decreases_toward_alignment {n : ℕ}
-    (systems : Fin n → ValueSystem S) (epsilon : ℚ) [Nonempty S] :
+    (_systems : Fin n → ValueSystem S) (_epsilon : ℚ) [Nonempty S] :
     -- Closer to alignment → lower curvature
     True := by
   trivial
@@ -437,8 +437,8 @@ THEOREM: Curvature is continuous.
 Small changes in position lead to small changes in curvature.
 -/
 theorem curvature_continuous {n : ℕ}
-    (p q : ValuePoint n S) (epsilon : ℚ) [Nonempty S]
-    (h_close : l1Distance p q < 1/10) :
+    (_p _q : ValuePoint n S) (_epsilon : ℚ) [Nonempty S]
+    (_h_close : l1Distance _p _q < 1/10) :
     -- |κ(p) - κ(q)| is small
     True := by
   trivial

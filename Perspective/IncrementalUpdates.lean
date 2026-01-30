@@ -123,7 +123,7 @@ def vertexLink (K : SimplicialComplex) (v : Vertex) : Set Simplex :=
 /-! ## Part 3: Star as Subcomplex -/
 
 /-- The closed star forms a simplicial complex -/
-def starComplex (K : SimplicialComplex) (s : Simplex) (hs : s ∈ K.simplices) : 
+def starComplex (K : SimplicialComplex) (s : Simplex) (_hs : s ∈ K.simplices) :
     SimplicialComplex where
   simplices := closedStar K s
   has_vertices := by
@@ -198,7 +198,7 @@ def removeSimplex (K : SimplicialComplex) (s : Simplex) : SimplicialComplex wher
   simplices := { t ∈ K.simplices | ¬(s ⊆ t) }
   has_vertices := by
     intro t ht v hv
-    simp only [Set.mem_setOf, Set.sep_mem_eq] at ht ⊢
+    simp only [Set.mem_setOf] at ht ⊢
     constructor
     · exact K.has_vertices t ht.1 v hv
     · intro h_sub
@@ -211,7 +211,7 @@ def removeSimplex (K : SimplicialComplex) (s : Simplex) : SimplicialComplex wher
       exact ht.2 this
   down_closed := by
     intro t ht i
-    simp only [Set.mem_setOf, Set.sep_mem_eq] at ht ⊢
+    simp only [Set.mem_setOf] at ht ⊢
     constructor
     · exact K.down_closed t ht.1 i
     · intro h_sub
@@ -223,7 +223,7 @@ def removeSimplex (K : SimplicialComplex) (s : Simplex) : SimplicialComplex wher
 theorem removeSimplex_shrinks (K : SimplicialComplex) (s : Simplex) :
     removeSimplex K s ⊆ₛ K := by
   intro t ht
-  simp only [removeSimplex, Set.mem_setOf, Set.sep_mem_eq] at ht
+  simp only [removeSimplex, Set.mem_setOf] at ht
   exact ht.1
 
 /-! ## Part 6: The Key Incremental Theorem -/
@@ -242,16 +242,16 @@ In other words: just check the LOCAL neighborhood!
 -/
 theorem incremental_add_vertex (K : SimplicialComplex) [Nonempty K.vertexSet]
     (h_K : H1Trivial K)
-    (v : Vertex) (hv : v ∉ K.vertexSet)
-    (neighbors : List Vertex)
-    (h_neighbors : ∀ u ∈ neighbors, u ∈ K.vertexSet)
+    (_v : Vertex) (_hv : _v ∉ K.vertexSet)
+    (_neighbors : List Vertex)
+    (_h_neighbors : ∀ u ∈ _neighbors, u ∈ K.vertexSet)
     (K' : SimplicialComplex)  -- K with v added
     (h_K'_extends : K ⊆ₛ K')
-    (h_K'_has_v : {v} ∈ K'.simplices)
-    (h_K'_has_edges : ∀ u ∈ neighbors, {v, u} ∈ K'.simplices)
+    (_h_K'_has_v : {_v} ∈ K'.simplices)
+    (_h_K'_has_edges : ∀ u ∈ _neighbors, {_v, u} ∈ K'.simplices)
     -- Local condition: star of v is "tree-like"
-    (h_local : neighbors.length ≤ 1 ∨
-               ∀ u₁ u₂, u₁ ∈ neighbors → u₂ ∈ neighbors → u₁ ≠ u₂ →
+    (_h_local : _neighbors.length ≤ 1 ∨
+               ∀ u₁ u₂, u₁ ∈ _neighbors → u₂ ∈ _neighbors → u₁ ≠ u₂ →
                         {u₁, u₂} ∉ K.simplices) :
     H1Trivial K' := by
   -- PROOF STRATEGY:
@@ -288,13 +288,13 @@ Then: The new complex has H¹ = 0.
 -/
 theorem incremental_add_edge (K : SimplicialComplex) [Nonempty K.vertexSet]
     (h_K : H1Trivial K)
-    (u v : Vertex) (hu : u ∈ K.vertexSet) (hv : v ∈ K.vertexSet)
-    (h_no_edge : {u, v} ∉ K.simplices)
+    (_u _v : Vertex) (_hu : _u ∈ K.vertexSet) (_hv : _v ∈ K.vertexSet)
+    (_h_no_edge : {_u, _v} ∉ K.simplices)
     -- Local condition: u and v are in different components, or adding edge + triangle
-    (h_local : True)  -- Simplified; full version would check path-connectivity
+    (_h_local : True)  -- Simplified; full version would check path-connectivity
     (K' : SimplicialComplex)
     (h_K'_extends : K ⊆ₛ K')
-    (h_K'_has_edge : {u, v} ∈ K'.simplices) :
+    (_h_K'_has_edge : {_u, _v} ∈ K'.simplices) :
     H1Trivial K' := by
   -- PROOF STRATEGY:
   -- H¹ = 0 ↔ 1-skeleton is acyclic (forest)
@@ -392,7 +392,7 @@ When adding vertex v with d neighbors:
 
 For sparse graphs, d << n, so incremental is much faster.
 -/
-theorem incremental_complexity (n d : ℕ) (hd : d ≤ n) :
+theorem incremental_complexity (_n _d : ℕ) (_hd : _d ≤ _n) :
     -- Incremental check examines only the d neighbors
     -- Full recheck examines all n vertices
     -- Ratio: d/n
@@ -400,7 +400,7 @@ theorem incremental_complexity (n d : ℕ) (hd : d ≤ n) :
   trivial
 
 /-- Typical case: constant degree -/
-theorem constant_degree_speedup (n : ℕ) (hn : n > 0) :
+theorem constant_degree_speedup (_n : ℕ) (_hn : _n > 0) :
     -- If average degree is constant (e.g., 10),
     -- then incremental is O(1) vs O(n)
     -- Speedup factor: n
@@ -454,7 +454,7 @@ inductive UpdateResult where
   deriving DecidableEq, Repr
 
 /-- Check if adding a vertex is safe -/
-def checkAddVertex (K : SimplicialComplex) (v : Vertex) 
+def checkAddVertex (_K : SimplicialComplex) (_v : Vertex)
     (neighbors : List Vertex) : UpdateResult :=
   if neighbors.length ≤ 1 then
     UpdateResult.safe  -- Leaf vertex, always safe
@@ -462,16 +462,16 @@ def checkAddVertex (K : SimplicialComplex) (v : Vertex)
     UpdateResult.needsCheck  -- Need to verify no cycle created
 
 /-- Check if removing a vertex is safe -/
-def checkRemoveVertex (K : SimplicialComplex) (v : Vertex) : UpdateResult :=
+def checkRemoveVertex (_K : SimplicialComplex) (_v : Vertex) : UpdateResult :=
   UpdateResult.safe  -- Removing always safe for H¹
 
 /-- Check if adding an edge is safe -/
-def checkAddEdge (K : SimplicialComplex) (u v : Vertex) : UpdateResult :=
+def checkAddEdge (_K : SimplicialComplex) (_u _v : Vertex) : UpdateResult :=
   -- Would need to check if u and v are in same component
   UpdateResult.needsCheck
 
 /-- Check if removing an edge is safe -/
-def checkRemoveEdge (K : SimplicialComplex) (u v : Vertex) : UpdateResult :=
+def checkRemoveEdge (_K : SimplicialComplex) (_u _v : Vertex) : UpdateResult :=
   UpdateResult.safe  -- Removing edges always safe for H¹
 
 /-! ## Part 10: The API Theorem -/

@@ -128,7 +128,7 @@ def hasEdge (V₁ V₂ : ValueSystem S) (ε : ℚ) : Prop :=
   ∃ s : S, |V₁.values s - V₂.values s| ≤ 2 * ε
 
 /-- Edge slack positive implies edge exists (forward direction) -/
-theorem edgeSlack_pos_imp_hasEdge (V₁ V₂ : ValueSystem S) (ε : ℚ) (hε : ε > 0) :
+theorem edgeSlack_pos_imp_hasEdge (V₁ V₂ : ValueSystem S) (ε : ℚ) (_hε : ε > 0) :
     edgeSlack V₁ V₂ ε > 0 → hasEdge V₁ V₂ ε := by
   unfold edgeSlack hasEdge
   intro h
@@ -167,7 +167,7 @@ def stabilityMargin {n : ℕ} (_systems : Fin n → ValueSystem S) (ε : ℚ) : 
   ε -- Conservative bound; see simplified version below
 
 /-- Simplified stability margin: minimum edge slack among existing edges -/
-def stabilityMarginSimple {n : ℕ} (systems : Fin n → ValueSystem S) (ε : ℚ) : ℚ :=
+def stabilityMarginSimple {n : ℕ} (_systems : Fin n → ValueSystem S) (ε : ℚ) : ℚ :=
   -- For now, just return ε as a conservative bound
   ε
 
@@ -231,7 +231,7 @@ theorem margin_from_edge_slacks {n : ℕ} (systems : Fin n → ValueSystem S) (�
   rfl
 
 /-- A better margin computation (when we have edge information) -/
-def computeMargin {n : ℕ} (systems : Fin n → ValueSystem S) (ε : ℚ) 
+def computeMargin {n : ℕ} (_systems : Fin n → ValueSystem S) (ε : ℚ)
     (edges : List (Fin n × Fin n)) : ℚ :=
   -- For each existing edge (i,j), compute how much slack it has
   -- Return the minimum
@@ -262,11 +262,11 @@ THEOREM: Alignment is safe until timeToFailure.
 If current time is t and drift rate is r, then alignment
 is guaranteed until time t + margin/r.
 -/
-theorem alignment_safe_until {n : ℕ} (hn : n ≥ 2)
-    (systems : Fin n → ValueSystem S) (ε : ℚ) (hε : ε > 0)
+theorem alignment_safe_until {n : ℕ} (_hn : n ≥ 2)
+    (systems : Fin n → ValueSystem S) (ε : ℚ) (_hε : ε > 0)
     [Nonempty S]
-    (h_aligned : H1Trivial (valueComplex systems ε))
-    (drift : DriftRate systems) (hd : drift.rate > 0) :
+    (_h_aligned : H1Trivial (valueComplex systems ε))
+    (drift : DriftRate systems) (_hd : drift.rate > 0) :
     -- For any time t < timeToFailure, the system at time t is still aligned
     True := by
   -- This follows from stability_of_h1_trivial
@@ -323,11 +323,11 @@ With the stability theorem, we can offer:
 
 This is a SUBSCRIPTION product, not one-time.
 -/
-theorem monitoring_product_enabled {n : ℕ} (hn : n ≥ 2)
-    (systems : Fin n → ValueSystem S) (ε : ℚ) (hε : ε > 0)
+theorem monitoring_product_enabled {n : ℕ} (_hn : n ≥ 2)
+    (systems : Fin n → ValueSystem S) (ε : ℚ) (_hε : ε > 0)
     [Nonempty S] :
     -- We can compute all monitoring data
-    ∃ status : MonitoringStatus, True := by
+    ∃ _status : MonitoringStatus, True := by
   exact ⟨computeMonitoringStatus systems ε true none 50, trivial⟩
 
 /--

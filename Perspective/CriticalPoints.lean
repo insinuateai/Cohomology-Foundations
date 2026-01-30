@@ -373,7 +373,7 @@ theorem escape_decreases_misalignment {n : ℕ}
     (systems : Fin n → ValueSystem S) (epsilon : ℚ)
     [Nonempty S]
     (escDir : Fin n × S × ℚ)
-    (h_escape : escapeDirection systems epsilon = some escDir) :
+    (_h_escape : escapeDirection systems epsilon = some escDir) :
     -- Small step in escape direction decreases misalignment
     True := by
   trivial
@@ -398,8 +398,8 @@ def trapDepth {n : ℕ} (systems : Fin n → ValueSystem S)
 /--
 Basin of attraction: region that flows to this minimum.
 -/
-def basinRadius {n : ℕ} (systems : Fin n → ValueSystem S)
-    (epsilon : ℚ) (delta : ℚ) [Nonempty S] : ℚ :=
+def basinRadius {n : ℕ} (_systems : Fin n → ValueSystem S)
+    (_epsilon : ℚ) (delta : ℚ) [Nonempty S] : ℚ :=
   -- Radius within which gradient descent leads here
   delta  -- Simplified
 
@@ -409,9 +409,9 @@ THEOREM: Escaping a trap requires sufficient perturbation.
 To escape a local minimum trap, perturbation must exceed basin radius.
 -/
 theorem escape_trap_requires_perturbation {n : ℕ}
-    (systems : Fin n → ValueSystem S) (epsilon delta : ℚ)
+    (_systems : Fin n → ValueSystem S) (_epsilon _delta : ℚ)
     [Nonempty S]
-    (h_trap : isTrap systems epsilon delta) :
+    (_h_trap : isTrap _systems _epsilon _delta) :
     -- Need perturbation ≥ basin radius to escape
     True := by
   trivial
@@ -433,8 +433,8 @@ THEOREM: Morse inequality.
 The number of critical points satisfies topological constraints.
 Relates to Betti numbers of the value space.
 -/
-theorem morse_inequality {n : ℕ} (hn : n ≥ 1)
-    (counts : CriticalPointCount) :
+theorem morse_inequality {n : ℕ} (_hn : n ≥ 1)
+    (_counts : CriticalPointCount) :
     -- #minima - #saddles + #maxima ≥ Euler characteristic
     True := by
   trivial
@@ -465,7 +465,7 @@ theorem global_minimum_exists {n : ℕ} (_hn : n ≥ 1)
 A path that avoids local minimum traps.
 -/
 def trapAvoidingPath {n : ℕ} (start : Fin n → ValueSystem S)
-    (epsilon : ℚ) [Nonempty S] : List (Fin n → ValueSystem S) :=
+    (_epsilon : ℚ) [Nonempty S] : List (Fin n → ValueSystem S) :=
   -- Use simulated annealing or perturbation to avoid traps
   [start]  -- Placeholder
 
@@ -476,7 +476,7 @@ With sufficient random perturbation, gradient descent reaches
 global minimum with high probability.
 -/
 theorem random_perturbation_escapes {n : ℕ}
-    (systems : Fin n → ValueSystem S) (epsilon perturbation : ℚ)
+    (_systems : Fin n → ValueSystem S) (_epsilon _perturbation : ℚ)
     [Nonempty S] :
     -- Large enough perturbation escapes traps
     True := by
@@ -544,8 +544,8 @@ We provide:
 
 This enables INTELLIGENT navigation avoiding traps.
 -/
-theorem critical_point_product {n : ℕ} (hn : n ≥ 1)
-    (systems : Fin n → ValueSystem S) (epsilon : ℚ) (hε : epsilon > 0)
+theorem critical_point_product {n : ℕ} (_hn : n ≥ 1)
+    (systems : Fin n → ValueSystem S) (epsilon : ℚ) (_hε : epsilon > 0)
     [Nonempty S] :
     -- Critical point framework is well-defined
     misalignment systems epsilon ≥ 0 ∧

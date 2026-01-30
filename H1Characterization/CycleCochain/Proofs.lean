@@ -118,7 +118,7 @@ private lemma trail_dart_edge_unique' (K : SimplicialComplex) {v w : K.vertexSet
 
 -- toSimplex equality means same unordered pair
 private lemma toSimplex_eq_iff_same_pair' (K : SimplicialComplex) (a b c d : K.vertexSet)
-    (hab : a.val ≠ b.val) (hcd : c.val ≠ d.val) :
+    (hab : a.val ≠ b.val) (_hcd : c.val ≠ d.val) :
     ({a.val, b.val} : Finset ℕ) = {c.val, d.val} ↔
     (a.val = c.val ∧ b.val = d.val) ∨ (a.val = d.val ∧ b.val = c.val) := by
   constructor
@@ -188,13 +188,13 @@ private lemma countP_le_of_imp' {α : Type*} (l : List α) {p q : α → Bool}
       simp only [hqa, hpa, ite_true]
       exact Nat.add_le_add_right ih 1
     · simp only [Bool.not_eq_true] at hqa
-      simp only [hqa, ite_false]
+      simp only [hqa]
       by_cases hpa : p a = true
       · simp only [hpa, ite_true]
         calc as.countP q ≤ as.countP p := ih
           _ ≤ as.countP p + 1 := Nat.le_add_right _ _
       · simp only [Bool.not_eq_true] at hpa
-        simp only [hpa, ite_false]
+        simp only [hpa]
         exact ih
 
 -- countP ≥ 1 when element in list satisfies predicate

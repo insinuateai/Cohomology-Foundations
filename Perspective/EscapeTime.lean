@@ -56,8 +56,8 @@ variable {S : Type*} [Fintype S] [DecidableEq S]
 The convergence rate: how fast misalignment decreases per step.
 Rate r means: misalignment(t+1) ≤ r * misalignment(t)
 -/
-def convergenceRate {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S)
-    (epsilon : ℚ) [Nonempty S] : ℚ :=
+def convergenceRate {n : ℕ} [NeZero n] (_systems : Fin n → ValueSystem S)
+    (_epsilon : ℚ) [Nonempty S] : ℚ :=
   -- Rate depends on spectral gap (from Batch 11)
   -- Simplified: use a default rate
   4/5  -- 0.8 convergence rate
@@ -66,7 +66,7 @@ def convergenceRate {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S)
 THEOREM: Convergence rate is in (0, 1) for convergent systems.
 -/
 theorem convergence_rate_bounds {n : ℕ} [NeZero n]
-    (systems : Fin n → ValueSystem S) (epsilon : ℚ) (hε : epsilon > 0)
+    (systems : Fin n → ValueSystem S) (epsilon : ℚ) (_hε : epsilon > 0)
     [Nonempty S] :
     0 < convergenceRate systems epsilon ∧ 
     convergenceRate systems epsilon < 1 := by
@@ -157,7 +157,7 @@ THEOREM: Zero misalignment means zero escape time.
 -/
 theorem aligned_zero_escape {n : ℕ} [NeZero n]
     (systems : Fin n → ValueSystem S) (epsilon tolerance : ℚ)
-    (hε : epsilon > 0) (htol : tolerance > 0)
+    (_hε : epsilon > 0) (htol : tolerance > 0)
     [Nonempty S]
     (h_aligned : misalignment systems epsilon = 0) :
     escapeTime systems epsilon tolerance = 0 := by
@@ -195,7 +195,7 @@ theorem escape_time_monotone {n : ℕ} [NeZero n]
 /--
 Progress toward alignment: what fraction of the way are we?
 -/
-def alignmentProgress {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S)
+def alignmentProgress {n : ℕ} [NeZero n] (_systems : Fin n → ValueSystem S)
     (initialMis currentMis : ℚ) : ℚ :=
   if initialMis > 0 then 1 - currentMis / initialMis else 1
 
@@ -205,7 +205,7 @@ Remaining time estimate based on current progress.
 def remainingTimeEstimate {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S)
     (epsilon tolerance : ℚ) (currentStep : ℕ) [Nonempty S] : ℕ :=
   let currentMis := misalignmentAfterSteps systems epsilon currentStep
-  let rate := convergenceRate systems epsilon
+  let _rate := convergenceRate systems epsilon
   if currentMis ≤ tolerance then 0
   else
     let total := escapeTime systems epsilon tolerance
@@ -214,8 +214,8 @@ def remainingTimeEstimate {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem 
 /--
 Is the system on track? (Converging as expected)
 -/
-def isOnTrack {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S)
-    (epsilon : ℚ) (currentStep : ℕ) (actualMis expectedMis : ℚ) 
+def isOnTrack {n : ℕ} [NeZero n] (_systems : Fin n → ValueSystem S)
+    (_epsilon : ℚ) (_currentStep : ℕ) (actualMis expectedMis : ℚ)
     [Nonempty S] : Bool :=
   actualMis ≤ expectedMis * (11/10)  -- Allow 10% slack
 
@@ -279,7 +279,7 @@ def compareConvergenceSpeeds {n : ℕ} [NeZero n]
 /--
 Worst-case escape time across all possible initial conditions.
 -/
-def worstCaseEscapeTime (epsilon tolerance : ℚ)
+def worstCaseEscapeTime (_epsilon tolerance : ℚ)
     (maxInitialMis : ℚ) : ℕ :=
   -- Assume worst case: start at maximum misalignment
   let _rate : ℚ := 4/5  -- Default convergence rate
@@ -352,9 +352,9 @@ structure EscapeTimeReport (n : ℕ) where
   recommendation : String
 
 /-- Generate an escape time report -/
-def generateEscapeTimeReport {n : ℕ} [NeZero n] (hn : n ≥ 1)
+def generateEscapeTimeReport {n : ℕ} [NeZero n] (_hn : n ≥ 1)
     (systems : Fin n → ValueSystem S) (epsilon tolerance : ℚ)
-    (hε : epsilon > 0) (htol : tolerance > 0)
+    (_hε : epsilon > 0) (_htol : tolerance > 0)
     [Nonempty S] : EscapeTimeReport n :=
   let initial := misalignment systems epsilon
   let rate := convergenceRate systems epsilon

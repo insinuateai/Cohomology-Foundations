@@ -228,7 +228,7 @@ def interfaceGraph (M₁ M₂ : AlignmentModule S) (I : ModuleInterface M₁ M�
 An interface is acyclic if it doesn't create cycles when combined
 with the internal structures of M₁ and M₂.
 -/
-def interfaceIsAcyclic (M₁ M₂ : AlignmentModule S) (I : ModuleInterface M₁ M₂) : Prop :=
+def interfaceIsAcyclic (M₁ M₂ : AlignmentModule S) (_I : ModuleInterface M₁ M₂) : Prop :=
   -- The interface graph combined with M₁ and M₂ internal edges is acyclic
   -- Simplified: interface has no cycles on its own
   True  -- Would need full graph theory
@@ -304,7 +304,7 @@ theorem tree_interface_safe (M₁ M₂ : AlignmentModule S)
     (h₁ : M₁.isAligned)
     (h₂ : M₂.isAligned)
     (h_compat : ModuleInterface.isCompatible I)
-    (h_tree : I.connections.length < M₁.numAgents + M₂.numAgents) :  -- Tree condition
+    (_h_tree : I.connections.length < M₁.numAgents + M₂.numAgents) :  -- Tree condition
     (composeModules M₁ M₂ I).isAligned := by
   -- Trees can't have cycles, and our interfaceIsAcyclic is True
   -- So we can use the general acyclic composition axiom
@@ -411,7 +411,7 @@ If the interface creates a cycle, alignment may fail.
 -/
 theorem cyclic_interface_can_fail (M₁ M₂ : AlignmentModule S)
     (I : ModuleInterface M₁ M₂) [Nonempty S]
-    (h_cyclic : I.connections.length ≥ 2) :
+    (_h_cyclic : I.connections.length ≥ 2) :
     -- Composition MAY fail (not guaranteed to fail, but can)
     True := by
   trivial
@@ -450,8 +450,8 @@ theorem certified_composition [Nonempty S] (M₁ M₂ : CertifiedModule S)
 /--
 Compose a list of modules sequentially.
 -/
-def composeMany (modules : List (AlignmentModule S)) 
-    (interfaces : List (Σ (i j : Fin modules.length), 
+def composeMany (modules : List (AlignmentModule S))
+    (_interfaces : List (Σ (i j : Fin modules.length),
       ModuleInterface (modules.get i) (modules.get j))) :
     Option (AlignmentModule S) :=
   -- Simplified: return none
@@ -463,8 +463,8 @@ THEOREM: Associativity of safe composition.
 (A ⊕ B) ⊕ C ≅ A ⊕ (B ⊕ C) when all interfaces are acyclic.
 -/
 theorem composition_associative (M₁ M₂ M₃ : AlignmentModule S)
-    (I₁₂ : ModuleInterface M₁ M₂)
-    (I₂₃ : ModuleInterface M₂ M₃)
+    (_I₁₂ : ModuleInterface M₁ M₂)
+    (_I₂₃ : ModuleInterface M₂ M₃)
     [Nonempty S] :
     -- Both orderings give equivalent (aligned) results
     True := by
@@ -476,8 +476,8 @@ THEOREM: Composition is monotonic in tolerance.
 Larger tolerance → more likely to compose successfully.
 -/
 theorem composition_monotonic (M₁ M₂ : AlignmentModule S)
-    (I : ModuleInterface M₁ M₂) [Nonempty S]
-    (ε₁ ε₂ : ℚ) (h : ε₁ ≤ ε₂) :
+    (_I : ModuleInterface M₁ M₂) [Nonempty S]
+    (ε₁ ε₂ : ℚ) (_h : ε₁ ≤ ε₂) :
     -- If composition works at ε₁, it works at ε₂
     True := by
   trivial

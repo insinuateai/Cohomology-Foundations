@@ -332,6 +332,13 @@ def agentToNerveVertex (N : AgentNetwork) (a : N.agents) :
     rw [Foundations.SimplicialComplex.mem_vertexSet_iff]
     exact nerve_has_agent_vertices N a.val a.property⟩
 
+/-- The agentToNerveVertex mapping is injective -/
+theorem agentToNerveVertex_injective (N : AgentNetwork) :
+    Function.Injective (agentToNerveVertex N) := by
+  intro a b h
+  simp only [agentToNerveVertex, Subtype.mk.injEq] at h
+  exact Subtype.ext (Agent.id_inj a.val b.val h)
+
 /-- The compatibility graph is isomorphic to the 1-skeleton of the nerve.
     Two agents are compatible iff their IDs form an edge in the nerve. -/
 theorem compatibilityGraph_iso_oneSkeleton (N : AgentNetwork) (a b : N.agents) :
@@ -432,10 +439,106 @@ theorem h1_trivial_implies_graphForest_nerve (N : AgentNetwork)
 
   -- Show that the mapped walk is also a cycle
   have hp_nerve : p_nerve.IsCycle := by
-    -- IsCycle requires: IsCircuit (ne_nil + IsTrail) + support_nodup
-    -- The mapping preserves these properties
-    -- For now, this requires showing that the isomorphism preserves walk structure
-    sorry
+    -- IsCycle requires: IsCircuit (ne_nil + IsTrail) + support.tail.Nodup
+    -- The mapping preserves these properties because:
+    -- 1. agentToNerveVertex is injective (preserves vertex distinctness)
+    -- 2. The edge mapping via compatibilityGraph_iso_oneSkeleton is injective
+
+    -- Helper: walk_map preserves length
+    have h_len_eq : ∀ {u w : N.agents} (q : SimpleGraph.Walk (compatibilityGraph N) u w),
+        (walk_map q).length = q.length := by
+      intro u w q
+      induction q with
+      | nil => rfl
+      | cons _ _ ih => simp only [SimpleGraph.Walk.length_cons, ih]
+
+    -- Helper: support is mapped by agentToNerveVertex
+    have h_support_map : ∀ {u w : N.agents} (q : SimpleGraph.Walk (compatibilityGraph N) u w),
+        (walk_map q).support = q.support.map (agentToNerveVertex N) := by
+      intro u w q
+      induction q with
+      | nil => simp only [SimpleGraph.Walk.support_nil, List.map_cons, List.map_nil]
+      | cons _ _ ih =>
+        simp only [SimpleGraph.Walk.support_cons, List.map_cons]
+        congr 1
+        exact ih
+
+    -- Get cycle properties from hp
+    have hp_circuit := hp.isCircuit
+    have hp_trail := hp_circuit.isTrail
+    have hp_ne_nil := hp_circuit.ne_nil
+    have hp_support_nodup := hp.support_nodup
+    have hp_edges_nodup := hp_trail.edges_nodup
+
+    constructor
+    · -- IsCircuit: ne_nil ∧ IsTrail
+      constructor
+      · -- ne_nil: p_nerve ≠ nil
+        intro hcontra
+        have : p_nerve.length = 0 := SimpleGraph.Walk.length_eq_zero_iff.mpr hcontra
+        rw [h_len_eq] at this
+        have h_len_pos : 0 < p.length := by
+          have := hp.three_le_length
+          omega
+        omega
+      · -- IsTrail: edges.Nodup
+        -- Use the fact that the walk is a cycle, which has length ≥ 3 and
+        -- distinct vertices (hence distinct edges under injective mapping)
+        -- The mapped walk has the same length, and edges come from an injective map
+
+        -- For cycles, we can use the stronger property that all vertices
+        -- in support.tail are distinct, which means edges are distinct too
+
+        -- The key insight: in a cycle, edge distinctness follows from
+        -- vertex distinctness in the support tail
+
+        -- We prove by counting: walk has n edges and n distinct vertices in tail
+        -- Under injective mapping, we still have n edges and n distinct vertices
+        -- Therefore edges are distinct (a walk with n edges visiting n+1 vertices
+        -- where all n internal vertices are distinct must have distinct edges)
+
+        -- Actually, use: edges.Nodup is implied by support.tail.Nodup for simple walks
+        -- Since our walk_map preserves the simple structure (via injectivity)
+
+        -- Use the fact that for a cycle, edges.length = support.tail.length
+        -- and injective mapping preserves list length and nodup
+
+        have h_len_nerve := h_len_eq p
+        have h_support_nerve := h_support_map p
+
+        -- edges.Nodup for mapped walk follows from:
+        -- 1. The original has nodup edges
+        -- 2. The edge mapping s(u,v) ↦ s(aV u, aV v) is injective
+
+        -- Define the edge mapping explicitly
+        let edgeMap : Sym2 N.agents → Sym2 (nerveComplex N).vertexSet :=
+          Sym2.map (agentToNerveVertex N)
+
+        -- Show edgeMap is injective
+        have h_edge_inj : Function.Injective edgeMap := by
+          exact Sym2.map_injective (agentToNerveVertex_injective N)
+
+        -- Show that (walk_map q).edges = q.edges.map edgeMap
+        have h_edges_map : ∀ {u w : N.agents} (q : SimpleGraph.Walk (compatibilityGraph N) u w),
+            (walk_map q).edges = q.edges.map edgeMap := by
+          intro u w q
+          induction q with
+          | nil => simp only [SimpleGraph.Walk.edges_nil, List.map_nil]
+          | cons hadj qtail ih =>
+            simp only [SimpleGraph.Walk.edges_cons, List.map_cons]
+            constructor
+            · -- First edge maps correctly
+              simp only [edgeMap, Sym2.map_pair_eq]
+            · exact ih
+
+        rw [h_edges_map]
+        exact List.Nodup.map h_edge_inj hp_edges_nodup
+
+    · -- support.tail.Nodup
+      -- p_nerve.support = (walk_map p).support = p.support.map (agentToNerveVertex N)
+      have h_supp : p_nerve.support = p.support.map (agentToNerveVertex N) := h_support_map p
+      rw [h_supp, List.tail_map]
+      exact List.Nodup.map (agentToNerveVertex_injective N) hp_support_nodup
 
   -- p_nerve is a cycle in the oneSkeleton, which contradicts H¹ = 0
   exact h (agentToNerveVertex N v) p_nerve hp_nerve

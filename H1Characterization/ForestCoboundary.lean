@@ -61,8 +61,8 @@ noncomputable def selectRoot (K : SimplicialComplex) [Nonempty K.vertexSet] : K.
 
 -- We need classical decidability for reachability
 open scoped Classical in
-noncomputable def coboundaryWitness (K : SimplicialComplex) (hK : OneConnected K)
-    (f : Cochain K 1) (hf : IsCocycle K 1 f) (root : K.vertexSet) : Cochain K 0 :=
+noncomputable def coboundaryWitness (K : SimplicialComplex) (_hK : OneConnected K)
+    (f : Cochain K 1) (_hf : IsCocycle K 1 f) (root : K.vertexSet) : Cochain K 0 :=
   fun s =>
     let v := toVertex K s
     if h : (oneSkeleton K).Reachable root v
@@ -104,7 +104,7 @@ theorem coboundary_edge_formula (K : SimplicialComplex) (g : Cochain K 0)
         -- {a', b'} = insert a' {b'} since a' ∉ {b'} (a' ≠ b')
         have h_ne : a' ∉ ({b'} : Finset Vertex) := by simp [ne_of_lt hab']
         have h_insert : ({a', b'} : Finset Vertex) = insert a' {b'} := by
-          ext x; simp [Finset.mem_insert, Finset.mem_singleton, or_comm]
+          ext x; simp [Finset.mem_insert, Finset.mem_singleton]
         rw [h_insert, Finset.sort_insert (r := (· ≤ ·))]
         · simp only [Finset.sort_singleton]
         · intro x hx
@@ -115,7 +115,7 @@ theorem coboundary_edge_formula (K : SimplicialComplex) (g : Cochain K 0)
       have h_face0 : e.val.face ⟨0, by rw [hcard2]; omega⟩ = {b'} := by
         simp only [Simplex.face, h_sort, List.get_eq_getElem, List.getElem_cons_zero]
         ext x
-        simp only [Finset.mem_erase, Finset.mem_insert, Finset.mem_singleton]
+        simp only [Finset.mem_erase, Finset.mem_singleton]
         constructor
         · intro ⟨hne, hx⟩
           rw [hab_eq] at hx
@@ -129,7 +129,7 @@ theorem coboundary_edge_formula (K : SimplicialComplex) (g : Cochain K 0)
       have h_face1 : e.val.face ⟨1, by rw [hcard2]; omega⟩ = {a'} := by
         simp only [Simplex.face, h_sort, List.get_eq_getElem, List.getElem_cons_succ, List.getElem_cons_zero]
         ext x
-        simp only [Finset.mem_erase, Finset.mem_insert, Finset.mem_singleton]
+        simp only [Finset.mem_erase, Finset.mem_singleton]
         constructor
         · intro ⟨hne, hx⟩
           rw [hab_eq] at hx
@@ -197,7 +197,7 @@ theorem coboundary_edge_formula (K : SimplicialComplex) (g : Cochain K 0)
         intro h; apply Subtype.ext; exact h_face_i0
       have h_face_sub1 : ∀ h, (⟨e.val.face i1, h⟩ : {s // s ∈ K.ksimplices 0}) = ⟨{a'}, by rw [← h_face_i1]; exact h⟩ := by
         intro h; apply Subtype.ext; exact h_face_i1
-      simp only [h_face_sub0, h_face_sub1, h_sub0, h_sub1]
+      simp only [h_face_sub0, h_face_sub1]
       -- Goal should now be of the form: g x + -(g y) = g x - g y, which is ring
       ring
   · -- Case: a' = b', contradicts hab_ne
@@ -236,7 +236,7 @@ theorem coboundary_edge_formula (K : SimplicialComplex) (g : Cochain K 0)
       have h_face0 : e.val.face ⟨0, by rw [hcard2]; omega⟩ = {a'} := by
         simp only [Simplex.face, h_sort, List.get_eq_getElem, List.getElem_cons_zero]
         ext x
-        simp only [Finset.mem_erase, Finset.mem_insert, Finset.mem_singleton]
+        simp only [Finset.mem_erase, Finset.mem_singleton]
         constructor
         · intro ⟨hne, hx⟩
           rw [hab_eq] at hx
@@ -250,7 +250,7 @@ theorem coboundary_edge_formula (K : SimplicialComplex) (g : Cochain K 0)
       have h_face1 : e.val.face ⟨1, by rw [hcard2]; omega⟩ = {b'} := by
         simp only [Simplex.face, h_sort, List.get_eq_getElem, List.getElem_cons_succ, List.getElem_cons_zero]
         ext x
-        simp only [Finset.mem_erase, Finset.mem_insert, Finset.mem_singleton]
+        simp only [Finset.mem_erase, Finset.mem_singleton]
         constructor
         · intro ⟨hne, hx⟩
           rw [hab_eq] at hx
@@ -297,7 +297,7 @@ theorem coboundary_edge_formula (K : SimplicialComplex) (g : Cochain K 0)
         intro h; apply Subtype.ext; exact h_face_i0
       have h_face_sub1 : ∀ h, (⟨e.val.face i1, h⟩ : {s // s ∈ K.ksimplices 0}) = ⟨{b'}, by rw [← h_face_i1]; exact h⟩ := by
         intro h; apply Subtype.ext; exact h_face_i1
-      simp only [h_face_sub0, h_face_sub1, h_sub0, h_sub1]
+      simp only [h_face_sub0, h_face_sub1]
       ring
 
 /-! ## Graph Theory Axioms -/
@@ -313,7 +313,7 @@ theorem edge_implies_adj (K : SimplicialComplex) (a b : Vertex)
   -- a ≠ b: from card = 2
   intro h_eq
   -- h_eq : ↑⟨a, ha⟩ = ↑⟨b, hb⟩, i.e., a = b
-  simp only [Subtype.coe_mk] at h_eq
+  simp at h_eq
   have hcard : ({a, b} : Finset Vertex).card = 2 := hedge.2
   rw [h_eq, Finset.pair_eq_singleton, Finset.card_singleton] at hcard
   exact absurd hcard (by norm_num)
@@ -474,11 +474,11 @@ theorem coboundaryWitness_works (K : SimplicialComplex) (hK : OneConnected K)
     have hg_a : coboundaryWitness K hK f hf root ⟨{a}, ha⟩ = pathIntegral K f (pathBetween K h_reach_a) := by
       unfold coboundaryWitness
       have h_reach_a' : (oneSkeleton K).Reachable root (toVertex K ⟨{a}, ha⟩) := by rwa [h_toVertex_a]
-      simp only [dif_pos h_reach_a', pathIntegral_well_defined K hK f]
+      simp only [dif_pos h_reach_a']
     have hg_b : coboundaryWitness K hK f hf root ⟨{b}, hb⟩ = pathIntegral K f (pathBetween K h_reach_b) := by
       unfold coboundaryWitness
       have h_reach_b' : (oneSkeleton K).Reachable root (toVertex K ⟨{b}, hb⟩) := by rwa [h_toVertex_b]
-      simp only [dif_pos h_reach_b', pathIntegral_well_defined K hK f]
+      simp only [dif_pos h_reach_b']
     rw [hg_a, hg_b]
     -- Goal: pathIntegral(path_b) - pathIntegral(path_a) = f e
     -- Step 2: Use forest_path_exclusive to determine path structure

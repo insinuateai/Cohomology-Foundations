@@ -136,7 +136,7 @@ def connectingMap (K : SimplicialComplex) (c : Cover K) :
     Cochain c.intersection 0 → Cochain K 1 :=
   -- Given f : H⁰(A∩B), the connecting map produces a 1-cochain on K
   -- This encodes the "obstruction to gluing"
-  fun f => fun ⟨e, he⟩ => 
+  fun _f => fun ⟨_e, _he⟩ =>
     -- For edge e in K, compute the "boundary contribution"
     -- This is where the math gets technical
     0  -- Simplified placeholder
@@ -151,7 +151,7 @@ For our purposes, we care about the special case:
   exactness at H¹ tells us precisely when H¹(K) = 0.
 -/
 theorem mayer_vietoris_exact (K : SimplicialComplex) [Nonempty K.vertexSet]
-    (c : Cover K) :
+    (_c : Cover K) :
     -- The sequence H¹(A∩B) → H¹(A) ⊕ H¹(B) → H¹(K) is exact
     -- This means: ker(to K) = im(from A∩B)
     True := by
@@ -208,15 +208,15 @@ def decomposeByPartition (K : SimplicialComplex)
   }
   A_sub := by
     intro s hs
-    simp only [Set.mem_setOf, Set.sep_mem_eq] at hs
+    simp only [Set.mem_setOf] at hs
     exact hs.1
   B_sub := by
     intro s hs
-    simp only [Set.mem_setOf, Set.sep_mem_eq] at hs
+    simp only [Set.mem_setOf] at hs
     exact hs.1
   covers := by
     intro s hs
-    simp only [Set.mem_union, Set.mem_setOf, Set.sep_mem_eq]
+    simp only [Set.mem_union, Set.mem_setOf]
     -- By h_pure, every simplex is either all-A or all-B (no mixed simplices)
     cases h_pure s hs with
     | inl h_all_A => left; exact ⟨hs, h_all_A⟩
@@ -251,7 +251,7 @@ def decomposeWithOverlap (K : SimplicialComplex) [Nonempty K.vertexSet]
     simplices := { s ∈ K.simplices | isATouching K inA s }
     has_vertices := by
       intro s hs v hv
-      simp only [Set.mem_setOf, Set.sep_mem_eq, isATouching] at hs ⊢
+      simp only [Set.mem_setOf, isATouching] at hs ⊢
       obtain ⟨hs_mem, t, ht_mem, hs_sub, w, hw, hinA⟩ := hs
       constructor
       · exact K.has_vertices s hs_mem v hv
@@ -262,7 +262,7 @@ def decomposeWithOverlap (K : SimplicialComplex) [Nonempty K.vertexSet]
         · exact ⟨w, hw, hinA⟩
     down_closed := by
       intro s hs i
-      simp only [Set.mem_setOf, Set.sep_mem_eq, isATouching] at hs ⊢
+      simp only [Set.mem_setOf, isATouching] at hs ⊢
       obtain ⟨hs_mem, t, ht_mem, hs_sub, w, hw, hinA⟩ := hs
       constructor
       · exact K.down_closed s hs_mem i
@@ -276,7 +276,7 @@ def decomposeWithOverlap (K : SimplicialComplex) [Nonempty K.vertexSet]
     simplices := { s ∈ K.simplices | isBTouching K inA s }
     has_vertices := by
       intro s hs v hv
-      simp only [Set.mem_setOf, Set.sep_mem_eq, isBTouching] at hs ⊢
+      simp only [Set.mem_setOf, isBTouching] at hs ⊢
       obtain ⟨hs_mem, t, ht_mem, hs_sub, w, hw, hinB⟩ := hs
       constructor
       · exact K.has_vertices s hs_mem v hv
@@ -286,7 +286,7 @@ def decomposeWithOverlap (K : SimplicialComplex) [Nonempty K.vertexSet]
         · exact ⟨w, hw, hinB⟩
     down_closed := by
       intro s hs i
-      simp only [Set.mem_setOf, Set.sep_mem_eq, isBTouching] at hs ⊢
+      simp only [Set.mem_setOf, isBTouching] at hs ⊢
       obtain ⟨hs_mem, t, ht_mem, hs_sub, w, hw, hinB⟩ := hs
       constructor
       · exact K.down_closed s hs_mem i
@@ -297,15 +297,15 @@ def decomposeWithOverlap (K : SimplicialComplex) [Nonempty K.vertexSet]
   }
   A_sub := by
     intro s hs
-    simp only [Set.mem_setOf, Set.sep_mem_eq] at hs
+    simp only [Set.mem_setOf] at hs
     exact hs.1
   B_sub := by
     intro s hs
-    simp only [Set.mem_setOf, Set.sep_mem_eq] at hs
+    simp only [Set.mem_setOf] at hs
     exact hs.1
   covers := by
     intro s hs
-    simp only [Set.mem_union, Set.mem_setOf, Set.sep_mem_eq, isATouching, isBTouching]
+    simp only [Set.mem_union, Set.mem_setOf, isATouching, isBTouching]
     -- s is non-empty (since it's in K), so it has at least one vertex
     -- That vertex is either inA=true or inA=false
     -- s ⊆ s, so s is touching itself
@@ -409,14 +409,14 @@ For n agents split into k chunks of n/k each:
 
 This enables massive scale!
 -/
-theorem mv_parallel_complexity (n k : ℕ) (hk : k > 0) (hn : n ≥ k) :
+theorem mv_parallel_complexity (n k : ℕ) (_hk : k > 0) (_hn : n ≥ k) :
     -- Parallel time: O(n/k) for chunks
     -- Plus overlap processing
     True := by
   trivial
 
 /-- Speedup for large systems -/
-theorem mv_speedup (n : ℕ) (hn : n ≥ 1000) :
+theorem mv_speedup (n : ℕ) (_hn : n ≥ 1000) :
     -- For n = 1,000,000 agents with k = 1000 chunks:
     -- Each chunk: ~1,000 agents
     -- Parallel speedup: ~1000x

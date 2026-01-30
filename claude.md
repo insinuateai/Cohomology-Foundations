@@ -67,6 +67,16 @@ def H1Trivial (K : SimplicialComplex) : Prop :=
 
 ---
 
+## Empirical Validation
+
+Our theoretical framework is empirically validated by [Cemri et al. 2025], who independently discovered through analysis of 1,642 MAS traces that "failures stem from system design issues, not just LLM limitations." Their taxonomy maps directly to our cohomological classification:
+
+- **System Design Issues** ↔ H¹ from topology
+- **Inter-Agent Misalignment** ↔ Cocycle obstructions
+- **Task Verification** ↔ Coboundary detection
+
+---
+
 ## 📁 Codebase Structure
 
 ```

@@ -124,7 +124,7 @@ THEOREM: Critical epsilon is a bifurcation point.
 
 At ε = criticalEpsilon, the system transitions from aligned to misaligned.
 -/
-theorem critical_epsilon_is_bifurcation {n : ℕ} [NeZero n] (hn : n ≥ 2)
+theorem critical_epsilon_is_bifurcation {n : ℕ} [NeZero n] (_hn : n ≥ 2)
     (systems : Fin n → ValueSystem S) [Nonempty S] :
     let εc := criticalEpsilon systems
     (∀ ε > εc, alignmentStatus systems ε = true) ∧
@@ -209,8 +209,8 @@ inductive BifurcationClass
 /--
 Detect the class of bifurcation at a critical point.
 -/
-def classifyBifurcation {n : ℕ} (systems : Fin n → ValueSystem S)
-    (epsilon : ℚ) [Nonempty S] : BifurcationClass :=
+def classifyBifurcation {n : ℕ} (_systems : Fin n → ValueSystem S)
+    (_epsilon : ℚ) [Nonempty S] : BifurcationClass :=
   -- Based on how the system changes at the bifurcation
   -- Most alignment bifurcations are fold or transcritical
   .fold
@@ -278,7 +278,7 @@ def bifurcationSurface {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S)
 /--
 Codimension of a bifurcation: how many parameters must be tuned.
 -/
-def bifurcationCodimension {n : ℕ} (systems : Fin n → ValueSystem S)
+def bifurcationCodimension {n : ℕ} (_systems : Fin n → ValueSystem S)
     [Nonempty S] : ℕ :=
   -- Codimension 1: generic bifurcation (happens along a line)
   -- Codimension 2: requires two parameters to be tuned exactly
@@ -292,7 +292,7 @@ Hysteresis occurs when the path forward differs from the path back.
 If we increase ε past bifurcation, then decrease it, we might not
 return to the original state.
 -/
-def hasHysteresis {n : ℕ} (systems : Fin n → ValueSystem S)
+def hasHysteresis {n : ℕ} (_systems : Fin n → ValueSystem S)
     [Nonempty S] : Bool :=
   -- Check if there's path-dependence near the bifurcation
   -- Simplified: alignment bifurcations typically don't have hysteresis
@@ -304,7 +304,7 @@ THEOREM: Alignment bifurcations are reversible (no hysteresis).
 Unlike some physical systems, alignment status is determined purely
 by current parameters, not history.
 -/
-theorem alignment_no_hysteresis {n : ℕ} [NeZero n] (hn : n ≥ 1)
+theorem alignment_no_hysteresis {n : ℕ} [NeZero n] (_hn : n ≥ 1)
     (systems : Fin n → ValueSystem S) (epsilon : ℚ)
     [Nonempty S] :
     -- Status depends only on current ε, not history
@@ -329,7 +329,7 @@ structure BifurcationDiagram (n : ℕ) : Type where
 /--
 Generate a bifurcation diagram.
 -/
-def generateBifurcationDiagram {n : ℕ} [NeZero n] (hn : n ≥ 1)
+def generateBifurcationDiagram {n : ℕ} [NeZero n] (_hn : n ≥ 1)
     (systems : Fin n → ValueSystem S) (epsilonMin epsilonMax : ℚ)
     [Nonempty S] : BifurcationDiagram n :=
   let εc := criticalEpsilon systems
@@ -363,8 +363,8 @@ structure BifurcationReport (n : ℕ) where
   warning : Option String
 
 /-- Generate a bifurcation report -/
-def generateBifurcationReport {n : ℕ} [NeZero n] (hn : n ≥ 1)
-    (systems : Fin n → ValueSystem S) (epsilon : ℚ) (hε : epsilon > 0)
+def generateBifurcationReport {n : ℕ} [NeZero n] (_hn : n ≥ 1)
+    (systems : Fin n → ValueSystem S) (epsilon : ℚ) (_hε : epsilon > 0)
     [Nonempty S] : BifurcationReport n :=
   let εc := criticalEpsilon systems
   let dist := distanceToBifurcation systems epsilon
@@ -401,8 +401,8 @@ We provide:
 
 This enables PREDICTIVE management of alignment stability.
 -/
-theorem bifurcation_product {n : ℕ} [NeZero n] (hn : n ≥ 1)
-    (systems : Fin n → ValueSystem S) (epsilon : ℚ) (hε : epsilon > 0)
+theorem bifurcation_product {n : ℕ} [NeZero n] (_hn : n ≥ 1)
+    (systems : Fin n → ValueSystem S) (epsilon : ℚ) (_hε : epsilon > 0)
     [Nonempty S] :
     -- Bifurcation framework is well-defined
     criticalEpsilon systems ≥ 0 ∧

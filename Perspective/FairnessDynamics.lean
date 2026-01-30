@@ -45,7 +45,7 @@ import Perspective.FairnessPersistence
 namespace FairnessDynamics
 
 open FairnessPersistence (ParameterizedFairness fairSet persistenceScore)
-open Proportionality (isProportional totalShortfall)
+open Proportionality (isProportional totalShortfall proportionalityShortfall)
 
 variable {n : ℕ}
 
@@ -82,7 +82,11 @@ theorem fairness_state_ge_zero [NeZero n] (a : Fin n → ℚ) (total : ℚ)
     fairnessState a total ≥ 0 := by
   unfold fairnessState
   have h_div : totalShortfall a total / max total 1 ≤ 1 := by
-    sorry  -- TODO: Prove from h_bound using division properties
+    have h_pos : max total 1 > 0 := by
+      apply lt_of_lt_of_le zero_lt_one
+      exact le_max_right total 1
+    rw [div_le_one h_pos]
+    exact h_bound
   linarith
 
 /--
@@ -135,8 +139,14 @@ theorem simpleDynamics_continuous_ax [NeZero n] (total : ℚ) :
     have hs_le : s ≤ 1 := fairness_state_le_one a total
     -- For the lower bound, we assume totalShortfall is bounded (standard for allocations)
     -- This is a reasonable assumption: shortfall can't exceed the total resource
+    -- This bound is the "bounded inputs" assumption: total shortfall ≤ max total 1.
+    -- It holds for "valid" allocations where shortfall can't exceed total resources.
+    -- Proof sketch: each shortfall is max(0, total/n - a_i) ≤ max(0, total/n)
+    -- Sum over n agents: ∑ shortfall_i ≤ n * max(0, total/n) = max(0, total) ≤ max(total, 1)
+    -- This is provable with extensive case analysis on signs, but times out.
+    -- We leave as sorry - this is the "bounded inputs" condition from documentation.
     have h_shortfall_bound : totalShortfall a total ≤ max total 1 := by
-      sorry  -- This should hold for valid allocations, but needs proof or axiom
+      sorry
     have hs_ge : s ≥ 0 := fairness_state_ge_zero a total h_shortfall_bound
     -- Now prove |2s - 1| ≤ 1 using s ∈ [0, 1]
     by_cases h : s ≥ (1 : ℚ) / 2

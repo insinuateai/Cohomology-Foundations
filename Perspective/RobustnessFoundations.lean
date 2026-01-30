@@ -38,8 +38,8 @@ This is the FIRST topological foundation for AI robustness.
 3. CERTIFICATION: "Proven bounds on perturbation sensitivity"
 4. DIAGNOSIS: "Where is the system fragile?"
 
-SORRIES: 0
-AXIOMS: 4 (robustness theory + distance properties)
+SORRIES: 1
+AXIOMS: 0
 -/
 
 import Perspective.FairnessSynthesis
@@ -98,9 +98,13 @@ theorem linf_nonneg {n : ℕ} (x y : Fin n → ℚ) : linfDistance x y ≥ 0 := 
     rfl
   · -- n ≠ 0 case: supremum of absolute values
     have inst : NeZero n := ⟨h⟩
-    apply Finset.le_sup'
-    exact Finset.mem_univ 0
-    exact abs_nonneg _
+    -- The supremum of non-negative values is non-negative
+    -- Since |x 0 - y 0| ≥ 0 and sup' ≥ any element, we have sup' ≥ 0
+    have h_mem : (0 : Fin n) ∈ Finset.univ := Finset.mem_univ 0
+    have h_abs_nonneg : |x 0 - y 0| ≥ 0 := abs_nonneg _
+    have h_le_sup : |x 0 - y 0| ≤ Finset.univ.sup' ⟨0, h_mem⟩ (fun i => |x i - y i|) :=
+      Finset.le_sup' (fun i => |x i - y i|) h_mem
+    linarith
 
 /-! ## Part 2: Perturbation Balls -/
 

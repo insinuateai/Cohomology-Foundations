@@ -104,7 +104,7 @@ theorem hollowTriangle_not_oneConnected_axiom :
       refine List.nodup_cons.mpr ⟨?_, List.nodup_cons.mpr ⟨?_, List.nodup_singleton _⟩⟩
       · -- s(v0,v1) ∉ [s(v1,v2), s(v2,v0)]
         intro h
-        simp only [List.mem_cons, List.mem_singleton] at h
+        simp only [List.mem_cons] at h
         rcases h with h1 | h1
         · -- s(v0,v1) = s(v1,v2)
           have : v0 = v1 ∨ (v0 = v2 ∧ v1 = v1) := by

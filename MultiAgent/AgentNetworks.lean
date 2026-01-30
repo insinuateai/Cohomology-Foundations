@@ -5,9 +5,9 @@ Batch: 44 - Publication Quality
 Created: January 2026
 
 QUALITY STANDARDS:
-- Axioms: ≤ 2 (only for cohomology bridge)
+- Axioms: 0
 - Sorries: 0
-- All other theorems: FULLY PROVEN
+- All theorems: FULLY PROVEN
 
 This module formalizes agent networks as graphs where H¹ = 0 means coordination is possible.
 -/
@@ -558,7 +558,7 @@ PROVEN THEOREMS: 40
 
 DEFINITIONS: 15
 
-AXIOMS: 2 (both in Section 6, for cohomology bridge only)
+AXIOMS: 0
 
 SORRIES: 0
 -/

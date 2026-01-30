@@ -1,139 +1,156 @@
 /-
-Copyright (c) 2025 AI Safety Research. All rights reserved.
-Released under MIT license.
-Authors: Claude (Anthropic)
+  H1Characterization/SmallGraphs.lean
+
+  Proves H¹ properties for small graphs (0, 1, 2 vertices).
+
+  SORRIES: 0
+  AXIOMS: 0
+
+  Key insight: Small graphs are trivially acyclic because cycles need ≥3 vertices.
 -/
-import Mathlib.Combinatorics.SimpleGraph.Basic
-import Mathlib.Combinatorics.SimpleGraph.Acyclic
-import Mathlib.Combinatorics.SimpleGraph.Walk
+
+import H1Characterization.OneConnected
+import H1Characterization.Characterization
 import Mathlib.Data.Fintype.Card
-import Foundations.Simplex
-import H1Characterization.Basic
-import H1Characterization.OneSkeleton
-
-/-!
-# Small Graphs and Acyclicity
-
-This file contains lemmas about small graphs (graphs with few vertices) and their acyclicity properties.
-
-## Main Results
-
-- `graph_with_two_vertices_acyclic`: Graphs with ≤2 vertices are acyclic
-- `empty_graph_acyclic`: Empty graphs (no vertices) are acyclic
-- `single_vertex_acyclic`: Single-vertex graphs are acyclic
-- `no_cycle_in_small_graph`: Cycles require at least 3 vertices
-
-These lemmas are crucial for proving deadlock impossibility theorems and other results
-about small agent networks.
--/
 
 namespace H1Characterization
 
-open Foundations
-open SimplicialComplex
+open Foundations SimpleGraph
 
-variable {V : Type*}
+/-! ## Single Vertex Graphs -/
 
-/-! ## Part 1: Empty and Single-Vertex Graphs -/
-
-/--
-LEMMA: A graph with no vertices is acyclic.
-
-Any empty graph trivially satisfies the acyclicity condition.
--/
-lemma empty_graph_acyclic {G : SimpleGraph V} (h_empty : IsEmpty V) :
-    G.IsAcyclic := by
-  unfold SimpleGraph.IsAcyclic
-  intro u v p
-  -- u : V, but V is empty, contradiction
-  exact IsEmpty.elim h_empty u
-
-/--
-LEMMA: A graph with a single vertex is acyclic.
-
-A single vertex has no edges to itself (in a simple graph), so no cycles.
--/
-lemma single_vertex_acyclic {G : SimpleGraph V} [Fintype V]
-    (h_single : Fintype.card V = 1) :
-    G.IsAcyclic := by
-  unfold SimpleGraph.IsAcyclic
-  intro u v p
-  -- With only 1 vertex, u = v (all vertices are the same)
-  have h_unique : ∀ (a b : V), a = b := by
-    intro a b
-    -- Since card V = 1, there's only one element
-    sorry  -- Need Fintype.card = 1 → unique element
-  -- If u = v and p is a path from u to u, it must be trivial
-  sorry  -- Need path uniqueness for reflexive case
-
-/-! ## Part 2: Two-Vertex Graphs -/
-
-/--
-LEMMA: A graph with at most 2 vertices is acyclic.
-
-With ≤2 vertices, a graph has at most 1 edge, which cannot form a cycle.
-A cycle requires at least 3 distinct vertices.
--/
-theorem graph_with_two_vertices_acyclic {G : SimpleGraph V} [Fintype V]
-    (h_small : Fintype.card V ≤ 2) :
-    G.IsAcyclic := by
-  -- With ≤2 vertices, a graph cannot have a cycle
-  -- A cycle requires at least 3 distinct vertices
-  -- We prove this by showing no cycle can exist
-  by_cases h0 : Fintype.card V = 0
-  · -- 0 vertices: empty graph, trivially acyclic
-    sorry  -- Use Fintype.card = 0 → IsEmpty → acyclic
-  by_cases h1 : Fintype.card V = 1
-  · -- 1 vertex: use single_vertex_acyclic
-    exact @single_vertex_acyclic V G _ h1
-  · -- Must be card V = 2 (since ≤2 and not 0 or 1)
-    have h2 : Fintype.card V = 2 := by omega
-    -- With 2 vertices and at most 1 edge, no cycle possible
-    -- A cycle needs at least 3 vertices to close the loop
-    sorry  -- TODO: Prove 2-vertex graphs are acyclic
-
-/-! ## Part 3: Cycle Size Bounds -/
-
-/--
-LEMMA: Any cycle has at least 3 vertices.
-
-This is a fundamental fact: you need at least 3 distinct points to form a closed loop.
--/
-lemma cycle_has_three_vertices {G : SimpleGraph V} {u : V}
-    (c : G.Walk u u) (h_cycle : c.IsCycle) :
-    c.support.length ≥ 3 := by
-  -- A cycle is a non-trivial closed walk with no repeated vertices (except start/end)
-  -- This is a fundamental property of cycles in graph theory
-  sorry  -- TODO: Use Mathlib's cycle properties
-
-/--
-THEOREM: If a graph has fewer than 3 vertices, it has no cycles.
-
-Contrapositive of cycle_has_three_vertices: no cycles when card V < 3.
--/
-theorem no_cycle_in_small_graph {G : SimpleGraph V} [Fintype V]
-    (h_small : Fintype.card V < 3) :
-    ∀ (u : V) (c : G.Walk u u), ¬c.IsCycle := by
-  intro u c h_cycle
-  -- A cycle needs ≥3 vertices in its support
-  have h_support : c.support.length ≥ 3 := cycle_has_three_vertices c h_cycle
-  -- But the entire graph has <3 vertices
-  have h_bound : c.support.length ≤ Fintype.card V := by
-    sorry  -- Walk support is a sublist of vertices
-  -- Contradiction: 3 ≤ length ≤ card V < 3
+/-- A graph on 0 or 1 vertex is acyclic (no cycles possible) -/
+theorem single_vertex_acyclic (K : SimplicialComplex)
+    [Fintype K.vertexSet] (h : Fintype.card K.vertexSet ≤ 1) :
+    OneConnected K := by
+  unfold OneConnected IsAcyclic
+  intro v p hp
+  -- A cycle needs at least 3 distinct vertices in its support
+  -- But we have at most 1 vertex, contradiction
+  have h_cycle_support := hp.support_nodup
+  have h_min_len := hp.three_le_length
+  -- Walk of length ≥ 3 visits at least 3 vertices (including start)
+  -- support.length = length + 1 for a walk
+  have h_support_len : p.support.length = p.length + 1 := Walk.length_support p
+  -- For a cycle, tail of support has no duplicates
+  -- support = [v, v₁, v₂, ..., v] so support.tail = [v₁, v₂, ..., v]
+  -- Cycle means v₁, v₂, ..., vₙ₋₁, v are all distinct
+  -- This requires at least 3 distinct vertices (since length ≥ 3)
+  have h_tail_len : p.support.tail.length = p.length := by
+    simp only [List.length_tail, h_support_len]
+    omega
+  have h_tail_nodup := h_cycle_support
+  -- Nodup tail with length ≥ 3 means ≥ 3 distinct elements
+  have h_distinct : 3 ≤ p.support.tail.length := by
+    rw [h_tail_len]; exact h_min_len
+  -- All elements of support.tail are vertices
+  have h_tail_in_vertex : ∀ w ∈ p.support.tail, w ∈ Set.univ := fun w _ => Set.mem_univ w
+  -- This means we have ≥ 3 distinct vertices
+  have h_card_ge : 3 ≤ Fintype.card K.vertexSet := by
+    have h_nodup_card := List.Nodup.length_le_card h_tail_nodup
+    calc 3 ≤ p.support.tail.length := h_distinct
+         _ ≤ Fintype.card K.vertexSet := h_nodup_card
+  -- But we assumed card ≤ 1, contradiction
   omega
 
-/-! ## Part 4: Acyclicity for Small Complexes -/
+/-- H¹ = 0 for single vertex complexes -/
+theorem h1_trivial_single_vertex (K : SimplicialComplex)
+    [Fintype K.vertexSet] [Nonempty K.vertexSet]
+    (h : Fintype.card K.vertexSet = 1) :
+    H1Trivial K := by
+  rw [h1_trivial_iff_oneConnected]
+  exact single_vertex_acyclic K (le_of_eq h)
 
-/--
-THEOREM: A simplicial complex with vertex set of size ≤2 has acyclic 1-skeleton.
+/-! ## Empty Graph -/
 
-This is the key lemma for deadlock impossibility with small networks.
--/
-theorem small_complex_acyclic (K : SimplicialComplex) [Fintype K.vertexSet]
-    (h_small : Fintype.card K.vertexSet ≤ 2) :
+/-- Empty vertex set means trivially acyclic -/
+theorem empty_vertex_acyclic (K : SimplicialComplex)
+    [Fintype K.vertexSet] (h : Fintype.card K.vertexSet = 0) :
     (oneSkeleton K).IsAcyclic := by
-  apply graph_with_two_vertices_acyclic
-  exact h_small
+  intro v p hp
+  -- No vertices exist, so v can't exist
+  have : IsEmpty K.vertexSet := Fintype.card_eq_zero_iff.mp h
+  exact IsEmpty.false v
+
+/-! ## Two Vertex Graphs -/
+
+/-- A graph on 2 vertices is acyclic -/
+theorem two_vertex_acyclic (K : SimplicialComplex)
+    [Fintype K.vertexSet] (h : Fintype.card K.vertexSet = 2) :
+    OneConnected K := by
+  unfold OneConnected IsAcyclic
+  intro v p hp
+  -- Same argument: cycle needs ≥ 3 distinct vertices
+  have h_min_len := hp.three_le_length
+  have h_support_len : p.support.length = p.length + 1 := Walk.length_support p
+  have h_tail_len : p.support.tail.length = p.length := by
+    simp only [List.length_tail, h_support_len]
+    omega
+  have h_tail_nodup := hp.support_nodup
+  have h_distinct : 3 ≤ p.support.tail.length := by
+    rw [h_tail_len]; exact h_min_len
+  have h_card_ge : 3 ≤ Fintype.card K.vertexSet := by
+    have h_nodup_card := List.Nodup.length_le_card h_tail_nodup
+    omega
+  -- But card = 2
+  omega
+
+/-- H¹ = 0 for two vertex complexes -/
+theorem h1_trivial_two_vertex (K : SimplicialComplex)
+    [Fintype K.vertexSet] [Nonempty K.vertexSet]
+    (h : Fintype.card K.vertexSet = 2) :
+    H1Trivial K := by
+  rw [h1_trivial_iff_oneConnected]
+  exact two_vertex_acyclic K h
+
+/-! ## Path Graphs (Trees) -/
+
+/-- Path uniqueness in acyclic graphs -/
+theorem path_unique_acyclic (K : SimplicialComplex)
+    (hK : OneConnected K) (v w : K.vertexSet) (p q : Path K v w) :
+    p = q := acyclic_path_unique K hK v w p q
+
+/-! ## Walk Properties -/
+
+/-- Walk support is a sublist relating to vertices visited -/
+theorem walk_support_vertices (K : SimplicialComplex)
+    {v w : K.vertexSet} (p : Walk K v w) :
+    ∀ u ∈ p.support, u ∈ Set.univ := fun u _ => Set.mem_univ u
+
+/-- Cycle support tail gives distinct vertices -/
+theorem cycle_support_tail_distinct (K : SimplicialComplex)
+    {v : K.vertexSet} {p : Walk K v v} (hp : p.IsCycle) :
+    p.support.tail.Nodup := hp.support_nodup
+
+/-! ## Cardinality Bounds -/
+
+/-- If K has < 3 vertices, then K is one-connected -/
+theorem lt_three_vertices_oneConnected (K : SimplicialComplex)
+    [Fintype K.vertexSet] (h : Fintype.card K.vertexSet < 3) :
+    OneConnected K := by
+  unfold OneConnected IsAcyclic
+  intro v p hp
+  have h_min := hp.three_le_length
+  have h_tail_nodup := hp.support_nodup
+  have h_tail_len : p.support.tail.length = p.length := by
+    have h1 : p.support.length = p.length + 1 := Walk.length_support p
+    simp only [List.length_tail, h1]
+    omega
+  have h_card_ge : 3 ≤ Fintype.card K.vertexSet := by
+    have := List.Nodup.length_le_card h_tail_nodup
+    omega
+  omega
+
+/-! ## Summary -/
+
+/-- Main small graph theorem: < 3 vertices implies H¹ = 0 -/
+theorem h1_trivial_small (K : SimplicialComplex)
+    [Fintype K.vertexSet] [Nonempty K.vertexSet]
+    (h : Fintype.card K.vertexSet < 3) :
+    H1Trivial K := by
+  rw [h1_trivial_iff_oneConnected]
+  exact lt_three_vertices_oneConnected K h
+
+#check h1_trivial_small  -- Main theorem: small graphs have H¹ = 0
 
 end H1Characterization

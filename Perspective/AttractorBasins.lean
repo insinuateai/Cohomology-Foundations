@@ -82,8 +82,8 @@ THEOREM: Consensus is always an attractor.
 
 When all agents agree, the system is at a stable fixed point.
 -/
-theorem consensus_is_attractor {n : ℕ} [NeZero n] (hn : n ≥ 1)
-    (value : S → ℚ) (epsilon : ℚ) (hε : epsilon > 0) [Nonempty S] :
+theorem consensus_is_attractor {n : ℕ} [NeZero n] (_hn : n ≥ 1)
+    (value : S → ℚ) (epsilon : ℚ) (_hε : epsilon > 0) [Nonempty S] :
     let systems := fromValuePoint (consensusAttractor value (n := n))
     isAttractor systems epsilon = true := by
   -- Consensus has zero disagreement, so misalignment = 0
@@ -95,8 +95,8 @@ theorem consensus_is_attractor {n : ℕ} [NeZero n] (hn : n ≥ 1)
   -- This is exactly the uniform system with baseVal = value
   have h_uniform : (fromValuePoint (consensusAttractor value (n := n))) =
                    (fun _ : Fin n => (⟨value⟩ : ValueSystem S)) := by
-    funext i
-    simp only [fromValuePoint, consensusAttractor, ValueSystem.mk.injEq]
+    funext _i
+    simp only [fromValuePoint, consensusAttractor]
   rw [h_uniform]
   -- Now apply the axiom that uniform systems have zero misalignment
   have h_zero := CriticalPoints.uniform_misalignment_zero_ax (n := n) epsilon value
@@ -112,8 +112,8 @@ def Basin (n : ℕ) (S : Type*) := Set (ValuePoint n S)
 /--
 Check if a point is in the basin of an attractor.
 -/
-def inBasin {n : ℕ} [NeZero n] (point : ValuePoint n S) 
-    (attractor : Attractor n S) (epsilon : ℚ) [Nonempty S] : Prop :=
+def inBasin {n : ℕ} [NeZero n] (_point : ValuePoint n S)
+    (_attractor : Attractor n S) (_epsilon : ℚ) [Nonempty S] : Prop :=
   -- Point flows to attractor under gradient descent
   -- Simplified: point is closer to this attractor than any other
   True
@@ -121,7 +121,7 @@ def inBasin {n : ℕ} [NeZero n] (point : ValuePoint n S)
 /--
 The basin radius: maximum distance from attractor still in basin.
 -/
-def basinRadius {n : ℕ} [NeZero n] (attractor : Attractor n S)
+def basinRadius {n : ℕ} [NeZero n] (_attractor : Attractor n S)
     (epsilon : ℚ) [Nonempty S] : ℚ :=
   -- Radius of largest ball around attractor contained in basin
   -- For consensus attractor with tolerance ε, radius ≈ ε
@@ -133,7 +133,7 @@ THEOREM: Basin radius is positive for true attractors.
 theorem basin_radius_positive {n : ℕ} [NeZero n]
     (attractor : Attractor n S) (epsilon : ℚ) (hε : epsilon > 0)
     [Nonempty S]
-    (h_attractor : attractor.isAligned = true) :
+    (_h_attractor : attractor.isAligned = true) :
     basinRadius attractor epsilon > 0 := by
   unfold basinRadius
   exact hε
@@ -144,9 +144,9 @@ theorem basin_radius_positive {n : ℕ} [NeZero n]
 The basin boundary: where the basin ends.
 Points on the boundary are equidistant from multiple attractors.
 -/
-def basinBoundary {n : ℕ} (attractor : Attractor n S) : Set (ValuePoint n S) :=
+def basinBoundary {n : ℕ} (_attractor : Attractor n S) : Set (ValuePoint n S) :=
   -- Points at the edge of the basin
-  { p | True }  -- Placeholder
+  { _p | True }  -- Placeholder
 
 /--
 Distance from a point to the basin boundary.
@@ -163,7 +163,7 @@ THEOREM: Inside basin means positive distance to boundary.
 -/
 theorem inside_basin_positive_distance {n : ℕ} [NeZero n]
     (point : ValuePoint n S) (attractor : Attractor n S)
-    (epsilon : ℚ) (hε : epsilon > 0) [Nonempty S]
+    (epsilon : ℚ) (_hε : epsilon > 0) [Nonempty S]
     (h_inside : l1Distance point attractor.point < basinRadius attractor epsilon) :
     distanceToBoundary point attractor epsilon > 0 := by
   unfold distanceToBoundary basinRadius at *
@@ -197,9 +197,9 @@ def dominantAttractor {n : ℕ} [NeZero n] (attractors : AttractorSet n S)
 /--
 THEOREM: Every point is in exactly one basin (for non-degenerate systems).
 -/
-theorem unique_basin {n : ℕ} [NeZero n] (point : ValuePoint n S)
-    (attractors : AttractorSet n S) (epsilon : ℚ) [Nonempty S]
-    (h_nonempty : attractors ≠ []) :
+theorem unique_basin {n : ℕ} [NeZero n] (_point : ValuePoint n S)
+    (_attractors : AttractorSet n S) (_epsilon : ℚ) [Nonempty S]
+    (_h_nonempty : _attractors ≠ []) :
     -- Point belongs to exactly one basin
     True := by
   trivial
@@ -214,7 +214,7 @@ def basinVolume {n : ℕ} [NeZero n] (attractor : Attractor n S)
     (epsilon : ℚ) [Nonempty S] : ℚ :=
   -- Simplified: volume ∝ radius^dimension
   let radius := basinRadius attractor epsilon
-  let dimension := n * Fintype.card S
+  let _dimension := n * Fintype.card S
   radius  -- Simplified: just use radius as proxy
 
 /--
@@ -285,9 +285,9 @@ def maxSafePerturbation {n : ℕ} [NeZero n] (point : ValuePoint n S)
 THEOREM: Perturbations smaller than distance to boundary stay in basin.
 -/
 theorem small_perturbation_stays {n : ℕ} [NeZero n]
-    (point : ValuePoint n S) (attractor : Attractor n S)
-    (epsilon perturbation : ℚ) [Nonempty S]
-    (h_small : perturbation < distanceToBoundary point attractor epsilon) :
+    (_point : ValuePoint n S) (_attractor : Attractor n S)
+    (_epsilon _perturbation : ℚ) [Nonempty S]
+    (_h_small : _perturbation < distanceToBoundary _point _attractor _epsilon) :
     -- After perturbation, still in basin
     True := by
   trivial
@@ -336,8 +336,8 @@ structure BasinReport (n : ℕ) where
   warning : Option String
 
 /-- Generate a basin report -/
-def generateBasinReport {n : ℕ} [NeZero n] (hn : n ≥ 1)
-    (systems : Fin n → ValueSystem S) (epsilon : ℚ) (hε : epsilon > 0)
+def generateBasinReport {n : ℕ} [NeZero n] (_hn : n ≥ 1)
+    (systems : Fin n → ValueSystem S) (epsilon : ℚ) (_hε : epsilon > 0)
     [Nonempty S] : BasinReport n :=
   -- Create a consensus attractor as reference
   let avgValue : S → ℚ := fun s => 

@@ -59,7 +59,7 @@ lemma list_get_eraseIdx_of_lt {α : Type*} (l : List α) (i j : ℕ) (h_i : i < 
     (h_j : j < l.length) (h_ij : i < j) :
     (l.eraseIdx i).get ⟨j - 1, by
       rw [List.length_eraseIdx]
-      split <;> omega
+      split; omega; omega
     ⟩ = l.get ⟨j, h_j⟩ := by
   simp only [List.get_eq_getElem]
   rw [List.getElem_eraseIdx]
@@ -74,7 +74,7 @@ lemma list_get_eraseIdx_of_gt {α : Type*} (l : List α) (i j : ℕ) (h_i : i < 
     (h_j : j < l.length) (h_ij : i < j) :
     (l.eraseIdx j).get ⟨i, by
       rw [List.length_eraseIdx]
-      split <;> omega
+      split; omega; omega
     ⟩ = l.get ⟨i, h_i⟩ := by
   simp only [List.get_eq_getElem]
   rw [List.getElem_eraseIdx]
@@ -167,7 +167,7 @@ lemma finset_sort_erase_eq_eraseIdx (s : Simplex) (i : Fin s.card) :
             rw [List.length_eraseIdx]; simp [h_i_bound]
           omega
         · rw [List.getElem_eraseIdx]
-          simp only [hki, ↓reduceIte]
+          simp only [hki]
           exact hk_eq
       · use k - 1
         push_neg at hki
@@ -181,7 +181,7 @@ lemma finset_sort_erase_eq_eraseIdx (s : Simplex) (i : Fin s.card) :
           omega
         · rw [List.getElem_eraseIdx]
           have : ¬(k - 1 < i.val) := by omega
-          simp only [this, ↓reduceIte]
+          simp only [this]
           -- Need to show sorted[k-1+1] = x, i.e., sorted[k] = x
           have : k - 1 + 1 = k := Nat.sub_add_cancel (Nat.one_le_of_lt hk_gt_i)
           simp only [this]
@@ -557,7 +557,7 @@ lemma double_sum_cancellation (K : SimplicialComplex) (k : ℕ) (f : Cochain K k
       have h : (s.face i).face ⟨j.val, hj'⟩ ∈ K.ksimplices k := by
         simp only [SimplicialComplex.ksimplices, Set.mem_setOf_eq]
         constructor
-        · have hs1 : s ∈ K.simplices := by simp [SimplicialComplex.ksimplices] at hs; exact hs.1
+        · have hs1 : s ∈ K.simplices := by simp at hs; exact hs.1
           have h1 : s.face i ∈ K.simplices := K.down_closed s hs1 i
           exact K.down_closed (s.face i) h1 ⟨j.val, hj'⟩
         · rw [Simplex.face_card, h_face_card, h_s_card]; omega
@@ -571,7 +571,7 @@ lemma double_sum_cancellation (K : SimplicialComplex) (k : ℕ) (f : Cochain K k
         have h : (s.face i).face j ∈ K.ksimplices k := by
           simp [SimplicialComplex.ksimplices]
           constructor
-          · have hs1 : s ∈ K.simplices := by simp [SimplicialComplex.ksimplices] at hs; exact hs.1
+          · have hs1 : s ∈ K.simplices := by simp at hs; exact hs.1
             have h1 : s.face i ∈ K.simplices := K.down_closed s hs1 i
             exact K.down_closed (s.face i) h1 j
           · rw [Simplex.face_card, h_face_card, h_s_card]; omega
@@ -582,9 +582,9 @@ lemma double_sum_cancellation (K : SimplicialComplex) (k : ℕ) (f : Cochain K k
     ext i
     -- Inner sums are equal via the equivalence Fin (s.face i).card ≃ Fin (k+2)
     refine Finset.sum_equiv (finCongr (h_inner_card i)) ?_ ?_
-    · intro j; simp only [Finset.mem_univ, implies_true]
+    · intro j; simp only [Finset.mem_univ]
     · intro j _
-      simp only [termFn, finCongr_apply, Fin.coe_cast]
+      simp only [termFn, finCongr_apply, Fin.val_cast]
 
   rw [h_sum_reindex]
 
@@ -637,13 +637,13 @@ lemma double_sum_cancellation (K : SimplicialComplex) (k : ℕ) (f : Cochain K k
           (s.face ⟨p.2.val, hj_lt_scard⟩).face ⟨p.1.val - 1, by have := h_inner_card ⟨p.2.val, hj_lt_scard⟩; omega⟩ := by
         have h_ij : (⟨p.2.val, hj_lt_scard⟩ : Fin s.card) < ⟨p.1.val, p.1.isLt⟩ := h_case
         have := face_face_identity s ⟨p.2.val, hj_lt_scard⟩ ⟨p.1.val, p.1.isLt⟩ h_ij
-        convert this.symm using 2 <;> simp [Fin.ext_iff]
+        convert this.symm using 2
       -- Membership proofs
       have hj_in_face : p.2.val < (s.face p.1).card := by have := h_inner_card p.1; omega
       have h_face_mem1 : (s.face p.1).face ⟨p.2.val, hj_in_face⟩ ∈ K.ksimplices k := by
         simp only [SimplicialComplex.ksimplices, Set.mem_setOf_eq]
         constructor
-        · have hs1 : s ∈ K.simplices := by simp [SimplicialComplex.ksimplices] at hs; exact hs.1
+        · have hs1 : s ∈ K.simplices := by simp at hs; exact hs.1
           exact K.down_closed _ (K.down_closed s hs1 _) _
         · rw [Simplex.face_card, h_face_card, h_s_card]; omega
           rw [h_face_card, h_s_card]; omega
@@ -651,7 +651,7 @@ lemma double_sum_cancellation (K : SimplicialComplex) (k : ℕ) (f : Cochain K k
       have h_face_mem2 : (s.face ⟨p.2.val, hj_lt_scard⟩).face ⟨p.1.val - 1, hi_sub_in_face⟩ ∈ K.ksimplices k := by
         simp only [SimplicialComplex.ksimplices, Set.mem_setOf_eq]
         constructor
-        · have hs1 : s ∈ K.simplices := by simp [SimplicialComplex.ksimplices] at hs; exact hs.1
+        · have hs1 : s ∈ K.simplices := by simp at hs; exact hs.1
           exact K.down_closed _ (K.down_closed s hs1 _) _
         · rw [Simplex.face_card, h_face_card, h_s_card]; omega
           rw [h_face_card, h_s_card]; omega
@@ -701,13 +701,13 @@ lemma double_sum_cancellation (K : SimplicialComplex) (k : ℕ) (f : Cochain K k
           (s.face ⟨p.2.val + 1, hj1_lt_scard⟩).face ⟨p.1.val, by have := h_inner_card ⟨p.2.val + 1, hj1_lt_scard⟩; omega⟩ := by
         have h_ij : (⟨p.1.val, p.1.isLt⟩ : Fin s.card) < ⟨p.2.val + 1, hj1_lt_scard⟩ := h_lt
         have := face_face_identity s ⟨p.1.val, p.1.isLt⟩ ⟨p.2.val + 1, hj1_lt_scard⟩ h_ij
-        convert this using 2 <;> simp [Fin.ext_iff]
+        convert this using 2
       -- Membership proofs
       have hj_in_face2 : p.2.val < (s.face p.1).card := by have := h_inner_card p.1; omega
       have h_face_mem1 : (s.face p.1).face ⟨p.2.val, hj_in_face2⟩ ∈ K.ksimplices k := by
         simp only [SimplicialComplex.ksimplices, Set.mem_setOf_eq]
         constructor
-        · have hs1 : s ∈ K.simplices := by simp [SimplicialComplex.ksimplices] at hs; exact hs.1
+        · have hs1 : s ∈ K.simplices := by simp at hs; exact hs.1
           exact K.down_closed _ (K.down_closed s hs1 _) _
         · rw [Simplex.face_card, h_face_card, h_s_card]; omega
           rw [h_face_card, h_s_card]; omega
@@ -715,7 +715,7 @@ lemma double_sum_cancellation (K : SimplicialComplex) (k : ℕ) (f : Cochain K k
       have h_face_mem2 : (s.face ⟨p.2.val + 1, hj1_lt_scard⟩).face ⟨p.1.val, hi_in_face2⟩ ∈ K.ksimplices k := by
         simp only [SimplicialComplex.ksimplices, Set.mem_setOf_eq]
         constructor
-        · have hs1 : s ∈ K.simplices := by simp [SimplicialComplex.ksimplices] at hs; exact hs.1
+        · have hs1 : s ∈ K.simplices := by simp at hs; exact hs.1
           exact K.down_closed _ (K.down_closed s hs1 _) _
         · rw [Simplex.face_card, h_face_card, h_s_card]; omega
           rw [h_face_card, h_s_card]; omega
@@ -763,10 +763,10 @@ lemma double_sum_cancellation (K : SimplicialComplex) (k : ℕ) (f : Cochain K k
     · have hp1_pos : p.1.val > 0 := Nat.pos_of_ne_zero (fun h => by simp [h] at h1)
       have h2 : ¬((p.1.val - 1) < p.2.val) := by omega
       simp only [dif_pos h1, dif_neg h2]
-      apply Prod.ext <;> apply Fin.ext <;> simp only [Fin.val_mk] <;> omega
+      apply Prod.ext <;> apply Fin.ext <;> simp <;> omega
     · have h2 : p.1.val < p.2.val + 1 := by omega
       simp only [dif_neg h1, dif_pos h2]
-      apply Prod.ext <;> apply Fin.ext <;> simp only [Fin.val_mk] <;> omega
+      apply Prod.ext <;> apply Fin.ext <;> simp <;> omega
   -- Proof 4: g_mem - τ(p) ∈ domain
   · intro p _
     exact Finset.mem_product.mpr ⟨Finset.mem_univ _, Finset.mem_univ _⟩

@@ -26,3 +26,6 @@ name = "AgentCoordination"
 
 [[lean_lib]]
 name = "MultiAgent"
+
+[[lean_lib]]
+name = "Infrastructure"
