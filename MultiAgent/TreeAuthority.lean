@@ -485,7 +485,53 @@ theorem root_mem_pathToRoot (T : TreeAuth n) (i : Fin n) (hn : 0 < n) : T.root �
 theorem filterMap_finRange_length {α : Type*} (n : ℕ) (f : Fin n → Option α)
     (hf : ∀ i, (f i).isSome ↔ i ≠ default) :
     (List.finRange n).filterMap (fun i => f i) |>.length = n - 1 := by
-  sorry
+  -- Case split on n
+  match n with
+  | 0 =>
+    -- finRange 0 = [], so filterMap gives [], which has length 0 = 0 - 1
+    simp [List.finRange]
+  | n + 1 =>
+    -- Use that filterMap length = countP isSome
+    rw [List.length_filterMap]
+
+    -- The count where f is Some equals count where i ≠ default
+    have h_eq : (List.finRange (n + 1)).countP (fun i => (f i).isSome) =
+                (List.finRange (n + 1)).countP (fun i => i ≠ default) := by
+      apply List.countP_congr
+      intro i _
+      exact hf i
+
+    rw [h_eq]
+
+    -- Count of i ≠ default in finRange (n+1) equals n
+    -- finRange has exactly one element equal to default (namely 0)
+    have h_nodup := List.nodup_finRange (n + 1)
+    have h_len := List.length_finRange (n + 1)
+    have h_default_mem : (default : Fin (n + 1)) ∈ List.finRange (n + 1) := List.mem_finRange _
+
+    -- countP (· ≠ default) = length - countP (· = default) = (n+1) - 1 = n
+    have h_count_eq : (List.finRange (n + 1)).countP (fun i => i = default) = 1 := by
+      -- In a nodup list, the count of any single element is 0 or 1
+      -- Since default is in the list, it's 1
+      rw [List.countP_eq_length_filter]
+      have h_filter : (List.finRange (n + 1)).filter (fun i => i = default) = [default] := by
+        apply List.eq_singleton_iff_unique_mem.mpr
+        constructor
+        · simp only [List.mem_filter, List.mem_finRange, true_and]
+        · intro x hx
+          simp only [List.mem_filter, decide_eq_true_eq] at hx
+          exact hx.2
+      rw [h_filter]
+      simp
+
+    have h_count_ne : (List.finRange (n + 1)).countP (fun i => i ≠ default) =
+                      (n + 1) - 1 := by
+      have h_sum := List.countP_eq_countP_ne_add_countP_eq (List.finRange (n + 1)) (· = default)
+      simp only [ne_eq] at h_sum
+      rw [h_len, h_count_eq] at h_sum
+      omega
+
+    rw [h_count_ne]
 
 /-- A tree with n > 0 vertices has n-1 edges -/
 theorem edges_count (T : TreeAuth n) (hn : 0 < n) : T.edges.length = n - 1 := by
