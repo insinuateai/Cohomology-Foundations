@@ -41,6 +41,7 @@
 ## Session Log
 
 <!-- Newest first -->
+- 2026-01-31: DoubleSquaredZero.lean - Implemented self-contained δ² = 0 proof using sign-reversing involution on index pairs. Key pattern: `Finset.sum_involution` with involution τ(i,j) = (j, i-1) when j < i, else (j+1, i).
 - 2026-01-30: TreeGraphInfra.lean - Added graph theory infrastructure for DimensionBound. 3 sorries remain requiring component-wise reasoning (edges_plus_components_ge_vertices, acyclic_euler_eq disconnected, euler_eq_implies_acyclic'). Build succeeds.
 - 2026-01-30: Fixed broken `pathBetween_head`/`pathBetween_last` in TreeAuthority.lean (Mathlib API changes). `path_compatible` needs missing infrastructure (pathToRoot length, adjacent elements are parent-child)
 - 2026-01-30: Fixed 2 sorries in `alignment_computable` using existing `pathBetween_head`/`pathBetween_last` theorems
