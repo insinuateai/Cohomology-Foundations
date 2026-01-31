@@ -56,9 +56,10 @@ theorem bot_connectedComponent_eq_iff (v w : V) :
   constructor
   · intro h
     rw [ConnectedComponent.eq] at h
-    cases h with
-    | single => rfl
-    | cons hadj _ => exact (not_adj_bot v w).elim hadj
+    obtain ⟨p⟩ := h
+    cases p with
+    | nil => rfl
+    | cons hadj _ => exact absurd hadj (by simp [SimpleGraph.bot_adj])
   · intro h; rw [h]
 
 /-- Empty graph: components biject with vertices -/
@@ -77,13 +78,14 @@ theorem bot_components_bijective :
 theorem bot_componentCount [Fintype (⊥ : SimpleGraph V).ConnectedComponent] :
     componentCount (⊥ : SimpleGraph V) = vertexCount (V := V) := by
   unfold componentCount vertexCount
-  exact Fintype.card_of_bijective bot_components_bijective
+  exact Fintype.card_congr (Equiv.ofBijective _ bot_components_bijective)
 
 /-- Empty graph has 0 edges -/
 theorem bot_edgeCount [Fintype (⊥ : SimpleGraph V).edgeSet] :
     edgeCount (⊥ : SimpleGraph V) = 0 := by
   unfold edgeCount
-  simp only [edgeFinset_bot, Finset.card_empty]
+  rw [show (⊥ : SimpleGraph V).edgeFinset = ∅ from rfl]
+  simp
 
 /-- Empty graph: |E| + c = |V| -/
 theorem bot_euler [Fintype (⊥ : SimpleGraph V).edgeSet]
@@ -116,7 +118,7 @@ theorem tree_euler [Fintype G.edgeSet] [Fintype G.ConnectedComponent] [Nonempty 
     (h : G.IsTree) :
     edgeCount G + componentCount G = vertexCount (V := V) := by
   have h1 := tree_edgeCount G h
-  have h2 := connected_componentCount_eq_one G h.connected
+  have h2 := connected_componentCount_eq_one G h.1
   omega
 
 /-! ## Section 4: Edge Removal - FULLY PROVEN -/
@@ -129,9 +131,9 @@ theorem deleteEdges_edgeFinset_eq (s : Set (Sym2 V)) [Fintype G.edgeSet]
   simp only [mem_edgeFinset, deleteEdges_adj, Finset.mem_filter]
   constructor
   · intro ⟨hadj, hne⟩
-    exact ⟨hadj, hne⟩
+    exact And.intro hadj hne
   · intro ⟨hadj, hne⟩
-    exact ⟨hadj, hne⟩
+    exact And.intro hadj hne
 
 /-- Removing a single edge: edgeFinset is erase -/
 theorem deleteEdges_singleton_edgeFinset (e : Sym2 V) [Fintype G.edgeSet]
@@ -141,9 +143,9 @@ theorem deleteEdges_singleton_edgeFinset (e : Sym2 V) [Fintype G.edgeSet]
   simp only [mem_edgeFinset, deleteEdges_adj, Set.mem_singleton_iff, Finset.mem_erase]
   constructor
   · intro ⟨hadj, hne⟩
-    exact ⟨hne, hadj⟩
+    exact And.intro hne hadj
   · intro ⟨hne, hadj⟩
-    exact ⟨hadj, hne⟩
+    exact And.intro hadj hne
 
 /-- Removing edge decreases count by 1 -/
 theorem deleteEdges_singleton_card (e : Sym2 V) [Fintype G.edgeSet]
@@ -289,9 +291,10 @@ theorem isAcyclic_isBridge (h_acyc : G.IsAcyclic) (e : G.edgeSet) :
 -- Proof: bridge endpoints in different components after removal, other vertices unchanged
 axiom bridge_splits_component_aux (V : Type*) [Fintype V] [DecidableEq V]
     (G : SimpleGraph V) [DecidableRel G.Adj] [Fintype G.ConnectedComponent]
-    [Fintype (G.deleteEdges {e}).ConnectedComponent]
-    (e : G.edgeSet) (h_bridge : IsBridge G e.val) :
-    componentCount (G.deleteEdges {e.val}) = componentCount G + 1
+    (e : G.edgeSet)
+    [Fintype (G.deleteEdges ({e.val} : Set (Sym2 V))).ConnectedComponent]
+    (h_bridge : IsBridge G e.val) :
+    componentCount (G.deleteEdges ({e.val} : Set (Sym2 V))) = componentCount G + 1
 
 /-- Removing a bridge increases component count by 1.
     This is the key lemma for forest_euler.
@@ -303,9 +306,10 @@ axiom bridge_splits_component_aux (V : Type*) [Fintype V] [DecidableEq V]
 
     Requires Mathlib's ConnectedComponent.lift and related API. -/
 theorem bridge_splits_component [Fintype G.ConnectedComponent]
-    [Fintype (G.deleteEdges {e}).ConnectedComponent]
-    (e : G.edgeSet) (h_bridge : IsBridge G e.val) :
-    componentCount (G.deleteEdges {e.val}) = componentCount G + 1 :=
+    (e : G.edgeSet)
+    [Fintype (G.deleteEdges ({e.val} : Set (Sym2 V))).ConnectedComponent]
+    (h_bridge : IsBridge G e.val) :
+    componentCount (G.deleteEdges ({e.val} : Set (Sym2 V))) = componentCount G + 1 :=
   bridge_splits_component_aux V G e h_bridge
 
 /-! ## Section 10: Positive Component Count - FULLY PROVEN -/

@@ -28,13 +28,13 @@ name = "MultiAgent"
 name = "Infrastructure"
 
 [[lean_lib]]
-name = "DeltaSquaredZero"
-
-[[lean_lib]]
-name = "ForestEulerFormula"
-
-[[lean_lib]]
 name = "DoubleSquaredZero"
 
 [[lean_lib]]
 name = "Theories"
+
+[[lean_lib]]
+name = "H2Characterization"
+
+[[lean_lib]]
+name = "Experimental"

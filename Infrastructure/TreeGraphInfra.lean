@@ -20,6 +20,7 @@ import Mathlib.Combinatorics.SimpleGraph.DeleteEdges
 import Mathlib.Data.Fintype.Basic
 import Mathlib.Data.Finset.Card
 import Infrastructure.GraphTheoryUtils
+import Infrastructure.ExtendedGraphInfra
 
 namespace Infrastructure
 
@@ -93,8 +94,8 @@ lemma card_connectedComponent_deleteEdges_add_one [DecidableEq V] (G : SimpleGra
     simp only [ψ] at heq
     by_cases h1 : c1 = G'.connectedComponentMk v <;> by_cases h2 : c2 = G'.connectedComponentMk v
     · exact h1.trans h2.symm
-    · simp only [h1, h2, ↓reduceIte] at heq; exact (Sum.noConfusion heq).elim
-    · simp only [h1, h2, ↓reduceIte] at heq; exact (Sum.noConfusion heq).elim
+    · simp only [h1, h2, ↓reduceIte, reduceCtorEq] at heq
+    · simp only [h1, h2, ↓reduceIte, reduceCtorEq] at heq
     · simp only [h1, h2, ↓reduceIte, Sum.inl.injEq] at heq
       -- f c1 = f c2, need to show c1 = c2
       simp only [f] at heq
@@ -155,7 +156,8 @@ lemma card_connectedComponent_deleteEdges_add_one [DecidableEq V] (G : SimpleGra
               -- (before crossing e) is a G'-path, so c1.rep is G'-connected to v.
               have hv_in := Walk.snd_mem_support_of_mem_edges p hp
               -- Get prefix walk from c1.rep to v
-              have h_reach_v : G.Reachable c1.exists_rep.choose v := p.reachable_of_mem_support hv_in
+              have h_reach_v : G.Reachable c1.exists_rep.choose v := by
+                exact ⟨p.takeUntil v (by simpa using hv_in)⟩
               -- If this G-path to v doesn't use e, it's a G'-path
               -- Otherwise we can find an alternate path
               -- Key: c1.rep is G-reachable from v, so either G'-reachable to u or to v
@@ -436,7 +438,7 @@ theorem euler_eq_implies_acyclic'
   obtain ⟨e, he_edge, he_not_bridge⟩ := h_not_acyc
   -- Get endpoints
   rcases Sym2.mk_surjective e with ⟨⟨u, v⟩, huv⟩
-  have hadj : G.Adj u v := by rw [← huv] at he_edge; exact mem_edgeSet.mp he_edge
+  have hadj : G.Adj u v := by rw [← huv] at he_edge; exact he_edge
   -- e is not a bridge, so u and v remain connected after removing e
   rw [← huv, isBridge_iff] at he_not_bridge
   have h_still_reach : (G.deleteEdges {s(u, v)}).Reachable u v := by

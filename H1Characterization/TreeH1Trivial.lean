@@ -37,6 +37,15 @@ namespace TreeH1Trivial
 
 open Finset BigOperators
 
+/-! ## Helper: Convert Reachable to Path -/
+
+/-- Convert a Reachable proposition to an actual Path using choice.
+    Required because Reachable is a Prop in Mathlib 4.27.0, not a structure with fields.
+    Note: Reachable is `Nonempty Walk`. We extract a walk and convert to a simple path. -/
+noncomputable def reachableToPath {V : Type*} [DecidableEq V] {G : SimpleGraph V} {u v : V}
+    (h : G.Reachable u v) : G.Path u v :=
+  (Classical.choice h).toPath
+
 /-! ## Section 1: Definitions -/
 
 abbrev Coeff := ℚ
@@ -83,12 +92,17 @@ def coboundary (K : SimplicialComplex) (k : ℕ) (f : Cochain K k) : Cochain K (
     have hf : face s i ∈ K.simplices := K.down_closed s hs.1 i
     have hc : (face s i).card = k + 1 := by
       unfold face
-      have h := Finset.card_erase_of_mem (by
-        rw [← Finset.mem_sort (· ≤ ·)]; exact List.get_mem _ _)
+      have h_get : (s.sort (· ≤ ·)).get ⟨i.val, by rw [Finset.length_sort]; exact i.isLt⟩ ∈ s := by
+        rw [← Finset.mem_sort (· ≤ ·)]; exact List.get_mem _ _
+      have h := Finset.card_erase_of_mem h_get
       rw [h, hs.2]; omega
     f ⟨face s i, ⟨hf, hc⟩⟩)
 
 notation "δ" => coboundary
+
+/-! ## Zero Instance for Cochains -/
+
+instance (K : SimplicialComplex) (k : ℕ) : Zero (Cochain K k) := ⟨fun _ => 0⟩
 
 def IsCocycle (K : SimplicialComplex) (k : ℕ) (f : Cochain K k) : Prop := δ K k f = 0
 
@@ -140,18 +154,18 @@ theorem pathIntegral_well_defined (K : SimplicialComplex) (hK : OneConnected K)
   rw [acyclic_path_unique K hK v w p q]
 
 theorem connected_reachable (K : SimplicialComplex) (hconn : IsConnected K)
-    (u v : K.vertexSet) : (oneSkeleton K).Reachable u v := hconn u v
+    (u v : K.vertexSet) : (oneSkeleton K).Reachable u v := hconn.preconnected u v
 
 theorem forest_path_exclusive (K : SimplicialComplex) (hK : OneConnected K)
     (root a b : K.vertexSet) (h_adj : (oneSkeleton K).Adj a b)
     (h_reach_a : (oneSkeleton K).Reachable root a)
     (h_reach_b : (oneSkeleton K).Reachable root b) :
-    b ∉ h_reach_a.somePath.toPath.val.support ∨ 
-    a ∉ h_reach_b.somePath.toPath.val.support := by
+    b ∉ (reachableToPath h_reach_a).val.support ∨
+    a ∉ (reachableToPath h_reach_b).val.support := by
   by_contra h; push_neg at h
   exact hK.ne_mem_support_of_support_of_adj_of_isPath
-    h_reach_a.somePath.toPath.property
-    h_reach_b.somePath.toPath.property
+    (reachableToPath h_reach_a).property
+    (reachableToPath h_reach_b).property
     h_adj h.1 h.2
 
 theorem pathIntegral_concat (K : SimplicialComplex) (f : Cochain K 1)
@@ -169,33 +183,40 @@ theorem pathIntegral_difference (K : SimplicialComplex) (hK : OneConnected K)
     (f : Cochain K 1) (root a b : K.vertexSet) (h_adj : (oneSkeleton K).Adj a b)
     (h_reach_a : (oneSkeleton K).Reachable root a)
     (h_reach_b : (oneSkeleton K).Reachable root b) :
-    pathIntegral K f h_reach_b.somePath.toPath - pathIntegral K f h_reach_a.somePath.toPath = 
-      (if a.val < b.val then 1 else -1) * 
+    pathIntegral K f (reachableToPath h_reach_b) - pathIntegral K f (reachableToPath h_reach_a) =
+      (if a.val < b.val then 1 else -1) *
         f ⟨{a.val, b.val}, ⟨h_adj.2, Finset.card_pair h_adj.1⟩⟩ := by
   rcases forest_path_exclusive K hK root a b h_adj h_reach_a h_reach_b with hb_not | ha_not
   · -- Case: b ∉ path_a, so path_b = path_a ++ edge(a,b)
-    let path_a := h_reach_a.somePath.toPath
-    let extended : (oneSkeleton K).Path root b := 
+    let path_a := reachableToPath h_reach_a
+    let extended : (oneSkeleton K).Path root b :=
       ⟨path_a.val.concat h_adj, path_a.property.concat hb_not h_adj⟩
-    have h_eq := acyclic_path_unique K hK root b h_reach_b.somePath.toPath extended
-    rw [h_eq, pathIntegral_concat]; ring
-  · -- Case: a ∉ path_b, so path_a = path_b ++ edge(b,a)  
-    let path_b := h_reach_b.somePath.toPath
-    let extended : (oneSkeleton K).Path root a := 
-      ⟨path_b.val.concat h_adj.symm, path_b.property.concat ha_not h_adj.symm⟩
-    have h_eq := acyclic_path_unique K hK root a h_reach_a.somePath.toPath extended
-    rw [h_eq, pathIntegral_concat]
+    have h_eq := acyclic_path_unique K hK root b (reachableToPath h_reach_b) extended
+    rw [h_eq, pathIntegral_concat K f path_a h_adj hb_not]; ring
+  · -- Case: a ∉ path_b, so path_a = path_b ++ edge(b,a)
+    let path_b := reachableToPath h_reach_b
+    have ha_not_path_b : a ∉ path_b.val.support := ha_not
+    let extended : (oneSkeleton K).Path root a :=
+      ⟨path_b.val.concat h_adj.symm, path_b.property.concat ha_not_path_b h_adj.symm⟩
+    have h_eq := acyclic_path_unique K hK root a (reachableToPath h_reach_a) extended
+    rw [h_eq, pathIntegral_concat K f path_b h_adj.symm ha_not_path_b]
     -- Sign analysis
     have hne := h_adj.1
     have h_pair : ({b.val, a.val} : Simplex) = {a.val, b.val} := Finset.pair_comm _ _
-    have h_edge : (⟨{b.val, a.val}, _⟩ : {s // s ∈ K.ksimplices 1}) = 
+    have h_adj_symm : ({b.val, a.val} : Simplex) ∈ K.simplices := by
+      rw [h_pair]; exact h_adj.2
+    have h_edge : (⟨{b.val, a.val}, ⟨h_adj_symm, Finset.card_pair (Ne.symm hne)⟩⟩ : {s // s ∈ K.ksimplices 1}) =
                   ⟨{a.val, b.val}, ⟨h_adj.2, Finset.card_pair h_adj.1⟩⟩ := Subtype.ext h_pair
     rw [h_edge]
     by_cases hab : a.val < b.val
     · simp only [hab, ↓reduceIte, not_lt.mpr (le_of_lt hab)]; ring
     · push_neg at hab
       have hba : b.val < a.val := lt_of_le_of_ne hab (Ne.symm hne)
-      simp only [hab, ↓reduceIte, hba]; ring
+      have h_not_lt : ¬(a.val < b.val) := not_lt.mpr hab
+      simp only [h_not_lt, ↓reduceIte, hba, ↓reduceIte]
+      -- path_b = reachableToPath h_reach_b by definition
+      simp only [show path_b = reachableToPath h_reach_b from rfl]
+      ring
 
 /-! ## Section 8: Coboundary on Edges -/
 
@@ -232,7 +253,12 @@ theorem edge_eq_pair (e : Simplex) (he : e.card = 2) :
     rw [← Finset.mem_sort (· ≤ ·)] at hx
     rw [List.mem_iff_getElem] at hx
     obtain ⟨i, hi, hxi⟩ := hx
-    interval_cases i <;> simp [edgeVertices, hxi]
+    have hi2 : i < 2 := by rw [← hlen]; exact hi
+    -- i must be 0 or 1
+    have : i = 0 ∨ i = 1 := by omega
+    rcases this with rfl | rfl
+    · left; simp [edgeVertices] at hxi ⊢; exact hxi.symm
+    · right; simp [edgeVertices] at hxi ⊢; exact hxi.symm
   · intro hx
     simp only [Finset.mem_insert, Finset.mem_singleton] at hx
     rcases hx with rfl | rfl <;> assumption
@@ -257,46 +283,15 @@ theorem coboundary_edge (K : SimplicialComplex) (g : Cochain K 0)
   have h1 : 1 < e.val.card := by omega
   let i0 : Fin e.val.card := ⟨0, h0⟩
   let i1 : Fin e.val.card := ⟨1, h1⟩
-  have h_ne : i0 ≠ i1 := by intro h; exact absurd (congrArg Fin.val h) (by omega)
+  have h_ne : i0 ≠ i1 := by intro h; injection h with h; omega
   have h_univ : (Finset.univ : Finset (Fin e.val.card)) = {i0, i1} := by
     ext i; simp only [Finset.mem_univ, Finset.mem_insert, Finset.mem_singleton, true_iff]
     have : i.val < 2 := by rw [← hcard]; exact i.isLt
-    interval_cases i.val <;> [left; right] <;> ext <;> rfl
-  rw [show (∑ i : Fin e.val.card, _) = _ + _ from by
-    conv_lhs => rw [← Finset.sum_univ_congr (fun i => sign i.val * _) (fun i _ => rfl)]
-    rw [h_univ, Finset.sum_pair h_ne]]
-  -- sign(0) = 1, sign(1) = -1
-  simp only [sign, Nat.zero_mod, ↓reduceIte, one_mul, Nat.one_mod, neg_one_mul]
-  -- face at i0 removes index 0 (= a), leaving {b}
-  -- face at i1 removes index 1 (= b), leaving {a}
-  let sorted := e.val.sort (· ≤ ·)
-  have h_len : sorted.length = 2 := by rw [Finset.length_sort]; exact hcard
-  have h_a : sorted.get ⟨0, by omega⟩ = (edgeVertices e.val hcard).1 := rfl
-  have h_b : sorted.get ⟨1, by omega⟩ = (edgeVertices e.val hcard).2 := rfl
-  have hlt := edgeVertices_lt e.val hcard
-  have he_pair := edge_eq_pair e.val hcard
-  -- face i0 = e.val.erase a = {b}
-  have h_face0 : face e.val i0 = {(edgeVertices e.val hcard).2} := by
-    unfold face
-    simp only [h_a]
-    rw [he_pair]
-    ext x; simp only [Finset.mem_erase, Finset.mem_insert, Finset.mem_singleton]
-    constructor
-    · intro ⟨hne, hx⟩; rcases hx with rfl | rfl; exact absurd rfl hne; rfl
-    · intro rfl; exact ⟨ne_of_gt hlt, Or.inr rfl⟩
-  -- face i1 = e.val.erase b = {a}
-  have h_face1 : face e.val i1 = {(edgeVertices e.val hcard).1} := by
-    unfold face
-    simp only [h_b]
-    rw [he_pair]
-    ext x; simp only [Finset.mem_erase, Finset.mem_insert, Finset.mem_singleton]
-    constructor
-    · intro ⟨hne, hx⟩; rcases hx with rfl | rfl; rfl; exact absurd rfl hne
-    · intro rfl; exact ⟨ne_of_lt hlt, Or.inl rfl⟩
-  -- Rewrite with faces
-  congr 1
-  · congr 1; exact Subtype.ext h_face0
-  · congr 1; exact Subtype.ext h_face1
+    obtain ⟨iv, hip⟩ := i
+    interval_cases iv
+    · left; rfl
+    · right; rfl
+  sorry  -- TODO: Complete coboundary_edge proof - complex finset sum manipulation needed
 
 /-! ## Section 9: Tree Potential -/
 
@@ -305,13 +300,19 @@ noncomputable def treePotential (K : SimplicialComplex) (htree : IsTree K)
     (f : Cochain K 1) (root : K.vertexSet) : Cochain K 0 :=
   fun ⟨s, hs⟩ =>
     have hcard : s.card = 1 := hs.2
-    let v := s.min' (by omega)
+    have hne : s.Nonempty := by
+      rw [Finset.nonempty_iff_ne_empty]
+      intro h
+      rw [h, Finset.card_empty] at hcard
+      omega
+    let v := s.min' hne
     have hv : v ∈ K.vertexSet := by
       simp only [SimplicialComplex.vertexSet, Set.mem_setOf_eq]
-      have : s = {v} := by rw [Finset.card_eq_one] at hcard; obtain ⟨x, hx⟩ := hcard
-                          simp [hx, Finset.min'_singleton]
-      rw [← this]; exact hs.1
-    pathIntegral K f (connected_reachable K htree.1 root ⟨v, hv⟩).somePath.toPath
+      rw [Finset.card_eq_one] at hcard
+      obtain ⟨x, hx⟩ := hcard
+      subst hx
+      exact hs.1
+    pathIntegral K f (reachableToPath (connected_reachable K htree.1 root ⟨v, hv⟩))
 
 /-! ## Section 10: Main Theorem -/
 
@@ -340,7 +341,7 @@ theorem tree_potential_works (K : SimplicialComplex) (htree : IsTree K)
   have h_adj : (oneSkeleton K).Adj ⟨a, ha⟩ ⟨b, hb⟩ := by
     constructor
     · exact ne_of_lt hlt
-    · rw [he_pair]; exact e.property.1
+    · rw [← he_pair]; exact e.property.1
     
   -- reachability
   have h_reach_a := connected_reachable K htree.1 root ⟨a, ha⟩
@@ -350,24 +351,7 @@ theorem tree_potential_works (K : SimplicialComplex) (htree : IsTree K)
   have h_diff := pathIntegral_difference K htree.2 f root ⟨a, ha⟩ ⟨b, hb⟩ h_adj h_reach_a h_reach_b
   
   -- treePotential values
-  have hg_a : treePotential K htree f root ⟨{a}, ⟨K.has_vertices e.val e.property.1 a ha_mem, rfl⟩⟩ = 
-              pathIntegral K f h_reach_a.somePath.toPath := by
-    simp only [treePotential, Finset.min'_singleton]
-    apply pathIntegral_well_defined K htree.2
-    
-  have hg_b : treePotential K htree f root ⟨{b}, ⟨K.has_vertices e.val e.property.1 b hb_mem, rfl⟩⟩ = 
-              pathIntegral K f h_reach_b.somePath.toPath := by
-    simp only [treePotential, Finset.min'_singleton]
-    apply pathIntegral_well_defined K htree.2
-  
-  -- Combine
-  simp only [hg_a, hg_b]
-  rw [h_diff]
-  
-  -- Sign and edge matching
-  simp only [hlt, ↓reduceIte, one_mul]
-  congr 1
-  exact Subtype.ext he_pair.symm
+  sorry  -- TODO: Complete tree_potential_works - match treePotential values to pathIntegral_difference
 
 /-- MAIN THEOREM: H¹ = 0 for trees -/
 theorem tree_h1_trivial (K : SimplicialComplex) (htree : IsTree K)

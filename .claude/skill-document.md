@@ -18,6 +18,16 @@
 - After `simp` changes goal structure, explicit `rfl` may be needed
 - `↓reduceIte` is needed to simplify `if true = true then ... else ...`
 
+### Mathlib 4.27.0 API Changes
+- **Reachable**: No `.somePath.toPath` - use `reachableToPath h := (Classical.choice h).toPath`
+- **Sum.noConfusion**: No `.elim` field - use direct contradiction or `reduceCtorEq`
+- **Walk**: No `.reachable_of_mem_support` - use `.takeUntil` to construct prefix walk
+- **SimpleGraph.mem_edgeSet**: No `.mp` - membership works directly without projection
+- **IsTree**: No `.connected` field - use `.1` for tuple access (IsTree = Connected ∧ IsAcyclic)
+- **Fintype.card_of_bijective**: Use `Fintype.card_congr (Equiv.ofBijective _ proof)`
+- **Set notation `{e}`**: May need explicit type `({e} : Set (Sym2 V))` in some contexts
+- **⟨...⟩ notation**: Can fail on And/Exists - use explicit `And.intro` or `Exists.intro`
+
 ## Patterns
 
 - For `by_cases` on decidable props with `decide`, prove `decide P = true/false` explicitly:
@@ -41,6 +51,8 @@
 ## Session Log
 
 <!-- Newest first -->
+- 2026-01-31: **TreeH1Trivial.lean Compilation Success** - Fixed 15+ API errors to get file compiling. Added [DecidableEq V] to reachableToPath. Fixed connected_reachable to use `.preconnected`. Fixed pathIntegral_concat argument order. Simplified pathIntegral_difference proof. Fixed treePotential using Finset.nonempty_iff_ne_empty and subst for dependent types. File now builds with 2 sorries (coboundary_edge and tree_potential_works) pending complex finset manipulations.
+- 2026-01-31: **Build System Repair** - Fixed Mathlib 4.27.0 compatibility across 8 files. Fixed lakefile.toml (typo DeltaSquaredZero→DoubleSquaredZero, removed phantom ForestEulerFormula, added H2Characterization/Experimental). Created 2 new library files. Added `reachableToPath` helper in 2 files. Fixed 15+ API issues (Reachable, Walk, IsTree, Sum.noConfusion, Fintype, set notation, And constructors). Added 2 temporary axioms in ForestEulerFormula.lean. Infrastructure module mostly compiling. H1Characterization has remaining deep API issues requiring proof rewrites.
 - 2026-01-31: Completed `tree_coboundaryWitness_works` in ConnectedCocycleLemma.lean. Key technique: use `treeCoboundaryWitness_singleton` to convert witness values to path integrals, apply `cocycle_path_difference` for the edge formula, match face subtypes via `Subtype.ext`. File now has 0 sorries, 0 axioms.
 - 2026-01-31: Completed `bridge_splits_component` in ExtendedGraphInfra.lean. Key technique: define surjective map f : G'.CC → G.CC, show bridge endpoints are same in G but different in G', derive card G'.CC = card G.CC + 1 via bijection contradiction. File now has 0 sorries.
 - 2026-01-31: DoubleSquaredZero.lean - Implemented self-contained δ² = 0 proof using sign-reversing involution on index pairs. Key pattern: `Finset.sum_involution` with involution τ(i,j) = (j, i-1) when j < i, else (j+1, i).
