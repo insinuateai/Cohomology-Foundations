@@ -17,7 +17,8 @@ When H² ≠ 0, there's a "scaling obstruction" that prevents grand coalition fo
 The hollow tetrahedron shows: 4 agents where all triples coordinate,
 but no policy satisfies all 4 simultaneously.
 
-SORRIES: 2 (main theorems - require complex characterization arguments)
+SORRIES: 4 (main characterization theorems - require complex H² arguments)
+PROVEN: h2_obstruction_needs_four_agents (uses SmallComplexH2 infrastructure)
 AXIOMS: 0
 -/
 
@@ -165,7 +166,6 @@ theorem remove_agent_enables_coalition (K : SimplicialComplex)
       True := by
   -- Removing any vertex from a hollow tetrahedron leaves a filled triangle
   -- The remaining 3 agents can form a grand coalition
-  use Classical.arbitrary K.vertexSet
-  trivial
+  exact ⟨Classical.arbitrary K.vertexSet, trivial⟩
 
 end CoalitionH2

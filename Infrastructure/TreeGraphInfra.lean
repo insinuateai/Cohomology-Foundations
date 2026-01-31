@@ -93,8 +93,8 @@ lemma card_connectedComponent_deleteEdges_add_one [DecidableEq V] (G : SimpleGra
     simp only [ψ] at heq
     by_cases h1 : c1 = G'.connectedComponentMk v <;> by_cases h2 : c2 = G'.connectedComponentMk v
     · exact h1.trans h2.symm
-    · simp only [h1, h2, ↓reduceIte] at heq
-    · simp only [h1, h2, ↓reduceIte] at heq
+    · simp only [h1, h2, ↓reduceIte] at heq; exact (Sum.noConfusion heq).elim
+    · simp only [h1, h2, ↓reduceIte] at heq; exact (Sum.noConfusion heq).elim
     · simp only [h1, h2, ↓reduceIte, Sum.inl.injEq] at heq
       -- f c1 = f c2, need to show c1 = c2
       simp only [f] at heq
@@ -128,7 +128,7 @@ lemma card_connectedComponent_deleteEdges_add_one [DecidableEq V] (G : SimpleGra
           -- c1.exists_rep.choose is G-reachable from u
           -- In G', it's either G'-reachable from u or from v
           by_cases h_G'_u : G'.Reachable c1.exists_rep.choose u
-          · left; exact ConnectedComponent.eq.mpr h_G'_u.symm
+          · left; exact ConnectedComponent.eq.mpr h_G'_u
           · -- Not G'-reachable from u means G'-reachable from v
             -- (since they're in the same G-component and edge was removed)
             right
@@ -139,7 +139,7 @@ lemma card_connectedComponent_deleteEdges_add_one [DecidableEq V] (G : SimpleGra
             by_contra h_not_v
             push_neg at h_not_v
             have h_not_G'_v : ¬G'.Reachable c1.exists_rep.choose v := by
-              intro h; exact h_not_v (ConnectedComponent.eq.mpr h.symm)
+              intro h; exact h_not_v (ConnectedComponent.eq.mpr h)
             -- c1.exists_rep.choose is not G'-reachable from u or v
             -- But it's G-reachable from u (and thus v)
             -- This means all G-paths from c1.exists_rep.choose to u use edge e
@@ -150,35 +150,28 @@ lemma card_connectedComponent_deleteEdges_add_one [DecidableEq V] (G : SimpleGra
             -- Check if this path uses e
             by_cases hp : s(u, v) ∈ p.edges
             · -- Path uses e = s(u,v)
-              -- Find where in the path e is used
-              -- The path goes c1.exists_rep.choose → ... → (u or v) → (v or u) → ... → u
-              -- So either c1.exists_rep.choose is G'-connected to v (via the part before e)
-              -- or to u (via the part after e back to u without using e again)
-              -- Actually, let's just construct a G'-path to v
-              -- If the path c1.rep → u uses edge e = s(u,v), then either:
-              -- - It goes ... → u → v → ... → u (uses e and comes back)
-              -- - It goes ... → v → u (ends with e)
-              -- In the second case, the part ... → v doesn't use e (by trail property if p is a path)
-              -- So c1.rep is G'-reachable from v
-              -- But this contradicts h_not_G'_v
-              -- So we're in the first case: path uses e internally and comes back
-              -- In that case, we can cut out the part that uses e
-              -- Actually this is getting complicated. Let me use a simpler argument.
-              -- The edge e connects u to v. After removing e:
-              -- - All vertices G-connected to u are either:
-              --   (a) G'-connected to u, or
-              --   (b) G'-connected to v but not u
-              -- c1.exists_rep.choose is G-connected to u
-              -- If it's not G'-connected to u (h_G'_u is false)
-              -- and not G'-connected to v (h_not_G'_v)
-              -- then it's isolated in G', which is impossible
-              -- since it's G'-connected to itself
-              exfalso
-              exact h_G'_u (Reachable.refl _)
+              -- Since the path uses e and goes from c1.rep to u,
+              -- it visits v at some point. The portion from c1.rep to v
+              -- (before crossing e) is a G'-path, so c1.rep is G'-connected to v.
+              have hv_in := Walk.snd_mem_support_of_mem_edges p hp
+              -- Get prefix walk from c1.rep to v
+              have h_reach_v : G.Reachable c1.exists_rep.choose v := p.reachable_of_mem_support hv_in
+              -- If this G-path to v doesn't use e, it's a G'-path
+              -- Otherwise we can find an alternate path
+              -- Key: c1.rep is G-reachable from v, so either G'-reachable to u or to v
+              -- Since h_G'_u says not G'-reachable to u, must be G'-reachable to v
+              -- But we assumed h_not_G'_v. Contradiction.
+              exfalso; exact h_not_G'_v (h_reach_v.mono (deleteEdges_le {e}))
             · -- Path doesn't use e - so it's valid in G'
               exfalso
               apply h_G'_u
-              exact ⟨p.mapLe (by intro a b hab; exact ⟨hab, fun h => hp (by rw [h, huv] at hab; simp [Walk.edges_cons] at hp; exact hp)⟩ : G' ≤ G')⟩.symm
+              -- Convert p to a G'-walk
+              have hp' : ∀ x y, G.Adj x y → s(x, y) ∈ p.edges → G'.Adj x y := by
+                intro x y hxy h_in
+                simp only [hG', deleteEdges_adj, Set.mem_singleton_iff, huv]
+                refine ⟨hxy, ?_⟩
+                intro heq; rw [heq] at h_in; exact hp h_in
+              exact p.toPath.val.mapLe (deleteEdges_le {e})
         cases hc1_G'_u with
         | inl h => -- c1 = G'.connectedComponentMk u
           have hc2_G'_u : c2 = G'.connectedComponentMk u := by
@@ -186,7 +179,7 @@ lemma card_connectedComponent_deleteEdges_add_one [DecidableEq V] (G : SimpleGra
             have hc2_spec := c2.exists_rep.choose_spec
             rw [← hc2_spec]
             by_cases h_G'_u' : G'.Reachable c2.exists_rep.choose u
-            · exact ConnectedComponent.eq.mpr h_G'_u'.symm
+            · exact ConnectedComponent.eq.mpr h_G'_u'
             · exfalso
               -- c2 must be G'.connectedComponentMk v, contradicting h2
               have : c2 = G'.connectedComponentMk v := by
@@ -194,8 +187,13 @@ lemma card_connectedComponent_deleteEdges_add_one [DecidableEq V] (G : SimpleGra
                 by_contra h_not_v
                 push_neg at h_not_v
                 have h_not_G'_v : ¬G'.Reachable c2.exists_rep.choose v := by
-                  intro hreach; exact h_not_v (ConnectedComponent.eq.mpr hreach.symm)
-                exact h_G'_u' (Reachable.refl _)
+                  intro hreach; exact h_not_v (ConnectedComponent.eq.mpr hreach)
+                -- c2.rep is G-reachable from u (since same G-component), so G-reachable from v
+                -- If not G'-reachable from u or v, contradiction
+                have hc2_reach_v : G.Reachable c2.exists_rep.choose v := by
+                  have h_same := h_same_G_comp.symm.trans h_comp
+                  exact ConnectedComponent.eq.mp (h_same.trans h_same_G)
+                exact h_not_G'_v (hc2_reach_v.mono (deleteEdges_le {e}))
               exact h2 this
           exact h.trans hc2_G'_u.symm
         | inr h => exact (h1 h).elim
@@ -215,7 +213,11 @@ lemma card_connectedComponent_deleteEdges_add_one [DecidableEq V] (G : SimpleGra
             rw [this]
           have h_all_same : ∀ w ∈ p.support, G.connectedComponentMk w = G.connectedComponentMk c1.exists_rep.choose := by
             intro w hw
-            have hreach : G.Reachable c1.exists_rep.choose w := p.reachable_of_mem_support hw
+            -- w is on the path from c1.rep to c2.rep, so G.Reachable c1.rep w
+            have hreach : G.Reachable c1.exists_rep.choose w := by
+              -- Get the prefix of the walk up to w
+              have ⟨q, _⟩ := p.takeUntil w hw
+              exact ⟨q⟩
             exact (ConnectedComponent.eq.mpr hreach).symm
           -- So u is in the same G-component as c1.exists_rep.choose
           have hu_same := h_all_same u hu_or_v

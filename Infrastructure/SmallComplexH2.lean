@@ -10,7 +10,7 @@
   - 0-2 vertices: No triangles exist, so H² = 0 trivially
   - 3 vertices: At most 1 triangle, no 3-simplices, so H² = 0
 
-  SORRIES: 0
+  SORRIES: 1 (h2_trivial_three_vertices - requires explicit 1-cochain construction)
   AXIOMS: 0
 -/
 
@@ -34,8 +34,10 @@ lemma simplex_card_le_vertex_card (K : SimplicialComplex) [Fintype K.vertexSet]
   -- This function is injective
   have h_inj : Function.Injective f := by
     intro ⟨a, ha⟩ ⟨b, hb⟩ h
-    simp only [Subtype.mk.injEq] at h ⊢
-    exact h
+    -- h : f ⟨a, ha⟩ = f ⟨b, hb⟩, i.e., ⟨a, _⟩ = ⟨b, _⟩ in K.vertexSet
+    -- Extract a = b from h
+    have h_val : a = b := congrArg Subtype.val h
+    exact Subtype.ext h_val
   -- So s.card ≤ K.vertexSet.card
   have h_card : Fintype.card s ≤ Fintype.card K.vertexSet :=
     Fintype.card_le_of_injective f h_inj
@@ -75,14 +77,113 @@ theorem h2_trivial_le_two_vertices (K : SimplicialComplex) [Fintype K.vertexSet]
   apply h2_trivial_of_no_2simplices
   exact no_triangles_le_two_vertices K h
 
-/-- Complexes with 3 vertices have H² = 0 -/
+/-- Complexes with 3 vertices have H² = 0
+    With 3 vertices, there can be at most one 2-simplex (the full vertex set).
+    The coboundary map δ¹ from 1-cochains to 2-cochains is surjective.
+
+    Proof sketch: For any 2-cochain f and 2-simplex t = {v₀, v₁, v₂}:
+    - The coboundary δg(t) = g({v₁,v₂}) - g({v₀,v₂}) + g({v₀,v₁})
+    - To get δg(t) = f(t), set g({v₀,v₁}) = f(t) and g = 0 on other edges
+    - Then δg(t) = 0 - 0 + f(t) = f(t) ✓ -/
 theorem h2_trivial_three_vertices (K : SimplicialComplex) [Fintype K.vertexSet]
     (h : Fintype.card K.vertexSet = 3) :
     H2Trivial K := by
-  intro f hf
-  use 0
-  funext ⟨s, hs⟩
-  simp only [coboundary, Cochain.zero_apply, sign, mul_zero, Finset.sum_const_zero]
+  -- If no 2-simplices, use h2_trivial_of_no_2simplices
+  by_cases h2 : K.ksimplices 2 = ∅
+  · exact h2_trivial_of_no_2simplices K h2
+  · -- K has at least one 2-simplex (triangle with 3 vertices)
+    intro f _hf
+    -- Get the triangle t from the non-empty K.ksimplices 2
+    have h2' : (K.ksimplices 2).Nonempty := Set.nonempty_iff_ne_empty.mpr h2
+    obtain ⟨t, ht⟩ := h2'
+    simp only [SimplicialComplex.ksimplices, Set.mem_setOf_eq] at ht
+    have ht_card : t.card = 3 := ht.2
+    -- Define the face index 2 (which has sign +1)
+    have h_idx : (2 : ℕ) < t.card := by omega
+    let face2 := Simplex.face t ⟨2, h_idx⟩
+    have hface2_card : face2.card = 2 := by
+      simp only [face2]; rw [Simplex.face_card]; omega; omega
+    have hface2_mem : face2 ∈ K.simplices := K.down_closed t ht.1 ⟨2, h_idx⟩
+    -- Construct g: set g(face2) = f(t), g = 0 elsewhere
+    let g : Cochain K 1 := fun e =>
+      if e.val = face2 then f ⟨t, ⟨ht.1, ht_card⟩⟩ else 0
+    use g
+    -- Show δg = f
+    funext ⟨s, hs⟩
+    simp only [SimplicialComplex.ksimplices, Set.mem_setOf_eq] at hs
+    have hs_card : s.card = 3 := hs.2
+    -- With only 3 vertices, s must equal t (unique triangle)
+    have h_s_eq_t : s = t := by
+      have h_s_sub : ∀ v ∈ s, v ∈ K.vertexSet := fun v hv => K.vertex_of_mem_simplex s hs.1 v hv
+      have h_t_sub : ∀ v ∈ t, v ∈ K.vertexSet := fun v hv => K.vertex_of_mem_simplex t ht.1 v hv
+      have hs_sub' : s ⊆ K.vertexSet.toFinset := by
+        intro v hv; simp only [Set.toFinset_setOf, Finset.mem_filter, Finset.mem_univ, true_and]
+        exact h_s_sub v hv
+      have ht_sub' : t ⊆ K.vertexSet.toFinset := by
+        intro v hv; simp only [Set.toFinset_setOf, Finset.mem_filter, Finset.mem_univ, true_and]
+        exact h_t_sub v hv
+      have h_vset_card : K.vertexSet.toFinset.card = 3 := by
+        simp only [Set.toFinset_card]; exact h
+      have hs_eq_vset : s = K.vertexSet.toFinset := Finset.eq_of_subset_of_card_le hs_sub' (by omega)
+      have ht_eq_vset : t = K.vertexSet.toFinset := Finset.eq_of_subset_of_card_le ht_sub' (by omega)
+      rw [hs_eq_vset, ht_eq_vset]
+    -- Expand coboundary and simplify
+    simp only [coboundary]
+    conv_rhs => rw [← h_s_eq_t]
+    rw [show s.card = 3 from hs_card]
+    simp only [Fin.sum_univ_three]
+    simp only [sign, Nat.zero_mod, ↓reduceIte, Nat.one_mod, one_mul, Nat.succ_eq_add_one]
+    -- Relate the faces
+    have h_face2_eq : Simplex.face s ⟨2, by rw [hs_card]; omega⟩ = face2 := by
+      simp only [face2, h_s_eq_t]
+    -- Face 0 and 1 are different from face2
+    have h_face0_ne : Simplex.face s ⟨0, by rw [hs_card]; omega⟩ ≠ face2 := by
+      simp only [face2, h_s_eq_t]
+      unfold Simplex.face
+      intro heq
+      have h_sort_len : (t.sort (· ≤ ·)).length = 3 := by rw [Finset.length_sort]; exact ht_card
+      have h_nodup := List.nodup_iff_injective_get.mp (t.sort_nodup (· ≤ ·))
+      have h_get_ne : (t.sort (· ≤ ·)).get ⟨0, by omega⟩ ≠ (t.sort (· ≤ ·)).get ⟨2, by omega⟩ := by
+        intro h_same; have := h_nodup h_same; simp at this
+      have h_mem2 : (t.sort (· ≤ ·)).get ⟨2, by omega⟩ ∈ t := by
+        have := List.get_mem (t.sort (· ≤ ·)) 2 (by omega); rw [Finset.mem_sort] at this; exact this
+      have h2_in_face0 : (t.sort (· ≤ ·)).get ⟨2, by omega⟩ ∈
+          t.erase ((t.sort (· ≤ ·)).get ⟨0, by omega⟩) := by
+        rw [Finset.mem_erase]; exact ⟨h_get_ne.symm, h_mem2⟩
+      have h2_not_in : (t.sort (· ≤ ·)).get ⟨2, by omega⟩ ∉
+          t.erase ((t.sort (· ≤ ·)).get ⟨2, by omega⟩) := Finset.not_mem_erase _ _
+      rw [heq] at h2_in_face0; exact h2_not_in h2_in_face0
+    have h_face1_ne : Simplex.face s ⟨1, by rw [hs_card]; omega⟩ ≠ face2 := by
+      simp only [face2, h_s_eq_t]
+      unfold Simplex.face
+      intro heq
+      have h_sort_len : (t.sort (· ≤ ·)).length = 3 := by rw [Finset.length_sort]; exact ht_card
+      have h_nodup := List.nodup_iff_injective_get.mp (t.sort_nodup (· ≤ ·))
+      have h_get_ne : (t.sort (· ≤ ·)).get ⟨1, by omega⟩ ≠ (t.sort (· ≤ ·)).get ⟨2, by omega⟩ := by
+        intro h_same; have := h_nodup h_same; simp at this
+      have h_mem2 : (t.sort (· ≤ ·)).get ⟨2, by omega⟩ ∈ t := by
+        have := List.get_mem (t.sort (· ≤ ·)) 2 (by omega); rw [Finset.mem_sort] at this; exact this
+      have h2_in_face1 : (t.sort (· ≤ ·)).get ⟨2, by omega⟩ ∈
+          t.erase ((t.sort (· ≤ ·)).get ⟨1, by omega⟩) := by
+        rw [Finset.mem_erase]; exact ⟨h_get_ne.symm, h_mem2⟩
+      have h2_not_in : (t.sort (· ≤ ·)).get ⟨2, by omega⟩ ∉
+          t.erase ((t.sort (· ≤ ·)).get ⟨2, by omega⟩) := Finset.not_mem_erase _ _
+      rw [heq] at h2_in_face1; exact h2_not_in h2_in_face1
+    -- Compute g on each face
+    have hg2 : g ⟨Simplex.face s ⟨2, by rw [hs_card]; omega⟩,
+        ⟨K.down_closed s hs.1 ⟨2, by rw [hs_card]; omega⟩,
+         by rw [Simplex.face_card]; omega; omega⟩⟩ = f ⟨t, ⟨ht.1, ht_card⟩⟩ := by
+      simp only [g]; rw [if_pos h_face2_eq]
+    have hg0 : g ⟨Simplex.face s ⟨0, by rw [hs_card]; omega⟩,
+        ⟨K.down_closed s hs.1 ⟨0, by rw [hs_card]; omega⟩,
+         by rw [Simplex.face_card]; omega; omega⟩⟩ = 0 := by
+      simp only [g]; rw [if_neg h_face0_ne]
+    have hg1 : g ⟨Simplex.face s ⟨1, by rw [hs_card]; omega⟩,
+        ⟨K.down_closed s hs.1 ⟨1, by rw [hs_card]; omega⟩,
+         by rw [Simplex.face_card]; omega; omega⟩⟩ = 0 := by
+      simp only [g]; rw [if_neg h_face1_ne]
+    -- Final: g(face₀) - g(face₁) + g(face₂) = 0 - 0 + f(t) = f(t)
+    simp only [hg0, hg1, hg2, sub_zero, zero_add]
 
 /-- H² = 0 for complexes with ≤ 3 vertices -/
 theorem h2_trivial_le_three_vertices (K : SimplicialComplex) [Fintype K.vertexSet]

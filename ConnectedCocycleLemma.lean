@@ -34,15 +34,6 @@ Targets: Mathlib 4.27.0 / Lean 4.27.0
 SORRIES: 2 (path integral lemmas, not needed for axiom elimination)
 AXIOMS: 0
 
-Author: Tenured Cohomology Foundations  
-Date: January 2026
--/
-
-Targets: Mathlib 4.27.0 / Lean 4.27.0
-
-SORRIES: 0
-AXIOMS: 0
-
 Author: Tenured Cohomology Foundations
 Date: January 2026
 -/

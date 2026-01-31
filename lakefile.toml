@@ -35,3 +35,9 @@ name = "ForestEulerFormula"
 
 [[lean_lib]]
 name = "ExtendedGraphInfra"
+
+[[lean_lib]]
+name = "ConnectedCocycleLemma"
+
+[[lean_lib]]
+name = "ForestPathIntegral"

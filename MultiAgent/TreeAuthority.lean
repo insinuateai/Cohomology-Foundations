@@ -664,15 +664,19 @@ theorem one_skeleton_acyclic (T : TreeAuth n) :
   have hne : path ≠ [] := by intro h; simp [h] at h_len
   -- Get head = path[0]
   obtain ⟨x, xs, hpath⟩ := List.exists_cons_of_ne_nil hne
-  simp only [hpath, List.head?_cons, Option.some.injEq] at h_closed ⊢
-  -- Get last from getLast?
-  rw [hpath, List.getLast?_eq_some_getLast (by simp : x :: xs ≠ [])] at h_closed
+  subst hpath
+  -- Now path = x :: xs
+  simp only [List.head?_cons] at h_closed
+  rw [List.getLast?_eq_some_getLast (by simp : x :: xs ≠ [])] at h_closed
   simp only [Option.some.injEq] at h_closed
   -- h_closed : x = (x :: xs).getLast _
-  -- Need: (x :: xs).get ⟨0, _⟩ = (x :: xs).get ⟨xs.length, _⟩
-  simp only [List.get_cons_zero, hpath, List.length_cons, Nat.add_sub_cancel]
-  rw [h_closed]
-  simp only [List.getLast_eq_getElem]
+  simp only [List.length_cons, Nat.add_sub_cancel]
+  rw [List.get_eq_getElem, List.get_eq_getElem]
+  simp only [List.getElem_cons_zero]
+  -- Goal: x = (x :: xs)[xs.length]
+  -- h_closed: x = (x :: xs).getLast _
+  rw [h_closed, List.getLast_eq_getElem]
+  rfl
 
 end TreeAuth
 
