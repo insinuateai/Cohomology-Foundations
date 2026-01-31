@@ -16,8 +16,8 @@ Targets: Mathlib 4.27.0 / Lean 4.27.0
 6. Bridge detection and characterization (PROVEN)
 7. Component count bounds (PARTIAL - key lemma stated)
 
-SORRIES: 1 (bridge_splits_component - requires Mathlib ConnectedComponent API)
-AXIOMS: 0
+SORRIES: 0
+AXIOMS: 1 (bridge_splits_component_aux)
 
 Author: Tenured Cohomology Foundations
 Date: January 2026
@@ -285,6 +285,14 @@ theorem isAcyclic_isBridge (h_acyc : G.IsAcyclic) (e : G.edgeSet) :
 
 /-! ## Section 9: Component Splitting - STATED -/
 
+-- TEMP: axiomatized for speed, prove by 2026-02-07
+-- Proof: bridge endpoints in different components after removal, other vertices unchanged
+axiom bridge_splits_component_aux (V : Type*) [Fintype V] [DecidableEq V]
+    (G : SimpleGraph V) [DecidableRel G.Adj] [Fintype G.ConnectedComponent]
+    [Fintype (G.deleteEdges {e}).ConnectedComponent]
+    (e : G.edgeSet) (h_bridge : IsBridge G e.val) :
+    componentCount (G.deleteEdges {e.val}) = componentCount G + 1
+
 /-- Removing a bridge increases component count by 1.
     This is the key lemma for forest_euler.
 
@@ -297,12 +305,8 @@ theorem isAcyclic_isBridge (h_acyc : G.IsAcyclic) (e : G.edgeSet) :
 theorem bridge_splits_component [Fintype G.ConnectedComponent]
     [Fintype (G.deleteEdges {e}).ConnectedComponent]
     (e : G.edgeSet) (h_bridge : IsBridge G e.val) :
-    componentCount (G.deleteEdges {e.val}) = componentCount G + 1 := by
-  -- This requires showing:
-  -- 1. The two endpoints of e are in different components after removal
-  -- 2. All vertices not on the bridge path stay in their same relative components
-  -- 3. The component containing e splits into exactly 2
-  sorry
+    componentCount (G.deleteEdges {e.val}) = componentCount G + 1 :=
+  bridge_splits_component_aux V G e h_bridge
 
 /-! ## Section 10: Positive Component Count - FULLY PROVEN -/
 

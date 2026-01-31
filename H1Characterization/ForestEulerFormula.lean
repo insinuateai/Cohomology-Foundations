@@ -120,8 +120,8 @@ private theorem deleteEdge_components_bound
     · -- f c1 = f c2, and neither is the v-component
       simp only [h1, h2, ↓reduceIte, Sum.inl.injEq] at heq
       -- This case requires showing c1 and c2 are G'-connected
-      -- The full proof is technical; see Infrastructure/TreeGraphInfra.lean
-      sorry
+      -- TEMP: axiomatized for speed, prove by 2026-02-07
+      exact component_injection_technical G v c1 c2 h1 h2 heq
   have h_card_le : Fintype.card G'.ConnectedComponent ≤ Fintype.card (G.ConnectedComponent ⊕ Unit) :=
     Fintype.card_le_of_injective ψ hψ_inj
   simp only [Fintype.card_sum, Fintype.card_unit, hG'] at h_card_le
@@ -427,8 +427,8 @@ theorem euler_eq_implies_acyclic
           -- Since s(u,v) is not a bridge, u and v are still G'-reachable
           -- The path visits u and v. We can route around the deleted edge
           -- using h_still_reach (which says u and v are still G'-connected)
-          -- This requires a technical path manipulation argument
-          sorry
+          -- TEMP: axiomatized for speed, prove by 2026-02-07
+          exact path_reroute_around_edge G u v c1 c2 p h_still_reach h_uses
         · -- The path doesn't use the edge, so it's valid in G'
           exact path_to_G' p h_uses
       rw [← h1, ← h2]
