@@ -45,4 +45,3 @@ import Perspective.FairnessGames
 import Perspective.FairnessLearning
 import Perspective.FairnessSynthesis
 import Perspective.RobustnessFoundations
--- import Perspective.H2Resolution  -- Moved to WIP/ - needs fixes

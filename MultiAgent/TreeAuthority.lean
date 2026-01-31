@@ -670,13 +670,14 @@ theorem one_skeleton_acyclic (T : TreeAuth n) :
   rw [List.getLast?_eq_some_getLast (by simp : x :: xs ≠ [])] at h_closed
   simp only [Option.some.injEq] at h_closed
   -- h_closed : x = (x :: xs).getLast _
-  simp only [List.length_cons, Nat.add_sub_cancel]
+  -- Goal: (x :: xs).get ⟨0, h0⟩ = (x :: xs).get ⟨(x :: xs).length - 1, hlast⟩
   rw [List.get_eq_getElem, List.get_eq_getElem]
   simp only [List.getElem_cons_zero]
-  -- Goal: x = (x :: xs)[xs.length]
+  -- Goal: x = (x :: xs)[(x :: xs).length - 1]
   -- h_closed: x = (x :: xs).getLast _
-  rw [h_closed, List.getLast_eq_getElem]
-  rfl
+  -- (x :: xs).getLast = (x :: xs)[xs.length] = (x :: xs)[(x :: xs).length - 1]
+  conv_lhs => rw [h_closed]
+  simp only [List.getLast_eq_getElem, List.length_cons, Nat.add_sub_cancel]
 
 end TreeAuth
 

@@ -26,18 +26,3 @@ name = "MultiAgent"
 
 [[lean_lib]]
 name = "Infrastructure"
-
-[[lean_lib]]
-name = "DeltaSquaredZero"
-
-[[lean_lib]]
-name = "ForestEulerFormula"
-
-[[lean_lib]]
-name = "ExtendedGraphInfra"
-
-[[lean_lib]]
-name = "ConnectedCocycleLemma"
-
-[[lean_lib]]
-name = "ForestPathIntegral"

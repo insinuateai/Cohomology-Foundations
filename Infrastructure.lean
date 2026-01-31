@@ -13,4 +13,6 @@ import Infrastructure.GameTheoryBridge
 import Infrastructure.SmallGraphsFixed
 import Infrastructure.GraphComposition
 import Infrastructure.SmallComplexH2
-import Infrastructure.TreeGraphInfra  -- Has errors: needs fixes
+import Infrastructure.TreeGraphInfra
+import Infrastructure.ComponentCountingBasic
+import Infrastructure.ExtendedGraphInfra

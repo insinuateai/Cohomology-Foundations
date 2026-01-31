@@ -181,7 +181,55 @@ noncomputable def composeHierarchies (H1 H2 : HierarchicalNetwork S)
           use k
           -- The detailed proof shows that for H1 agents, parentOrRoot in combined = parentOrRoot in H1
           -- so iterating k times reaches H1.root = combined root
-          sorry
+          -- Key lemma: for H1 agents, the combined parentOrRoot agrees with H1's
+          have h_parent_agree : ∀ (j : Fin (H1.numAgents + H2.numAgents)),
+              j.val < H1.numAgents →
+              (fun x => ((if h : x.val < H1.numAgents then
+                match H1.authority.parent ⟨x.val, h⟩ with
+                | none => none
+                | some p => some ⟨p.val, by have := p.isLt; omega⟩
+              else if x.val - H1.numAgents = H2.root.val then
+                some ⟨b.agent1.val, by have := b.agent1.isLt; omega⟩
+              else
+                match H2.authority.parent ⟨x.val - H1.numAgents, by omega⟩ with
+                | none => some ⟨b.agent1.val, by have := b.agent1.isLt; omega⟩
+                | some p => some ⟨p.val + H1.numAgents, by have := p.isLt; omega⟩).getD
+                  ⟨H1.root.val, by have := H1.root.isLt; omega⟩) j).val =
+              (H1.authority.parentOrRoot ⟨j.val, by assumption⟩).val := by
+            intro j hj
+            simp only [hj, ↓reduceDIte, TreeAuth.parentOrRoot]
+            cases hp : H1.authority.parent ⟨j.val, hj⟩ with
+            | none => simp [hp]
+            | some p => simp [hp]
+          -- Use induction to show the iteration reaches root
+          induction k generalizing i h_in_H1 with
+          | zero =>
+            simp only [Function.iterate_zero, id_eq] at hk ⊢
+            -- hk says H1.parentOrRoot^[0] i' = H1.root, i.e., i' = H1.root
+            have hi_root : (⟨i.val, h_in_H1⟩ : Fin H1.numAgents) = H1.root := hk
+            exact Fin.ext (congrArg Fin.val hi_root)
+          | succ k' ih =>
+            simp only [Function.iterate_succ_apply'] at hk ⊢
+            -- After one step from i, we get parentOrRoot i
+            -- Need to show the combined parentOrRoot agrees with H1's
+            simp only [h_in_H1, ↓reduceDIte]
+            cases hp : H1.authority.parent ⟨i.val, h_in_H1⟩ with
+            | none =>
+              -- i is H1's root, so combined parentOrRoot gives combined root
+              simp only [hp, Option.getD_none]
+              -- H1.root = combined root
+              rfl
+            | some p =>
+              -- i has parent p in H1
+              simp only [hp, Option.getD_some]
+              -- Combined parentOrRoot gives ⟨p.val, _⟩
+              -- Apply IH with p
+              have hp_lt : p.val < H1.numAgents := p.isLt
+              have hk' : H1.authority.parentOrRoot^[k'] p = H1.root := by
+                simp only [TreeAuth.parentOrRoot, hp, Option.getD_some] at hk
+                convert hk using 1
+              have ih_result := ih ⟨p.val, by omega⟩ hp_lt hk'
+              convert ih_result using 1
         · -- i is from H2: reach H2's root, jump to b.agent1, then to H1's root
           have h_idx : i.val - H1.numAgents < H2.numAgents := by omega
           obtain ⟨k2, hk2⟩ := H2.authority.acyclic ⟨i.val - H1.numAgents, h_idx⟩

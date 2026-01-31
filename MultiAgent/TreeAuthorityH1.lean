@@ -145,7 +145,87 @@ theorem hierarchyComplex_adj (H : HierarchicalNetwork S)
     (v w : (hierarchyComplex H).vertexSet) :
     (oneSkeleton (hierarchyComplex H)).Adj v w ↔
     ∃ (i j : Fin H.numAgents), v.val = i.val ∧ w.val = j.val ∧ H.authority.adjacent i j := by
-  sorry
+  -- oneSkeleton adjacency means v ≠ w and {v, w} is in simplices
+  rw [H1Characterization.oneSkeleton_adj_iff]
+  constructor
+  · -- Forward: oneSkeleton adj → tree adjacent
+    intro ⟨hne, hmem⟩
+    -- hmem : {v.val, w.val} ∈ (hierarchyComplex H).simplices
+    simp only [hierarchyComplex, Set.mem_union, Set.mem_singleton_iff, Set.mem_setOf_eq] at hmem
+    -- Structure: (s = ∅ ∨ ∃ i, s = {i.val}) ∨ (∃ e ∈ H.edges, s = {e.1.val, e.2.val})
+    rcases hmem with (rfl | ⟨i, hi⟩) | ⟨e, he, heq⟩
+    · -- s = ∅: impossible since {v.val, w.val} is nonempty
+      have : v.val ∈ (∅ : Finset ℕ) := by simp only [Finset.mem_insert, true_or, Finset.not_mem_empty]
+      exact (Finset.notMem_empty v.val this).elim
+    · -- s = {i.val}: edge is a singleton, so v.val = w.val, contradiction
+      have hv : v.val ∈ ({i.val} : Finset ℕ) := by
+        rw [← hi]; exact Finset.mem_insert_self v.val _
+      have hw : w.val ∈ ({i.val} : Finset ℕ) := by
+        rw [← hi]; exact Finset.mem_insert_of_mem (Finset.mem_singleton_self w.val)
+      simp only [Finset.mem_singleton] at hv hw
+      exact (hne (hv.trans hw.symm)).elim
+    · -- s = {e.1.val, e.2.val}: e is an edge from H.edges
+      -- H.edges contains (child, parent) pairs where parent child = some parent
+      simp only [HierarchicalNetwork.edges, TreeAuth.edges, List.mem_filterMap,
+                 List.mem_finRange] at he
+      obtain ⟨k, _, hk⟩ := he
+      cases hp : H.authority.parent k with
+      | none => simp [hp] at hk
+      | some p =>
+        simp [hp] at hk
+        -- hk : (k, p) = e
+        have hk1 : e.1 = k := (Prod.ext_iff.mp hk.symm).1
+        have hk2 : e.2 = p := (Prod.ext_iff.mp hk.symm).2
+        -- Now {v.val, w.val} = {k.val, p.val}
+        rw [hk1, hk2] at heq
+        -- Two cases: (v.val, w.val) = (k.val, p.val) or (v.val, w.val) = (p.val, k.val)
+        have h_mem_v : v.val ∈ ({k.val, p.val} : Finset ℕ) := by rw [← heq]; exact Finset.mem_insert_self _ _
+        have h_mem_w : w.val ∈ ({k.val, p.val} : Finset ℕ) := by rw [← heq]; exact Finset.mem_insert_of_mem (Finset.mem_singleton_self _)
+        simp only [Finset.mem_insert, Finset.mem_singleton] at h_mem_v h_mem_w
+        rcases h_mem_v with hv | hv <;> rcases h_mem_w with hw | hw
+        · -- v.val = k.val, w.val = k.val: contradiction with hne
+          exact (hne (hv.trans hw.symm)).elim
+        · -- v.val = k.val, w.val = p.val
+          use k, p
+          exact ⟨hv, hw, Or.inl hp⟩
+        · -- v.val = p.val, w.val = k.val
+          use p, k
+          exact ⟨hv, hw, Or.inr hp⟩
+        · -- v.val = p.val, w.val = p.val: contradiction
+          exact (hne (hv.trans hw.symm)).elim
+  · -- Backward: tree adjacent → oneSkeleton adj
+    intro ⟨i, j, hv, hw, hadj⟩
+    constructor
+    · -- v ≠ w follows from adjacent_ne
+      intro heq
+      have hi_eq_j : i = j := by
+        have hiv : i.val = v.val := hv.symm
+        have hjw : j.val = w.val := hw.symm
+        have : v.val = w.val := congrArg Subtype.val heq
+        exact Fin.ext (hiv.trans (this.trans hjw.symm))
+      exact H.authority.adjacent_ne hadj hi_eq_j
+    · -- {v.val, w.val} ∈ simplices
+      simp only [hierarchyComplex, Set.mem_union, Set.mem_singleton_iff, Set.mem_setOf_eq]
+      right
+      -- hadj : H.authority.parent i = some j ∨ H.authority.parent j = some i
+      rcases hadj with hp | hp
+      · -- parent i = some j: edge is (i, j)
+        use (i, j)
+        constructor
+        · simp only [HierarchicalNetwork.edges, TreeAuth.edges, List.mem_filterMap, List.mem_finRange]
+          use i, trivial
+          simp [hp]
+        · rw [hv, hw]
+      · -- parent j = some i: edge is (j, i)
+        use (j, i)
+        constructor
+        · simp only [HierarchicalNetwork.edges, TreeAuth.edges, List.mem_filterMap, List.mem_finRange]
+          use j, trivial
+          simp [hp]
+        · rw [hv, hw]
+          ext x
+          simp only [Finset.mem_insert, Finset.mem_singleton]
+          tauto
 
 /-- A tree authority structure gives an acyclic 1-skeleton.
 

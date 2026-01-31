@@ -23,3 +23,6 @@ import MultiAgent.TreeAuthority
 import MultiAgent.TreeAuthorityH1
 import MultiAgent.HierarchicalNetwork
 import MultiAgent.CoalitionH2
+-- TreeAuth SimpleGraph bridges
+import MultiAgent.TreeAuthSimpleGraph
+import MultiAgent.TreeAuthorityAcyclicity
