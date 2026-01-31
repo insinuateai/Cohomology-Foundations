@@ -26,3 +26,12 @@ name = "MultiAgent"
 
 [[lean_lib]]
 name = "Infrastructure"
+
+[[lean_lib]]
+name = "DeltaSquaredZero"
+
+[[lean_lib]]
+name = "ForestEulerFormula"
+
+[[lean_lib]]
+name = "DoubleSquaredZero"
