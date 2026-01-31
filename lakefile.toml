@@ -32,3 +32,6 @@ name = "DeltaSquaredZero"
 
 [[lean_lib]]
 name = "ForestEulerFormula"
+
+[[lean_lib]]
+name = "DoubleSquaredZero"
