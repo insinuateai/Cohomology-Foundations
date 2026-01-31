@@ -27,6 +27,7 @@ import Mathlib.Combinatorics.SimpleGraph.Acyclic
 import Mathlib.Combinatorics.SimpleGraph.DeleteEdges
 import Mathlib.Data.Fintype.Basic
 import Mathlib.Data.Finset.Card
+import Infrastructure.TreeGraphInfra
 
 namespace SimpleGraph
 
@@ -96,34 +97,9 @@ private theorem deleteEdge_components_bound
     [Fintype (G.deleteEdges {e}).ConnectedComponent] :
     Fintype.card (G.deleteEdges {e}).ConnectedComponent ≤
         Fintype.card G.ConnectedComponent + 1 := by
-  set G' := G.deleteEdges {e} with hG'
-  -- When we delete edge e = {u, v}:
-  -- - The G-component containing u might split into at most 2 G'-components
-  -- - All other G-components remain unchanged
-  -- So component count increases by at most 1
-  rcases Sym2.mk_surjective e with ⟨⟨u, v⟩, huv⟩
-  -- The map f : G'.CC → G.CC sends each component to the containing G-component
-  let f : G'.ConnectedComponent → G.ConnectedComponent :=
-    fun c' => G.connectedComponentMk c'.exists_rep.choose
-  -- f is surjective: every G-component contains some G'-component
-  have hf_surj : Function.Surjective f := by
-    intro c
-    obtain ⟨w, hw⟩ := c.exists_rep
-    use G'.connectedComponentMk w
-    simp only [f]
-    have h1 := (G'.connectedComponentMk w).exists_rep.choose_spec
-    have h2 : G'.Reachable (G'.connectedComponentMk w).exists_rep.choose w :=
-      ConnectedComponent.eq.mp h1
-    have h3 : G.Reachable (G'.connectedComponentMk w).exists_rep.choose w :=
-      Reachable.mono (deleteEdges_le {e}) h2
-    rw [← hw]
-    exact ConnectedComponent.eq.mpr h3
-  -- Key: each G-component has at most 2 preimages (only the one containing {u,v} can split)
-  have h_comp_le : Fintype.card G.ConnectedComponent ≤ Fintype.card G'.ConnectedComponent :=
-    Fintype.card_le_of_surjective f hf_surj
-  -- The detailed fiber argument is complex; we use sorry for now
-  -- The full proof would show that only the component containing u can have 2 preimages
-  sorry
+  -- Use the proven lemma from TreeGraphInfra
+  have he' : e ∈ G.edgeFinset := mem_edgeFinset.mpr he
+  exact TreeGraphInfra.card_connectedComponent_deleteEdges_add_one G e he'
 
 end Helpers
 
@@ -421,9 +397,36 @@ theorem euler_eq_implies_acyclic
         obtain ⟨p⟩ := hG_reach
         -- Check if the path uses the deleted edge
         by_cases h_uses : s(u, v) ∈ p.edges
-        · -- The path uses the edge, need to reroute through alternative path
-          -- This is the complex case; for now use sorry
-          sorry
+        · -- The path uses the edge - reroute through alternate path
+          -- Since s(u,v) is not a bridge, u and v are still G'-reachable
+          induction p with
+          | nil => exact Reachable.refl _
+          | @cons x y z hadj_xy rest ih =>
+            by_cases hxy : s(x, y) = s(u, v)
+            · -- This edge is s(u, v)
+              have hxy_eq : (x = u ∧ y = v) ∨ (x = v ∧ y = u) := Sym2.eq_iff.mp hxy
+              -- Get G'-path from x to y via alternate route
+              have h_xy_G' : G'.Reachable x y := by
+                cases hxy_eq with
+                | inl h => rw [h.1, h.2]; exact h_still_reach
+                | inr h => rw [h.1, h.2]; exact h_still_reach.symm
+              -- Get G'-path from y to z
+              have h_yz_G' : G'.Reachable y z := by
+                by_cases h_rest_uses : s(u, v) ∈ rest.edges
+                · exact ih (by intro; exact id) h_rest_uses
+                · exact path_to_G' rest h_rest_uses
+              exact Reachable.trans h_xy_G' h_yz_G'
+            · -- This edge is not s(u, v)
+              have hadj' : G'.Adj x y := by
+                simp only [hG', deleteEdges_adj]
+                exact ⟨hadj_xy, hxy⟩
+              have h_rest_uses' : s(u, v) ∈ rest.edges := by
+                simp only [Walk.edges_cons, List.mem_cons] at h_uses
+                cases h_uses with
+                | inl h => exact (hxy h).elim
+                | inr h => exact h
+              have ih' := ih (by intro; exact id) h_rest_uses'
+              exact Reachable.trans (Adj.reachable hadj') ih'
         · -- The path doesn't use the edge, so it's valid in G'
           exact path_to_G' p h_uses
       rw [← h1, ← h2]

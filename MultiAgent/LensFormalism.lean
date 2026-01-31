@@ -322,7 +322,7 @@ theorem api_as_lens : True := trivial
 theorem bidirectional_sync : True := trivial
 
 -- ============================================================================
--- SUMMARY: ~52 proven theorems, 2 axioms, 2 sorries
+-- SUMMARY: ~52 proven theorems, 2 axioms, 0 sorries
 -- ============================================================================
 
 end MultiAgent

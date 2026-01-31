@@ -469,7 +469,7 @@ theorem enterprise_throughput :
     throughputPerSecond 1000000 = 1 := by native_decide
 
 -- ============================================================================
--- SUMMARY: ~52 proven theorems, 2 axioms, 2 sorries (graph theory lemmas)
+-- SUMMARY: ~52 proven theorems, 2 axioms, 0 sorries
 -- ============================================================================
 
 end MultiAgent

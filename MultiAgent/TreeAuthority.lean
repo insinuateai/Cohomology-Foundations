@@ -646,8 +646,33 @@ theorem one_skeleton_acyclic (T : TreeAuth n) :
     ∃ k₁ k₂, k₁ < k₂ ∧ k₂ < path.length ∧
       ∃ (h₁ : k₁ < path.length) (h₂ : k₂ < path.length),
         path.get ⟨k₁, h₁⟩ = path.get ⟨k₂, h₂⟩ := by
-  -- A closed path in a tree must repeat vertices (backtrack)
-  sorry
+  -- A closed path repeats its first and last vertices by definition
+  intro path h_len h_closed _h_adj
+  -- k₁ = 0 and k₂ = path.length - 1 witness the repetition
+  use 0, path.length - 1
+  constructor
+  · -- 0 < path.length - 1 since path.length ≥ 3
+    omega
+  constructor
+  · -- path.length - 1 < path.length
+    omega
+  -- Now prove path[0] = path[length - 1]
+  have h0 : 0 < path.length := by omega
+  have hlast : path.length - 1 < path.length := by omega
+  use h0, hlast
+  -- h_closed : path.head? = path.getLast?
+  have hne : path ≠ [] := by intro h; simp [h] at h_len
+  -- Get head = path[0]
+  obtain ⟨x, xs, hpath⟩ := List.exists_cons_of_ne_nil hne
+  simp only [hpath, List.head?_cons, Option.some.injEq] at h_closed ⊢
+  -- Get last from getLast?
+  rw [hpath, List.getLast?_eq_some_getLast (by simp : x :: xs ≠ [])] at h_closed
+  simp only [Option.some.injEq] at h_closed
+  -- h_closed : x = (x :: xs).getLast _
+  -- Need: (x :: xs).get ⟨0, _⟩ = (x :: xs).get ⟨xs.length, _⟩
+  simp only [List.get_cons_zero, hpath, List.length_cons, Nat.add_sub_cancel]
+  rw [h_closed]
+  simp only [List.getLast_eq_getElem]
 
 end TreeAuth
 

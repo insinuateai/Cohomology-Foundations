@@ -41,6 +41,7 @@
 ## Session Log
 
 <!-- Newest first -->
+- 2026-01-31: Completed `bridge_splits_component` in ExtendedGraphInfra.lean. Key technique: define surjective map f : G'.CC → G.CC, show bridge endpoints are same in G but different in G', derive card G'.CC = card G.CC + 1 via bijection contradiction. File now has 0 sorries.
 - 2026-01-30: TreeGraphInfra.lean - Added graph theory infrastructure for DimensionBound. 3 sorries remain requiring component-wise reasoning (edges_plus_components_ge_vertices, acyclic_euler_eq disconnected, euler_eq_implies_acyclic'). Build succeeds.
 - 2026-01-30: Fixed broken `pathBetween_head`/`pathBetween_last` in TreeAuthority.lean (Mathlib API changes). `path_compatible` needs missing infrastructure (pathToRoot length, adjacent elements are parent-child)
 - 2026-01-30: Fixed 2 sorries in `alignment_computable` using existing `pathBetween_head`/`pathBetween_last` theorems

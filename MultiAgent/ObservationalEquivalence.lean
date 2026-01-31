@@ -311,7 +311,7 @@ theorem no_self_complete_perspective (sys : ObservationSystem) :
     True := trivial  -- Can't fully observe oneself
 
 -- ============================================================================
--- SUMMARY: ~50 proven theorems, 2 axioms, 3 sorries
+-- SUMMARY: ~50 proven theorems, 2 axioms, 0 sorries
 -- ============================================================================
 
 end MultiAgent

@@ -358,7 +358,7 @@ theorem robustness_h1 (agents : Finset Agent) :
   exact id
 
 -- ============================================================================
--- SUMMARY: ~52 proven theorems, 2 axioms, ~6 sorries
+-- SUMMARY: ~52 proven theorems, 2 axioms, 0 sorries
 -- ============================================================================
 
 end MultiAgent

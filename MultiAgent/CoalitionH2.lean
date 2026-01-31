@@ -23,6 +23,7 @@ AXIOMS: 0
 
 import Foundations.H2Cohomology
 import MultiAgent.GameTheoreticH1
+import Infrastructure.SmallComplexH2
 
 namespace CoalitionH2
 
@@ -150,12 +151,7 @@ theorem h2_obstruction_needs_four_agents (K : SimplicialComplex)
   push_neg at h_small
   -- With < 4 vertices, there are no 3-simplices, so H² = 0 trivially
   -- (no 2-cycles can exist that don't bound something)
-  apply h
-  -- Show H² is trivial for < 4 vertices
-  intro f hf
-  -- f is a 2-cocycle on K
-  -- Show it's a coboundary
-  sorry
+  exact h (Infrastructure.h2_trivial_lt_four_vertices K h_small)
 
 /-! ## Resolution Strategies -/
 

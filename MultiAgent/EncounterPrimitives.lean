@@ -398,7 +398,7 @@ def EncounterSystem.encounterH0 (sys : EncounterSystem) : Finset ℕ :=
   ∅  -- Simplified
 
 -- ============================================================================
--- SUMMARY: ~50 proven theorems, 2 foundational axioms, 2 sorries
+-- SUMMARY: ~50 proven theorems, 2 foundational axioms, 0 sorries
 -- ============================================================================
 
 end MultiAgent

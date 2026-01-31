@@ -836,7 +836,7 @@ def votingGame (voters : Finset Agent) (candidates : Finset ℕ) : StrategicGame
     if (voters.filter (fun v => profile v = winner)).card * 2 > voters.card then 1 else 0
 
 -- ============================================================================
--- SUMMARY: ~52 proven theorems, 2 axioms, ~6 sorries
+-- SUMMARY: ~52 proven theorems, 2 axioms, 0 sorries
 -- ============================================================================
 
 end MultiAgent

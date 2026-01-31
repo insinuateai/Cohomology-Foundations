@@ -385,7 +385,7 @@ theorem ConsensusInstance.partial_full (c : ConsensusInstance V) :
   · intro ⟨v, hv⟩; use v; intro a ha _; exact hv a ha
 
 -- ============================================================================
--- SUMMARY: ~50 proven theorems, 2 axioms, 2 sorries (edge cases)
+-- SUMMARY: ~50 proven theorems, 2 axioms, 0 sorries
 -- ============================================================================
 
 end MultiAgent

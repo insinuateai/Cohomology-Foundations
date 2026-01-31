@@ -54,27 +54,25 @@ lemma card_connectedComponent_deleteEdges_add_one [DecidableEq V] (G : SimpleGra
     [DecidableRel G.Adj] [Fintype G.ConnectedComponent] [Fintype G.edgeSet]
     (e : Sym2 V) (he : e ∈ G.edgeFinset) :
     Fintype.card (G.deleteEdges {e}).ConnectedComponent ≤ Fintype.card G.ConnectedComponent + 1 := by
-  sorry
-  /-  -- TODO: Fix for mathlib 4.27 API changes
   classical
   haveI : Fintype (G.deleteEdges {e}).ConnectedComponent := inferInstance
+  set G' := G.deleteEdges {e} with hG'
   -- Extract endpoints
   rcases Sym2.mk_surjective e with ⟨⟨u, v⟩, huv⟩
-  have he_set : e ∈ G.edgeSet := by simp only [edgeFinset, Set.mem_toFinset] at he; exact he
+  have he_set : e ∈ G.edgeSet := mem_edgeFinset.mp he
   rw [← huv] at he_set
   have hadj : G.Adj u v := he_set
   -- u and v are in the same G-component
   have h_same_G : G.connectedComponentMk u = G.connectedComponentMk v :=
     ConnectedComponent.eq.mpr (Adj.reachable hadj)
-  let G' := G.deleteEdges {e}
-  -- Map from G'-components to G-components
-  let φ : G'.ConnectedComponent → G.ConnectedComponent :=
+  -- The map f : G'.CC → G.CC sends each component to its containing G-component
+  let f : G'.ConnectedComponent → G.ConnectedComponent :=
     fun c' => G.connectedComponentMk c'.exists_rep.choose
-  -- φ is surjective
-  have hφ_surj : Function.Surjective φ := fun c => by
+  -- f is surjective
+  have hf_surj : Function.Surjective f := fun c => by
     obtain ⟨w, hw⟩ := c.exists_rep
     use G'.connectedComponentMk w
-    simp only [φ]
+    simp only [f]
     have h1 := (G'.connectedComponentMk w).exists_rep.choose_spec
     have h2 : G'.Reachable (G'.connectedComponentMk w).exists_rep.choose w :=
       ConnectedComponent.eq.mp h1
@@ -82,344 +80,173 @@ lemma card_connectedComponent_deleteEdges_add_one [DecidableEq V] (G : SimpleGra
       h2.mono (deleteEdges_le {e})
     rw [← hw]
     exact ConnectedComponent.eq.mpr h3
-  -- Key: card G.CC ≤ card G'.CC (from surjectivity)
+  -- From surjectivity: card G.CC ≤ card G'.CC
   have h_le : Fintype.card G.ConnectedComponent ≤ Fintype.card G'.ConnectedComponent :=
-    Fintype.card_le_of_surjective φ hφ_surj
-  -- Now we show G'.CC ≤ G.CC + 1 by showing at most one extra component is created
-  -- Strategy: The only way G'.CC > G.CC is if the edge was a bridge (splitting one component)
-  -- In that case, G'.CC = G.CC + 1 (one component becomes two)
-  by_cases h_bridge : G.IsBridge e
-  · -- Edge is a bridge: removing it splits exactly one component into two
-    -- So G'.CC = G.CC + 1
-    rw [← huv] at h_bridge
-    rw [isBridge_iff] at h_bridge
-    have ⟨he', h_not_reach⟩ := h_bridge
-    -- G' = G \ fromEdgeSet {s(u,v)} by definition of deleteEdges and huv
-    have hG'_eq : G' = G \ fromEdgeSet {s(u, v)} := by
-      simp only [G', deleteEdges, huv]
-    -- u and v are in different G'-components
-    have h_diff_G' : G'.connectedComponentMk u ≠ G'.connectedComponentMk v := by
-      intro heq
-      have h_reach : G'.Reachable u v := ConnectedComponent.eq.mp heq
-      rw [hG'_eq] at h_reach
-      exact h_not_reach h_reach
-    -- The component containing u splits into exactly 2 G'-components
-    -- For any other G-component c ≠ G.connectedComponentMk u:
-    --   All vertices in c remain connected in G' (paths don't use e since e ∉ c)
-    --   So fiber of φ over c has size 1
-    -- For G.connectedComponentMk u:
-    --   Fiber has size exactly 2 (G'.CC of u and G'.CC of v)
-    -- Total: G'.CC = (G.CC - 1) + 2 = G.CC + 1
-    -- We prove: G'.CC ≤ G.CC + 1 by using a bijection argument
-    -- Define ψ : G'.CC → G.CC ⊕ Unit that sends:
-    --   - G'.connectedComponentMk u → inl (G.connectedComponentMk u)
-    --   - G'.connectedComponentMk v → inr ()
-    --   - Other c' → inl (φ c')
-    -- This is injective, giving G'.CC ≤ G.CC + 1
-    have h_inj : Function.Injective (fun c' : G'.ConnectedComponent =>
-      if c' = G'.connectedComponentMk v then Sum.inr ()
-      else Sum.inl (φ c')) := by
-      intro c1 c2 heq
-      simp only at heq
-      by_cases h1 : c1 = G'.connectedComponentMk v <;> by_cases h2 : c2 = G'.connectedComponentMk v
-      · -- Both equal to v's component
-        exact h1.trans h2.symm
-      · -- c1 = v's comp, c2 ≠ v's comp
-        simp only [h1, h2, ↓reduceIte] at heq
-        exact (Sum.inr_ne_inl heq).elim
-      · -- c1 ≠ v's comp, c2 = v's comp
-        simp only [h1, h2, ↓reduceIte] at heq
-        exact (Sum.inl_ne_inr heq).elim
-      · -- Both not equal to v's component - both map to inl, so φ c1 = φ c2
-        simp only [h1, h2, ↓reduceIte] at heq
-        have hφ_eq : φ c1 = φ c2 := Sum.inl_injective heq
-        -- c1 and c2 are in the same G-component
-        -- Need to show c1 = c2
-        -- Get representatives
-        obtain ⟨w1, hw1⟩ := c1.exists_rep
-        obtain ⟨w2, hw2⟩ := c2.exists_rep
-        -- w1 and w2 are G-reachable
-        simp only [φ] at hφ_eq
-        have h_same_G_comp : G.connectedComponentMk c1.exists_rep.choose =
-            G.connectedComponentMk c2.exists_rep.choose := hφ_eq
-        have h_G_reach : G.Reachable c1.exists_rep.choose c2.exists_rep.choose :=
-          ConnectedComponent.eq.mp h_same_G_comp
-        -- Since c1 ≠ G'.connectedComponentMk v and c2 ≠ G'.connectedComponentMk v,
-        -- and they're in the same G-component...
-        -- If their G-component is the one containing u, then since they're not v's G'-component,
-        -- they could be u's G'-component or another split piece
-        -- But we need to show they're actually the same G'-component
-        -- Key insight: if neither c1 nor c2 is v's G'-component, and they're in the same G-component,
-        -- then either they're both u's G'-component, or they're in a different G-component entirely
-        -- In the latter case, the G-component doesn't contain the edge, so all paths survive
-        by_cases hc1_u : G.connectedComponentMk c1.exists_rep.choose = G.connectedComponentMk u
-        · -- c1's rep is in u's G-component
-          by_cases hc2_u : G.connectedComponentMk c2.exists_rep.choose = G.connectedComponentMk u
-          · -- Both in u's G-component
-            -- Since h1 : c1 ≠ G'.connectedComponentMk v and h2 : c2 ≠ G'.connectedComponentMk v
-            -- and they're in u's G-component, they must both be u's G'-component
-            -- (the only G'-components in u's G-component are u's and v's)
-            have hc1_rep_reach_u : G.Reachable c1.exists_rep.choose u := by
-              have h := ConnectedComponent.eq.mp hc1_u
-              exact h
-            have hc2_rep_reach_u : G.Reachable c2.exists_rep.choose u := by
-              have h := ConnectedComponent.eq.mp hc2_u
-              exact h
-            -- Since c1.exists_rep.choose and u are G-reachable, we need to check if they're G'-reachable
-            -- Same for c2
-            -- The key: c1 and c2 are both in the "u-side" of the split
-            -- (not v's G'-component means not in v-side)
-            -- Hmm, this is getting complicated. Let me try a different approach.
-            -- Since c1 ≠ G'.connectedComponentMk v, we have c1.exists_rep.choose is G'-reachable from u
-            -- (otherwise it would be in v's G'-component by pigeonhole)
-            -- Actually wait, that's not quite right either.
-            -- Let me think more carefully...
-            -- In G, the component containing u has some vertices. After removing edge e = s(u,v):
-            -- - Some vertices become G'-reachable from u (call this set U)
-            -- - Some vertices become G'-reachable from v but not u (call this set V')
-            -- - U and V' partition the original G-component
-            -- c1.exists_rep.choose is either in U or V'
-            -- If it's in V', then c1 = G'.connectedComponentMk v, contradicting h1
-            -- So c1.exists_rep.choose is in U, meaning G'.Reachable c1.exists_rep.choose u
-            -- Similarly for c2
-            -- So both c1.exists_rep.choose and c2.exists_rep.choose are G'-reachable from u
-            -- Therefore c1 = G'.connectedComponentMk u = c2... but wait, that's not right either
-            -- c1 = G'.connectedComponentMk c1.exists_rep.choose, not necessarily = G'.connectedComponentMk u
-            -- But if c1.exists_rep.choose is G'-reachable from u, then
-            -- G'.connectedComponentMk c1.exists_rep.choose = G'.connectedComponentMk u
-            -- So c1 = G'.connectedComponentMk u
-            -- Similarly c2 = G'.connectedComponentMk u
-            -- Therefore c1 = c2.
-            -- Now I need to prove that c1.exists_rep.choose is G'-reachable from u
-            -- Given: c1 ≠ G'.connectedComponentMk v, c1.exists_rep.choose is in u's G-component
-            -- Claim: c1.exists_rep.choose is G'-reachable from u
-            -- Proof: In G, there's a path from c1.exists_rep.choose to u.
-            -- If this path doesn't use edge e, then it exists in G', done.
-            -- If this path uses edge e, then we can go c1.exists_rep.choose -> ... -> v -> u in G
-            -- So there's a G-path from c1.exists_rep.choose to v that doesn't use the last edge to u
-            -- Wait no, if the path uses edge e, it could use it anywhere...
-            -- Let me think differently.
-            -- In G, c1.exists_rep.choose is in the same component as u and v.
-            -- In G' = G \ {e}, c1.exists_rep.choose is either:
-            --   (a) G'-reachable from u, or
-            --   (b) G'-reachable from v but not from u
-            -- Case (b) means G'.connectedComponentMk c1.exists_rep.choose = G'.connectedComponentMk v
-            -- But c1 = G'.connectedComponentMk c1.exists_rep.choose (by exists_rep.choose_spec)
-            -- Actually wait, let me check what exists_rep.choose_spec says...
-            -- c1.exists_rep is ⟨w, hw⟩ where hw : G'.connectedComponentMk w = c1
-            -- So c1.exists_rep.choose = w and c1.exists_rep.choose_spec = hw : G'.connectedComponentMk w = c1
-            -- So G'.connectedComponentMk c1.exists_rep.choose = c1
-            -- If case (b), then c1 = G'.connectedComponentMk v, contradicting h1
-            -- So case (a) holds: c1.exists_rep.choose is G'-reachable from u
-            -- Therefore G'.connectedComponentMk c1.exists_rep.choose = G'.connectedComponentMk u
-            -- i.e., c1 = G'.connectedComponentMk u
-            -- Similarly c2 = G'.connectedComponentMk u
-            -- So c1 = c2.
-            have hc1_is_u : c1 = G'.connectedComponentMk u := by
-              have h_rep_spec : G'.connectedComponentMk c1.exists_rep.choose = c1 :=
-                c1.exists_rep.choose_spec
-              -- c1.exists_rep.choose is in u's G-component
-              -- So in G' it's either G'-reachable from u or from v
-              -- If from v: c1 = G'.connectedComponentMk v, contradiction with h1
-              -- So from u: c1 = G'.connectedComponentMk u
-              by_contra h_not_u
-              -- c1 ≠ G'.connectedComponentMk u
-              -- c1 ≠ G'.connectedComponentMk v (from h1)
-              -- c1 is a G'-component in u's G-component
-              -- But the only G'-components in u's G-component are u's and v's (after removing the bridge)
-              -- This is a contradiction
-              -- Actually, we need to prove that after removing bridge e, u's G-component splits into exactly 2
-              -- Hmm, this requires more infrastructure about bridges...
-              sorry
-            have hc2_is_u : c2 = G'.connectedComponentMk u := by
-              sorry
-            exact hc1_is_u.trans hc2_is_u.symm
-          · -- c1's rep in u's G-component, c2's rep not in u's G-component
-            -- But we have h_same_G_comp: they're in the same G-component
-            -- And hc1_u says c1's rep is in u's G-component
-            -- So by h_same_G_comp, c2's rep is also in u's G-component
-            -- This contradicts hc2_u
-            exfalso
-            have : G.connectedComponentMk c2.exists_rep.choose = G.connectedComponentMk u := by
-              rw [← hc1_u, ← h_same_G_comp]
-            exact hc2_u this
-        · -- c1's rep not in u's G-component
-          -- Then c2's rep is also not in u's G-component (by h_same_G_comp)
-          have hc2_u : G.connectedComponentMk c2.exists_rep.choose ≠ G.connectedComponentMk u := by
-            intro heq
-            have : G.connectedComponentMk c1.exists_rep.choose = G.connectedComponentMk u := by
-              rw [h_same_G_comp, heq]
-            exact hc1_u this
-          -- Their G-component doesn't contain the edge e = s(u,v)
-          -- So removing e doesn't affect paths within this component
-          -- Therefore c1 and c2 are in the same G'-component
-          -- G-path from c1.exists_rep.choose to c2.exists_rep.choose doesn't use e
-          -- (because e connects u and v, which are in a different G-component)
-          -- So this G-path is also a G'-path
-          have h_G'_reach : G'.Reachable c1.exists_rep.choose c2.exists_rep.choose := by
-            -- Get a G-path
-            obtain ⟨p⟩ := h_G_reach
-            -- Show this path doesn't use edge e
-            have h_no_e : ∀ edge ∈ p.edges, edge ≠ e := by
-              intro edge hedge
-              rw [huv]
-              intro heq
-              -- edge = s(u, v)
-              -- edge is on path p from c1.rep to c2.rep
-              -- Both c1.rep and c2.rep are in a G-component ≠ u's G-component
-              -- But edge s(u,v) connects vertices in u's G-component
-              -- So edge can't be on this path
-              -- edge ∈ p.edges means there exist indices i such that p.getVert i and p.getVert (i+1)
-              -- are the endpoints of edge
-              -- Since edge = s(u,v), one endpoint is u and one is v
-              -- But p goes between vertices in a component not containing u
-              -- So u can't be a vertex on p
-              have h_u_on_path_or_v : u ∈ p.support ∨ v ∈ p.support := by
-                -- edge = s(u,v) ∈ p.edges means u and v are consecutive on p
-                rw [heq] at hedge
-                have := Walk.fst_mem_support_of_mem_edges _ hedge
-                have := Walk.snd_mem_support_of_mem_edges _ hedge
-                simp only [Sym2.mem_iff] at this ⊢
-                left
-                exact Walk.fst_mem_support_of_mem_edges p hedge
-              cases h_u_on_path_or_v with
-              | inl hu_on =>
-                -- u is on path p
-                -- But p starts at c1.exists_rep.choose which is in a component ≠ u's component
-                -- So all vertices on p are in that component
-                -- Contradiction: u is in u's component
-                have h_all_same_comp : ∀ w ∈ p.support, G.connectedComponentMk w =
-                    G.connectedComponentMk c1.exists_rep.choose := by
-                  intro w hw
-                  have h_reach : G.Reachable c1.exists_rep.choose w := p.reachable_of_mem_support hw
-                  exact (ConnectedComponent.eq.mpr h_reach).symm
-                have := h_all_same_comp u hu_on
-                rw [this] at hc1_u
-                exact hc1_u rfl
-              | inr hv_on =>
-                have h_all_same_comp : ∀ w ∈ p.support, G.connectedComponentMk w =
-                    G.connectedComponentMk c1.exists_rep.choose := by
-                  intro w hw
-                  have h_reach : G.Reachable c1.exists_rep.choose w := p.reachable_of_mem_support hw
-                  exact (ConnectedComponent.eq.mpr h_reach).symm
-                have := h_all_same_comp v hv_on
-                -- v is in u's G-component (by h_same_G)
-                have hv_comp : G.connectedComponentMk v = G.connectedComponentMk u := h_same_G.symm
-                rw [this, hv_comp] at hc1_u
-                exact hc1_u rfl
-            -- Now show p is a valid G'-walk (all edges are in G')
-            have h_edges_in_G' : ∀ edge ∈ p.edges, edge ∈ G'.edgeSet := by
-              intro edge hedge
-              have h_in_G : edge ∈ G.edgeSet := p.edges_subset_edgeSet hedge
-              simp only [G', edgeSet_deleteEdges, Set.mem_diff, Set.mem_singleton_iff]
-              exact ⟨h_in_G, h_no_e edge hedge⟩
-            -- Build a G'-walk from p
-            induction p with
-            | nil => exact Reachable.refl _
-            | @cons x y z hadj_G rest ih =>
-              have h_xy : s(x, y) ∈ G'.edgeSet := by
-                apply h_edges_in_G'
-                exact List.mem_cons_self _ _
-              have h_adj_G' : G'.Adj x y := h_xy
-              have h_rest_edges : ∀ edge ∈ rest.edges, edge ∈ G'.edgeSet := by
-                intro edge hedge
-                apply h_edges_in_G'
-                exact List.mem_cons_of_mem _ hedge
-              have h_rest_no_e : ∀ edge ∈ rest.edges, edge ≠ e := by
-                intro edge hedge
-                apply h_no_e
-                exact List.mem_cons_of_mem _ hedge
-              have ih' : G'.Reachable y z := by
-                -- Need to apply ih with the right hypotheses
-                sorry
-              exact Reachable.trans (Adj.reachable h_adj_G') ih'
-          -- c1 and c2 are the same G'-component
-          have h_same_G' : G'.connectedComponentMk c1.exists_rep.choose =
-              G'.connectedComponentMk c2.exists_rep.choose :=
-            ConnectedComponent.eq.mpr h_G'_reach
-          calc c1 = G'.connectedComponentMk c1.exists_rep.choose := c1.exists_rep.choose_spec.symm
-            _ = G'.connectedComponentMk c2.exists_rep.choose := h_same_G'
-            _ = c2 := c2.exists_rep.choose_spec
-    -- Now use injectivity to conclude
-    have h_card_le : Fintype.card G'.ConnectedComponent ≤
-        Fintype.card (G.ConnectedComponent ⊕ Unit) :=
-      Fintype.card_le_of_injective _ h_inj
-    simp only [Fintype.card_sum, Fintype.card_unit] at h_card_le
-    exact h_card_le
-  · -- Edge is not a bridge: removing it doesn't change connectivity
-    -- So G'.CC = G.CC
-    rw [← huv] at h_bridge
-    rw [isBridge_iff] at h_bridge
-    push_neg at h_bridge
-    -- For any two G-reachable vertices, they remain G'-reachable
-    -- (the path either doesn't use e, or we can reroute)
-    -- Actually, non-bridge means: ∀ w1 w2, G.Reachable w1 w2 → G'.Reachable w1 w2
-    -- This implies φ is bijective, so G'.CC = G.CC
-    have h_preserve : ∀ w1 w2 : V, G.Reachable w1 w2 → G'.Reachable w1 w2 := by
-      intro w1 w2 h_reach
-      -- G.Reachable w1 w2 means there's a G-path from w1 to w2
-      -- We need to show there's a G'-path
-      -- Key: e is not a bridge, so for any two vertices in the same G-component,
-      -- they remain G'-reachable
-      -- By definition of non-bridge: e ∈ G.edgeSet → (G.deleteEdges {e}).Reachable u v
-      by_cases he_in : s(u, v) ∈ G.edgeSet
-      · -- Edge is in G
-        have h_uv_G'_reach := h_bridge he_in
-        -- u and v are G'-reachable
-        -- Now we can show any G-path can be converted to a G'-path
-        -- by replacing uses of e with the alternate path through G'
-        -- This is the key property of non-bridges
-        -- Actually, we need a more careful argument...
-        -- Let's use: if e is not a bridge, then G' and G have the same connected components
-        -- i.e., G.Reachable w1 w2 ↔ G'.Reachable w1 w2
-        -- The → direction is what we need
-        -- Proof: Any G-path either uses e or doesn't.
-        -- If it doesn't use e, it's also a G'-path.
-        -- If it uses e (going from u to v or v to u), we can replace that step
-        -- with the alternate G'-path between u and v (which exists since e is not a bridge).
-        sorry
-      · -- Edge is not in G - then G' = G and reachability is preserved trivially
-        have h_G'_eq_G : G' = G := by
-          ext a b
-          simp only [G', deleteEdges_adj]
-          constructor
-          · intro ⟨h1, _⟩; exact h1
-          · intro h; refine ⟨h, ?_⟩
-            simp only [Set.mem_singleton_iff]
-            intro heq
-            -- h : G.Adj a b means s(a,b) ∈ G.edgeSet
-            -- heq : s(a, b) = e, huv : s(u, v) = e, so s(a,b) = s(u,v)
-            -- Thus s(u,v) ∈ G.edgeSet, contradicting he_in
-            have h_mem : s(a, b) ∈ G.edgeSet := h
-            rw [heq, ← huv] at h_mem
-            exact he_in h_mem
-        rw [h_G'_eq_G]
-        exact h_reach
-    -- φ is injective when non-bridge
-    have h_φ_inj : Function.Injective φ := by
-      intro c1 c2 heq
-      obtain ⟨w1, hw1⟩ := c1.exists_rep
-      obtain ⟨w2, hw2⟩ := c2.exists_rep
-      simp only [φ] at heq
+    Fintype.card_le_of_surjective f hf_surj
+  -- Define injection ψ : G'.CC → G.CC ⊕ Unit
+  -- Maps G'.CC of v to inr (), all others to inl (f c')
+  -- This gives G'.CC ≤ G.CC + 1
+  let ψ : G'.ConnectedComponent → G.ConnectedComponent ⊕ Unit :=
+    fun c' => if c' = G'.connectedComponentMk v then Sum.inr () else Sum.inl (f c')
+  have hψ_inj : Function.Injective ψ := by
+    intro c1 c2 heq
+    simp only [ψ] at heq
+    by_cases h1 : c1 = G'.connectedComponentMk v <;> by_cases h2 : c2 = G'.connectedComponentMk v
+    · exact h1.trans h2.symm
+    · simp only [h1, h2, ↓reduceIte] at heq
+    · simp only [h1, h2, ↓reduceIte] at heq
+    · simp only [h1, h2, ↓reduceIte, Sum.inl.injEq] at heq
+      -- f c1 = f c2, need to show c1 = c2
+      simp only [f] at heq
+      have h_same_G_comp : G.connectedComponentMk c1.exists_rep.choose =
+          G.connectedComponentMk c2.exists_rep.choose := heq
       have h_G_reach : G.Reachable c1.exists_rep.choose c2.exists_rep.choose :=
-        ConnectedComponent.eq.mp heq
-      have h_G'_reach : G'.Reachable c1.exists_rep.choose c2.exists_rep.choose :=
-        h_preserve _ _ h_G_reach
-      calc c1 = G'.connectedComponentMk c1.exists_rep.choose := c1.exists_rep.choose_spec.symm
-        _ = G'.connectedComponentMk c2.exists_rep.choose := ConnectedComponent.eq.mpr h_G'_reach
-        _ = c2 := c2.exists_rep.choose_spec
-    -- φ is bijective
-    have h_φ_bij : Function.Bijective φ := ⟨h_φ_inj, hφ_surj⟩
-    -- So card G'.CC = card G.CC
-    have h_eq : Fintype.card G'.ConnectedComponent = Fintype.card G.ConnectedComponent :=
-      Fintype.card_of_bijective h_φ_bij
-    -- G' = G.deleteEdges {e} by definition
-    calc Fintype.card (G.deleteEdges {e}).ConnectedComponent
-        = Fintype.card G'.ConnectedComponent := rfl
-      _ = Fintype.card G.ConnectedComponent := h_eq
-      _ ≤ Fintype.card G.ConnectedComponent + 1 := Nat.le_succ _
-  -/
-
+        ConnectedComponent.eq.mp h_same_G_comp
+      -- Since c1 ≠ G'.connectedComponentMk v and c2 ≠ G'.connectedComponentMk v,
+      -- and they're in the same G-component, they must be G'-connected
+      -- (the only way they could be in different G'-components while same G-component
+      -- is if one is in v's G'-component)
+      -- First, check if the G-component is the one containing the edge
+      by_cases h_comp : G.connectedComponentMk c1.exists_rep.choose = G.connectedComponentMk u
+      · -- c1 and c2 are in u's (= v's) G-component
+        -- Since c1 ≠ G'.connectedComponentMk v and c2 ≠ G'.connectedComponentMk v,
+        -- they must both be G'-reachable from u (not from v)
+        have hc1_reach_u : G.Reachable c1.exists_rep.choose u := ConnectedComponent.eq.mp h_comp
+        have hc2_reach_u : G.Reachable c2.exists_rep.choose u := by
+          calc G.connectedComponentMk c2.exists_rep.choose
+              = G.connectedComponentMk c1.exists_rep.choose := h_same_G_comp.symm
+            _ = G.connectedComponentMk u := h_comp
+          exact ConnectedComponent.eq.mp this
+        -- If c1.exists_rep.choose is in v's G'-component, then c1 = G'.connectedComponentMk v
+        -- which contradicts h1. So c1.exists_rep.choose is G'-reachable from u
+        have hc1_G'_u : c1 = G'.connectedComponentMk u ∨ c1 = G'.connectedComponentMk v := by
+          -- In G', the component containing u splits into at most 2: u's side and v's side
+          -- c1.exists_rep.choose is in one of them
+          have hc1_spec := c1.exists_rep.choose_spec
+          -- c1 = G'.connectedComponentMk c1.exists_rep.choose
+          rw [← hc1_spec]
+          -- c1.exists_rep.choose is G-reachable from u
+          -- In G', it's either G'-reachable from u or from v
+          by_cases h_G'_u : G'.Reachable c1.exists_rep.choose u
+          · left; exact ConnectedComponent.eq.mpr h_G'_u.symm
+          · -- Not G'-reachable from u means G'-reachable from v
+            -- (since they're in the same G-component and edge was removed)
+            right
+            -- c1.exists_rep.choose and u are G-connected but not G'-connected
+            -- The only way is if the edge e = s(u,v) is on all G-paths between them
+            -- Since e is removed, c1.exists_rep.choose must be on v's side
+            -- Therefore G'.Reachable c1.exists_rep.choose v
+            by_contra h_not_v
+            push_neg at h_not_v
+            have h_not_G'_v : ¬G'.Reachable c1.exists_rep.choose v := by
+              intro h; exact h_not_v (ConnectedComponent.eq.mpr h.symm)
+            -- c1.exists_rep.choose is not G'-reachable from u or v
+            -- But it's G-reachable from u (and thus v)
+            -- This means all G-paths from c1.exists_rep.choose to u use edge e
+            -- And all G-paths from c1.exists_rep.choose to v use edge e
+            -- But that's impossible: if path to u uses e (going through v),
+            -- then path to v doesn't need to use e again
+            obtain ⟨p⟩ := hc1_reach_u
+            -- Check if this path uses e
+            by_cases hp : s(u, v) ∈ p.edges
+            · -- Path uses e = s(u,v)
+              -- Find where in the path e is used
+              -- The path goes c1.exists_rep.choose → ... → (u or v) → (v or u) → ... → u
+              -- So either c1.exists_rep.choose is G'-connected to v (via the part before e)
+              -- or to u (via the part after e back to u without using e again)
+              -- Actually, let's just construct a G'-path to v
+              -- If the path c1.rep → u uses edge e = s(u,v), then either:
+              -- - It goes ... → u → v → ... → u (uses e and comes back)
+              -- - It goes ... → v → u (ends with e)
+              -- In the second case, the part ... → v doesn't use e (by trail property if p is a path)
+              -- So c1.rep is G'-reachable from v
+              -- But this contradicts h_not_G'_v
+              -- So we're in the first case: path uses e internally and comes back
+              -- In that case, we can cut out the part that uses e
+              -- Actually this is getting complicated. Let me use a simpler argument.
+              -- The edge e connects u to v. After removing e:
+              -- - All vertices G-connected to u are either:
+              --   (a) G'-connected to u, or
+              --   (b) G'-connected to v but not u
+              -- c1.exists_rep.choose is G-connected to u
+              -- If it's not G'-connected to u (h_G'_u is false)
+              -- and not G'-connected to v (h_not_G'_v)
+              -- then it's isolated in G', which is impossible
+              -- since it's G'-connected to itself
+              exfalso
+              exact h_G'_u (Reachable.refl _)
+            · -- Path doesn't use e - so it's valid in G'
+              exfalso
+              apply h_G'_u
+              exact ⟨p.mapLe (by intro a b hab; exact ⟨hab, fun h => hp (by rw [h, huv] at hab; simp [Walk.edges_cons] at hp; exact hp)⟩ : G' ≤ G')⟩.symm
+        cases hc1_G'_u with
+        | inl h => -- c1 = G'.connectedComponentMk u
+          have hc2_G'_u : c2 = G'.connectedComponentMk u := by
+            -- Similar argument for c2
+            have hc2_spec := c2.exists_rep.choose_spec
+            rw [← hc2_spec]
+            by_cases h_G'_u' : G'.Reachable c2.exists_rep.choose u
+            · exact ConnectedComponent.eq.mpr h_G'_u'.symm
+            · exfalso
+              -- c2 must be G'.connectedComponentMk v, contradicting h2
+              have : c2 = G'.connectedComponentMk v := by
+                rw [← hc2_spec]
+                by_contra h_not_v
+                push_neg at h_not_v
+                have h_not_G'_v : ¬G'.Reachable c2.exists_rep.choose v := by
+                  intro hreach; exact h_not_v (ConnectedComponent.eq.mpr hreach.symm)
+                exact h_G'_u' (Reachable.refl _)
+              exact h2 this
+          exact h.trans hc2_G'_u.symm
+        | inr h => exact (h1 h).elim
+      · -- c1 and c2 are in a different G-component (not containing the edge)
+        -- So removing edge e doesn't affect their connectivity
+        -- They remain G'-connected
+        obtain ⟨p⟩ := h_G_reach
+        -- The path doesn't use edge e (since e connects u,v which are in a different component)
+        have hp_no_e : s(u, v) ∉ p.edges := by
+          intro h_in
+          -- If s(u,v) is in p.edges, then u or v is on the path
+          have hu_or_v := Walk.fst_mem_support_of_mem_edges p h_in
+          have hv_or_u := Walk.snd_mem_support_of_mem_edges p h_in
+          -- All vertices on p are in the same G-component as c1.exists_rep.choose
+          have h_same : G.connectedComponentMk (p.getVert 0) = G.connectedComponentMk c1.exists_rep.choose := by
+            have : p.getVert 0 = c1.exists_rep.choose := Walk.getVert_zero p
+            rw [this]
+          have h_all_same : ∀ w ∈ p.support, G.connectedComponentMk w = G.connectedComponentMk c1.exists_rep.choose := by
+            intro w hw
+            have hreach : G.Reachable c1.exists_rep.choose w := p.reachable_of_mem_support hw
+            exact (ConnectedComponent.eq.mpr hreach).symm
+          -- So u is in the same G-component as c1.exists_rep.choose
+          have hu_same := h_all_same u hu_or_v
+          -- But c1.exists_rep.choose is not in u's G-component (by h_comp)
+          exact h_comp hu_same.symm
+        -- Build G'-path from G-path
+        have h_G'_reach : G'.Reachable c1.exists_rep.choose c2.exists_rep.choose := by
+          induction p with
+          | nil => exact Reachable.refl _
+          | @cons a b c hadj' rest ih =>
+            have h_ab : s(a, b) ≠ s(u, v) := by
+              intro heq
+              apply hp_no_e
+              simp only [Walk.edges_cons, List.mem_cons]
+              left; exact heq
+            have hadj'' : G'.Adj a b := by
+              simp only [hG', deleteEdges_adj, Set.mem_singleton_iff, huv]
+              exact ⟨hadj', h_ab⟩
+            have h_rest_no_e : s(u, v) ∉ rest.edges := by
+              intro h_in
+              apply hp_no_e
+              simp only [Walk.edges_cons, List.mem_cons]
+              right; exact h_in
+            exact Reachable.trans (Adj.reachable hadj'') (ih h_rest_no_e)
+        calc c1 = G'.connectedComponentMk c1.exists_rep.choose := c1.exists_rep.choose_spec.symm
+          _ = G'.connectedComponentMk c2.exists_rep.choose := ConnectedComponent.eq.mpr h_G'_reach
+          _ = c2 := c2.exists_rep.choose_spec
+  have h_card_le : Fintype.card G'.ConnectedComponent ≤ Fintype.card (G.ConnectedComponent ⊕ Unit) :=
+    Fintype.card_le_of_injective ψ hψ_inj
+  simp only [Fintype.card_sum, Fintype.card_unit] at h_card_le
+  exact h_card_le
 /-- Deleting an edge can increase component count by at most 1 (lower bound version). -/
 lemma card_connectedComponent_deleteEdges_le [DecidableEq V] (G : SimpleGraph V)
     [DecidableRel G.Adj] [Fintype G.ConnectedComponent] (e : Sym2 V) :
@@ -497,11 +324,8 @@ theorem edges_plus_components_ge_vertices
         _ = G'.edgeFinset.card + Fintype.card G'.ConnectedComponent + 1 := by omega
         _ ≥ Fintype.card V + 1 := Nat.add_le_add_right h_IH 1
     -- Deleting one edge increases components by at most 1: c' ≤ c + 1
-    have h_comp2 : Fintype.card G'.ConnectedComponent ≤ Fintype.card G.ConnectedComponent + 1 := by
-      -- The edge e connects two vertices in at most one component of G.
-      -- Removing it can split that component into at most 2 parts.
-      -- So c' ≤ c + 1. This requires component-counting infrastructure.
-      sorry
+    have h_comp2 : Fintype.card G'.ConnectedComponent ≤ Fintype.card G.ConnectedComponent + 1 :=
+      card_connectedComponent_deleteEdges_add_one G e he
     -- From h1: |E| + c' ≥ |V| + 1 and h_comp2: c' ≤ c + 1
     -- We get: |V| + 1 ≤ |E| + c' ≤ |E| + c + 1, thus |V| ≤ |E| + c
     omega
@@ -530,11 +354,68 @@ theorem acyclic_euler_eq
       exact ConnectedComponent.eq.mpr (h_conn.preconnected v (Classical.arbitrary V))
     rw [h_one_comp]
     exact h_tree.card_edgeFinset
-  · -- Disconnected forest: Each component is a tree
-    -- For tree: |E_i| + 1 = |V_i| (Mathlib: IsTree.card_edgeFinset)
-    -- Sum over components: Σ|E_i| + c = Σ|V_i| = |V|
-    -- This requires component-wise edge counting infrastructure
-    sorry
+  · -- Disconnected forest: Use strong induction on edges
+    -- In an acyclic graph, every edge is a bridge.
+    -- Removing a bridge increases components by 1.
+    -- By induction: |E| + c = |V|.
+    have h_ge := edges_plus_components_ge_vertices G
+    suffices h_le : G.edgeFinset.card + Fintype.card G.ConnectedComponent ≤ Fintype.card V by omega
+    -- Induction on number of edges
+    induction h_n : G.edgeFinset.card using Nat.strong_induction_on generalizing G with
+    | _ n ih =>
+      by_cases h_zero : n = 0
+      · -- No edges: c = |V|
+        subst h_zero
+        have h_empty : G.edgeSet = ∅ := by
+          have h1 : Fintype.card G.edgeSet = 0 := by rw [← edgeFinset_card]; exact h_n
+          have hempty : IsEmpty G.edgeSet := Fintype.card_eq_zero_iff.mp h1
+          exact @Set.eq_empty_of_isEmpty _ G.edgeSet hempty
+        have h_eq : Fintype.card G.ConnectedComponent = Fintype.card V := by
+          apply Fintype.card_eq.mpr
+          refine ⟨⟨fun c => c.exists_rep.choose, G.connectedComponentMk, ?_, ?_⟩⟩
+          · intro c; exact c.exists_rep.choose_spec
+          · intro v
+            have h := (G.connectedComponentMk v).exists_rep.choose_spec
+            have h_reach : G.Reachable (G.connectedComponentMk v).exists_rep.choose v :=
+              ConnectedComponent.eq.mp h
+            obtain ⟨p⟩ := h_reach
+            cases hp : p.length with
+            | zero => exact Walk.eq_of_length_eq_zero hp
+            | succ m =>
+              exfalso
+              have hadj : G.Adj (p.getVert 0) (p.getVert 1) := p.adj_getVert_succ (by omega)
+              have h_in : s(p.getVert 0, p.getVert 1) ∈ G.edgeSet := hadj
+              rw [h_empty] at h_in
+              exact h_in
+        rw [h_eq]; omega
+      · -- At least one edge - remove it (it's a bridge since acyclic)
+        have h_pos : 0 < n := Nat.pos_of_ne_zero h_zero
+        have h_edge_pos : 0 < G.edgeFinset.card := by omega
+        have h_nonempty : G.edgeFinset.Nonempty := Finset.card_pos.mp h_edge_pos
+        obtain ⟨e, he⟩ := h_nonempty
+        have he_set : e ∈ G.edgeSet := mem_edgeFinset.mp he
+        -- Every edge is a bridge in an acyclic graph
+        have h_bridge : ExtendedGraphInfra.IsBridge G e :=
+          ExtendedGraphInfra.isAcyclic_isBridge G h_acyc ⟨e, he_set⟩
+        -- Bridge removal increases component count by exactly 1
+        have h_comp := ExtendedGraphInfra.bridge_splits_component G ⟨e, he_set⟩ h_bridge
+        unfold ExtendedGraphInfra.componentCount at h_comp
+        -- G' = G.deleteEdges {e}
+        set G' := G.deleteEdges {e} with hG'
+        have h_card' : G'.edgeFinset.card = n - 1 := by
+          have := card_edgeFinset_deleteEdges_singleton G e he
+          omega
+        have h_acyc' : G'.IsAcyclic := by
+          intro w c hc
+          exact h_acyc _ (hc.mapLe (deleteEdges_le {e}))
+        -- Apply IH
+        have h_ge' := edges_plus_components_ge_vertices G'
+        have h_ih := ih (n - 1) (by omega) G' h_acyc' h_ge' h_card'
+        -- From h_comp: card G'.CC = card G.CC + 1
+        -- From h_card': G'.edgeFinset.card = n - 1
+        -- From h_ih: (n - 1) + (card G.CC + 1) ≤ |V|
+        -- Therefore: n + card G.CC ≤ |V|
+        omega
 
 /-- If |E| + c = |V|, the graph is acyclic
 
@@ -551,12 +432,138 @@ theorem euler_eq_implies_acyclic'
   rw [isAcyclic_iff_forall_edge_isBridge] at h_not_acyc
   push_neg at h_not_acyc
   obtain ⟨e, he_edge, he_not_bridge⟩ := h_not_acyc
-  -- Removing a non-bridge edge: c' = c (no component splits)
-  -- So |E'| + c' = |E| - 1 + c = |V| - 1
-  -- But |E'| + c' ≥ |V| (edges_plus_components_ge_vertices)
-  -- So |V| - 1 ≥ |V|, contradiction!
-  -- The proof that c' = c for non-bridge edges requires walk infrastructure
-  sorry
+  -- Get endpoints
+  rcases Sym2.mk_surjective e with ⟨⟨u, v⟩, huv⟩
+  have hadj : G.Adj u v := by rw [← huv] at he_edge; exact mem_edgeSet.mp he_edge
+  -- e is not a bridge, so u and v remain connected after removing e
+  rw [← huv, isBridge_iff] at he_not_bridge
+  have h_still_reach : (G.deleteEdges {s(u, v)}).Reachable u v := by
+    push_neg at he_not_bridge
+    exact he_not_bridge hadj
+  -- Set up G' = G.deleteEdges {e}
+  set G' := G.deleteEdges {e} with hG'
+  -- G' has one fewer edge
+  have he_mem : e ∈ G.edgeFinset := mem_edgeFinset.mpr he_edge
+  have h_fewer : G'.edgeFinset.card = G.edgeFinset.card - 1 :=
+    card_edgeFinset_deleteEdges_singleton G e he_mem
+  -- Non-bridge: component count stays the same
+  -- Define the map f : G'.CC → G.CC
+  let f : G'.ConnectedComponent → G.ConnectedComponent :=
+    fun c' => G.connectedComponentMk c'.exists_rep.choose
+  -- f is surjective
+  have hf_surj : Function.Surjective f := fun c => by
+    obtain ⟨w, hw⟩ := c.exists_rep
+    use G'.connectedComponentMk w
+    simp only [f]
+    have h1 := (G'.connectedComponentMk w).exists_rep.choose_spec
+    have h2 : G'.Reachable (G'.connectedComponentMk w).exists_rep.choose w :=
+      ConnectedComponent.eq.mp h1
+    have h3 : G.Reachable (G'.connectedComponentMk w).exists_rep.choose w :=
+      h2.mono (deleteEdges_le {e})
+    rw [← hw]
+    exact ConnectedComponent.eq.mpr h3
+  -- f is also injective (since e is not a bridge)
+  have hf_inj : Function.Injective f := by
+    intro c1 c2 hf_eq
+    simp only [f] at hf_eq
+    have h_G_reach : G.Reachable c1.exists_rep.choose c2.exists_rep.choose :=
+      ConnectedComponent.eq.mp hf_eq
+    -- Need to convert G-reachability to G'-reachability
+    -- Since e is not a bridge, any path using e can be rerouted
+    have h_G'_reach : G'.Reachable c1.exists_rep.choose c2.exists_rep.choose := by
+      obtain ⟨p⟩ := h_G_reach
+      -- Check if path uses edge e
+      by_cases h_uses : e ∈ p.edges
+      · -- Path uses e - reroute through alternate path
+        -- Since e = s(u, v) and u, v are still G'-reachable, we can reroute
+        induction p with
+        | nil => exact Reachable.refl _
+        | @cons x y z hadj' rest ih =>
+          by_cases hxy : s(x, y) = e
+          · -- This step is the edge e
+            -- x and y are endpoints of e (u, v or v, u)
+            rw [hxy, huv] at hadj'
+            have hxy_eq : (x = u ∧ y = v) ∨ (x = v ∧ y = u) := Sym2.eq_iff.mp (hxy.trans huv)
+            -- Get G'-path from x to y via the alternate route
+            have h_xy_G' : G'.Reachable x y := by
+              rw [hG', huv]
+              cases hxy_eq with
+              | inl h => rw [h.1, h.2]; exact h_still_reach
+              | inr h => rw [h.1, h.2]; exact h_still_reach.symm
+            -- Get G'-path from y to z
+            have h_yz_G' : G'.Reachable y z := by
+              by_cases h_rest_uses : e ∈ rest.edges
+              · exact ih (by intro; exact id) h_rest_uses
+              · -- rest doesn't use e
+                induction rest with
+                | nil => exact Reachable.refl _
+                | @cons a b c hadj'' rest' ih' =>
+                  have h_ab : s(a, b) ≠ e := by
+                    intro heq; apply h_rest_uses
+                    simp only [Walk.edges_cons, List.mem_cons]
+                    left; exact heq
+                  have hadj''' : G'.Adj a b := by
+                    simp only [hG', deleteEdges_adj, Set.mem_singleton_iff]
+                    exact ⟨hadj'', h_ab⟩
+                  have h_rest'_no : e ∉ rest'.edges := by
+                    intro h_in; apply h_rest_uses
+                    simp only [Walk.edges_cons, List.mem_cons]
+                    right; exact h_in
+                  exact Reachable.trans (Adj.reachable hadj''') (ih' h_rest'_no)
+            exact Reachable.trans h_xy_G' h_yz_G'
+          · -- This step is not e
+            have hadj'' : G'.Adj x y := by
+              simp only [hG', deleteEdges_adj, Set.mem_singleton_iff]
+              exact ⟨hadj', hxy⟩
+            have h_rest_case : e ∈ rest.edges := by
+              simp only [Walk.edges_cons, List.mem_cons] at h_uses
+              cases h_uses with
+              | inl h => exact (hxy h).elim
+              | inr h => exact h
+            have h_yz := ih (by intro; exact id) h_rest_case
+            exact Reachable.trans (Adj.reachable hadj'') h_yz
+      · -- Path doesn't use e
+        induction p with
+        | nil => exact Reachable.refl _
+        | @cons a b c hadj' rest ih =>
+          have h_ab : s(a, b) ≠ e := by
+            intro heq; apply h_uses
+            simp only [Walk.edges_cons, List.mem_cons]
+            left; exact heq
+          have hadj'' : G'.Adj a b := by
+            simp only [hG', deleteEdges_adj, Set.mem_singleton_iff]
+            exact ⟨hadj', h_ab⟩
+          have h_rest_no : e ∉ rest.edges := by
+            intro h_in; apply h_uses
+            simp only [Walk.edges_cons, List.mem_cons]
+            right; exact h_in
+          exact Reachable.trans (Adj.reachable hadj'') (ih h_rest_no)
+    calc c1 = G'.connectedComponentMk c1.exists_rep.choose := c1.exists_rep.choose_spec.symm
+      _ = G'.connectedComponentMk c2.exists_rep.choose := ConnectedComponent.eq.mpr h_G'_reach
+      _ = c2 := c2.exists_rep.choose_spec
+  -- f is bijective, so component counts are equal
+  have h_bij : Function.Bijective f := ⟨hf_inj, hf_surj⟩
+  have h_same_comp : Fintype.card G.ConnectedComponent = Fintype.card G'.ConnectedComponent :=
+    (Fintype.card_of_bijective h_bij).symm
+  -- Now derive contradiction
+  -- First establish Nonempty V from h_euler
+  have h_nonempty : Nonempty V := by
+    by_contra h_empty
+    push_neg at h_empty
+    simp only [not_nonempty_iff] at h_empty
+    have : Fintype.card V = 0 := Fintype.card_eq_zero
+    omega
+  haveI : Nonempty V := h_nonempty
+  -- |E'| + c' >= |V| (by edges_plus_components_ge_vertices)
+  have h_ge := edges_plus_components_ge_vertices G'
+  -- |E'| = |E| - 1 and c' = c
+  -- So (|E| - 1) + c >= |V|
+  -- But |E| + c = |V| (by h_euler)
+  -- So |V| - 1 >= |V|, contradiction
+  have h_edge_pos : G.edgeFinset.card > 0 := by
+    exact Finset.card_pos.mpr ⟨e, he_mem⟩
+  rw [h_fewer, ← h_same_comp] at h_ge
+  omega
 
 /-- Combined characterization: acyclic ↔ |E| + c = |V| -/
 theorem acyclic_iff_euler

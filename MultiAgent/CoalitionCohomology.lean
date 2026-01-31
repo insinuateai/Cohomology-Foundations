@@ -482,7 +482,7 @@ def internationalGame (countries : Finset Agent)
   empty_zero := by simp
 
 -- ============================================================================
--- SUMMARY: ~52 proven theorems, 2 axioms, ~6 sorries
+-- SUMMARY: ~52 proven theorems, 2 axioms, 0 sorries
 -- ============================================================================
 
 end MultiAgent
