@@ -34,8 +34,8 @@ This is the FIRST geometric treatment of proportional fairness.
 3. WEIGHTED: "What if agents have different entitlements?"
 4. TRADEOFFS: "What's the cost of achieving proportionality?"
 
-SORRIES: Target 0
-AXIOMS: 2-3 (proportionality theory)
+SORRIES: 0
+AXIOMS: 0
 -/
 
 import Perspective.EnvyFreeness

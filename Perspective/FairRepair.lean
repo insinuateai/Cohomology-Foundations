@@ -38,8 +38,8 @@ This is the FIRST optimization framework for fairness repair.
 3. FEASIBLE: "Repair is computationally tractable"
 4. INCREMENTAL: "Fix the worst violations first"
 
-SORRIES: Target 0
-AXIOMS: 2-3 (optimization theory)
+SORRIES: 0
+AXIOMS: 1 (optimal_repair_exists)
 -/
 
 import Perspective.FairnessDynamics

@@ -33,8 +33,8 @@ This gives a complete picture of stability landscape.
 3. PREDICTION: "Perturbation of size 0.2 stays in basin A"
 4. COMPARISON: "State A has 3x larger basin than state B"
 
-SORRIES: Target minimal
-AXIOMS: Some needed (basin computation)
+SORRIES: 0
+AXIOMS: 0
 -/
 
 import Perspective.Hysteresis

@@ -39,8 +39,8 @@ This is the FIRST topological treatment of fairness games.
 3. MECHANISMS: "This rule guarantees fairness despite strategies"
 4. PRICE OF ANARCHY: "Strategic behavior costs at most X fairness"
 
-SORRIES: Target 0
-AXIOMS: 2-3 (game theory)
+SORRIES: 0
+AXIOMS: 0
 -/
 
 import Perspective.FairRepair

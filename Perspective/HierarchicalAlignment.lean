@@ -33,8 +33,8 @@ Hierarchical decomposition is a special case where:
 - Levels partition the vertices
 - Cross-level edges create the "glue"
 
-SORRIES: 0 (target)
-AXIOMS: 0
+SORRIES: 0
+AXIOMS: 1 (hierarchical_decomposition_aux)
 -/
 
 import Perspective.IncrementalUpdates
@@ -223,11 +223,14 @@ theorem global_implies_levels {K : SimplicialComplex} {n : ℕ}
 
   haveI : Nonempty (levelSubcomplex assign l).vertexSet := h_ne
 
-  -- Convert H¹ = 0 to acyclicity
-  have hconn' : (oneSkeleton (levelSubcomplex assign l)).Connected := by
-    sorry  -- TODO: prove level subcomplex preserves connectivity
-  rw [H1Characterization.h1_trivial_iff_oneConnected (hconn := hconn')]
-  rw [H1Characterization.h1_trivial_iff_oneConnected (hconn := hconn)] at h_global
+  -- The level subcomplex may not be connected, but it IS acyclic (subset of acyclic graph).
+  -- For acyclic graphs (forests), H¹ = 0 regardless of connectivity.
+  -- Case split: if connected, use standard theorem; if disconnected, prove directly.
+
+  -- First get acyclicity of K
+  have h_K_acyclic : (oneSkeleton K).IsAcyclic := by
+    rw [H1Characterization.h1_trivial_iff_oneConnected (hconn := hconn)] at h_global
+    exact h_global
 
   -- Construct vertex embedding from level subcomplex to K
   have h_vertex_incl : ∀ v : (levelSubcomplex assign l).vertexSet, v.val ∈ K.vertexSet := by
@@ -261,8 +264,18 @@ theorem global_implies_levels {K : SimplicialComplex} {n : ℕ}
   let φ : (oneSkeleton (levelSubcomplex assign l)) →g (oneSkeleton K) :=
     ⟨f, fun {a} {b} => hf_hom a b⟩
 
-  -- Apply IsAcyclic.comap
-  exact h_global.comap φ hf_inj
+  -- Get acyclicity of level subcomplex via comap
+  have h_level_acyclic : (oneSkeleton (levelSubcomplex assign l)).IsAcyclic :=
+    h_K_acyclic.comap φ hf_inj
+
+  -- Case split on connectivity
+  by_cases hconn' : (oneSkeleton (levelSubcomplex assign l)).Connected
+  · -- Connected case: use standard theorem
+    rw [H1Characterization.h1_trivial_iff_oneConnected (hconn := hconn')]
+    exact h_level_acyclic
+  · -- Disconnected case: use acyclic_implies_h1_trivial (works for forests)
+    -- A disconnected acyclic graph (forest) still has H¹ = 0
+    exact H1Characterization.acyclic_implies_h1_trivial (levelSubcomplex assign l) h_level_acyclic
 
 /-! ## Part 6: Two-Level Special Case -/
 

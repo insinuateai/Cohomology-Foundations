@@ -36,8 +36,8 @@ This distinguishes signal from noise in alignment monitoring.
 3. SET THRESHOLDS: "Alert when |X - μ| > 0.15"
 4. CONFIDENCE BOUNDS: "95% of the time, alignment is in [0.75, 0.95]"
 
-SORRIES: Target minimal
-AXIOMS: Some needed (concentration bounds)
+SORRIES: 0
+AXIOMS: 0
 -/
 
 import Perspective.EntropyProduction

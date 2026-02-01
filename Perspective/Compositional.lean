@@ -42,8 +42,9 @@ Two aligned subsystems A and B can fail when combined if:
 
 We characterize EXACTLY when this happens.
 
-SORRIES: Target minimal
-AXIOMS: Some needed for category-theoretic composition
+SORRIES: 0
+AXIOMS: 3 (forest_single_edge_composition_axiom_aux, general_acyclic_composition_axiom_aux,
+           large_disagreement_breaks_alignment_aux)
 -/
 
 import Perspective.OptimalRepair

@@ -28,8 +28,8 @@ This is the FIRST geometric treatment of Pareto frontiers.
 3. CONNECTIVITY: "All efficient allocations are reachable"
 4. DIMENSION: "2 independent tradeoff directions"
 
-SORRIES: Target 0
-AXIOMS: 2-3 (geometric properties)
+SORRIES: 0
+AXIOMS: 0
 -/
 
 import Perspective.FairnessFoundations

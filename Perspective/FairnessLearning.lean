@@ -37,8 +37,8 @@ This is the FIRST regret analysis for fairness learning.
 3. ADAPTIVE: "Improves as more data arrives"
 4. ROBUST: "Works even against adversarial inputs"
 
-SORRIES: Target 0
-AXIOMS: 2-3 (learning theory)
+SORRIES: 0
+AXIOMS: 1 (fairness_loss_bounded)
 -/
 
 import Perspective.FairnessGames

@@ -34,8 +34,8 @@ This is ergodic theory applied to alignment dynamics.
 3. PREVENTION: "Maintain margin X to prevent recurrence"
 4. PLANNING: "Budget for re-alignment every N steps"
 
-SORRIES: Target minimal
-AXIOMS: Some needed (recurrence theory)
+SORRIES: 0
+AXIOMS: 0
 -/
 
 import Perspective.EscapeTime

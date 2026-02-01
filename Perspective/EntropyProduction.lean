@@ -36,8 +36,8 @@ This is non-equilibrium thermodynamics for AI alignment.
 3. COMPARISON: "System A has 3x lower entropy production"
 4. DESIGN: "This configuration minimizes entropy production"
 
-SORRIES: Target minimal
-AXIOMS: Some needed (entropy bounds)
+SORRIES: 0
+AXIOMS: 1 (lower_production_lower_cost_aux)
 -/
 
 import Perspective.Recurrence

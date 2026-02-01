@@ -37,8 +37,8 @@ This is the FIRST application of persistence to fairness theory.
 3. COMPARISON: "System A has more persistent fairness than B"
 4. DESIGN: "Choose parameters where fairness is stable"
 
-SORRIES: Target 0
-AXIOMS: 2-3 (persistence theory)
+SORRIES: 0
+AXIOMS: 0
 -/
 
 import Perspective.IndividualFairness

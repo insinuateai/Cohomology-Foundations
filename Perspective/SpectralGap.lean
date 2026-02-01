@@ -42,8 +42,9 @@ For alignment dynamics dV/dt = -L·V:
 
 Bigger gap = faster consensus = faster alignment.
 
-SORRIES: Target minimal
-AXIOMS: Some needed for spectral theory
+SORRIES: 0
+AXIOMS: 5 (vertexDegreeAx, laplacianExists, laplacianEigenvalues,
+           eigenvalues_nonneg, spectral_gap_bounded_aux)
 -/
 
 import Perspective.Persistence

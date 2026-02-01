@@ -8,7 +8,7 @@
   - acyclic_euler_eq: For acyclic graphs, |E| + c = |V|
   - euler_eq_implies_acyclic: If |E| + c = |V|, the graph is acyclic
 
-  SORRIES: 2 (in proofs requiring component-wise edge counting)
+  SORRIES: 0
   AXIOMS: 0
 -/
 

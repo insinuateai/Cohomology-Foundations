@@ -30,8 +30,8 @@ The "stability margin" is the minimum perturbation needed to
 create a new cycle (or equivalently, to make an existing edge disappear
 and reconnect in a cycle-forming way).
 
-SORRIES: 0 (target)
-AXIOMS: 0
+SORRIES: 0
+AXIOMS: 2 (stability_of_h1_trivial_aux, measurement_robustness_aux)
 -/
 
 import Perspective.AgentCoordination

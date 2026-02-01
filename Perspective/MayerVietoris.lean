@@ -29,8 +29,8 @@ The Mayer-Vietoris sequence:
 If H¹(A) = 0 and H¹(B) = 0 and H¹(A∩B) = 0, then H¹(K) = 0.
 But the sequence tells us MORE: exactly how obstructions combine.
 
-SORRIES: 0 (target)
-AXIOMS: 0 (will likely need some)
+SORRIES: 0
+AXIOMS: 1 (simple_mayer_vietoris)
 -/
 
 import Perspective.HierarchicalAlignment

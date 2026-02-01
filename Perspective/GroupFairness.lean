@@ -39,8 +39,8 @@ This is the FIRST topological treatment of group fairness.
 3. INTERSECTIONALITY: "Multiple group memberships compound constraints"
 4. DIAGNOSIS: "Which group relationships cause unfairness?"
 
-SORRIES: Target 0
-AXIOMS: 2-3 (group fairness theory)
+SORRIES: 0
+AXIOMS: 0
 -/
 
 import Perspective.FairnessBarriers

@@ -35,8 +35,8 @@ This is the FIRST cohomological treatment of envy-freeness.
 3. LOCALITY: "Which pairs of agents have envy?"
 4. REPAIR: "What's the minimum change to eliminate envy?"
 
-SORRIES: Target 0
-AXIOMS: 2-3 (envy theory)
+SORRIES: 0
+AXIOMS: 1 (envy_free_implies_proportional_identical_ax)
 -/
 
 import Perspective.ParetoTopology

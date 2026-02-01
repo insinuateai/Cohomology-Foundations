@@ -32,8 +32,8 @@ This is dynamical systems theory applied to AI alignment.
 3. PREDICTION: "At ε = 0.23, system will split into 2 components"
 4. ROBUSTNESS: "This configuration is far from any bifurcation"
 
-SORRIES: Target minimal
-AXIOMS: Some needed (bifurcation theory)
+SORRIES: 0
+AXIOMS: 2 (safety_margin_aux, bifurcation_catastrophic_aux)
 -/
 
 import Perspective.CriticalPoints

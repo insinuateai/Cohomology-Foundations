@@ -36,8 +36,8 @@ The "dimension" of the obstruction space measures independent conflicts:
 
 We prove BOUNDS on this dimension based on system properties.
 
-SORRIES: Target minimal (this is original research)
-AXIOMS: Will need some (novel territory)
+SORRIES: 0
+AXIOMS: 2 (simple_graph_edge_bound, h1_dim_components_bound)
 -/
 
 import Perspective.MayerVietoris

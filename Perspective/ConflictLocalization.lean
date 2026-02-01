@@ -22,8 +22,8 @@ This cocycle is supported on specific edges.
 Those edges form the "conflict cycle" - the minimal set of agents
 whose disagreements create the global obstruction.
 
-SORRIES: 0 (target)
-AXIOMS: 0
+SORRIES: 0
+AXIOMS: 2 (forms_cycle_from_global_failure, minimal_conflict_exists_aux)
 -/
 
 import Perspective.AlignmentEquivalence

@@ -38,8 +38,8 @@ This is the FIRST topological treatment of fairness constraints.
 3. STRATEGY: "Remove these barriers to enable fairness"
 4. COST: "Crossing costs Y; removal costs Z"
 
-SORRIES: Target 0
-AXIOMS: 2-3 (barrier theory)
+SORRIES: 0
+AXIOMS: 0
 -/
 
 import Perspective.LeximinGeodesics

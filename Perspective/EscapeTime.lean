@@ -34,8 +34,8 @@ This is complexity analysis for alignment dynamics.
 3. MONITORING: "Step 8 and only 30% done - slower than expected"
 4. COMPARISON: "Method A: 12 steps, Method B: 8 steps"
 
-SORRIES: Target minimal
-AXIOMS: Some needed (convergence rates)
+SORRIES: 0
+AXIOMS: 3 (escape_time_finite_ax, escape_time_monotone_ax, escape_time_bounded_ax)
 -/
 
 import Perspective.AttractorBasins

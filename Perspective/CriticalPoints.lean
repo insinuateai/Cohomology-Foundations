@@ -35,8 +35,9 @@ This imports sophisticated topology into alignment theory.
 3. STABILITY: "This saddle point is unstable - you'll drift away"
 4. GLOBAL GUARANTEE: "This IS the global minimum - truly aligned"
 
-SORRIES: Target minimal
-AXIOMS: Some needed (Morse theory)
+SORRIES: 0
+AXIOMS: 3 (misalignment_zero_implies_aligned_ax, uniform_misalignment_zero_ax,
+           saddle_has_escape_ax)
 -/
 
 import Perspective.Curvature

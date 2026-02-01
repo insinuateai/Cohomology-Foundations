@@ -15,14 +15,14 @@
 - `subst x` with `h : x = i` replaces ALL `i` with `x`, breaking references to `i`. Use `subst i` (direction matters) or work with `rw`
 - `decide_False`/`decide_True` don't exist. Use `decide_eq_false (h : ¬P)` and `decide_eq_true (h : P)`
 - `List.length_filterMap` doesn't exist in this Mathlib version
-- After `simp` changes goal structure, explicit `rfl` may be needed
+- After `simp` changes goal structure, explicit `rfl` may be needed. When simp with `List.mem_cons` reduces membership to `True ∨ _`, use `simp only [..., true_or]` rather than `exact Or.inl rfl`
 - `↓reduceIte` is needed to simplify `if true = true then ... else ...`
 
 ### Mathlib 4.27.0 API Changes
 - **Reachable**: No `.somePath.toPath` - use `reachableToPath h := (Classical.choice h).toPath`
 - **Sum.noConfusion**: No `.elim` field - use direct contradiction or `reduceCtorEq`
 - **Walk**: No `.reachable_of_mem_support` - use `.takeUntil` to construct prefix walk
-- **Walk induction**: `induction p with` may fail with "Invalid target" - use `sorry` or case-by-case
+- **Walk induction**: `induction p with` may fail with "Invalid target: Index in target's type is not a variable" when walk endpoints are Sum types like `Sum.inl v`. Use `match p with` pattern matching instead. For defining recursive functions, use explicit patterns: `@Walk.cons _ _ _ (.inl v') _ hadj rest`
 - **SimpleGraph.mem_edgeSet**: No `.mp` - membership works directly without projection
 - **IsTree**: No `.connected` field - use `.1` for tuple access (IsTree = Connected ∧ IsAcyclic)
 - **Connected**: Use `Connected.mk` with Preconnected first, Nonempty as instance
@@ -53,48 +53,30 @@
 
 | Mathlib Lemma | Use |
 |---------------|-----|
-| `IsTree.card_edgeFinset` | Tree on n vertices has n-1 edges |
-| `IsAcyclic.isTree_connectedComponent` | Each component of forest is tree |
-| `isAcyclic_iff_forall_edge_isBridge` | Acyclic ↔ all edges are bridges |
-| `iUnion_connectedComponentSupp` | Components partition vertex set |
-| `Walk.toDeleteEdge e p hp` | Convert `G.Walk` to `(G.deleteEdges {e}).Walk` when `hp : e ∉ p.edges` |
-| `Walk.toDeleteEdges s p hp` | Convert walk when `hp : ∀ e ∈ p.edges, e ∉ s` |
+| `Walk.transfer H hp` | Transfer walk to H when `hp : ∀ e ∈ p.edges, e ∈ H.edgeSet` |
+| `IsCycle.transfer hc hp` | Transfer cycle to H (preserves IsCycle) |
+| `Walk.induce s hs` | Walk in `G.induce s` when `hs : ∀ x ∈ p.support, x ∈ s` |
+| `cons_isCycle_iff` | `(cons h p).IsCycle ↔ p.IsPath ∧ s(u,v) ∉ p.edges` |
+| `List.Nodup.pmap f _ nodup` | Preserve Nodup through pmap with injective f |
 | `Walk.edges_subset_edgeSet` | `e ∈ p.edges → e ∈ G.edgeSet` |
 | `Reachable.mono hle h` | If `G ≤ G'` and `G.Reachable u v` then `G'.Reachable u v` |
-| `deleteEdges_le {e}` | `G.deleteEdges {e} ≤ G` (for `mapLe`) |
-
-**Walk→DeleteEdges pattern** (prove `e ∉ p.edges` by contradiction):
-```lean
-have hp_no_e : e ∉ p.edges := by
-  intro h_in
-  have := Walk.edges_subset_edgeSet p h_in  -- e ∈ (G.deleteEdges {e}).edgeSet
-  simp only [edgeSet_deleteEdges, Set.mem_diff, Set.mem_singleton_iff] at this
-  exact this.2 rfl
-exact ⟨p.toDeleteEdge e hp_no_e⟩  -- G'-reachability
-```
-
-**Component-wise summing** (e.g., Σ|E_i| = |E|) requires `Setoid.IsPartition.ncard_eq_finsum` pattern.
 
 ## Build Speed
 
+- **tmpfs (RAM disk)**: `make tmpfs-mount` → 12.8x faster builds (3m7s → 14.6s). Auto-save: `make tmpfs-autosave`
+- **After deleting .lean files**: Kill stale workers with `pkill -f "lean --worker.*DeletedFileName"` or reload VSCode window
 - **Fast build**: `make fast` or `lake build --old` (uses cached oleans, ~2s)
 - **Mathlib cache**: `lake exe cache get` (downloads pre-built oleans, ~2min)
 - **Clean project only**: `make clean` (preserves Mathlib cache)
 - **Clean all**: `make clean-all` (SLOW - rebuilds Mathlib!)
 - **Linter disabled**: lakefile.toml disables unusedVariables, unnecessarySeqFocus, etc.
+- **Lake parallelism**: Automatic in Lake 5.0.0 (no `-j` flag needed)
 
 ## Session Log
 
 <!-- Newest first -->
-- 2026-02-01: **H1Characterization/ CLEAN (0 sorries)** - Deleted 3 orphaned files (ForestPathIntegral.lean, TreeH1Trivial.lean, ConnectedCocycleLemma.lean) containing 19 sorries. These were alternative implementations duplicating already-proven functionality in ForestCoboundary.lean and PathIntegral.lean. Main theorem `h1_trivial_iff_oneConnected` in Characterization.lean was already complete.
-- 2026-02-01: **Barrier.lean COMPLETE (0 sorries)** - Fixed all 3 sorries. Key patterns:
-  - **Small graph connectivity**: For n ≤ 2 vertices with identical values (all 0), prove Connected by showing adjacency exists between any two vertices (distance = 0 ≤ 2ε).
-  - **Unreachable branch**: When `n ≥ 4` and checking `n - 1 < 3`, use `omega` to derive False (branch is unreachable).
-  - **Edgeless H¹=0**: For graphs with no edges (values spread > 2ε apart), prove H¹Trivial directly: show any 1-simplex leads to contradiction on distance, making the funext vacuous.
-  - **Key insight**: `h1_trivial_iff_oneConnected` requires Connected. For disconnected complexes, prove H¹=0 directly via coboundary definition instead.
-- 2026-02-01: **Perspective sorries reduced from 6 to 3**. Remaining: HierarchicalAlignment (connectivity not preserved by subcomplex), AgentCoordination (2-vertex disconnected case), IncrementalUpdates (removal preserves connectivity).
-- 2026-02-01: **Build Speed Optimizations** - Added Makefile with `fast`/`clean` targets, disabled non-essential linters in lakefile.toml. Key finding: `h1_trivial_iff_oneConnected` and related theorems now require `(oneSkeleton K).Connected` hypothesis. Many files needed updates to add Connected as parameter or use sorry for Connected proofs.
-- 2026-02-01: **ForestEulerFormula.lean COMPLETE (0 sorries, 0 axioms)** - Eliminated 2 TEMP axioms (`component_injection_technical`, `path_reroute_around_edge`) by importing `Infrastructure.TreeGraphInfra`. Key fix: use `Fintype.card_eq_nat_card` to resolve Fintype instance mismatches when `convert` leaves cardinality equality goals with different instances.
-- 2026-02-01: **TreeGraphInfra.lean COMPLETE (0 sorries)** - Fixed all 7 sorries for Euler formula. Key patterns: (1) `Walk.length_takeUntil_lt h hne` proves prefix length < walk length, (2) `takeUntil_first_endpoint_no_edge`: if edge in walk, one of takeUntil u/v doesn't contain it, (3) For repeated edge traversal: use reverse walk + takeUntil_first_endpoint_no_edge, (4) Strong induction IH: just pass `(G', h_acyc', h_not_conn')` - no edge count equality needed, (5) Use `simp only [Subtype.coe_mk]` to unify `{↑⟨e, he_set⟩}` with `{e}` before omega.
-- 2026-01-31: **bridge_splits_component_aux COMPLETE** - Axiom eliminated. Key fixes: (1) Use `let` not `set` for `G'` to preserve Fintype instance, (2) Use `endpoint_notMem_support_takeUntil` for path edge analysis, (3) Use `Nat.le_antisymm h_upper (Nat.succ_le_of_lt h_strict)` instead of omega for Fintype card equality. Proof: surjective f gives lower bound, non-injectivity from bridge gives strict, upper bound from injection to G.CC⊕Unit.
-- 2026-01-31: **Full Build Success** - Fixed Mathlib 4.27.0 compatibility across 8+ files. DoubleSquaredZero.lean complete (sum_involution pattern).
+- 2026-02-01: **sumGraph projection lemmas** - For walks in `sumGraph G H` (disjoint union on `V ⊕ W`), need pattern match on next vertex: `@Walk.cons _ _ _ (.inl v') _ hadj rest`. Use `.elim` on `sumGraph_no_cross_lr` for impossible cases. Edge lemmas need BOTH directions: `sumGraph_project_left_edge_mem` (original→projected) AND `sumGraph_project_left_edge_mem_rev` (projected→original) for contrapositive proofs. Axioms: 89→88.
+- 2026-02-01: **GraphComposition axiom elimination** - Eliminated 2 axioms: `cycle_transfer_to_subgraph_aux` (use `Walk.transfer`+`IsCycle.transfer`), `acyclic_of_disjoint_acyclic_parts_aux` (use `Walk.induce`+partition argument). Key: `cases c with | nil => ... | cons hadj rest => ...` for walk induction; access next vertex via `hs' _ rest.start_mem_support`. Axioms remaining: 89.
+- 2026-02-01: **Build optimization** - tmpfs RAM disk (12.8x speedup). Cleanup: deleted 9 root files (70 sorries), fixed comments. State: 0 sorries, 91→89 axioms.
+- 2026-02-01: **H1Characterization/ & Perspective/ CLEAN** - Main theorem `h1_trivial_iff_oneConnected` complete. `acyclic_implies_h1_trivial` via per-component root selection.
+- 2026-01-31: **Full Build Success** - Mathlib 4.27.0 compatibility complete.

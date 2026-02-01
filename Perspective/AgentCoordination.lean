@@ -538,13 +538,15 @@ theorem deadlock_localization_aux {S : Type*} [Fintype S] [DecidableEq S] [Nonem
               by_contra h_neither
               push_neg at h_neither
               -- a, b, w.val are 3 distinct vertices but card = 2
+              have hw_ne_a : w ≠ ⟨a, ha⟩ := fun h => h_neither.1 (congrArg Subtype.val h)
+              have hw_ne_b : w ≠ ⟨b, hb⟩ := fun h => h_neither.2 (congrArg Subtype.val h)
+              have hab' : (⟨a, ha⟩ : K.vertexSet) ≠ ⟨b, hb⟩ := fun h => hab (congrArg Subtype.val h)
               have h3 : ({⟨a, ha⟩, ⟨b, hb⟩, w} : Finset K.vertexSet).card = 3 := by
-                rw [Finset.card_insert_of_not_mem, Finset.card_insert_of_not_mem,
+                rw [Finset.card_insert_of_notMem, Finset.card_insert_of_notMem,
                     Finset.card_singleton]
-                · simp only [Finset.mem_singleton, Subtype.mk.injEq]
-                  exact h_neither.2
-                · simp only [Finset.mem_insert, Finset.mem_singleton, Subtype.mk.injEq]
-                  push_neg; exact ⟨h_neither.1, h_neither.2⟩
+                · simp only [Finset.mem_singleton]; exact hw_ne_b.symm
+                · simp only [Finset.mem_insert, Finset.mem_singleton]
+                  push_neg; exact ⟨hab', hw_ne_a.symm⟩
               have hle : ({⟨a, ha⟩, ⟨b, hb⟩, w} : Finset K.vertexSet).card ≤
                          @Fintype.card K.vertexSet h_fintype := Finset.card_le_univ _
               omega

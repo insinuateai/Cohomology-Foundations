@@ -40,8 +40,8 @@ Hysteresis occurs when:
 For alignment: Dynamic state (connections being formed/broken)
 can exhibit hysteresis even if static analysis doesn't.
 
-SORRIES: Target minimal
-AXIOMS: Some needed (dynamical systems)
+SORRIES: 0
+AXIOMS: 0
 -/
 
 import Perspective.Bifurcation

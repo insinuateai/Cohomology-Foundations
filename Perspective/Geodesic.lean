@@ -43,8 +43,8 @@ Finding the shortest path to this subset is a PROJECTION problem.
 For convex alignment regions: projection is unique.
 For non-convex regions: may have multiple geodesics.
 
-SORRIES: Target minimal
-AXIOMS: Some needed (metric geometry)
+SORRIES: 0
+AXIOMS: 0
 -/
 
 import Perspective.Barrier

@@ -334,32 +334,29 @@ theorem incremental_remove_preserves (K : SimplicialComplex) [Nonempty K.vertexS
   -- Forest minus edges = still a forest
   -- Therefore H¹ = 0 preserved
   haveI : Nonempty (removeSimplex K s).vertexSet := h_ne
-  -- Prove that removing simplex preserves connected for subset of vertices
-  have hconn' : (oneSkeleton (removeSimplex K s)).Connected := by
-    sorry  -- TODO: prove removal preserves connectivity
-  rw [H1Characterization.h1_trivial_iff_oneConnected (hconn := hconn')]
-  rw [H1Characterization.h1_trivial_iff_oneConnected (hconn := hconn)] at h_K
-  -- Goal: (oneSkeleton (removeSimplex K s)).IsAcyclic
-  -- h_K: (oneSkeleton K).IsAcyclic
-  --
-  -- Use IsAcyclic.comap: construct embedding from (removeSimplex K s) to K
-  -- Key facts:
-  -- 1. Vertices of (removeSimplex K s) are a subset of vertices of K
-  -- 2. Edges in (removeSimplex K s) are edges in K (just with ¬(s ⊆ edge))
-  --
+
+  -- Removing simplices can disconnect the complex but preserves acyclicity.
+  -- Get acyclicity of K first
+  have h_K_acyclic : (oneSkeleton K).IsAcyclic := by
+    rw [H1Characterization.h1_trivial_iff_oneConnected (hconn := hconn)] at h_K
+    exact h_K
+
   -- Construct the vertex embedding
   have h_vertex_incl : ∀ v : (removeSimplex K s).vertexSet, v.val ∈ K.vertexSet := by
     intro ⟨v, hv⟩
     rw [Foundations.SimplicialComplex.mem_vertexSet_iff] at hv ⊢
     simp only [removeSimplex, Set.mem_setOf] at hv
     exact hv.1
+
   -- Define the embedding function
   let f : (removeSimplex K s).vertexSet → K.vertexSet := fun v => ⟨v.val, h_vertex_incl v⟩
+
   -- Show f is injective
   have hf_inj : Function.Injective f := by
     intro ⟨v₁, _⟩ ⟨v₂, _⟩ heq
     simp only [f, Subtype.mk.injEq] at heq
     exact Subtype.ext heq
+
   -- Show f is a graph homomorphism (preserves adjacency)
   have hf_hom : ∀ v w : (removeSimplex K s).vertexSet,
       (oneSkeleton (removeSimplex K s)).Adj v w → (oneSkeleton K).Adj (f v) (f w) := by
@@ -368,14 +365,25 @@ theorem incremental_remove_preserves (K : SimplicialComplex) [Nonempty K.vertexS
     simp only [f]
     constructor
     · exact hadj.1
-    · -- Edge {v, w} ∈ (removeSimplex K s).simplices → {v, w} ∈ K.simplices
-      simp only [removeSimplex, Set.mem_setOf] at hadj
+    · simp only [removeSimplex, Set.mem_setOf] at hadj
       exact hadj.2.1
+
   -- Construct the graph homomorphism
   let φ : (oneSkeleton (removeSimplex K s)) →g (oneSkeleton K) :=
     ⟨f, fun {a} {b} => hf_hom a b⟩
-  -- Apply IsAcyclic.comap
-  exact h_K.comap φ hf_inj
+
+  -- Get acyclicity of removed complex via comap
+  have h_removed_acyclic : (oneSkeleton (removeSimplex K s)).IsAcyclic :=
+    h_K_acyclic.comap φ hf_inj
+
+  -- Case split on connectivity
+  by_cases hconn' : (oneSkeleton (removeSimplex K s)).Connected
+  · -- Connected case: use standard theorem
+    rw [H1Characterization.h1_trivial_iff_oneConnected (hconn := hconn')]
+    exact h_removed_acyclic
+  · -- Disconnected case: use acyclic_implies_h1_trivial (works for forests)
+    -- A disconnected acyclic graph (forest) still has H¹ = 0
+    exact H1Characterization.acyclic_implies_h1_trivial (removeSimplex K s) h_removed_acyclic
 
 /-! ## Part 7: Complexity Analysis -/
 

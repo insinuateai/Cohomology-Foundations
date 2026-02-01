@@ -28,8 +28,9 @@ Resolution = break the cycle OR fill it.
 - Fill triangle: makes the cycle a boundary (adds 2-simplex)
 - Remove agent: breaks the cycle (fewer vertices)
 
-SORRIES: 0 (target)
-AXIOMS: 0
+SORRIES: 0
+AXIOMS: 3 (remove_edge_from_single_cycle_aux', fill_triangle_h1_trivial_aux',
+           resolution_edge_exists_maximal_aux)
 -/
 
 import Perspective.ConflictLocalization

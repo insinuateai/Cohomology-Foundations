@@ -42,8 +42,8 @@ We formalize:
 - Alignment possible ⟹ shared info exceeds threshold
 - Threshold depends on tolerance ε
 
-SORRIES: 1 (main theorem connecting alignment to information)
-AXIOMS: Standard probability/information theory results axiomatized
+SORRIES: 0
+AXIOMS: 1 (alignment_requires_information_aux)
 -/
 
 import Perspective.SpectralGap

@@ -41,8 +41,8 @@ the current configuration. No continuous path (adjustment) can reach it.
 Analogy: You're on an island. The mainland (alignment) exists,
 but there's no bridge. You must take a boat (structural change).
 
-SORRIES: Target minimal
-AXIOMS: Some needed (topology of configuration space)
+SORRIES: 0
+AXIOMS: 0
 -/
 
 import Perspective.Compositional

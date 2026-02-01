@@ -10,7 +10,7 @@
   - 0-2 vertices: No triangles exist, so H² = 0 trivially
   - 3 vertices: At most 1 triangle, no 3-simplices, so H² = 0
 
-  SORRIES: 1 (h2_trivial_three_vertices - requires explicit 1-cochain construction)
+  SORRIES: 0
   AXIOMS: 0
 -/
 

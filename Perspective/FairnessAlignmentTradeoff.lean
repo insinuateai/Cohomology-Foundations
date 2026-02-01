@@ -34,8 +34,8 @@ This is the FIRST formal tradeoff analysis between fairness and alignment.
 3. PRICE: "Fairness costs X alignment; alignment costs Y fairness"
 4. GUIDANCE: "Choose based on your priorities"
 
-SORRIES: Target 0
-AXIOMS: 2-3 (tradeoff theory)
+SORRIES: 0
+AXIOMS: 0
 -/
 
 import Perspective.Proportionality

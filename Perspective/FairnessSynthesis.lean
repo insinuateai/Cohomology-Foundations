@@ -38,8 +38,8 @@ Key insight: Fairness is fundamentally TOPOLOGICAL:
 3. API: Clean interface for applications
 4. COMPLETENESS: The full picture of computational fairness
 
-SORRIES: Target 0
-AXIOMS: 3-5 (cross-cutting connections)
+SORRIES: 0
+AXIOMS: 0
 -/
 
 import Perspective.FairnessLearning

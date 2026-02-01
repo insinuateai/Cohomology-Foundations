@@ -487,4 +487,126 @@ theorem oneConnected_implies_h1_trivial (K : SimplicialComplex) (hK : OneConnect
   use coboundaryWitness K hK f hf (selectRoot K)
   exact coboundaryWitness_works K hK hconn f hf (selectRoot K)
 
+/-! ## Disconnected Forests (per-component coboundary witness)
+
+For disconnected forests, we cannot use a single root. Instead, we pick
+a canonical root for each connected component and construct the witness
+using per-component path integrals. -/
+
+/-- Canonical root for a vertex's connected component -/
+noncomputable def componentRoot (K : SimplicialComplex) (v : K.vertexSet) : K.vertexSet :=
+  ((oneSkeleton K).connectedComponentMk v).exists_rep.choose
+
+/-- The component root is in the same component as v -/
+lemma componentRoot_reachable (K : SimplicialComplex) (v : K.vertexSet) :
+    (oneSkeleton K).Reachable (componentRoot K v) v := by
+  have h := ((oneSkeleton K).connectedComponentMk v).exists_rep.choose_spec
+  -- h : (oneSkeleton K).connectedComponentMk (componentRoot K v) = (oneSkeleton K).connectedComponentMk v
+  exact SimpleGraph.ConnectedComponent.eq.mp h
+
+/-- Adjacent vertices have the same connected component -/
+lemma adj_same_component (K : SimplicialComplex) (u v : K.vertexSet)
+    (hadj : (oneSkeleton K).Adj u v) :
+    (oneSkeleton K).connectedComponentMk u = (oneSkeleton K).connectedComponentMk v :=
+  SimpleGraph.ConnectedComponent.eq.mpr hadj.reachable
+
+/-- Adjacent vertices have the same component root -/
+lemma adj_same_componentRoot (K : SimplicialComplex) (u v : K.vertexSet)
+    (hadj : (oneSkeleton K).Adj u v) :
+    componentRoot K u = componentRoot K v := by
+  simp only [componentRoot, adj_same_component K u v hadj]
+
+/-- Per-component coboundary witness: g(v) = pathIntegral from v's component root to v -/
+noncomputable def forestCoboundaryWitness (K : SimplicialComplex) (hK : OneConnected K)
+    (f : Cochain K 1) (_hf : IsCocycle K 1 f) : Cochain K 0 :=
+  fun s =>
+    let v := toVertex K s
+    let h_reach := componentRoot_reachable K v
+    pathIntegral K f (pathBetween K h_reach)
+
+/-- Helper: path integral depends only on the endpoint values, not the proof -/
+lemma pathIntegral_eq_of_endpoint_eq (K : SimplicialComplex) (hK : OneConnected K)
+    (f : Cochain K 1) {u v w : K.vertexSet}
+    (h1 : (oneSkeleton K).Reachable u v)
+    (h2 : (oneSkeleton K).Reachable w v)
+    (heq : u = w) :
+    pathIntegral K f (pathBetween K h1) = pathIntegral K f (pathBetween K h2) := by
+  subst heq
+  exact pathIntegral_well_defined K hK f (pathBetween K h1) (pathBetween K h2)
+
+/-- The per-component coboundary witness gives correct coboundary -/
+theorem forestCoboundaryWitness_works (K : SimplicialComplex) (hK : OneConnected K)
+    (f : Cochain K 1) (hf : IsCocycle K 1 f) :
+    δ K 0 (forestCoboundaryWitness K hK f hf) = f := by
+  funext e
+  -- Get edge decomposition
+  obtain ⟨a, b, ha, hb, h_edge, hab, h_formula⟩ :=
+    coboundary_edge_formula K (forestCoboundaryWitness K hK f hf) e
+  rw [h_formula]
+  -- Key: a and b are adjacent, so they have the same component root
+  have h_adj : (oneSkeleton K).Adj ⟨a, ha.1⟩ ⟨b, hb.1⟩ := by
+    apply edge_implies_adj K a b ha.1 hb.1
+    rw [← h_edge]; exact e.property
+  have h_same_root : componentRoot K ⟨a, ha.1⟩ = componentRoot K ⟨b, hb.1⟩ :=
+    adj_same_componentRoot K _ _ h_adj
+  -- Get reachability from the common root
+  have h_reach_a : (oneSkeleton K).Reachable (componentRoot K ⟨a, ha.1⟩) ⟨a, ha.1⟩ :=
+    componentRoot_reachable K _
+  have h_reach_b : (oneSkeleton K).Reachable (componentRoot K ⟨a, ha.1⟩) ⟨b, hb.1⟩ := by
+    have h := componentRoot_reachable K ⟨b, hb.1⟩
+    rwa [h_same_root]
+  -- Helper equalities for toVertex
+  have h_toVertex_a_eq : toVertex K ⟨{a}, ha⟩ = ⟨a, ha.1⟩ := by
+    ext; exact toVertex_singleton K a ha
+  have h_toVertex_b_eq : toVertex K ⟨{b}, hb⟩ = ⟨b, hb.1⟩ := by
+    ext; exact toVertex_singleton K b hb
+  -- Show g(a) = pathIntegral from componentRoot to a
+  have hg_a : forestCoboundaryWitness K hK f hf ⟨{a}, ha⟩ =
+      pathIntegral K f (pathBetween K h_reach_a) := by
+    unfold forestCoboundaryWitness
+    apply pathIntegral_eq_of_endpoint_eq K hK f
+    rw [h_toVertex_a_eq]
+  -- Show g(b) = pathIntegral from componentRoot(a) to b (using same root)
+  have hg_b : forestCoboundaryWitness K hK f hf ⟨{b}, hb⟩ =
+      pathIntegral K f (pathBetween K h_reach_b) := by
+    unfold forestCoboundaryWitness
+    apply pathIntegral_eq_of_endpoint_eq K hK f
+    rw [h_toVertex_b_eq, h_same_root]
+  rw [hg_a, hg_b]
+  -- Now use forest_path_exclusive and path integral difference
+  let root := componentRoot K ⟨a, ha.1⟩
+  rcases forest_path_exclusive K hK root ⟨a, ha.1⟩ ⟨b, hb.1⟩ h_adj h_reach_a h_reach_b with
+    hb_not_in | ha_not_in
+  · -- Case: b ∉ support(path_a), so path_b extends path_a
+    obtain ⟨newPath, h_integral⟩ := pathIntegral_concat_edge K f (pathBetween K h_reach_a) h_adj hb_not_in
+    have h_integral_eq : pathIntegral K f newPath = pathIntegral K f (pathBetween K h_reach_b) :=
+      pathIntegral_well_defined K hK f newPath (pathBetween K h_reach_b)
+    rw [h_integral_eq] at h_integral
+    simp only [hab, ↓reduceIte] at h_integral
+    have h_edge_eq : (⟨{a, b}, ⟨h_adj.2, Finset.card_pair h_adj.1⟩⟩ : {s // s ∈ K.ksimplices 1}) = e :=
+      Subtype.ext h_edge.symm
+    rw [h_edge_eq] at h_integral
+    rw [h_integral]; ring
+  · -- Case: a ∉ support(path_b), so path_a extends path_b
+    obtain ⟨newPath, h_integral⟩ := pathIntegral_concat_edge K f (pathBetween K h_reach_b) h_adj.symm ha_not_in
+    have h_integral_eq : pathIntegral K f newPath = pathIntegral K f (pathBetween K h_reach_a) :=
+      pathIntegral_well_defined K hK f newPath (pathBetween K h_reach_a)
+    rw [h_integral_eq] at h_integral
+    have h_not_b_lt_a : ¬(b < a) := Nat.not_lt.mpr (Nat.le_of_lt hab)
+    simp only [h_not_b_lt_a, ↓reduceIte] at h_integral
+    have h_pair_comm : ({b, a} : Finset Vertex) = {a, b} := Finset.pair_comm b a
+    have h_edge_eq : (⟨{b, a}, ⟨h_adj.symm.2, Finset.card_pair h_adj.symm.1⟩⟩ : {s // s ∈ K.ksimplices 1}) = e := by
+      apply Subtype.ext
+      simp only [h_pair_comm]
+      exact h_edge.symm
+    rw [h_edge_eq] at h_integral
+    rw [h_integral]; ring
+
+/-- **THE MAIN LEMMA**: Acyclic implies H¹ trivial (works for disconnected forests too) -/
+theorem acyclic_implies_h1_trivial (K : SimplicialComplex) [Nonempty K.vertexSet]
+    (hK : OneConnected K) : H1Trivial K := by
+  intro f hf
+  use forestCoboundaryWitness K hK f hf
+  exact forestCoboundaryWitness_works K hK f hf
+
 end H1Characterization

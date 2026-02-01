@@ -34,7 +34,7 @@ This is the FIRST topological treatment of computational fairness.
 4. COMPOSITION: "Can we combine fair subsystems?"
 
 SORRIES: 0
-AXIOMS: Minimal (fairness theory)
+AXIOMS: 2 (h1_trivial_implies_fair_allocation, fair_allocation_implies_h1_trivial)
 -/
 
 import Perspective.FluctuationBounds

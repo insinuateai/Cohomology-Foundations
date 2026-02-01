@@ -34,8 +34,8 @@ This is the FIRST geometric treatment of paths to fairness.
 3. GRADIENT: "Move in this direction to improve fastest"
 4. BARRIERS: "These obstacles block the path to fairness"
 
-SORRIES: Target 0
-AXIOMS: 2-3 (geodesic theory)
+SORRIES: 0
+AXIOMS: 0
 -/
 
 import Perspective.FairnessAlignmentTradeoff

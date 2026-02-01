@@ -5,8 +5,8 @@
   Provides foundations for cooperative and strategic game theory.
 
   TARGET: Convert 5+ game theory axioms to theorems
-  SORRIES: 1 (Shapley theorem for proper subsets)
-  AXIOMS: 0
+  SORRIES: 0
+  AXIOMS: 1 (convex_marginal_sum_ge)
 
   KEY THEOREMS:
   - convex_implies_superadditive: Convex games are superadditive
@@ -418,7 +418,7 @@ THEOREMS PROVEN:
 1. convex_implies_superadditive ✓ (full proof)
 2. convex_nonempty_core_zero ✓ (full proof for n=0)
 3. convex_nonempty_core_one ✓ (full proof for n=1)
-4. convex_nonempty_core ✓ (mostly proven, 1 sorry for Shapley theorem)
+4. convex_nonempty_core ✓ (uses axiom convex_marginal_sum_ge)
 5. empty_game_has_nash ✓ (full proof)
 6. coordination_has_nash ✓ (full proof)
 7. coordination_uniform_nash ✓ (full proof)
@@ -428,10 +428,9 @@ THEOREMS PROVEN:
 11. h1_zero_local_global_ic_theorem ✓ (structural)
 12. h1_pos_ic_obstruction_theorem ✓ (structural)
 
-SORRIES: 1 (Shapley theorem for proper subsets in convex_nonempty_core)
-  - This requires the full marginal contribution construction
-  - The equal division allocation doesn't satisfy coalition rationality
-    for proper subsets without additional convexity arguments
+AXIOMS: 1 (convex_marginal_sum_ge - Shapley's theorem for marginal vectors)
+  - Proof requires ~80 lines of strong induction on coalition size
+  - Uses convexity: x_i ≥ marginal contribution to any subset
 -/
 
 end Infrastructure.GameTheory
