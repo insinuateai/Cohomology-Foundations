@@ -189,10 +189,10 @@ theorem acyclic_iff_euler_eq (G : SimpleGraph V) [Fintype V] [DecidableEq V] [De
 theorem h1_trivial_iff_dim_zero_aux (K : SimplicialComplex)
     [Nonempty K.vertexSet] [Fintype K.vertexSet]
     [DecidableEq K.vertexSet] [DecidableRel (oneSkeleton K).Adj]
-    (hconn : (oneSkeleton K).Connected) :
+    (hhollow : H1Characterization.hasNoFilledTriangles K) (hconn : (oneSkeleton K).Connected) :
     H1Trivial K ↔ h1DimensionCompute K = 0 := by
   -- Step 1: H1Trivial K ↔ (oneSkeleton K).IsAcyclic
-  rw [h1_trivial_iff_acyclic (hconn := hconn)]
+  rw [h1_trivial_iff_acyclic (hhollow := hhollow) (hconn := hconn)]
   -- Step 2: Work with the dimension formula
   simp only [h1DimensionCompute]
   -- Step 3: Analyze the if-then-else
@@ -243,7 +243,7 @@ theorem h1_trivial_iff_dim_zero_aux (K : SimplicialComplex)
 theorem h1_trivial_iff_dim_zero (K : SimplicialComplex)
     [Nonempty K.vertexSet] [Fintype K.vertexSet]
     [DecidableEq K.vertexSet] [DecidableRel (oneSkeleton K).Adj]
-    (hconn : (oneSkeleton K).Connected) :
+    (hhollow : H1Characterization.hasNoFilledTriangles K) (hconn : (oneSkeleton K).Connected) :
     H1Trivial K ↔ h1DimensionCompute K = 0 := by
   -- H¹ = 0 iff the 1-skeleton is a forest (acyclic)
   -- For a forest: |E| = |V| - c, so β₁ = |E| - |V| + c = 0
@@ -261,7 +261,7 @@ theorem h1_trivial_iff_dim_zero (K : SimplicialComplex)
   --
   -- Both directions use the Euler characteristic formula for forests,
   -- which is a standard graph theory result.
-  exact h1_trivial_iff_dim_zero_aux K hconn
+  exact h1_trivial_iff_dim_zero_aux K hhollow hconn
 
 /-! ## Part 2: The Dimension Bound Theorem -/
 
@@ -459,10 +459,10 @@ def estimatedRepairEffort (K : SimplicialComplex)
 theorem zero_effort_iff_aligned (K : SimplicialComplex)
     [Nonempty K.vertexSet] [Fintype K.vertexSet]
     [DecidableEq K.vertexSet] [DecidableRel (oneSkeleton K).Adj]
-    (hconn : (oneSkeleton K).Connected) :
+    (hhollow : H1Characterization.hasNoFilledTriangles K) (hconn : (oneSkeleton K).Connected) :
     estimatedRepairEffort K = 0 ↔ H1Trivial K := by
   unfold estimatedRepairEffort
-  exact (h1_trivial_iff_dim_zero K hconn).symm
+  exact (h1_trivial_iff_dim_zero K hhollow hconn).symm
 
 /-! ## Part 9: Comparison Metrics -/
 

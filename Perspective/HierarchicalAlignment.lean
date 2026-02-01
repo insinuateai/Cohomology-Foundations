@@ -193,7 +193,7 @@ If the whole complex has H¹ = 0, then each level subcomplex also has H¹ = 0.
 theorem global_implies_levels {K : SimplicialComplex} {n : ℕ}
     [Nonempty K.vertexSet]
     (assign : LevelAssignment K n)
-    (hconn : (oneSkeleton K).Connected)
+    (hhollow : H1Characterization.hasNoFilledTriangles K) (hconn : (oneSkeleton K).Connected)
     (h_global : H1Trivial K) :
     AllLevelsAligned assign := by
   intro l
@@ -229,7 +229,7 @@ theorem global_implies_levels {K : SimplicialComplex} {n : ℕ}
 
   -- First get acyclicity of K
   have h_K_acyclic : (oneSkeleton K).IsAcyclic := by
-    rw [H1Characterization.h1_trivial_iff_oneConnected (hconn := hconn)] at h_global
+    rw [H1Characterization.h1_trivial_iff_oneConnected (hhollow := hhollow) (hconn := hconn)] at h_global
     exact h_global
 
   -- Construct vertex embedding from level subcomplex to K
@@ -270,9 +270,8 @@ theorem global_implies_levels {K : SimplicialComplex} {n : ℕ}
 
   -- Case split on connectivity
   by_cases hconn' : (oneSkeleton (levelSubcomplex assign l)).Connected
-  · -- Connected case: use standard theorem
-    rw [H1Characterization.h1_trivial_iff_oneConnected (hconn := hconn')]
-    exact h_level_acyclic
+  · -- Connected case: use direct theorem (doesn't need hollow hypothesis)
+    exact H1Characterization.oneConnected_implies_h1_trivial (levelSubcomplex assign l) h_level_acyclic hconn'
   · -- Disconnected case: use acyclic_implies_h1_trivial (works for forests)
     -- A disconnected acyclic graph (forest) still has H¹ = 0
     exact H1Characterization.acyclic_implies_h1_trivial (levelSubcomplex assign l) h_level_acyclic

@@ -17,6 +17,33 @@ namespace H1Characterization
 
 open Foundations SimpleGraph
 
+/-! ## Small Graphs are Hollow -/
+
+/-- A simplicial complex with < 3 vertices has no filled triangles.
+    A 2-simplex requires at least 3 vertices. -/
+theorem small_graph_hollow (K : SimplicialComplex)
+    [Fintype K.vertexSet] (h : Fintype.card K.vertexSet < 3) :
+    hasNoFilledTriangles K := by
+  unfold hasNoFilledTriangles SimplicialComplex.ksimplices
+  ext s
+  simp only [Set.mem_setOf_eq, Set.mem_empty_iff_false, iff_false, not_and]
+  intro hs_mem hs_card
+  -- s has card 3 but K.vertexSet has < 3 elements
+  -- Every vertex in s must be in K.vertexSet
+  have h_all_in : ∀ v ∈ s, v ∈ K.vertexSet :=
+    fun v hv => SimplicialComplex.vertex_of_mem_simplex K s hs_mem v hv
+  -- So s.card ≤ |K.vertexSet|
+  have h_card_le : s.card ≤ Fintype.card K.vertexSet := by
+    have h_inj : Function.Injective (fun v : s => (⟨v.val, h_all_in v.val v.property⟩ : K.vertexSet)) := by
+      intro ⟨a, _⟩ ⟨b, _⟩ hab
+      simp only [Subtype.mk.injEq] at hab
+      exact Subtype.ext hab
+    have := Fintype.card_le_of_injective _ h_inj
+    simp only [Fintype.card_coe] at this
+    exact this
+  -- But s.card = 3 and |K.vertexSet| < 3
+  omega
+
 /-! ## Single Vertex Graphs -/
 
 /-- A graph on 0 or 1 vertex is acyclic (no cycles possible) -/
@@ -70,7 +97,8 @@ theorem h1_trivial_single_vertex (K : SimplicialComplex)
     [Fintype K.vertexSet] [Nonempty K.vertexSet]
     (h : Fintype.card K.vertexSet = 1) :
     H1Trivial K := by
-  rw [h1_trivial_iff_oneConnected (hconn := single_vertex_connected K h)]
+  have hhollow : hasNoFilledTriangles K := small_graph_hollow K (by omega)
+  rw [h1_trivial_iff_oneConnected (hhollow := hhollow) (hconn := single_vertex_connected K h)]
   exact single_vertex_acyclic K (le_of_eq h)
 
 /-! ## Empty Graph -/
@@ -113,7 +141,8 @@ theorem h1_trivial_two_vertex (K : SimplicialComplex)
     (h : Fintype.card K.vertexSet = 2)
     (hconn : (oneSkeleton K).Connected) :
     H1Trivial K := by
-  rw [h1_trivial_iff_oneConnected (hconn := hconn)]
+  have hhollow : hasNoFilledTriangles K := small_graph_hollow K (by omega)
+  rw [h1_trivial_iff_oneConnected (hhollow := hhollow) (hconn := hconn)]
   exact two_vertex_acyclic K h
 
 /-! ## Path Graphs (Trees) -/
@@ -162,7 +191,8 @@ theorem h1_trivial_small (K : SimplicialComplex)
     (h : Fintype.card K.vertexSet < 3)
     (hconn : (oneSkeleton K).Connected) :
     H1Trivial K := by
-  rw [h1_trivial_iff_oneConnected (hconn := hconn)]
+  have hhollow : hasNoFilledTriangles K := small_graph_hollow K h
+  rw [h1_trivial_iff_oneConnected (hhollow := hhollow) (hconn := hconn)]
   exact lt_three_vertices_oneConnected K h
 
 #check h1_trivial_small  -- Main theorem: small graphs have H¹ = 0

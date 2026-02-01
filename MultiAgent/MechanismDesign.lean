@@ -307,28 +307,6 @@ theorem global_ic_implies_local (M : Mechanism) (u : Utility)
 axiom h1_zero_local_global_ic (M : Mechanism) (u : Utility) :
   (mechanismNetwork M).isForest → M.isLocallyIC u → M.isGloballyIC u
 
-/-- H¹ ≠ 0 can block IC extension
-
-    When mechanism network has cycles (H¹ ≠ 0),
-    local IC may not extend to global - this is the
-    cohomological interpretation of impossibility theorems.
-
-    Deep cohomological connection: Cycles (H¹ ≠ 0) create obstructions. With ≥3 agents
-    and ≥3 outcomes, there exist utilities where local IC holds but global IC fails.
-    The cycles allow profitable deviation loops: even if each pairwise interaction is
-    IC, a cycle of deviations can give net strategic advantage.
-
-    Full proof requires: Constructing utility functions with cyclic preferences,
-    showing these create non-trivial 1-cocycles (deviation cycles with net gain),
-    and demonstrating that non-zero H¹ permits such cocycles to exist (not all are
-    coboundaries). This is dual to the forest case where H¹ = 0 forces all cocycles
-    to be exact.
-
-    This is one of the 2 cohomological interpretation axioms. -/
-axiom h1_pos_ic_obstruction (M : Mechanism) :
-  mechanismH1 M > 0 → M.numAgents ≥ 3 → M.numOutcomes ≥ 3 →
-    ∃ u : Utility, M.isLocallyIC u ∧ ¬M.isGloballyIC u
-
 /-- The gap is mechanism impossibility -/
 theorem ic_gap_impossibility (M : Mechanism) (u : Utility)
     (hloc : M.isLocallyIC u) (hnotglob : ¬M.isGloballyIC u) :

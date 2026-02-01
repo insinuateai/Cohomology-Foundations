@@ -1,13 +1,14 @@
 /-
   H1Characterization/Characterization.lean
 
-  THE MAIN THEOREM: H¹(K) = 0 ↔ OneConnected K (for connected complexes)
+  THE MAIN THEOREM: H¹(K) = 0 ↔ OneConnected K (for connected hollow complexes)
 
-  Requires connectivity hypothesis for the reverse direction (tree → H¹=0).
-  The forward direction (H¹=0 → acyclic) holds without connectivity.
+  Requires:
+  - Connectivity hypothesis for the reverse direction (tree → H¹=0)
+  - hasNoFilledTriangles hypothesis for the forward direction (H¹=0 → acyclic)
 
   SORRIES: 0
-  AXIOMS: 0 (axiom eliminated by requiring connectivity)
+  AXIOMS: 0 (eliminated by requiring hasNoFilledTriangles + connectivity)
 -/
 
 import H1Characterization.ForestCoboundary
@@ -24,18 +25,22 @@ open Perspective (hollowTriangle)
 /-- The main theorem for tree complexes (connected + acyclic):
     H¹(K) = 0 ⟺ the 1-skeleton is acyclic.
 
-    Note: Requires connectivity hypothesis. For disconnected forests,
-    the characterization holds per-component. -/
+    Requires:
+    - Connectivity hypothesis for the reverse direction
+    - hasNoFilledTriangles hypothesis for the forward direction
+
+    For complexes with filled 2-simplices, the cycle indicator may not be a cocycle,
+    so the forward direction does not hold in general. -/
 theorem h1_trivial_iff_oneConnected (K : SimplicialComplex) [Nonempty K.vertexSet]
-    (hconn : (oneSkeleton K).Connected) :
+    (hhollow : hasNoFilledTriangles K) (hconn : (oneSkeleton K).Connected) :
     H1Trivial K ↔ OneConnected K := by
   constructor
-  · exact h1_trivial_implies_oneConnected K
+  · exact h1_trivial_implies_oneConnected K hhollow
   · exact fun hK => oneConnected_implies_h1_trivial K hK hconn
 
 theorem h1_trivial_iff_acyclic (K : SimplicialComplex) [Nonempty K.vertexSet]
-    (hconn : (oneSkeleton K).Connected) :
-    H1Trivial K ↔ (oneSkeleton K).IsAcyclic := h1_trivial_iff_oneConnected K hconn
+    (hhollow : hasNoFilledTriangles K) (hconn : (oneSkeleton K).Connected) :
+    H1Trivial K ↔ (oneSkeleton K).IsAcyclic := h1_trivial_iff_oneConnected K hhollow hconn
 
 /-! ## Test Cases -/
 

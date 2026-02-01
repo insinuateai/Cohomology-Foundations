@@ -4,9 +4,16 @@ Lean4 formalization of cohomology theory with applications to multi-agent coordi
 
 ## Session Protocol
 
-**START:** Read `.claude/skill-document.md` for patterns and pitfalls.
+**START:**
+1. Read `.claude/skill-document.md` for patterns and pitfalls
+2. Read `.claude/handoff.md` for previous session state (if exists)
+3. If working on axiom elimination, check `.claude/axiom-registry.md`
 
-**END:** Update `.claude/skill-document.md` with learnings (pitfalls discovered, tactics that worked, anti-patterns to avoid). If >100 lines, compress: consolidate similar entries, remove stale info, prune verbose examples.
+**END:**
+1. Update `.claude/skill-document.md` with learnings (if >100 lines, compress)
+2. Write `.claude/handoff.md` with session summary (overwrites previous)
+3. If axiom status changed, update `.claude/axiom-registry.md`
+4. Run `make axiom-count` to verify progress
 
 ## Goals
 

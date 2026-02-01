@@ -348,10 +348,10 @@ theorem deadlock_min_agents_aux {S : Type*} [Fintype S] [DecidableEq S] [Nonempt
       exact @Fintype.card_pos_iff _ (valueComplex_vertexSet_fintype N.toValueSystems N.threshold) |>.mp h_pos
 
   -- Apply the characterization: acyclic 1-skeleton implies H¹ = 0
+  -- Use the direct theorem (oneConnected_implies_h1_trivial) which doesn't need hollow hypothesis
   have h_h1_trivial : H1Trivial K := by
     have hconn' : (oneSkeleton K).Connected := by rw [hK]; exact hconn
-    rw [@H1Characterization.h1_trivial_iff_acyclic K h_nonempty hconn']
-    exact h_acyclic
+    exact H1Characterization.oneConnected_implies_h1_trivial K h_acyclic hconn'
 
   -- This contradicts h : ¬H1Trivial K
   exact h h_h1_trivial

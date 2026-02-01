@@ -77,8 +77,8 @@ theorem incremental_add_vertex_aux (K K' : SimplicialComplex) [Nonempty K.vertex
     [Nonempty K'.vertexSet]
     (hconn : (oneSkeleton K').Connected)
     (h_acyclic : (oneSkeleton K').IsAcyclic) :
-    H1Trivial K' := by
-  exact (H1Characterization.h1_trivial_iff_acyclic K' hconn).mpr h_acyclic
+    H1Trivial K' :=
+  H1Characterization.oneConnected_implies_h1_trivial K' h_acyclic hconn
 
 /-- THEOREM: Adding an edge preserves H¹=0 when the extension preserves acyclicity.
 
@@ -92,8 +92,8 @@ theorem incremental_add_edge_aux (K K' : SimplicialComplex) [Nonempty K.vertexSe
     [Nonempty K'.vertexSet]
     (hconn : (oneSkeleton K').Connected)
     (h_acyclic : (oneSkeleton K').IsAcyclic) :
-    H1Trivial K' := by
-  exact (H1Characterization.h1_trivial_iff_acyclic K' hconn).mpr h_acyclic
+    H1Trivial K' :=
+  H1Characterization.oneConnected_implies_h1_trivial K' h_acyclic hconn
 
 /-- Subcomplex is reflexive -/
 theorem isSubcomplex_refl (K : SimplicialComplex) : K ⊆ₛ K := 
@@ -311,7 +311,7 @@ If K has H¹ = 0 and we remove anything, H¹ stays 0.
 (Removing can't create cycles, only destroy them.)
 -/
 theorem incremental_remove_preserves (K : SimplicialComplex) [Nonempty K.vertexSet]
-    (hconn : (oneSkeleton K).Connected)
+    (hhollow : H1Characterization.hasNoFilledTriangles K) (hconn : (oneSkeleton K).Connected)
     (h_K : H1Trivial K)
     (s : Simplex) (_hs : s ∈ K.simplices)
     -- Need at least one vertex that survives removal (s doesn't fit in that vertex)
@@ -338,7 +338,7 @@ theorem incremental_remove_preserves (K : SimplicialComplex) [Nonempty K.vertexS
   -- Removing simplices can disconnect the complex but preserves acyclicity.
   -- Get acyclicity of K first
   have h_K_acyclic : (oneSkeleton K).IsAcyclic := by
-    rw [H1Characterization.h1_trivial_iff_oneConnected (hconn := hconn)] at h_K
+    rw [H1Characterization.h1_trivial_iff_oneConnected (hhollow := hhollow) (hconn := hconn)] at h_K
     exact h_K
 
   -- Construct the vertex embedding
@@ -378,9 +378,8 @@ theorem incremental_remove_preserves (K : SimplicialComplex) [Nonempty K.vertexS
 
   -- Case split on connectivity
   by_cases hconn' : (oneSkeleton (removeSimplex K s)).Connected
-  · -- Connected case: use standard theorem
-    rw [H1Characterization.h1_trivial_iff_oneConnected (hconn := hconn')]
-    exact h_removed_acyclic
+  · -- Connected case: use direct theorem (doesn't need hollow hypothesis)
+    exact H1Characterization.oneConnected_implies_h1_trivial (removeSimplex K s) h_removed_acyclic hconn'
   · -- Disconnected case: use acyclic_implies_h1_trivial (works for forests)
     -- A disconnected acyclic graph (forest) still has H¹ = 0
     exact H1Characterization.acyclic_implies_h1_trivial (removeSimplex K s) h_removed_acyclic

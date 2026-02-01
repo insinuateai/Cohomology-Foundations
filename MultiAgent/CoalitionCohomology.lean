@@ -128,18 +128,6 @@ def CoalitionGame.isConvex (G : CoalitionGame) : Prop :=
     c₁ ⊆ c₂ → c₂ ⊆ G.agents → a ∉ c₂ →
     G.value (insert a c₂) - G.value c₂ ≥ G.value (insert a c₁) - G.value c₁
 
-/-- Superadditivity of Convex Games.
-    Reference: Shapley (1971)
-
-    Convex games are superadditive. This is a classical result in cooperative
-    game theory. The proof proceeds by building up c₁ ∪ c₂ one element at a time,
-    using convexity to show each marginal contribution is at least as large as
-    in the separate coalitions.
-
-    Reference: Shapley, L.S. (1971). "Cores of Convex Games" -/
-axiom CoalitionGame.convex_implies_superadditive (G : CoalitionGame)
-    (_h : G.isConvex) : G.isSuperadditive
-
 /-- Shapley value: fair allocation -/
 def CoalitionGame.shapleyValue (G : CoalitionGame) (a : Agent) : ℚ :=
   -- Simplified: average marginal contribution
@@ -155,17 +143,6 @@ def CoalitionGame.core (G : CoalitionGame) : Set (Agent → ℚ) :=
   {x | (∀ a ∈ G.agents, 0 ≤ x a) ∧ 
        G.agents.sum x = G.grandValue ∧
        ∀ c : Coalition, c ⊆ G.agents → c.sum x ≥ G.value c}
-
-/-- Shapley's Theorem on Convex Games.
-    Reference: Shapley, L.S. (1971). "Cores of Convex Games"
-    Convex games have non-empty cores.
-
-    For convex games, the Shapley value lies in the core. This is a fundamental
-    result in cooperative game theory establishing that convex games are balanced.
-
-    Reference: Ichiishi (1981), "Super-modularity: Applications to Convex Games" -/
-axiom CoalitionGame.convex_nonempty_core (G : CoalitionGame)
-    (_h : G.isConvex) : (G.core).Nonempty
 
 /-- Empty core means instability -/
 theorem CoalitionGame.empty_core_unstable (G : CoalitionGame)
@@ -258,33 +235,6 @@ theorem stable_when_h1_zero (G : CoalitionGame) (h : coalitionH1 G = 0) :
     G.agents = ∅ := by
   simp only [coalitionH1, Finset.card_eq_zero] at h
   exact h
-
-/-- Core nonempty relates to H¹
-
-    The connection between core nonemptiness (balancedness) and cohomological
-    structure is a deep result in cooperative game theory. For the full
-    cohomological H¹ (not the simplified card-based version), balanced games
-    have trivial H¹ on the coalition complex.
-
-    Our simplified coalitionH1 = agents.card doesn't capture the full cohomological
-    structure, so we axiomatize this deep game-theoretic result.
-
-    Reference: Bondareva (1963), Shapley (1967) - characterization of balanced games -/
-axiom core_h1_relation (G : CoalitionGame) :
-    G.isBalanced → coalitionH1 G = 0 ∨ G.agents.card ≤ 2
-
-/-- Convex game has H¹ = 0 (simplified)
-
-    Convex games have particularly nice structure - they are totally balanced,
-    meaning every subgame has a nonempty core. This implies cohomological
-    triviality on the coalition complex.
-
-    Our simplified coalitionH1 = agents.card doesn't capture the full cohomological
-    structure needed for this deep result, so we axiomatize it.
-
-    Reference: Shapley (1971), "Cores of Convex Games" -/
-axiom convex_h1_zero (G : CoalitionGame) :
-    G.isConvex → coalitionH1 G = 0 ∨ G.agents.card ≤ 2
 
 /-- Triangle of coalitions -/
 theorem coalition_triangle (G : CoalitionGame) (a b c : Agent)

@@ -268,18 +268,6 @@ def StrategicGame.isPotentialGame (G : StrategicGame) : Prop :=
       G.payoff a (fun p => if p = a then action else profile p) - G.payoff a profile =
       potential (fun p => if p = a then action else profile p) - potential profile
 
-/-- Potential Games have Pure Nash Equilibria.
-    Reference: Monderer & Shapley (1996). "Potential Games"
-
-    This is a fundamental theorem in game theory. The proof constructs
-    the potential-maximizing profile which is necessarily Nash.
-
-    At the potential maximum, no unilateral deviation increases potential,
-    hence by the potential property, no deviation increases payoff. -/
-axiom StrategicGame.potential_has_nash (G : StrategicGame)
-    (_ : G.isPotentialGame) (_ : G.players.Nonempty)
-    (hacts : ∀ a ∈ G.players, (G.actions a).Nonempty) : G.nashExists
-
 /-- Well-formed games have nonempty action sets.
     A game where a player has no actions is degenerate and not meaningful
     for game-theoretic analysis. This is a reasonable structural assumption. -/

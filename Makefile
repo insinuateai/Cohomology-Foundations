@@ -6,7 +6,8 @@ CORES := $(shell nproc 2>/dev/null || echo 4)
 
 .PHONY: all fast full clean check watch lib timing profile slow-modules deps deps-png monitor \
         tmpfs-mount tmpfs-unmount tmpfs-status tmpfs-save tmpfs-restore \
-        tmpfs-autosave tmpfs-autosave-disable tmpfs-autosave-status
+        tmpfs-autosave tmpfs-autosave-disable tmpfs-autosave-status \
+        axiom-count axiom-report axiom-list
 
 # Default: fast incremental build (only modified modules)
 all: fast
@@ -231,6 +232,29 @@ tmpfs-autosave-status:
 		echo "Auto-save: NOT RUNNING"; \
 	fi
 
+# === Axiom Tracking ===
+
+# Quick axiom count by directory
+axiom-count:
+	@echo "=== Axiom Count by Directory ==="
+	@for dir in Perspective MultiAgent Theories Infrastructure H1Characterization Foundations; do \
+		if [ -d $$dir ]; then \
+			count=$$(grep -rc "^axiom " $$dir --include="*.lean" 2>/dev/null | awk -F: '{sum+=$$2} END {print sum+0}'); \
+			printf "  %-20s %3d\n" "$$dir/" "$$count"; \
+		fi; \
+	done
+	@echo "  ────────────────────────"
+	@printf "  %-20s %3d\n" "TOTAL" "$$(grep -rc '^axiom ' . --include='*.lean' | grep -v '\.lake' | awk -F: '{sum+=$$2} END {print sum}')"
+
+# Full axiom report to .claude/axiom-report.md
+axiom-report:
+	@./scripts/axiom-report.sh
+
+# Quick axiom list with files
+axiom-list:
+	@grep -rn "^axiom " . --include="*.lean" | grep -v "\.lake" | \
+		sed 's/:axiom /:  /' | sort
+
 help:
 	@echo "Available targets:"
 	@echo "  fast       - Fast incremental build (default)"
@@ -261,6 +285,11 @@ help:
 	@echo "Dependency analysis:"
 	@echo "  deps       - Generate import graph (deps.dot)"
 	@echo "  deps-png   - Convert to PNG (needs graphviz)"
+	@echo ""
+	@echo "Axiom tracking:"
+	@echo "  axiom-count  - Count axioms by directory"
+	@echo "  axiom-report - Generate full report (.claude/axiom-report.md)"
+	@echo "  axiom-list   - List all axioms with locations"
 	@echo ""
 	@echo "Library targets:"
 	@echo "  foundations, h1, perspective, infra"
