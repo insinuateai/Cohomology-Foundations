@@ -509,10 +509,66 @@ theorem deadlock_localization_aux {S : Type*} [Fintype S] [DecidableEq S] [Nonem
         · -- Connected: 2 vertices with 1 edge = tree
           exact @H1Characterization.h1_trivial_two_vertex K h_fintype h_nonempty h_card_2 hconn
         · -- Disconnected 2-vertex graph: no edges, so H1Trivial is vacuous
-          -- Proof sketch: any edge would connect the only 2 vertices, making it connected.
-          -- So hconn (not connected) implies no edges, making H1Trivial vacuously true.
-          -- TODO: Complete the formal proof showing 2-vertex + edge implies connected
-          sorry
+          -- Key insight: For 2 vertices, any edge would make them connected.
+          -- Since NOT connected, there can be no 1-simplices.
+          have h_no_edges : K.ksimplices 1 = ∅ := by
+            by_contra h_ne
+            apply hconn
+            -- There exists a 1-simplex, show this implies Connected
+            have ⟨e, he⟩ := Set.nonempty_iff_ne_empty.mpr h_ne
+            simp only [SimplicialComplex.ksimplices, Set.mem_setOf_eq] at he
+            obtain ⟨he_mem, he_card⟩ := he
+            -- e = {a, b} with a ≠ b
+            obtain ⟨a, b, hab, he_eq⟩ := Finset.card_eq_two.mp he_card
+            -- a and b are vertices (using vertex_of_mem_simplex)
+            have ha : a ∈ K.vertexSet :=
+              SimplicialComplex.vertex_of_mem_simplex K e he_mem a (by rw [he_eq]; simp)
+            have hb : b ∈ K.vertexSet :=
+              SimplicialComplex.vertex_of_mem_simplex K e he_mem b (by rw [he_eq]; simp)
+            -- a and b are adjacent in the 1-skeleton
+            have h_adj : (oneSkeleton K).Adj ⟨a, ha⟩ ⟨b, hb⟩ := by
+              simp only [oneSkeleton]
+              constructor
+              · exact hab
+              · rw [← he_eq]; exact he_mem
+            have h_reach : (oneSkeleton K).Reachable ⟨a, ha⟩ ⟨b, hb⟩ := h_adj.reachable
+            -- Every vertex is either a or b (since card = 2)
+            have h_dichotomy : ∀ w : K.vertexSet, w.val = a ∨ w.val = b := by
+              intro w
+              by_contra h_neither
+              push_neg at h_neither
+              -- a, b, w.val are 3 distinct vertices but card = 2
+              have h3 : ({⟨a, ha⟩, ⟨b, hb⟩, w} : Finset K.vertexSet).card = 3 := by
+                rw [Finset.card_insert_of_not_mem, Finset.card_insert_of_not_mem,
+                    Finset.card_singleton]
+                · simp only [Finset.mem_singleton, Subtype.mk.injEq]
+                  exact h_neither.2
+                · simp only [Finset.mem_insert, Finset.mem_singleton, Subtype.mk.injEq]
+                  push_neg; exact ⟨h_neither.1, h_neither.2⟩
+              have hle : ({⟨a, ha⟩, ⟨b, hb⟩, w} : Finset K.vertexSet).card ≤
+                         @Fintype.card K.vertexSet h_fintype := Finset.card_le_univ _
+              omega
+            -- Show connectedness
+            constructor
+            intro u v
+            obtain hu | hu := h_dichotomy u
+            · obtain hv | hv := h_dichotomy v
+              · -- u.val = a, v.val = a
+                have : u = v := Subtype.ext (hu.trans hv.symm)
+                rw [this]
+              · -- u.val = a, v.val = b
+                have hu' : u = ⟨a, ha⟩ := Subtype.ext hu
+                have hv' : v = ⟨b, hb⟩ := Subtype.ext hv
+                rw [hu', hv']; exact h_reach
+            · obtain hv | hv := h_dichotomy v
+              · -- u.val = b, v.val = a
+                have hu' : u = ⟨b, hb⟩ := Subtype.ext hu
+                have hv' : v = ⟨a, ha⟩ := Subtype.ext hv
+                rw [hu', hv']; exact h_reach.symm
+              · -- u.val = b, v.val = b
+                have : u = v := Subtype.ext (hu.trans hv.symm)
+                rw [this]
+          exact MultiAgent.h1_trivial_of_no_edges K h_no_edges
   -- Now construct the list of 3 agents
   have h1 : 0 < N.agents.length := by omega
   have h2 : 1 < N.agents.length := by omega
