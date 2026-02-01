@@ -227,12 +227,13 @@ axiom resolution_edge_exists_maximal_aux (K : SimplicialComplex) [Nonempty K.ver
     PROOF: H¹ ≠ 0 means the 1-skeleton has a cycle. Pick any edge from a cycle and
     remove it. This breaks at least one cycle, reducing H¹ dimension by at least 1. -/
 theorem resolution_edge_exists_aux (K : SimplicialComplex) [Nonempty K.vertexSet]
+    (hconn : (oneSkeleton K).Connected)
     (h : ¬H1Trivial K) :
     ∃ (e : Simplex) (he : e ∈ K.ksimplices 1) (he_card : e.card ≥ 2)
        (h_max : ∀ s ∈ K.simplices, s ≠ e → ¬(e ⊆ s ∧ e ≠ s)),
        H1Trivial (K.removeEdge e he_card h_max) := by
   -- From ¬H1Trivial, we can extract a cycle witness
-  obtain ⟨w, _⟩ := conflict_witness_exists K h
+  obtain ⟨w, _⟩ := conflict_witness_exists K hconn h
   -- The cycle has positive length, so it has at least one edge
   have h_edges_nonempty : w.cycle.edges.length > 0 := by
     have h_len := w.nontrivial
@@ -412,6 +413,7 @@ strategies will work:
 3. Remove some vertex
 -/
 theorem resolution_exists (K : SimplicialComplex) [Nonempty K.vertexSet]
+    (hconn : (oneSkeleton K).Connected)
     (h : ¬H1Trivial K) :
     -- There exists a modification that restores H¹ = 0
     (∃ (e : Simplex) (_he : e ∈ K.ksimplices 1) (he_card : e.card ≥ 2)
@@ -421,11 +423,11 @@ theorem resolution_exists (K : SimplicialComplex) [Nonempty K.vertexSet]
     (∃ v : Vertex, v ∈ K.vertexSet ∧ H1Trivial (K.removeVertex v)) := by
   -- At minimum, removing ANY edge from a cycle works
   -- Get the conflict witness
-  obtain ⟨_w, _⟩ := conflict_witness_exists K h
+  obtain ⟨_w, _⟩ := conflict_witness_exists K hconn h
   -- w.cycle has edges; removing any edge breaks the cycle
   -- For a minimal cycle (no shortcuts), this makes the graph acyclic locally
   left
-  exact resolution_edge_exists_aux K h
+  exact resolution_edge_exists_aux K hconn h
 
 /--
 COROLLARY: Every alignment conflict has a resolution.

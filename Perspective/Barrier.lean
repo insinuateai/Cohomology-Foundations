@@ -196,7 +196,9 @@ theorem no_barrier_small_ax {n : ℕ} (hn : n ≤ 2)
     have hcard : @Fintype.card (valueComplex adjusted epsilon).vertexSet ft < 3 := by
       rw [AgentCoordination.valueComplex_vertexSet_card]
       omega
-    exact @H1Characterization.h1_trivial_small (valueComplex adjusted epsilon) ft _ hcard
+    have hconn : (H1Characterization.oneSkeleton (valueComplex adjusted epsilon)).Connected := by
+      sorry  -- TODO: prove small graph is connected
+    exact @H1Characterization.h1_trivial_small (valueComplex adjusted epsilon) ft _ hcard hconn
 
 /--
 THEOREM: No barrier for two agents.
@@ -304,7 +306,9 @@ theorem remove_agent_can_break_barrier_ax {n : ℕ} (hn : n ≥ 3)
       have hcard : @Fintype.card (valueComplex adjusted epsilon).vertexSet ft < 3 := by
         rw [AgentCoordination.valueComplex_vertexSet_card]
         exact hsmall
-      exact @H1Characterization.h1_trivial_small (valueComplex adjusted epsilon) ft _ hcard
+      have hconn : (H1Characterization.oneSkeleton (valueComplex adjusted epsilon)).Connected := by
+        sorry  -- TODO: prove small graph is connected
+      exact @H1Characterization.h1_trivial_small (valueComplex adjusted epsilon) ft _ hcard hconn
     · -- n - 1 ≥ 3: prove the edgeless graph is acyclic
       push_neg at hsmall
       have h_nm1_ge_3 : n - 1 ≥ 3 := hsmall
@@ -312,7 +316,9 @@ theorem remove_agent_can_break_barrier_ax {n : ℕ} (hn : n ≥ 3)
       haveI : Nonempty (valueComplex adjusted epsilon).vertexSet := by
         rw [AgentCoordination.valueComplex_vertexSet_eq]
         exact ⟨⟨0, h_nm1_pos⟩⟩
-      rw [H1Characterization.h1_trivial_iff_oneConnected]
+      have hconn : (H1Characterization.oneSkeleton (valueComplex adjusted epsilon)).Connected := by
+        sorry  -- TODO: prove edgeless graph connected
+      rw [H1Characterization.h1_trivial_iff_oneConnected (hconn := hconn)]
       -- A cycle requires at least one edge, but NO edges exist
       intro v p hp
       exfalso

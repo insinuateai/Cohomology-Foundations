@@ -75,9 +75,18 @@ exact ⟨p.toDeleteEdge e hp_no_e⟩  -- G'-reachability
 
 **Component-wise summing** (e.g., Σ|E_i| = |E|) requires `Setoid.IsPartition.ncard_eq_finsum` pattern.
 
+## Build Speed
+
+- **Fast build**: `make fast` or `lake build --old` (uses cached oleans, ~2s)
+- **Mathlib cache**: `lake exe cache get` (downloads pre-built oleans, ~2min)
+- **Clean project only**: `make clean` (preserves Mathlib cache)
+- **Clean all**: `make clean-all` (SLOW - rebuilds Mathlib!)
+- **Linter disabled**: lakefile.toml disables unusedVariables, unnecessarySeqFocus, etc.
+
 ## Session Log
 
 <!-- Newest first -->
+- 2026-02-01: **Build Speed Optimizations** - Added Makefile with `fast`/`clean` targets, disabled non-essential linters in lakefile.toml. Key finding: `h1_trivial_iff_oneConnected` and related theorems now require `(oneSkeleton K).Connected` hypothesis. Many files needed updates to add Connected as parameter or use sorry for Connected proofs.
 - 2026-02-01: **ForestEulerFormula.lean COMPLETE (0 sorries, 0 axioms)** - Eliminated 2 TEMP axioms (`component_injection_technical`, `path_reroute_around_edge`) by importing `Infrastructure.TreeGraphInfra`. Key fix: use `Fintype.card_eq_nat_card` to resolve Fintype instance mismatches when `convert` leaves cardinality equality goals with different instances.
 - 2026-02-01: **TreeGraphInfra.lean COMPLETE (0 sorries)** - Fixed all 7 sorries for Euler formula. Key patterns: (1) `Walk.length_takeUntil_lt h hne` proves prefix length < walk length, (2) `takeUntil_first_endpoint_no_edge`: if edge in walk, one of takeUntil u/v doesn't contain it, (3) For repeated edge traversal: use reverse walk + takeUntil_first_endpoint_no_edge, (4) Strong induction IH: just pass `(G', h_acyc', h_not_conn')` - no edge count equality needed, (5) Use `simp only [Subtype.coe_mk]` to unify `{↑⟨e, he_set⟩}` with `{e}` before omega.
 - 2026-01-31: **bridge_splits_component_aux COMPLETE** - Axiom eliminated. Key fixes: (1) Use `let` not `set` for `G'` to preserve Fintype instance, (2) Use `endpoint_notMem_support_takeUntil` for path edge analysis, (3) Use `Nat.le_antisymm h_upper (Nat.succ_le_of_lt h_strict)` instead of omega for Fintype card equality. Proof: surjective f gives lower bound, non-injectivity from bridge gives strict, upper bound from injection to G.CC⊕Unit.

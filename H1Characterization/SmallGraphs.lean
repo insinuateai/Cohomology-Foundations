@@ -53,12 +53,24 @@ theorem single_vertex_acyclic (K : SimplicialComplex)
   -- But we assumed card ≤ 1, contradiction
   omega
 
+/-- A single vertex graph is always connected -/
+theorem single_vertex_connected (K : SimplicialComplex)
+    [Fintype K.vertexSet] [Nonempty K.vertexSet]
+    (h : Fintype.card K.vertexSet = 1) :
+    (oneSkeleton K).Connected := by
+  constructor
+  intro v w
+  -- With only 1 vertex, v = w
+  have : Subsingleton K.vertexSet := Fintype.card_le_one_iff_subsingleton.mp (le_of_eq h)
+  have heq : v = w := Subsingleton.elim v w
+  rw [heq]
+
 /-- H¹ = 0 for single vertex complexes -/
 theorem h1_trivial_single_vertex (K : SimplicialComplex)
     [Fintype K.vertexSet] [Nonempty K.vertexSet]
     (h : Fintype.card K.vertexSet = 1) :
     H1Trivial K := by
-  rw [h1_trivial_iff_oneConnected]
+  rw [h1_trivial_iff_oneConnected (hconn := single_vertex_connected K h)]
   exact single_vertex_acyclic K (le_of_eq h)
 
 /-! ## Empty Graph -/
@@ -95,12 +107,13 @@ theorem two_vertex_acyclic (K : SimplicialComplex)
   -- But card = 2
   omega
 
-/-- H¹ = 0 for two vertex complexes -/
+/-- H¹ = 0 for two vertex complexes (when connected) -/
 theorem h1_trivial_two_vertex (K : SimplicialComplex)
     [Fintype K.vertexSet] [Nonempty K.vertexSet]
-    (h : Fintype.card K.vertexSet = 2) :
+    (h : Fintype.card K.vertexSet = 2)
+    (hconn : (oneSkeleton K).Connected) :
     H1Trivial K := by
-  rw [h1_trivial_iff_oneConnected]
+  rw [h1_trivial_iff_oneConnected (hconn := hconn)]
   exact two_vertex_acyclic K h
 
 /-! ## Path Graphs (Trees) -/
@@ -143,12 +156,13 @@ theorem lt_three_vertices_oneConnected (K : SimplicialComplex)
 
 /-! ## Summary -/
 
-/-- Main small graph theorem: < 3 vertices implies H¹ = 0 -/
+/-- Main small graph theorem: < 3 vertices + connected implies H¹ = 0 -/
 theorem h1_trivial_small (K : SimplicialComplex)
     [Fintype K.vertexSet] [Nonempty K.vertexSet]
-    (h : Fintype.card K.vertexSet < 3) :
+    (h : Fintype.card K.vertexSet < 3)
+    (hconn : (oneSkeleton K).Connected) :
     H1Trivial K := by
-  rw [h1_trivial_iff_oneConnected]
+  rw [h1_trivial_iff_oneConnected (hconn := hconn)]
   exact lt_three_vertices_oneConnected K h
 
 #check h1_trivial_small  -- Main theorem: small graphs have H¹ = 0

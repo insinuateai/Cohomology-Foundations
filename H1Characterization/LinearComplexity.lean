@@ -175,13 +175,14 @@ noncomputable instance oneConnected_decidable' (K : SimplicialComplex)
   rw [← euler_iff_oneConnected]
   infer_instance
 
-/-- H¹ = 0 is decidable for finite complexes -/
+/-- H¹ = 0 is decidable for finite connected complexes -/
 noncomputable instance h1Trivial_decidable' (K : SimplicialComplex)
     [Fintype K.vertexSet] [Fintype (K.ksimplices 1)]
     [DecidableEq K.vertexSet] [DecidableRel (oneSkeleton K).Adj]
-    [Nonempty K.vertexSet] :
+    [Nonempty K.vertexSet]
+    (hconn : (oneSkeleton K).Connected) :
     Decidable (H1Trivial K) := by
-  rw [h1_trivial_iff_oneConnected]
+  rw [h1_trivial_iff_oneConnected (hconn := hconn)]
   infer_instance
 
 /-! ## Part 4: Complexity Analysis

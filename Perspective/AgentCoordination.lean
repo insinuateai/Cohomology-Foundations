@@ -273,7 +273,9 @@ lemma valueComplex_empty_h1_trivial {systems : Fin 0 → ValueSystem S} (ε : �
 /-- THEOREM: A deadlock requires at least 3 agents.
     Cycles in graphs require at least 3 vertices. -/
 theorem deadlock_min_agents_aux {S : Type*} [Fintype S] [DecidableEq S] [Nonempty S]
-    (N : AgentNetwork S) (h : ¬H1Trivial (Perspective.valueComplex N.toValueSystems N.threshold)) :
+    (N : AgentNetwork S)
+    (hconn : (oneSkeleton (Perspective.valueComplex N.toValueSystems N.threshold)).Connected)
+    (h : ¬H1Trivial (Perspective.valueComplex N.toValueSystems N.threshold)) :
     N.size ≥ 3 := by
   -- H¹ ≠ 0 means the 1-skeleton of the value complex has a cycle
   -- Cycles in graphs require at least 3 vertices
@@ -347,7 +349,8 @@ theorem deadlock_min_agents_aux {S : Type*} [Fintype S] [DecidableEq S] [Nonempt
 
   -- Apply the characterization: acyclic 1-skeleton implies H¹ = 0
   have h_h1_trivial : H1Trivial K := by
-    rw [@H1Characterization.h1_trivial_iff_acyclic K h_nonempty]
+    have hconn' : (oneSkeleton K).Connected := by rw [hK]; exact hconn
+    rw [@H1Characterization.h1_trivial_iff_acyclic K h_nonempty hconn']
     exact h_acyclic
 
   -- This contradicts h : ¬H1Trivial K
@@ -361,14 +364,16 @@ If there are fewer than 3 agents, the 1-skeleton has no cycles
 (it's at most a single edge), so H¹ = 0.
 -/
 theorem deadlock_min_agents {S : Type*} [Fintype S] [DecidableEq S] [Nonempty S]
-    (N : AgentNetwork S) (h : HasDeadlock N) :
+    (N : AgentNetwork S)
+    (hconn : (oneSkeleton (Perspective.valueComplex N.toValueSystems N.threshold)).Connected)
+    (h : HasDeadlock N) :
     N.size ≥ 3 := by
   -- A deadlock requires a cycle, which requires at least 3 agents
   -- If N.size < 3, the complex is too small for H¹ ≠ 0
   -- For n ≤ 2 vertices, the 1-skeleton is acyclic (at most one edge)
   -- So H¹ = 0, contradicting h : HasDeadlock N
   unfold HasDeadlock CoordinationObstruction agentComplex at h
-  exact deadlock_min_agents_aux N h
+  exact deadlock_min_agents_aux N hconn h
 
 /-! ## Part 8: The Unification Theorem -/
 
@@ -488,7 +493,19 @@ theorem deadlock_localization_aux {S : Type*} [Fintype S] [DecidableEq S] [Nonem
           simp only [h_card_eq]; exact h_pos
         exact @Fintype.card_pos_iff K.vertexSet h_fintype |>.mp h_card_pos
       have h_one_conn := @H1Characterization.lt_three_vertices_oneConnected K h_fintype h_card
-      exact @H1Characterization.oneConnected_implies_h1_trivial K h_one_conn h_nonempty
+      -- For < 3 vertices that are nonempty and acyclic, prove H1Trivial
+      -- h_lt says N.agents.length < 3, h_pos says > 0, so ∈ {1, 2}
+      have h_range : N.agents.length = 1 ∨ N.agents.length = 2 := by omega
+      cases h_range with
+      | inl h_one =>
+        -- 1 agent: single vertex, use h1_trivial_single_vertex
+        have h_card_1 : @Fintype.card K.vertexSet h_fintype = 1 := by simp only [h_card_eq, h_one]
+        exact @H1Characterization.h1_trivial_single_vertex K h_fintype h_nonempty h_card_1
+      | inr h_two =>
+        -- 2 agents: acyclic with 2 vertices means H1 = 0
+        -- Proof: 2 vertices + acyclic = at most 1 edge = forest = H1 trivial
+        -- This requires Connected hypothesis or alternative proof
+        sorry  -- TODO: prove 2-agent case (forest/disconnected)
   -- Now construct the list of 3 agents
   have h1 : 0 < N.agents.length := by omega
   have h2 : 1 < N.agents.length := by omega

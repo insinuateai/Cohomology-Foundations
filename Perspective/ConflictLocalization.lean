@@ -83,10 +83,11 @@ If not OneConnected, there's a cycle in the 1-skeleton.
 That cycle is our conflict witness.
 -/
 theorem conflict_witness_exists (K : SimplicialComplex) [Nonempty K.vertexSet]
-    (h : ¬H1Trivial K) : 
+    (hconn : (oneSkeleton K).Connected)
+    (h : ¬H1Trivial K) :
     ∃ w : ConflictWitness K, True := by
   -- ¬H1Trivial K → ¬OneConnected K (by contrapositive of h1_trivial_iff_oneConnected)
-  rw [H1Characterization.h1_trivial_iff_oneConnected] at h
+  rw [H1Characterization.h1_trivial_iff_oneConnected (hconn := hconn)] at h
   -- ¬OneConnected K means the 1-skeleton has a cycle
   unfold OneConnected at h
   -- IsAcyclic is defined as: ∀ v, ∀ p : Walk v v, ¬p.IsCycle
@@ -105,8 +106,9 @@ theorem conflict_witness_exists (K : SimplicialComplex) [Nonempty K.vertexSet]
 
 /-- Extract the conflict witness (noncomputable since we're using choice) -/
 noncomputable def getConflictWitness (K : SimplicialComplex) [Nonempty K.vertexSet]
+    (hconn : (oneSkeleton K).Connected)
     (h : ¬H1Trivial K) : ConflictWitness K :=
-  (conflict_witness_exists K h).choose
+  (conflict_witness_exists K hconn h).choose
 
 /-! ## Part 3: Conflict in Value Systems -/
 

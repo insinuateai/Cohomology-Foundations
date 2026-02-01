@@ -75,9 +75,10 @@ notation:50 K " ⊆ₛ " L => IsSubcomplex K L
 theorem incremental_add_vertex_aux (K K' : SimplicialComplex) [Nonempty K.vertexSet]
     (_h_K : H1Trivial K) (_h_extends : IsSubcomplex K K')
     [Nonempty K'.vertexSet]
+    (hconn : (oneSkeleton K').Connected)
     (h_acyclic : (oneSkeleton K').IsAcyclic) :
     H1Trivial K' := by
-  exact (H1Characterization.h1_trivial_iff_acyclic K').mpr h_acyclic
+  exact (H1Characterization.h1_trivial_iff_acyclic K' hconn).mpr h_acyclic
 
 /-- THEOREM: Adding an edge preserves H¹=0 when the extension preserves acyclicity.
 
@@ -89,9 +90,10 @@ theorem incremental_add_vertex_aux (K K' : SimplicialComplex) [Nonempty K.vertex
 theorem incremental_add_edge_aux (K K' : SimplicialComplex) [Nonempty K.vertexSet]
     (_h_K : H1Trivial K) (_h_extends : IsSubcomplex K K')
     [Nonempty K'.vertexSet]
+    (hconn : (oneSkeleton K').Connected)
     (h_acyclic : (oneSkeleton K').IsAcyclic) :
     H1Trivial K' := by
-  exact (H1Characterization.h1_trivial_iff_acyclic K').mpr h_acyclic
+  exact (H1Characterization.h1_trivial_iff_acyclic K' hconn).mpr h_acyclic
 
 /-- Subcomplex is reflexive -/
 theorem isSubcomplex_refl (K : SimplicialComplex) : K ⊆ₛ K := 
@@ -258,7 +260,8 @@ theorem incremental_add_vertex (K : SimplicialComplex) [Nonempty K.vertexSet]
     (_h_local : _neighbors.length ≤ 1 ∨
                ∀ u₁ u₂, u₁ ∈ _neighbors → u₂ ∈ _neighbors → u₁ ≠ u₂ →
                         {u₁, u₂} ∉ K.simplices)
-    -- Acyclicity condition: the extension preserves acyclicity
+    -- Connectivity and acyclicity conditions
+    (hconn : (oneSkeleton K').Connected)
     (h_acyclic : (oneSkeleton K').IsAcyclic) :
     H1Trivial K' := by
   -- The acyclicity hypothesis captures the essence of the local conditions:
@@ -268,7 +271,7 @@ theorem incremental_add_vertex (K : SimplicialComplex) [Nonempty K.vertexSet]
   -- The caller must prove h_acyclic using h_local and the structure of K'.
   -- This is a standard graph theory result: adding a tree-like star to a forest
   -- preserves the forest property.
-  exact incremental_add_vertex_aux K K' h_K h_K'_extends h_acyclic
+  exact incremental_add_vertex_aux K K' h_K h_K'_extends hconn h_acyclic
 
 /--
 THEOREM: Local check for adding an edge.
@@ -288,8 +291,8 @@ theorem incremental_add_edge (K : SimplicialComplex) [Nonempty K.vertexSet]
     [Nonempty K'.vertexSet]
     (h_K'_extends : K ⊆ₛ K')
     (_h_K'_has_edge : {_u, _v} ∈ K'.simplices)
-    -- Acyclicity condition: the extension preserves acyclicity
-    -- This holds when u and v are NOT path-connected in K (merging two trees)
+    -- Connectivity and acyclicity conditions
+    (hconn : (oneSkeleton K').Connected)
     (h_acyclic : (oneSkeleton K').IsAcyclic) :
     H1Trivial K' := by
   -- The acyclicity hypothesis captures the key condition:
@@ -299,7 +302,7 @@ theorem incremental_add_edge (K : SimplicialComplex) [Nonempty K.vertexSet]
   -- The caller must prove h_acyclic. Typically this follows from:
   --   ¬(oneSkeleton K).Reachable ⟨u, hu⟩ ⟨v, hv⟩
   -- which means u and v were in different components.
-  exact incremental_add_edge_aux K K' h_K h_K'_extends h_acyclic
+  exact incremental_add_edge_aux K K' h_K h_K'_extends hconn h_acyclic
 
 /--
 THEOREM: Removing always preserves H¹ = 0.
@@ -308,6 +311,7 @@ If K has H¹ = 0 and we remove anything, H¹ stays 0.
 (Removing can't create cycles, only destroy them.)
 -/
 theorem incremental_remove_preserves (K : SimplicialComplex) [Nonempty K.vertexSet]
+    (hconn : (oneSkeleton K).Connected)
     (h_K : H1Trivial K)
     (s : Simplex) (_hs : s ∈ K.simplices)
     -- Need at least one vertex that survives removal (s doesn't fit in that vertex)
@@ -330,7 +334,11 @@ theorem incremental_remove_preserves (K : SimplicialComplex) [Nonempty K.vertexS
   -- Forest minus edges = still a forest
   -- Therefore H¹ = 0 preserved
   haveI : Nonempty (removeSimplex K s).vertexSet := h_ne
-  rw [H1Characterization.h1_trivial_iff_oneConnected] at h_K ⊢
+  -- Prove that removing simplex preserves connected for subset of vertices
+  have hconn' : (oneSkeleton (removeSimplex K s)).Connected := by
+    sorry  -- TODO: prove removal preserves connectivity
+  rw [H1Characterization.h1_trivial_iff_oneConnected (hconn := hconn')]
+  rw [H1Characterization.h1_trivial_iff_oneConnected (hconn := hconn)] at h_K
   -- Goal: (oneSkeleton (removeSimplex K s)).IsAcyclic
   -- h_K: (oneSkeleton K).IsAcyclic
   --

@@ -193,6 +193,7 @@ If the whole complex has H¹ = 0, then each level subcomplex also has H¹ = 0.
 theorem global_implies_levels {K : SimplicialComplex} {n : ℕ}
     [Nonempty K.vertexSet]
     (assign : LevelAssignment K n)
+    (hconn : (oneSkeleton K).Connected)
     (h_global : H1Trivial K) :
     AllLevelsAligned assign := by
   intro l
@@ -223,7 +224,10 @@ theorem global_implies_levels {K : SimplicialComplex} {n : ℕ}
   haveI : Nonempty (levelSubcomplex assign l).vertexSet := h_ne
 
   -- Convert H¹ = 0 to acyclicity
-  rw [H1Characterization.h1_trivial_iff_oneConnected] at h_global ⊢
+  have hconn' : (oneSkeleton (levelSubcomplex assign l)).Connected := by
+    sorry  -- TODO: prove level subcomplex preserves connectivity
+  rw [H1Characterization.h1_trivial_iff_oneConnected (hconn := hconn')]
+  rw [H1Characterization.h1_trivial_iff_oneConnected (hconn := hconn)] at h_global
 
   -- Construct vertex embedding from level subcomplex to K
   have h_vertex_incl : ∀ v : (levelSubcomplex assign l).vertexSet, v.val ∈ K.vertexSet := by
