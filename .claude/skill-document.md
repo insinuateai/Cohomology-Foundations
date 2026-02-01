@@ -34,6 +34,11 @@
 - **Sym2.eq_iff.mp**: Returns `(a = a' ∧ b = b') ∨ (a = b' ∧ b = a')` - check direction of equality
 - **Sym2 endpoints**: Use `Sym2.ind (fun v w => ⟨v, w, rfl⟩) e` to get `∃ v w, s(v,w) = e`
 - **IsBridge**: Mathlib uses `G \ fromEdgeSet {e}`, code may use `G.deleteEdges {e}` - prove they're equivalent
+- **set vs let for Fintype**: `set G' := expr with hG'` creates different Fintype instance than parameter. Use `let G' := expr` and explicitly reference instance: `@Fintype.card G'.ConnectedComponent inst`
+- **endpoint_notMem_support_takeUntil**: Use to prove `v ∉ (p.takeUntil w hw).support` for simple paths ending at v
+- **▸ operator fails for Reachable**: `hG'.symm ▸ h` fails with "failed to compute motive". Use helper: `def reachable_cast (heq : G1 = G2) (h : G1.Reachable a b) : G2.Reachable a b := heq ▸ h`
+- **absurd for False→goal**: When deriving goal from contradiction, use `exact absurd hReach hNotReach` not `exact hNotReach hReach`
+- **Fintype instance mismatch**: When `convert` leaves goal `Fintype.card X = Fintype.card X` with different instances, use `simp only [Fintype.card_eq_nat_card]` to normalize both sides to `Nat.card` (instance-independent)
 
 ## Patterns
 
@@ -73,6 +78,9 @@ exact ⟨p.toDeleteEdge e hp_no_e⟩  -- G'-reachability
 ## Session Log
 
 <!-- Newest first -->
+- 2026-02-01: **ForestEulerFormula.lean COMPLETE (0 sorries, 0 axioms)** - Eliminated 2 TEMP axioms (`component_injection_technical`, `path_reroute_around_edge`) by importing `Infrastructure.TreeGraphInfra`. Key fix: use `Fintype.card_eq_nat_card` to resolve Fintype instance mismatches when `convert` leaves cardinality equality goals with different instances.
+- 2026-02-01: **TreeGraphInfra.lean COMPLETE (0 sorries)** - Fixed all 7 sorries for Euler formula. Key patterns: (1) `Walk.length_takeUntil_lt h hne` proves prefix length < walk length, (2) `takeUntil_first_endpoint_no_edge`: if edge in walk, one of takeUntil u/v doesn't contain it, (3) For repeated edge traversal: use reverse walk + takeUntil_first_endpoint_no_edge, (4) Strong induction IH: just pass `(G', h_acyc', h_not_conn')` - no edge count equality needed, (5) Use `simp only [Subtype.coe_mk]` to unify `{↑⟨e, he_set⟩}` with `{e}` before omega.
+- 2026-01-31: **bridge_splits_component_aux COMPLETE** - Axiom eliminated. Key fixes: (1) Use `let` not `set` for `G'` to preserve Fintype instance, (2) Use `endpoint_notMem_support_takeUntil` for path edge analysis, (3) Use `Nat.le_antisymm h_upper (Nat.succ_le_of_lt h_strict)` instead of omega for Fintype card equality. Proof: surjective f gives lower bound, non-injectivity from bridge gives strict, upper bound from injection to G.CC⊕Unit.
 - 2026-01-31: **Full Build Success** - Build completes with 3174 jobs. TreeGraphInfra.lean has 6 sorries for Walk→deleteEdges conversions. Key finding: use `Walk.toDeleteEdge` with proof `e ∉ p.edges` (see pattern above).
 - 2026-01-31: Fixed Mathlib 4.27.0 compatibility across 8+ files. Key API changes documented above. TreeH1Trivial.lean compiles (2 sorries). ConnectedCocycleLemma.lean complete (0 sorries). DoubleSquaredZero.lean complete (sum_involution pattern).
 - 2026-01-30: TreeGraphInfra.lean added. TreeAuthority.lean `pathBetween_head/last` fixed. `alignment_computable` fixed.

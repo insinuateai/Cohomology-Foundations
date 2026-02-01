@@ -17,7 +17,7 @@ Targets: Mathlib 4.27.0 / Lean 4.27.0
 7. Component count bounds (PARTIAL - key lemma stated)
 
 SORRIES: 0
-AXIOMS: 1 (bridge_splits_component_aux)
+AXIOMS: 0 (bridge_splits_component_aux now proven)
 
 Author: Tenured Cohomology Foundations
 Date: January 2026
@@ -270,18 +270,37 @@ theorem isAcyclic_isBridge (h_acyc : G.IsAcyclic) (e : G.edgeSet) :
 
 /-! ## Section 9: Component Splitting -/
 
-/-- Helper: every vertex in v's G-component is G'-reachable from v or w after removing edge {v,w}.
+/-- Convert a G-walk to a G'-walk when all edges are in G'.edgeSet -/
+private theorem walk_to_G'_reachable {G : SimpleGraph V} [DecidableRel G.Adj]
+    {G' : SimpleGraph V} {u v : V} (p : G.Walk u v)
+    (h_edges : ∀ e ∈ p.edges, e ∈ G'.edgeSet) : G'.Reachable u v := by
+  induction p with
+  | nil => exact Reachable.refl _
+  | @cons a b c hadj_ab p' ih =>
+    have h_ab_G' : G'.Adj a b := by
+      have he : s(a, b) ∈ (Walk.cons hadj_ab p').edges := by
+        simp only [Walk.edges_cons, List.mem_cons, true_or]
+      exact h_edges s(a, b) he
+    have h_rest : ∀ e ∈ p'.edges, e ∈ G'.edgeSet := by
+      intro e he
+      apply h_edges
+      simp only [Walk.edges_cons, List.mem_cons]; right; exact he
+    exact h_ab_G'.reachable.trans (ih h_rest)
+
+/-- Helper: every vertex in v's G-component is G'-reachable from v or w after removing an edge e = {v,w}.
     This is the key lemma for showing the fiber over v's G-component has exactly 2 elements. -/
 private theorem vertex_in_v_or_w_component (G : SimpleGraph V) [DecidableRel G.Adj]
-    (v w : V) (hadj : G.Adj v w) (u : V)
+    (e : Sym2 V) (v w : V) (hvw : s(v, w) = e) (hadj : G.Adj v w) (u : V)
     (hu : G.connectedComponentMk u = G.connectedComponentMk v) :
-    let G' := G.deleteEdges ({s(v, w)} : Set (Sym2 V))
+    let G' := G.deleteEdges ({e} : Set (Sym2 V))
     G'.connectedComponentMk u = G'.connectedComponentMk v ∨
     G'.connectedComponentMk u = G'.connectedComponentMk w := by
+  classical
   intro G'
-  have h_reach : G.Reachable u v := ConnectedComponent.eq.mp hu.symm
-  -- Get a path from u to v
-  obtain ⟨p⟩ := h_reach.toPath
+  have h_reach : G.Reachable u v := ConnectedComponent.eq.mp hu
+  -- Get a path from u to v using the skill document pattern
+  let p : G.Path u v := (Classical.choice h_reach).toPath
+  have hne : v ≠ w := G.ne_of_adj hadj
   -- Either the path uses edge {v,w} or not
   by_cases h_uses : s(v, w) ∈ p.val.edges
   · -- Path uses the edge, so it goes through w at some point
@@ -290,201 +309,39 @@ private theorem vertex_in_v_or_w_component (G : SimpleGraph V) [DecidableRel G.A
     have hw_in := Walk.snd_mem_support_of_mem_edges p.val h_uses
     -- Get the prefix from u to w
     let q := p.val.takeUntil w hw_in
-    -- This prefix doesn't use edge {v,w} more than once (it's a path)
-    -- Actually, the key: if path uses {v,w} and goes u → ... → v,
-    -- it visits w before v (since it uses the edge to get from w to v or v to w)
-    -- The takeUntil w gives us a G-walk from u to w
-    -- We need to show this walk doesn't use edge {v,w}
-    have hq_edges : ∀ e ∈ q.edges, e ≠ s(v, w) := by
-      intro e he
-      -- Edges of takeUntil are a prefix of the original edges
-      -- The edge {v,w} appears in the original path at some index
-      -- In takeUntil w, we stop when we reach w
-      -- The edge {v,w} would be the edge LEAVING w (to go to v) or arriving at w
-      -- In a simple path from u to v that uses {v,w}, if w comes before v in support,
-      -- then the edge {v,w} is the edge from w to v, which is AFTER reaching w
-      -- So takeUntil w doesn't include it
-      intro heq
-      rw [heq] at he
-      -- he : s(v,w) ∈ q.edges where q = takeUntil w
-      -- This means the path visits both v and w before reaching its "until" vertex w
-      -- But the endpoint of takeUntil is w, so v must come before w in the path
-      -- Then the edge {v,w} in the path goes from v to w, meaning v is before w
-      -- So we can takeUntil v instead and get a shorter path
-      have hv_in : v ∈ q.support := Walk.fst_mem_support_of_mem_edges q he
-      have hw_end : q.support.getLast (Walk.support_ne_nil q) = w :=
-        Walk.getLast_support_takeUntil p.val w hw_in
-      -- If v is in q.support and q ends at w with {v,w} ∈ q.edges,
-      -- then either v = w (impossible since adj means v ≠ w) or
-      -- the path goes ... → v → w, so {v,w} is the last edge
-      have hne : v ≠ w := G.ne_of_adj hadj
-      -- The path q goes from u to w, and has v on it with edge {v,w}
-      -- Since q is a prefix of a simple path, q itself is a simple path from u to w
-      -- With {v,w} ∈ edges means the path crosses this edge
-      -- In a simple path from u to w containing edge {v,w}:
-      -- Either u → ... → v → w (v,w is last edge) or u → ... → w → v → ... → w (w appears twice, impossible in simple path)
-      -- So {v,w} must be the last edge, meaning q ends at w via v
-      -- But then v comes just before w, and q.edges has {v,w} as the last edge
-      -- However, takeUntil w stops AT w, so the last vertex is w
-      -- The last edge goes from second-to-last to w
-      -- That's {v,w}, which is fine
-      -- But wait, this contradicts nothing yet...
-      -- The issue: we're trying to prove q doesn't contain {v,w}
-      -- If q is takeUntil w on a path that uses {v,w} to go from something to w,
-      -- then q DOES contain that edge
-      -- So this approach is wrong
-      --
-      -- Let me reconsider: the path p goes from u to v
-      -- If it uses edge {v,w}, it visits w at some point
-      -- The edge {v,w} connects v and w
-      -- In the path u → ... → v, using edge {v,w} means at some point we go between v and w
-      -- Case A: path goes ... → v → w → ... → v (visits v twice, impossible for simple path)
-      -- Case B: path goes ... → w → v → ... → v (visits v twice, impossible)
-      -- Wait, the path is from u to v, so it ends at v
-      -- Case: u → ... → w → v (uses {w,v} = {v,w} as last edge)
-      --   Then takeUntil w gives u → ... → w, which doesn't include the edge {v,w}
-      -- Case: u → ... → v → w → ... → v (uses {v,w} then later reaches v again - impossible, simple path)
-      --
-      -- So in a simple path from u to v that uses {v,w}, the edge must be the last edge
-      -- Therefore takeUntil w gives us the path minus the last edge, which doesn't contain {v,w}
-      -- This means our assumption he : s(v,w) ∈ q.edges leads to contradiction
-      have hp_path := p.property
-      -- q is a prefix of p.val, and p is a Path (simple)
-      -- In a simple path from u to v using {v,w}, the last edge is {v,w}
-      -- So takeUntil w = all vertices except the last, all edges except the last
-      -- Hence s(v,w) ∉ q.edges
-      -- To formalize: edges of takeUntil x are all edges before reaching x
-      -- If {v,w} is in those edges, then both v and w are visited before "reaching w"
-      -- But w is the target of takeUntil, so we stop when we first reach w
-      -- Having {v,w} in edges means we traverse from v to w (or w to v)
-      -- If we traverse from v to w, we reach w, so we stop
-      -- If we traverse from w to v, that means w was visited before, contradiction (we'd have stopped)
-      -- Therefore {v,w} ∉ q.edges
-      --
-      -- Proof: Let's show this more carefully using path properties
-      -- q = takeUntil w on path p
-      -- q.support ends at w (first occurrence)
-      -- If s(v,w) ∈ q.edges, then both v and w are in q.support
-      -- w is the last element of q.support (by takeUntil definition)
-      -- Since s(v,w) ∈ q.edges, there's an index i where (q.support[i], q.support[i+1]) = (v,w) or (w,v)
-      -- If (w,v): then w appears at index i, but w is also at the last index. Since p is a simple path,
-      --   w can only appear once. So i = last index - 1? No wait, (q.support[i], q.support[i+1]) = (w,v)
-      --   means q.support[i] = w and q.support[i+1] = v. But w is the LAST element of q.support.
-      --   So q.support[last] = w. If i < last-1, then w appears at both i and last - contradiction.
-      --   If i = last-1, then q.support[last-1] = w and q.support[last] = v. But we said q.support[last] = w!
-      --   Contradiction.
-      -- If (v,w): then q.support[i] = v and q.support[i+1] = w. Since w only appears once (at the end),
-      --   i+1 = last, so i = last-1. This is consistent.
-      --   So if s(v,w) ∈ q.edges with order (v,w), then v is second-to-last and w is last in q.support.
-      --   This is actually possible!
-      --
-      -- Hmm, so s(v,w) CAN be in q.edges if it's the last edge. But wait, we're doing takeUntil w,
-      -- not takeUntil v. Let me re-examine what takeUntil does.
-      --
-      -- takeUntil x p: returns the prefix of p up to and including the first occurrence of x
-      -- So if p goes u → a → b → w → c → v, then takeUntil w p goes u → a → b → w
-      -- The edges of this prefix are {u,a}, {a,b}, {b,w} - does NOT include any edge after w
-      --
-      -- Now if the original path uses {v,w}, where does it appear?
-      -- p goes u → ... → v (since p is a path from u to v)
-      -- If {v,w} is used, there's some point where consecutive vertices are v,w or w,v
-      -- Case 1: ... → v → w → ... → v
-      --   This means v appears twice (at the start of this segment and at the end of p)
-      --   But p is a simple path, so vertices don't repeat. Contradiction.
-      -- Case 2: ... → w → v (and v is the final vertex, since p ends at v)
-      --   So p goes u → ... → w → v
-      --   takeUntil w gives u → ... → w
-      --   The edges are everything before w, so {v,w} (the last edge) is NOT included.
-      --
-      -- Either way, s(v,w) ∉ q.edges.
-      exfalso
-      -- Edge {v,w} is in q.edges
-      -- q = takeUntil w on p.val
-      -- q starts at u and ends at w (first occurrence of w in p)
-      -- The last edge of q goes FROM some vertex TO w
-      -- If that edge is {v,w}, fine, but then v is just before w in the walk
-      -- But we're looking at a walk from u to v (the original p)
-      -- Actually wait, I need to think about this more carefully
-      -- The walk p goes from u to v
-      -- The edge {v,w} being in p.edges means at some point we go v↔w
-      -- For a simple path from u to v, the final vertex is v
-      -- If {v,w} is used, either:
-      --   (a) we go ... → v → w → ... → v : impossible, v repeated
-      --   (b) we go ... → w → v (as the final step) : {v,w} is the last edge
-      -- In case (b), takeUntil w is everything up to w, so the LAST edge of q goes TO w
-      -- The edges of takeUntil w do NOT include the edge from w to v
-      -- So {v,w} should NOT be in q.edges
-      -- Therefore our assumption he : s(v,w) ∈ q.edges is false
-      --
-      -- Formalization: since p is a Path from u to v using {v,w},
-      -- by the structure of simple paths, {v,w} must be the last edge (going w→v)
-      -- takeUntil w excludes the last edge
-      -- so {v,w} ∉ (takeUntil w p).edges
-      -- This contradicts he
-      --
-      -- Actually, showing this formally requires Walk.edges_takeUntil or similar
-      -- Let me just use the structure
-      have h_last_edge : s(v, w) = p.val.edges.getLast (Walk.edges_ne_nil p.val) := by
-        -- The path ends at v, so the last edge ends at v
-        -- If {v,w} is in the path, by simple path structure it must be the last edge
-        -- This is because visiting w then v would make v appear only at the end
-        -- And visiting v then w would require visiting v again later (since we end at v)
-        sorry
-      -- Now use that takeUntil doesn't include the last edge
-      have h_takeUntil_not_last : s(v, w) ∉ q.edges := by
-        sorry
-      exact h_takeUntil_not_last he
+    -- Key insight: v ∉ (takeUntil w).support because:
+    -- 1. p is a simple path ending at v
+    -- 2. takeUntil w stops at first occurrence of w
+    -- 3. By endpoint_notMem_support_takeUntil, v ∉ q.support
+    have hv_not_in_q : v ∉ q.support :=
+      Walk.endpoint_notMem_support_takeUntil p.property hw_in hne
+    -- Therefore {v,w} ∉ q.edges (since if it were, v would be in q.support)
+    have hq_edges : ∀ e' ∈ q.edges, e' ≠ e := by
+      intro e' he' heq
+      -- heq : e' = e and hvw : s(v,w) = e, so e' = s(v,w)
+      rw [heq.trans hvw.symm] at he'
+      have hv_in : v ∈ q.support := Walk.fst_mem_support_of_mem_edges q he'
+      exact hv_not_in_q hv_in
     -- Now convert q to a G'-walk
-    have h_G'_reach_w : G'.Reachable u w := by
-      have h_q_in_G' : ∀ e ∈ q.edges, e ∈ G'.edgeSet := by
-        intro e he
-        constructor
-        · exact Walk.edges_subset_edgeSet q he
-        · exact hq_edges e he
-      -- Build G'-reachability by induction on q
-      clear h_uses hq_edges
-      induction q with
-      | nil => exact Reachable.refl
-      | @cons a b c hadj_ab q' ih =>
-        have h_ab_G' : G'.Adj a b := by
-          constructor
-          · exact hadj_ab
-          · intro hmem
-            have : s(a, b) ∈ (Walk.cons hadj_ab q').edges := by
-              simp only [Walk.edges_cons, List.mem_cons]; left; rfl
-            exact h_q_in_G' s(a, b) this hmem
-        have h_rest : ∀ e ∈ q'.edges, e ∈ G'.edgeSet := by
-          intro e he
-          apply h_q_in_G'
-          simp only [Walk.edges_cons, List.mem_cons]; right; exact he
-        exact h_ab_G'.reachable.trans (ih h_rest)
-    exact Or.inr (ConnectedComponent.eq.mpr h_G'_reach_w)
+    have h_q_in_G' : ∀ e' ∈ q.edges, e' ∈ G'.edgeSet := by
+      intro e' he'
+      rw [edgeSet_deleteEdges, Set.mem_diff]
+      exact ⟨Walk.edges_subset_edgeSet q he', hq_edges e' he'⟩
+    have h_G'_reach_w : G'.Reachable u w := walk_to_G'_reachable q h_q_in_G'
+    exact ConnectedComponent.eq.mpr h_G'_reach_w
   · -- Path doesn't use edge {v,w}, so it's valid in G'
     left
-    have h_G'_reach : G'.Reachable u v := by
-      have h_edges_ok : ∀ e ∈ p.val.edges, e ∈ G'.edgeSet := by
-        intro e he
-        constructor
-        · exact Walk.edges_subset_edgeSet p.val he
-        · intro hmem
-          rw [hmem] at he
-          exact h_uses he
-      clear h_uses
-      induction p.val with
-      | nil => exact Reachable.refl
-      | @cons a b c hadj_ab p' ih =>
-        have h_ab_G' : G'.Adj a b := by
-          constructor
-          · exact hadj_ab
-          · intro hmem
-            have : s(a, b) ∈ (Walk.cons hadj_ab p').edges := by
-              simp only [Walk.edges_cons, List.mem_cons]; left; rfl
-            exact h_edges_ok s(a, b) this hmem
-        have h_rest : ∀ e ∈ p'.edges, e ∈ G'.edgeSet := by
-          intro e he
-          apply h_edges_ok
-          simp only [Walk.edges_cons, List.mem_cons]; right; exact he
-        exact h_ab_G'.reachable.trans (ih h_rest)
+    have h_edges_ok : ∀ e' ∈ p.val.edges, e' ∈ G'.edgeSet := by
+      intro e' he'
+      rw [edgeSet_deleteEdges, Set.mem_diff]
+      refine ⟨Walk.edges_subset_edgeSet p.val he', ?_⟩
+      intro hmem
+      -- hmem : e' ∈ {e} means e' = e
+      rw [Set.mem_singleton_iff] at hmem
+      -- hmem : e' = e and hvw : s(v,w) = e, so e' = s(v,w)
+      rw [hmem.trans hvw.symm] at he'
+      exact h_uses he'
+    have h_G'_reach : G'.Reachable u v := walk_to_G'_reachable p.val h_edges_ok
     exact ConnectedComponent.eq.mpr h_G'_reach
 
 /-- Deleting an edge increases component count by at most 1.
@@ -492,11 +349,12 @@ private theorem vertex_in_v_or_w_component (G : SimpleGraph V) [DecidableRel G.A
     and everything else to inl(f(c)). -/
 theorem deleteEdges_componentCount_le (G : SimpleGraph V) [DecidableRel G.Adj]
     [Fintype G.ConnectedComponent] (e : Sym2 V) (he : e ∈ G.edgeSet)
-    [Fintype (G.deleteEdges ({e} : Set (Sym2 V))).ConnectedComponent] :
+    [inst : Fintype (G.deleteEdges ({e} : Set (Sym2 V))).ConnectedComponent] :
     componentCount (G.deleteEdges ({e} : Set (Sym2 V))) ≤ componentCount G + 1 := by
   classical
   unfold componentCount
-  set G' := G.deleteEdges ({e} : Set (Sym2 V)) with hG'
+  -- Use abbreviation G' but keep the instance explicit
+  let G' := G.deleteEdges ({e} : Set (Sym2 V))
   -- Extract endpoints
   rcases Sym2.mk_surjective e with ⟨⟨v, w⟩, hvw⟩
   have hadj : G.Adj v w := by rw [← hvw] at he; exact he
@@ -524,34 +382,29 @@ theorem deleteEdges_componentCount_le (G : SimpleGraph V) [DecidableRel G.Adj]
       · -- Both c1.rep and c2.rep are in v's G-component
         -- By vertex_in_v_or_w_component, each is in G'.comp(v) or G'.comp(w)
         -- Since c1 ≠ G'.comp(v) and c2 ≠ G'.comp(v), both must be G'.comp(w)
-        have hc1_vw := vertex_in_v_or_w_component G v w hadj c1.exists_rep.choose h_comp
+        have hc1_vw := vertex_in_v_or_w_component G e v w hvw hadj c1.exists_rep.choose h_comp
         have h2_comp : G.connectedComponentMk c2.exists_rep.choose = G.connectedComponentMk v :=
           h_same.symm.trans h_comp
-        have hc2_vw := vertex_in_v_or_w_component G v w hadj c2.exists_rep.choose h2_comp
-        rw [hG', ← hvw] at hc1_vw hc2_vw
+        have hc2_vw := vertex_in_v_or_w_component G e v w hvw hadj c2.exists_rep.choose h2_comp
         -- c1.exists_rep.choose_spec : G'.connectedComponentMk c1.rep = c1
         have h1_eq := c1.exists_rep.choose_spec
         have h2_eq := c2.exists_rep.choose_spec
         -- From hc1_vw and h1 ≠ G'.comp(v):
         cases hc1_vw with
         | inl hc1_v =>
-          -- c1.rep is in G'.comp(v), so c1 = G'.comp(v)
-          rw [← h1_eq] at hc1_v
-          exact (h1 hc1_v.symm).elim
+          have hc1_eq : c1 = G'.connectedComponentMk v := h1_eq.symm.trans hc1_v
+          exact (h1 hc1_eq).elim
         | inr hc1_w =>
-          -- c1 = G'.comp(w)
           cases hc2_vw with
           | inl hc2_v =>
-            rw [← h2_eq] at hc2_v
-            exact (h2 hc2_v.symm).elim
+            have hc2_eq : c2 = G'.connectedComponentMk v := h2_eq.symm.trans hc2_v
+            exact (h2 hc2_eq).elim
           | inr hc2_w =>
-            -- Both c1 and c2 are G'.comp(w)
             calc c1 = G'.connectedComponentMk c1.exists_rep.choose := h1_eq.symm
               _ = G'.connectedComponentMk w := hc1_w
               _ = G'.connectedComponentMk c2.exists_rep.choose := hc2_w.symm
               _ = c2 := h2_eq
       · -- Not in v's G-component
-        -- Any G-path from c1.rep to c2.rep cannot use edge e (which connects v-w in v's component)
         obtain ⟨p⟩ := h_G_reach
         have hp_no_e : e ∉ p.edges := by
           intro h_in
@@ -559,35 +412,20 @@ theorem deleteEdges_componentCount_le (G : SimpleGraph V) [DecidableRel G.Adj]
           have hv_in := Walk.fst_mem_support_of_mem_edges p h_in
           have h_reach_v : G.Reachable c1.exists_rep.choose v := ⟨p.takeUntil v hv_in⟩
           exact h_comp (ConnectedComponent.eq.mpr h_reach_v)
-        -- Convert to G'-reachability
         have h_G'_reach : G'.Reachable c1.exists_rep.choose c2.exists_rep.choose := by
           have h_edges_ok : ∀ e' ∈ p.edges, e' ∈ G'.edgeSet := by
             intro e' he'
-            constructor
-            · exact Walk.edges_subset_edgeSet p he'
-            · intro heq
-              rw [heq] at he'
-              exact hp_no_e he'
-          clear hp_no_e h_comp h_same h_G_reach heq h1 h2
-          induction p with
-          | nil => exact Reachable.refl
-          | @cons a b c hadj_ab p' ih =>
-            have h_ab_G' : G'.Adj a b := by
-              constructor
-              · exact hadj_ab
-              · intro hmem
-                have : s(a, b) ∈ (Walk.cons hadj_ab p').edges := by
-                  simp only [Walk.edges_cons, List.mem_cons]; left; rfl
-                exact h_edges_ok s(a, b) this hmem
-            have h_rest : ∀ e' ∈ p'.edges, e' ∈ G'.edgeSet := by
-              intro e' he'
-              apply h_edges_ok
-              simp only [Walk.edges_cons, List.mem_cons]; right; exact he'
-            exact h_ab_G'.reachable.trans (ih h_rest)
+            rw [edgeSet_deleteEdges, Set.mem_diff]
+            refine ⟨Walk.edges_subset_edgeSet p he', ?_⟩
+            intro heq
+            rw [heq] at he'
+            exact hp_no_e he'
+          exact walk_to_G'_reachable p h_edges_ok
         calc c1 = G'.connectedComponentMk c1.exists_rep.choose := c1.exists_rep.choose_spec.symm
           _ = G'.connectedComponentMk c2.exists_rep.choose := ConnectedComponent.eq.mpr h_G'_reach
           _ = c2 := c2.exists_rep.choose_spec
-  have h_card : Fintype.card G'.ConnectedComponent ≤ Fintype.card (G.ConnectedComponent ⊕ Unit) :=
+  -- G' is definitionally G.deleteEdges {e}, so use the explicit instance
+  have h_card : @Fintype.card G'.ConnectedComponent inst ≤ Fintype.card (G.ConnectedComponent ⊕ Unit) :=
     Fintype.card_le_of_injective ψ hψ_inj
   simp only [Fintype.card_sum, Fintype.card_unit] at h_card
   exact h_card
@@ -602,12 +440,13 @@ theorem deleteEdges_componentCount_le (G : SimpleGraph V) [DecidableRel G.Adj]
 theorem bridge_splits_component_aux (V : Type*) [Fintype V] [DecidableEq V]
     (G : SimpleGraph V) [DecidableRel G.Adj] [Fintype G.ConnectedComponent]
     (e : G.edgeSet)
-    [Fintype (G.deleteEdges ({e.val} : Set (Sym2 V))).ConnectedComponent]
+    [inst : Fintype (G.deleteEdges ({e.val} : Set (Sym2 V))).ConnectedComponent]
     (h_bridge : IsBridge G e.val) :
     componentCount (G.deleteEdges ({e.val} : Set (Sym2 V))) = componentCount G + 1 := by
   classical
   unfold componentCount
-  set G' := G.deleteEdges ({e.val} : Set (Sym2 V)) with hG'
+  -- Use abbreviation G' but keep the instance explicit
+  let G' := G.deleteEdges ({e.val} : Set (Sym2 V))
   -- Extract bridge endpoints from IsBridge
   obtain ⟨he_edge, v, w, hvw, h_not_reach⟩ := h_bridge
   have hadj : G.Adj v w := by rw [← hvw] at he_edge; exact he_edge
@@ -617,7 +456,6 @@ theorem bridge_splits_component_aux (V : Type*) [Fintype V] [DecidableEq V]
   have h_diff_G' : G'.connectedComponentMk v ≠ G'.connectedComponentMk w := by
     intro heq
     rw [ConnectedComponent.eq] at heq
-    rw [hG', ← hvw] at heq
     exact h_not_reach heq
   -- Define map f : G'.CC → G.CC
   let f : G'.ConnectedComponent → G.ConnectedComponent :=
@@ -634,7 +472,7 @@ theorem bridge_splits_component_aux (V : Type*) [Fintype V] [DecidableEq V]
       h2.mono (deleteEdges_le G ({e.val} : Set (Sym2 V)))
     rw [← hu]
     exact ConnectedComponent.eq.mpr h3
-  have h_le : Fintype.card G.ConnectedComponent ≤ Fintype.card G'.ConnectedComponent :=
+  have h_le : Fintype.card G.ConnectedComponent ≤ @Fintype.card G'.ConnectedComponent inst :=
     Fintype.card_le_of_surjective f hf_surj
   -- f maps both v and w's G'-components to the same G-component
   have hf_vw : f (G'.connectedComponentMk v) = f (G'.connectedComponentMk w) := by
@@ -652,10 +490,10 @@ theorem bridge_splits_component_aux (V : Type*) [Fintype V] [DecidableEq V]
           (ConnectedComponent.eq.mpr hw_reach).symm
   -- f is not injective: comp_v ≠ comp_w but f(comp_v) = f(comp_w)
   -- So |G.CC| < |G'.CC|
-  have h_strict : Fintype.card G.ConnectedComponent < Fintype.card G'.ConnectedComponent := by
+  have h_strict : Fintype.card G.ConnectedComponent < @Fintype.card G'.ConnectedComponent inst := by
     by_contra h_not_lt
     push_neg at h_not_lt
-    have h_eq : Fintype.card G'.ConnectedComponent = Fintype.card G.ConnectedComponent :=
+    have h_eq : @Fintype.card G'.ConnectedComponent inst = Fintype.card G.ConnectedComponent :=
       le_antisymm h_not_lt h_le
     have h_bij : Function.Bijective f := by
       rw [Fintype.bijective_iff_surjective_and_card]
@@ -663,12 +501,15 @@ theorem bridge_splits_component_aux (V : Type*) [Fintype V] [DecidableEq V]
     -- f is bijective but maps distinct elements to same value - contradiction
     exact h_diff_G' (h_bij.1 hf_vw)
   -- Upper bound: |G'.CC| ≤ |G.CC| + 1
-  have h_upper : Fintype.card G'.ConnectedComponent ≤ Fintype.card G.ConnectedComponent + 1 := by
+  have h_upper : @Fintype.card G'.ConnectedComponent inst ≤ Fintype.card G.ConnectedComponent + 1 := by
     have := deleteEdges_componentCount_le G e.val e.property
-    simp only [componentCount, hG'] at this
+    simp only [componentCount] at this
     exact this
   -- Combine: |G'.CC| = |G.CC| + 1
-  omega
+  -- h_strict : card G.CC < card G'.CC means card G.CC + 1 ≤ card G'.CC
+  -- h_upper : card G'.CC ≤ card G.CC + 1
+  -- Therefore card G'.CC = card G.CC + 1 by antisymmetry
+  exact Nat.le_antisymm h_upper (Nat.succ_le_of_lt h_strict)
 
 /-- Removing a bridge increases component count by 1.
     This is the key lemma for forest_euler.
@@ -732,7 +573,7 @@ theorem isAcyclic_path_unique (h : G.IsAcyclic) (v w : V)
 #check componentCount_pos
 #check isAcyclic_path_unique
 
--- Has 1 sorry (key lemma, requires Mathlib component API):
+-- NOW FULLY PROVEN (was axiom):
 #check bridge_splits_component
 
 end ExtendedGraphInfra

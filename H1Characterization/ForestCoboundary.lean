@@ -1,16 +1,13 @@
 /-
   H1Characterization/ForestCoboundary.lean
 
-  Reverse direction: Forest → H¹ = 0
+  Reverse direction: Tree → H¹ = 0
 
   Constructs explicit coboundary witness for any cocycle.
+  Requires connectivity hypothesis to ensure all vertices are reachable.
 
-  AXIOMS: 1
-  - cocycle_zero_on_unreachable_component (line 387)
-    RESTRICTED VALIDITY: Only valid when K is connected.
-    When K is connected AND OneConnected, it's a single tree,
-    all vertices are reachable, and the axiom is vacuously true.
-    See detailed counterexample in axiom documentation.
+  SORRIES: 0
+  AXIOMS: 0
 -/
 
 import H1Characterization.PathIntegral
@@ -369,57 +366,21 @@ theorem forest_path_extend (K : SimplicialComplex) (hK : OneConnected K)
   use h_isPath
   exact (acyclic_path_unique K hK root b ⟨_, h_isPath⟩ (pathBetween K h_reach_b)).symm
 
-/-!
-For unreachable edges, a cocycle must be zero.
+/-! ## Connectivity Helpers
 
-**IMPORTANT: This axiom has RESTRICTED VALIDITY.**
+For connected complexes, all vertices are reachable from any root.
+This eliminates the need for an axiom about unreachable edges. -/
 
-The axiom is ONLY valid when K is **connected** (a single connected component).
-When K is connected AND OneConnected, K is a single tree, and ALL vertices
-are reachable from any root. Thus h_not_reach is never satisfied, making
-the axiom **vacuously true**.
+/-- In a connected graph, all vertices are reachable from any root -/
+lemma connected_all_reachable (K : SimplicialComplex)
+    (hconn : (oneSkeleton K).Connected) (root v : K.vertexSet) :
+    (oneSkeleton K).Reachable root v := hconn.preconnected root v
 
-**COUNTEREXAMPLE when K is disconnected:**
-
-Forest with two disconnected trees: isolated vertex {0}, and edge {1}—{2}.
-- K has vertices {0, 1, 2}, 1-simplex {1,2}, NO 2-simplices
-- K is OneConnected (acyclic 1-skeleton)
-- Let root = 0, so vertices 1 and 2 are UNREACHABLE from root
-- Define f({1,2}) = 1
-- Is f a cocycle? YES! δf = 0 vacuously (no 2-simplices to check)
-- But f({1,2}) = 1 ≠ 0, violating the axiom claim!
-
-**WHEN THIS AXIOM IS SOUND:**
-
-1. **K is connected**: All vertices reachable from any root, so h_not_reach
-   is never satisfied → axiom is vacuously true.
-
-2. **Cocycle is zero on unreachable components by construction**: If f is
-   specifically known to vanish on disconnected components, the axiom holds.
-
-**USE CASE in this codebase:**
-
-This axiom is used in `coboundaryWitness_works` where:
-- For reachable edges: δg = f via path integration
-- For unreachable edges: δg = 0 (since g = 0 on both endpoints)
-- We need f = 0 on unreachable edges for δg = f
-
-The main theorem `oneConnected_implies_h1_trivial` implicitly assumes
-the complex is connected (otherwise H¹ should be computed per-component).
-
-**Mathematical note:**
-The original justification ("H¹ = 0 for trees") is correct for each tree
-component individually, but doesn't force f = 0 — it only says f is a
-coboundary within that component. The coboundaryWitness construction
-fixes g = 0 on unreachable vertices, which only works if f = 0 there.
--/
-axiom cocycle_zero_on_unreachable_component (K : SimplicialComplex) (hK : OneConnected K)
-    (f : Cochain K 1) (hf : IsCocycle K 1 f) (root : K.vertexSet)
-    (e : { s : Simplex // s ∈ K.ksimplices 1 })
-    (a b : Vertex) (ha : a ∈ K.vertexSet) (hb : b ∈ K.vertexSet)
-    (h_edge : e.val = {a, b})
-    (h_not_reach : ¬(oneSkeleton K).Reachable root ⟨a, ha⟩) :
-    f e = 0
+/-- The unreachability hypothesis is always false for connected complexes -/
+lemma connected_no_unreachable (K : SimplicialComplex)
+    (hconn : (oneSkeleton K).Connected) (root v : K.vertexSet)
+    (h_not_reach : ¬(oneSkeleton K).Reachable root v) : False :=
+  h_not_reach (connected_all_reachable K hconn root v)
 
 /-! ## Main Theorem -/
 
@@ -428,25 +389,21 @@ The coboundary witness construction gives a valid coboundary.
 
 Proof Strategy:
 For each edge e = {a,b} in the 1-skeleton, we must show (δg)(e) = f(e).
-There are two cases:
 
-**Case 1: Both endpoints reachable from root**
+For **connected** complexes (trees), all vertices are reachable from root.
 Using coboundary_edge_formula: (δg)(e) = g(b) - g(a)
 By definition of coboundaryWitness: g(v) = pathIntegral(root → v)
 So: (δg)(e) = pathIntegral(root→b) - pathIntegral(root→a)
 
-By pathIntegral_difference_on_edge (theorem #7):
+By pathIntegral_difference_on_edge:
   pathIntegral(root→b) - pathIntegral(root→a) = ±f(e)
 where the sign matches the edge orientation, giving (δg)(e) = f(e).
 
-**Case 2: An endpoint unreachable from root**
-By cocycle_zero_on_unreachable_component (theorem #8): f(e) = 0
-By definition of coboundaryWitness: g returns 0 for unreachable vertices
-So: (δg)(e) = 0 - 0 = 0 = f(e)
-
-In both cases, (δg)(e) = f(e), proving δg = f.
+Note: The connectivity hypothesis (hconn) ensures all vertices are reachable,
+eliminating the need for special handling of unreachable components.
 -/
 theorem coboundaryWitness_works (K : SimplicialComplex) (hK : OneConnected K)
+    (hconn : (oneSkeleton K).Connected)
     (f : Cochain K 1) (hf : IsCocycle K 1 f) (root : K.vertexSet) :
     δ K 0 (coboundaryWitness K hK f hf root) = f := by
   -- Prove function extensionality: for each 1-simplex e, (δg)(e) = f(e)
@@ -520,42 +477,14 @@ theorem coboundaryWitness_works (K : SimplicialComplex) (hK : OneConnected K)
       -- Rewrite using h_integral and simplify with ring
       rw [h_integral]
       ring
-  · -- Case 2: a is not reachable
-    -- By cocycle_zero_on_unreachable_component, f(e) = 0
-    have h_f_zero : f e = 0 :=
-      cocycle_zero_on_unreachable_component K hK f hf root e a b ha.1 hb.1 h_edge h_reach_a
-    rw [h_f_zero]
-    -- By definition of coboundaryWitness, g = 0 for unreachable vertices
-    -- Need to show g({b}) - g({a}) = 0
-    --
-    -- First show b is also unreachable (if it were reachable, a would be via edge)
-    have h_not_reach_b : ¬(oneSkeleton K).Reachable root ⟨b, hb.1⟩ := by
-      intro h_reach_b
-      have h_adj : (oneSkeleton K).Adj ⟨b, hb.1⟩ ⟨a, ha.1⟩ := by
-        apply edge_implies_adj K b a hb.1 ha.1
-        have : ({b, a} : Simplex) = {a, b} := Finset.pair_comm b a
-        rw [this, ← h_edge]; exact e.property
-      exact h_reach_a (adj_reachable_symm K root ⟨b, hb.1⟩ ⟨a, ha.1⟩ h_adj h_reach_b)
-    -- Show toVertex of {a} and {b} equal ⟨a, _⟩ and ⟨b, _⟩ respectively
-    have h_toVertex_a : toVertex K ⟨{a}, ha⟩ = ⟨a, ha.1⟩ := by
-      ext; exact toVertex_singleton K a ha
-    have h_toVertex_b : toVertex K ⟨{b}, hb⟩ = ⟨b, hb.1⟩ := by
-      ext; exact toVertex_singleton K b hb
-    -- Unfold and use the unreachability
-    unfold coboundaryWitness
-    -- After unfolding, the goal has let bindings for toVertex
-    -- We need to show both dif conditions are false
-    -- Convert the reachability conditions to match the let-bound variables
-    have h_reach_a' : ¬(oneSkeleton K).Reachable root (toVertex K ⟨{a}, ha⟩) := by
-      rwa [h_toVertex_a]
-    have h_reach_b' : ¬(oneSkeleton K).Reachable root (toVertex K ⟨{b}, hb⟩) := by
-      rwa [h_toVertex_b]
-    simp only [dif_neg h_reach_a', dif_neg h_reach_b', sub_zero]
+  · -- Case 2: a is not reachable - contradiction with connectivity
+    -- In a connected complex, all vertices are reachable from any root
+    exact False.elim (connected_no_unreachable K hconn root ⟨a, ha.1⟩ h_reach_a)
 
 theorem oneConnected_implies_h1_trivial (K : SimplicialComplex) (hK : OneConnected K)
-    [Nonempty K.vertexSet] : H1Trivial K := by
+    (hconn : (oneSkeleton K).Connected) [Nonempty K.vertexSet] : H1Trivial K := by
   intro f hf
   use coboundaryWitness K hK f hf (selectRoot K)
-  exact coboundaryWitness_works K hK f hf (selectRoot K)
+  exact coboundaryWitness_works K hK hconn f hf (selectRoot K)
 
 end H1Characterization
