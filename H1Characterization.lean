@@ -8,7 +8,4 @@ import H1Characterization.CycleCochain.Proofs
 import H1Characterization.Characterization
 import H1Characterization.LinearComplexity
 import H1Characterization.SmallGraphs
-import H1Characterization.ConnectedCocycleLemma
 import H1Characterization.ForestEulerFormula
-import H1Characterization.ForestPathIntegral
-import H1Characterization.TreeH1Trivial

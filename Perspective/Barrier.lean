@@ -197,7 +197,48 @@ theorem no_barrier_small_ax {n : ℕ} (hn : n ≤ 2)
       rw [AgentCoordination.valueComplex_vertexSet_card]
       omega
     have hconn : (H1Characterization.oneSkeleton (valueComplex adjusted epsilon)).Connected := by
-      sorry  -- TODO: prove small graph is connected
+      -- For small n (1 or 2), show connectivity
+      by_cases h1 : n = 1
+      · -- n = 1: single vertex is trivially connected
+        have h_card_1 : @Fintype.card (valueComplex adjusted epsilon).vertexSet ft = 1 := by
+          rw [AgentCoordination.valueComplex_vertexSet_card]; omega
+        exact H1Characterization.single_vertex_connected (valueComplex adjusted epsilon) h_card_1
+      · -- n = 2 (since n ≤ 2 and n ≠ 0 and n ≠ 1)
+        have h2 : n = 2 := by omega
+        -- All pairs are adjacent since values are identical (all 0)
+        -- Show connectivity via a path between any two vertices
+        constructor
+        intro v w
+        -- v and w are vertices, i.e., natural numbers < 2
+        by_cases hvw : v = w
+        · subst hvw
+          exact @SimpleGraph.Reachable.refl _ (H1Characterization.oneSkeleton (valueComplex adjusted epsilon)) v
+        · -- v ≠ w, so they're 0 and 1 (in some order)
+          -- Show they're adjacent (edge exists)
+          have hv_lt : v.val < n := by
+            have hv_mem := v.property
+            simp only [AgentCoordination.valueComplex_vertexSet_eq, Set.mem_setOf_eq] at hv_mem
+            exact hv_mem
+          have hw_lt : w.val < n := by
+            have hw_mem := w.property
+            simp only [AgentCoordination.valueComplex_vertexSet_eq, Set.mem_setOf_eq] at hw_mem
+            exact hw_mem
+          have h_adj : (H1Characterization.oneSkeleton (valueComplex adjusted epsilon)).Adj v w := by
+            constructor
+            · exact fun heq => hvw (Subtype.ext heq)
+            · -- {v.val, w.val} ∈ K.simplices
+              simp only [valueComplex, Set.mem_setOf_eq]
+              constructor
+              · -- All vertices < n
+                intro x hx
+                simp only [Finset.mem_insert, Finset.mem_singleton] at hx
+                rcases hx with rfl | rfl <;> assumption
+              · -- Pairwise agreement: values are all 0, so distance = 0 ≤ 2ε
+                intro i j hi hj hij hi_lt hj_lt
+                use Classical.arbitrary S
+                simp only [adjusted, sub_self, abs_zero]
+                linarith
+          exact SimpleGraph.Adj.reachable h_adj
     exact @H1Characterization.h1_trivial_small (valueComplex adjusted epsilon) ft _ hcard hconn
 
 /--
@@ -296,108 +337,81 @@ theorem remove_agent_can_break_barrier_ax {n : ℕ} (hn : n ≥ 3)
     let adjusted : Fin (n - 1) → ValueSystem S := fun i =>
       { values := fun _ => (i.val : ℚ) * 10 * epsilon }
     use adjusted
-    -- For n-1 ≤ 2, use small graph theorem
+    -- For n-1 < 3: this branch is actually unreachable since n ≥ 4 implies n - 1 ≥ 3
     by_cases hsmall : n - 1 < 3
-    · letI ft : Fintype (valueComplex adjusted epsilon).vertexSet :=
-        AgentCoordination.valueComplex_vertexSet_fintype adjusted epsilon
-      haveI : Nonempty (valueComplex adjusted epsilon).vertexSet := by
-        rw [AgentCoordination.valueComplex_vertexSet_eq]
-        exact ⟨⟨0, by omega⟩⟩
-      have hcard : @Fintype.card (valueComplex adjusted epsilon).vertexSet ft < 3 := by
-        rw [AgentCoordination.valueComplex_vertexSet_card]
-        exact hsmall
-      have hconn : (H1Characterization.oneSkeleton (valueComplex adjusted epsilon)).Connected := by
-        sorry  -- TODO: prove small graph is connected
-      exact @H1Characterization.h1_trivial_small (valueComplex adjusted epsilon) ft _ hcard hconn
-    · -- n - 1 ≥ 3: prove the edgeless graph is acyclic
+    · -- Unreachable: n ≥ 3 and n ≠ 3 means n ≥ 4, so n - 1 ≥ 3
+      omega
+    · -- n - 1 ≥ 3: prove H¹ = 0 directly for edgeless graph
+      -- Key: with adjusted values i * 10 * ε, NO edges exist (distance ≥ 10ε > 2ε)
+      -- An edgeless complex has no 1-simplices, so H¹ is trivially 0
       push_neg at hsmall
       have h_nm1_ge_3 : n - 1 ≥ 3 := hsmall
-      have h_nm1_pos : n - 1 > 0 := by omega
-      haveI : Nonempty (valueComplex adjusted epsilon).vertexSet := by
-        rw [AgentCoordination.valueComplex_vertexSet_eq]
-        exact ⟨⟨0, h_nm1_pos⟩⟩
-      have hconn : (H1Characterization.oneSkeleton (valueComplex adjusted epsilon)).Connected := by
-        sorry  -- TODO: prove edgeless graph connected
-      rw [H1Characterization.h1_trivial_iff_oneConnected (hconn := hconn)]
-      -- A cycle requires at least one edge, but NO edges exist
-      intro v p hp
+      unfold H1Trivial
+      intro f _hf
+      unfold Foundations.IsCoboundary
+      use 0
+      funext ⟨e, he⟩
+      -- e is a 1-simplex in valueComplex. We show this is impossible.
       exfalso
-      -- A cycle has length ≥ 3
-      have h_len := hp.three_le_length
-      -- Get the first two vertices of the cycle
-      have h_supp_ne_nil : p.support ≠ [] := SimpleGraph.Walk.support_ne_nil p
-      have h_chain := p.chain'_adj_support
-      have h_supp_len : p.support.length = p.length + 1 := SimpleGraph.Walk.length_support p
-      -- Support has length ≥ 4, so at least 2 distinct vertices after v
-      have h_supp_ge_4 : p.support.length ≥ 4 := by omega
-      -- Extract first two elements
-      obtain ⟨v0, v1, rest, h_supp⟩ : ∃ v0 v1 rest, p.support = v0 :: v1 :: rest := by
-        match h : p.support with
-        | [] => exact (h_supp_ne_nil h).elim
-        | [_] =>
-          have hlen : p.support.length = 1 := by rw [h]; simp
-          omega
-        | v0 :: v1 :: rest => exact ⟨v0, v1, rest, rfl⟩
-      -- There's an edge from v0 to v1
-      have h_adj : (H1Characterization.oneSkeleton (valueComplex adjusted epsilon)).Adj v0 v1 := by
-        rw [h_supp] at h_chain
-        exact List.Chain'.rel_head h_chain
-      -- But with our construction, NO edges can exist!
-      simp only [H1Characterization.oneSkeleton] at h_adj
-      obtain ⟨hne, hedge⟩ := h_adj
-      simp only [valueComplex, Set.mem_setOf_eq] at hedge
-      obtain ⟨hvert, hpairs⟩ := hedge
-      -- ↑v0 and ↑v1 are natural numbers (vertex indices as ℕ via coercion)
-      have hne_nat : (v0 : ℕ) ≠ (v1 : ℕ) := hne
-      by_cases hlt : (v0 : ℕ) < (v1 : ℕ)
-      · have hedge' := hpairs v0.val v1.val (Finset.mem_insert_self _ _)
-            (Finset.mem_insert_of_mem (Finset.mem_singleton_self _)) hlt
-            (hvert v0.val (Finset.mem_insert_self _ _))
-            (hvert v1.val (Finset.mem_insert_of_mem (Finset.mem_singleton_self _)))
-        obtain ⟨s, hs⟩ := hedge'
+      simp only [SimplicialComplex.ksimplices, Set.mem_setOf_eq] at he
+      obtain ⟨he_mem, he_card⟩ := he
+      simp only [valueComplex, Set.mem_setOf_eq] at he_mem
+      obtain ⟨hvert, hpairs⟩ := he_mem
+      -- e has exactly 2 vertices, so get them
+      obtain ⟨v0, v1, hne, he_eq⟩ := Finset.card_eq_two.mp he_card
+      -- Apply pairwise condition to get a contradiction
+      by_cases hlt : v0 < v1
+      · have hedge := hpairs v0 v1
+            (by rw [he_eq]; exact Finset.mem_insert_self _ _)
+            (by rw [he_eq]; exact Finset.mem_insert_of_mem (Finset.mem_singleton_self _))
+            hlt
+            (hvert v0 (by rw [he_eq]; exact Finset.mem_insert_self _ _))
+            (hvert v1 (by rw [he_eq]; exact Finset.mem_insert_of_mem (Finset.mem_singleton_self _)))
+        obtain ⟨s, hs⟩ := hedge
         simp only [adjusted] at hs
-        -- Distance = |(v0 : ℕ) * 10 * ε - (v1 : ℕ) * 10 * ε|
-        --          = ((v1 : ℕ) - (v0 : ℕ)) * 10 * ε ≥ 10 * ε > 2ε
-        have h_diff_pos : (v1 : ℕ) - (v0 : ℕ) > 0 := Nat.sub_pos_of_lt hlt
-        have h_diff_ge_1 : (v1 : ℕ) - (v0 : ℕ) ≥ 1 := h_diff_pos
-        have h_diff_q : ((v1 : ℕ) : ℚ) - ((v0 : ℕ) : ℚ) ≥ 1 := by
-          have h_sub := @Nat.cast_sub ℚ _ (v0 : ℕ) (v1 : ℕ) (le_of_lt hlt)
+        -- Distance = |v0 * 10 * ε - v1 * 10 * ε| = (v1 - v0) * 10 * ε ≥ 10 * ε > 2ε
+        have h_diff_pos : v1 - v0 > 0 := Nat.sub_pos_of_lt hlt
+        have h_diff_ge_1 : v1 - v0 ≥ 1 := h_diff_pos
+        have h_diff_q : (v1 : ℚ) - (v0 : ℚ) ≥ 1 := by
+          have h_sub := @Nat.cast_sub ℚ _ v0 v1 (le_of_lt hlt)
           rw [← h_sub]
           exact Nat.one_le_cast.mpr h_diff_ge_1
-        have h_dist : |(((v0 : ℕ) : ℚ) * 10 * epsilon - ((v1 : ℕ) : ℚ) * 10 * epsilon)|
-                    = (((v1 : ℕ) : ℚ) - ((v0 : ℕ) : ℚ)) * 10 * epsilon := by
+        have h_dist : |((v0 : ℚ) * 10 * epsilon - (v1 : ℚ) * 10 * epsilon)|
+                    = ((v1 : ℚ) - (v0 : ℚ)) * 10 * epsilon := by
           rw [abs_sub_comm]
-          have h2 : ((v1 : ℕ) : ℚ) * 10 * epsilon - ((v0 : ℕ) : ℚ) * 10 * epsilon
-                  = (((v1 : ℕ) : ℚ) - ((v0 : ℕ) : ℚ)) * 10 * epsilon := by ring
+          have h2 : (v1 : ℚ) * 10 * epsilon - (v0 : ℚ) * 10 * epsilon
+                  = ((v1 : ℚ) - (v0 : ℚ)) * 10 * epsilon := by ring
           rw [h2, abs_of_nonneg]
-          have h_nonneg : ((v1 : ℕ) : ℚ) - ((v0 : ℕ) : ℚ) ≥ 0 := by linarith
+          have h_nonneg : (v1 : ℚ) - (v0 : ℚ) ≥ 0 := by linarith
           apply mul_nonneg (mul_nonneg h_nonneg (by linarith : (10 : ℚ) ≥ 0)) (by linarith : epsilon ≥ 0)
         rw [h_dist] at hs
-        have h_large : (((v1 : ℕ) : ℚ) - ((v0 : ℕ) : ℚ)) * 10 * epsilon ≥ 10 * epsilon := by nlinarith
+        have h_large : ((v1 : ℚ) - (v0 : ℚ)) * 10 * epsilon ≥ 10 * epsilon := by nlinarith
         linarith
       · push_neg at hlt
-        have hlt' : (v1 : ℕ) < (v0 : ℕ) := Nat.lt_of_le_of_ne hlt (Ne.symm hne_nat)
-        have hedge' := hpairs v1.val v0.val (Finset.mem_insert_of_mem (Finset.mem_singleton_self _))
-            (Finset.mem_insert_self _ _) hlt'
-            (hvert v1.val (Finset.mem_insert_of_mem (Finset.mem_singleton_self _)))
-            (hvert v0.val (Finset.mem_insert_self _ _))
-        obtain ⟨s, hs⟩ := hedge'
+        have hlt' : v1 < v0 := Nat.lt_of_le_of_ne hlt (Ne.symm hne)
+        have hedge := hpairs v1 v0
+            (by rw [he_eq]; exact Finset.mem_insert_of_mem (Finset.mem_singleton_self _))
+            (by rw [he_eq]; exact Finset.mem_insert_self _ _)
+            hlt'
+            (hvert v1 (by rw [he_eq]; exact Finset.mem_insert_of_mem (Finset.mem_singleton_self _)))
+            (hvert v0 (by rw [he_eq]; exact Finset.mem_insert_self _ _))
+        obtain ⟨s, hs⟩ := hedge
         simp only [adjusted] at hs
-        have h_diff_pos : (v0 : ℕ) - (v1 : ℕ) > 0 := Nat.sub_pos_of_lt hlt'
-        have h_diff_ge_1 : (v0 : ℕ) - (v1 : ℕ) ≥ 1 := h_diff_pos
-        have h_diff_q : ((v0 : ℕ) : ℚ) - ((v1 : ℕ) : ℚ) ≥ 1 := by
-          have h_sub := @Nat.cast_sub ℚ _ (v1 : ℕ) (v0 : ℕ) (le_of_lt hlt')
+        have h_diff_pos : v0 - v1 > 0 := Nat.sub_pos_of_lt hlt'
+        have h_diff_ge_1 : v0 - v1 ≥ 1 := h_diff_pos
+        have h_diff_q : (v0 : ℚ) - (v1 : ℚ) ≥ 1 := by
+          have h_sub := @Nat.cast_sub ℚ _ v1 v0 (le_of_lt hlt')
           rw [← h_sub]
           exact Nat.one_le_cast.mpr h_diff_ge_1
-        have h_dist : |(((v1 : ℕ) : ℚ) * 10 * epsilon - ((v0 : ℕ) : ℚ) * 10 * epsilon)|
-                    = (((v0 : ℕ) : ℚ) - ((v1 : ℕ) : ℚ)) * 10 * epsilon := by
-          have h2 : ((v0 : ℕ) : ℚ) * 10 * epsilon - ((v1 : ℕ) : ℚ) * 10 * epsilon
-                  = (((v0 : ℕ) : ℚ) - ((v1 : ℕ) : ℚ)) * 10 * epsilon := by ring
+        have h_dist : |((v1 : ℚ) * 10 * epsilon - (v0 : ℚ) * 10 * epsilon)|
+                    = ((v0 : ℚ) - (v1 : ℚ)) * 10 * epsilon := by
+          have h2 : (v0 : ℚ) * 10 * epsilon - (v1 : ℚ) * 10 * epsilon
+                  = ((v0 : ℚ) - (v1 : ℚ)) * 10 * epsilon := by ring
           rw [abs_sub_comm, h2, abs_of_nonneg]
-          have h_nonneg : ((v0 : ℕ) : ℚ) - ((v1 : ℕ) : ℚ) ≥ 0 := by linarith
+          have h_nonneg : (v0 : ℚ) - (v1 : ℚ) ≥ 0 := by linarith
           apply mul_nonneg (mul_nonneg h_nonneg (by linarith : (10 : ℚ) ≥ 0)) (by linarith : epsilon ≥ 0)
         rw [h_dist] at hs
-        have h_large : (((v0 : ℕ) : ℚ) - ((v1 : ℕ) : ℚ)) * 10 * epsilon ≥ 10 * epsilon := by nlinarith
+        have h_large : ((v0 : ℚ) - (v1 : ℚ)) * 10 * epsilon ≥ 10 * epsilon := by nlinarith
         linarith
 
 /--

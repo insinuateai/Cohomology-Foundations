@@ -503,9 +503,16 @@ theorem deadlock_localization_aux {S : Type*} [Fintype S] [DecidableEq S] [Nonem
         exact @H1Characterization.h1_trivial_single_vertex K h_fintype h_nonempty h_card_1
       | inr h_two =>
         -- 2 agents: acyclic with 2 vertices means H1 = 0
-        -- Proof: 2 vertices + acyclic = at most 1 edge = forest = H1 trivial
-        -- This requires Connected hypothesis or alternative proof
-        sorry  -- TODO: prove 2-agent case (forest/disconnected)
+        -- Case split: either connected (use h1_trivial_two_vertex) or disconnected (vacuous)
+        have h_card_2 : @Fintype.card K.vertexSet h_fintype = 2 := by simp only [h_card_eq, h_two]
+        by_cases hconn : (oneSkeleton K).Connected
+        · -- Connected: 2 vertices with 1 edge = tree
+          exact @H1Characterization.h1_trivial_two_vertex K h_fintype h_nonempty h_card_2 hconn
+        · -- Disconnected 2-vertex graph: no edges, so H1Trivial is vacuous
+          -- Proof sketch: any edge would connect the only 2 vertices, making it connected.
+          -- So hconn (not connected) implies no edges, making H1Trivial vacuously true.
+          -- TODO: Complete the formal proof showing 2-vertex + edge implies connected
+          sorry
   -- Now construct the list of 3 agents
   have h1 : 0 < N.agents.length := by omega
   have h2 : 1 < N.agents.length := by omega
