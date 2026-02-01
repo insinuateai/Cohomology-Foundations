@@ -37,7 +37,7 @@ The "dimension" of the obstruction space measures independent conflicts:
 We prove BOUNDS on this dimension based on system properties.
 
 SORRIES: 0
-AXIOMS: 2 (simple_graph_edge_bound, h1_dim_components_bound)
+AXIOMS: 1 (h1_dim_components_bound)
 -/
 
 import Perspective.MayerVietoris
@@ -291,8 +291,13 @@ theorem dimension_quadratic_growth (n : ℕ) (hn : n ≥ 2) :
 
     Mathematical proof: Each edge {u,v} with u ≠ v corresponds to an unordered pair.
     The number of such pairs is C(n,2) = n*(n-1)/2. -/
-axiom simple_graph_edge_bound (V : Type*) [Fintype V] [DecidableEq V] (G : SimpleGraph V)
-    [DecidableRel G.Adj] : G.edgeFinset.card ≤ Fintype.card V * (Fintype.card V - 1) / 2
+theorem simple_graph_edge_bound (V : Type*) [Fintype V] [DecidableEq V] (G : SimpleGraph V)
+    [DecidableRel G.Adj] : G.edgeFinset.card ≤ Fintype.card V * (Fintype.card V - 1) / 2 := by
+  -- Use Mathlib's theorem: #G.edgeFinset ≤ (Fintype.card V).choose 2
+  have h := SimpleGraph.card_edgeFinset_le_card_choose_two (G := G)
+  -- And the identity: n.choose 2 = n * (n - 1) / 2
+  rw [Nat.choose_two_right] at h
+  exact h
 
 /-- The H¹ dimension bound follows from the edge bound and component count.
 
