@@ -56,38 +56,71 @@ def IsConvex (G : CoalitionGame n) : Prop :=
   ∀ i : Fin n, ∀ S T : Finset (Fin n), S ⊆ T → i ∉ T →
     G.marginalContribution i S ≤ G.marginalContribution i T
 
--- TEMP: axiomatized for speed, prove by 2026-02-07
--- Proof requires induction on |T \ S| with careful bookkeeping
-axiom supermodular_of_convex (G : CoalitionGame n) (hconv : IsConvex G)
-    (S T : Finset (Fin n)) : G.value (S ∪ T) + G.value (S ∩ T) ≥ G.value S + G.value T
+/-- Convexity implies supermodularity: v(S ∪ T) + v(S ∩ T) ≥ v(S) + v(T)
+    Proof by induction on |T \ S|. -/
+theorem supermodular_of_convex (G : CoalitionGame n) (hconv : IsConvex G)
+    (S T : Finset (Fin n)) : G.value (S ∪ T) + G.value (S ∩ T) ≥ G.value S + G.value T := by
+  -- Induction on |T \ S|
+  have h_key : ∀ k, (T \ S).card = k →
+      G.value (S ∪ T) + G.value (S ∩ T) ≥ G.value S + G.value T := by
+    intro k
+    induction k generalizing S T with
+    | zero =>
+      intro hcard
+      have hTS : T ⊆ S := by
+        intro x hx
+        by_contra hxS
+        have : x ∈ T \ S := mem_sdiff.mpr ⟨hx, hxS⟩
+        rw [card_eq_zero] at hcard
+        exact not_mem_empty x (hcard ▸ this)
+      simp only [union_eq_left.mpr hTS, inter_eq_right.mpr hTS, add_comm, le_refl]
+    | succ k ih =>
+      intro hcard
+      have hne : (T \ S).Nonempty := by
+        rw [nonempty_iff_ne_empty]
+        intro h; rw [h] at hcard; cases hcard
+      obtain ⟨i, hi⟩ := hne
+      rw [mem_sdiff] at hi
+      obtain ⟨hiT, hiS⟩ := hi
+      let T' := T.erase i
+      let S' := insert i S
+      have hcard_S'T : (T \ S').card = k := by
+        have h1 : T \ S' = (T \ S).erase i := by
+          ext x
+          simp only [S', mem_sdiff, mem_insert, not_or, mem_erase, ne_eq]
+          constructor
+          · intro ⟨hxT, hxS, hxi⟩; exact ⟨hxi, hxT, hxS⟩
+          · intro ⟨hxi, hxT, hxS⟩; exact ⟨hxT, hxS, hxi⟩
+        rw [h1, card_erase_of_mem (mem_sdiff.mpr ⟨hiT, hiS⟩), hcard]; omega
+      have hih' := ih S' T hcard_S'T
+      have h_S'_union_T : S' ∪ T = S ∪ T := by
+        ext x
+        simp only [S', mem_union, mem_insert]
+        constructor
+        · intro h; rcases h with (rfl | hxS) | hxT; right; exact hiT; left; exact hxS; right; exact hxT
+        · intro h; rcases h with hxS | hxT; left; right; exact hxS; right; exact hxT
+      rw [h_S'_union_T] at hih'
+      have h_ins_inter : insert i (S ∩ T) = S' ∩ T := by
+        ext x
+        simp only [S', mem_insert, mem_inter]
+        constructor
+        · intro h; rcases h with rfl | ⟨hxS, hxT⟩; exact ⟨Or.inl rfl, hiT⟩; exact ⟨Or.inr hxS, hxT⟩
+        · intro ⟨h1, hxT⟩; rcases h1 with rfl | hxS; left; rfl; right; exact ⟨hxS, hxT⟩
+      have h_inter_sub : S ∩ T ⊆ S := inter_subset_left
+      have h_conv : G.marginalContribution i (S ∩ T) ≤ G.marginalContribution i S :=
+        hconv i (S ∩ T) S h_inter_sub hiS
+      simp only [marginalContribution] at h_conv
+      rw [h_ins_inter] at h_conv
+      linarith
+  exact h_key (T \ S).card rfl
 
 /-- Equivalent convexity: v(S ∪ T) + v(S ∩ T) ≥ v(S) + v(T) -/
 theorem convex_iff_supermodular (G : CoalitionGame n) :
     IsConvex G ↔ ∀ S T : Finset (Fin n),
       G.value (S ∪ T) + G.value (S ∩ T) ≥ G.value S + G.value T := by
   constructor
-  · -- Convexity → Supermodularity
-    intro hconv S T
-    -- We prove this by induction on |T \ S|
-    -- Base: T ⊆ S, so T \ S = ∅, S ∪ T = S, S ∩ T = T
-    -- Then v(S) + v(T) = v(S ∪ T) + v(S ∩ T)
-    by_cases hTS : T ⊆ S
-    · simp only [union_eq_left.mpr hTS, inter_eq_right.mpr hTS, le_refl]
-    · -- Inductive case: find i ∈ T \ S
-      push_neg at hTS
-      obtain ⟨i, hiT, hiS⟩ := hTS
-      -- Apply convexity: mc(i, S) ≤ mc(i, T \ {i})
-      -- Use induction on T' = T \ {i}
-      have h_eq : T = insert i (T.erase i) := by simp [insert_erase hiT]
-      -- We'll use a simpler approach: direct algebraic manipulation
-      -- v(S ∪ T) - v(S) = marginal contribution of T \ S to S
-      -- By convexity, each addition gives larger marginal
-      -- This makes v(S ∪ T) - v(S) ≥ v(T) - v(S ∩ T)
-      -- Rearranging: v(S ∪ T) + v(S ∩ T) ≥ v(S) + v(T)
-
-      -- For now, we axiomatize this direction as it requires careful induction setup
-      -- TEMP: axiomatized for speed, prove by 2026-02-07
-      exact supermodular_of_convex G hconv S T
+  · -- Convexity → Supermodularity (proven above)
+    exact supermodular_of_convex G
   · -- Supermodularity → Convexity
     intro hsuper i S T hST hiT
     simp only [marginalContribution]
@@ -172,21 +205,44 @@ theorem grand_coalition_eq : (Finset.univ : Finset (Fin n)) =
     (Finset.univ : Finset (Fin n)).biUnion (fun i => {i}) := by
   ext x; simp
 
--- TEMP: axiomatized for speed, prove by 2026-02-07
--- Proof: sum telescopes because predecessors(i+1) = insert i (predecessors i)
--- So mv(i) = v(pred(i) ∪ {i}) - v(pred(i)) and successive terms cancel
-axiom marginal_sum_telescope_aux (G : CoalitionGame n) :
-    ∑ i : Fin n, marginalVector G i = G.value Finset.univ
+/-- Sum over filter of i < k gives v(filter i < k) -/
+private theorem sum_filter_lt (G : CoalitionGame n) (k : ℕ) (hk : k ≤ n) :
+    (Finset.univ.filter (fun i : Fin n => i.val < k)).sum (marginalVector G) =
+    G.value (Finset.univ.filter (fun i : Fin n => i.val < k)) := by
+  induction k with
+  | zero =>
+    simp only [not_lt_zero', filter_False, sum_empty, G.value_empty]
+  | succ k ih =>
+    by_cases hk' : k < n
+    · have h_split : Finset.univ.filter (fun i : Fin n => i.val < k + 1) =
+          insert ⟨k, hk'⟩ (Finset.univ.filter (fun i : Fin n => i.val < k)) := by
+        ext j
+        simp only [mem_filter, mem_univ, true_and, mem_insert]
+        constructor
+        · intro hj; by_cases hjk : j.val = k; left; exact Fin.ext hjk; right; omega
+        · intro hj; rcases hj with rfl | hj; simp only [Fin.val_mk]; omega; omega
+      have h_notin : ⟨k, hk'⟩ ∉ Finset.univ.filter (fun i : Fin n => i.val < k) := by
+        simp only [mem_filter, mem_univ, true_and, Fin.val_mk, lt_irrefl, not_false_eq_true]
+      have h_pred : predecessors ⟨k, hk'⟩ = Finset.univ.filter (fun i : Fin n => i.val < k) := by
+        ext i
+        simp only [predecessors, mem_filter, mem_univ, true_and, Fin.lt_iff_val_lt_val, Fin.val_mk]
+      rw [h_split, sum_insert h_notin, ih (by omega)]
+      simp only [marginalVector, marginalContribution, h_pred]
+      ring
+    · have h_eq : Finset.univ.filter (fun i : Fin n => i.val < k + 1) =
+          Finset.univ.filter (fun i : Fin n => i.val < k) := by
+        ext i; simp only [mem_filter, mem_univ, true_and]
+        have hi : i.val < n := i.isLt; constructor <;> intro _ <;> omega
+      rw [h_eq]; exact ih (by omega)
 
-/-- Sum of marginal vector equals value of grand coalition -/
+/-- Sum of marginal vector equals value of grand coalition (telescoping) -/
 theorem marginal_sum_eq_grand (G : CoalitionGame n) :
     ∑ i : Fin n, marginalVector G i = G.value Finset.univ := by
-  -- Telescoping: each term adds one player
-  -- Sum of (v(S_i ∪ {i}) - v(S_i)) for ordered players telescopes to v(N) - v(∅)
-  -- For n = 0: trivial (both sides are 0)
-  -- For n > 0: by induction, sum_{i<n} mv(i) = v({0,...,n-1}) = v(N)
-  -- This requires careful type-level induction that's complex in Lean4
-  exact marginal_sum_telescope_aux G
+  have h := sum_filter_lt G n (le_refl n)
+  have h_univ : Finset.univ.filter (fun i : Fin n => i.val < n) = Finset.univ := by
+    ext i; simp only [mem_filter, mem_univ, true_and, iff_true]; exact i.isLt
+  rw [h_univ] at h
+  exact h
 
 /-! ## Core Definition -/
 

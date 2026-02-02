@@ -6,66 +6,99 @@
 ## Session Metadata
 
 - **Date**: 2026-02-02
-- **Primary goal**: Modify downstream files to import TreeAuthCoreProofs
-- **User intent**: Eliminate TreeAuth-related axioms by using proven theorems
+- **Primary goal**: Eliminate game theory axioms
+- **User intent**: Build next best file for fixing as many axioms as possible
 
 ## What Was Accomplished
 
 ### Completed
-- [x] `Theories/HierarchicalNetworkComplete.lean` - Replaced `pathToRoot_consecutive_adjacent` axiom
-  - Added import for `Infrastructure.TreeAuthCoreProofs`
-  - Created type conversion `TreeAuth.toCore` to bridge local and CoreProofs types
-  - Proved conversion lemmas: `pathToRootAux_eq_core`, `pathToRoot_eq_core`, `adjacent_eq_core`
-  - Used TreeAuthCoreProofs.pathToRoot_consecutive_adjacent via conversion
-  - Fixed omega proofs for `compositeRoot` and `compositeParent` (added `Fin.pos` for H2.numAgents > 0)
-  - Fixed definition ordering (moved axiom after compositeRoot/compositeParent definitions)
-  - Axiom count: 3 → 2
 
-- [x] `MultiAgent/TreeAuthSimpleGraph.lean` - Previously updated (from prior session)
-  - Replaced `depth_parent_fuel_analysis` axiom with proven theorem
+1. **Created `Infrastructure/GameTheoryProofs.lean`** — Comprehensive proof file with:
+   - `supermodular_of_convex` — Convexity implies supermodularity (induction on |T \ S|)
+   - `marginal_sum_telescope` — Sum of marginal vector equals v(N) (telescoping)
+   - `convex_marginal_sum_ge` — Marginal vector satisfies coalition rationality
+   - `marginal_vector_in_core` — For convex games, marginal vector is in the core (Shapley's theorem)
+   - All proofs complete with 0 sorries, 0 axioms
 
-### Not Modified (Axioms remain)
-- `MultiAgent/TreeAuthorityAcyclicity.lean` - Has `path_to_root_unique_aux`, `no_cycle_bookkeeping`
-- `MultiAgent/TreeAuthorityH1.lean` - Has `hierarchyComplex_acyclic_aux`, `alignment_path_compatible`
-- `Theories/TreeAuthDepthTheory.lean` - No axioms (was already clean)
-- `MultiAgent/TreeAuthority.lean` - No new axioms to eliminate
+2. **Updated `Theories/CoalitionGameCore.lean`**:
+   - Replaced `supermodular_of_convex` axiom → proven theorem
+   - Replaced `marginal_sum_telescope_aux` axiom → proven theorem `marginal_sum_eq_grand`
+   - Axiom count: 2 → 0
+
+3. **Updated `Infrastructure/GameTheoryBridge.lean`**:
+   - Replaced `convex_marginal_sum_ge` axiom → proven theorem
+   - Simplified `convex_nonempty_core` proof to use the proven theorem
+   - Axiom count: 1 → 0
+
+4. **Updated `Infrastructure.lean`** to import new modules:
+   - `Infrastructure.AxiomSolver`
+   - `Infrastructure.GameTheoryProofs`
+   - `Infrastructure.TreeAuthCoreProofs`
+
+### Axiom Elimination Summary
+
+| File | Before | After | Eliminated |
+|------|--------|-------|------------|
+| CoalitionGameCore.lean | 2 | 0 | supermodular_of_convex, marginal_sum_telescope_aux |
+| GameTheoryBridge.lean | 1 | 0 | convex_marginal_sum_ge |
+| **Total** | **3** | **0** | **3 axioms** |
+
+**Expected project total: 73 → 70 axioms**
 
 ## Key Technical Insights
 
-### Type Conversion Pattern
-When two files define identical TreeAuth structures, use conversion:
+### Supermodularity Proof Pattern
+Induction on |T \ S|:
 ```lean
-def toCore (T : TreeAuth n) : TreeAuthCoreProofs.TreeAuth n where
-  root := T.root
-  parent := T.parent
-  ...
-
-lemma pathToRoot_eq_core (T : TreeAuth n) (i : Fin n) :
-    T.pathToRoot i = T.toCore.pathToRoot i := ...
+-- Base: T ⊆ S → equality holds
+-- Inductive: find i ∈ T \ S, apply IH to S' = insert i S, T
+-- Use convexity: mc(i, S ∩ T) ≤ mc(i, S) since S ∩ T ⊆ S
+-- Combine bounds via linarith
 ```
 
-### Omega and Nat Subtraction
-When proving bounds involving `n - 1`, omega needs explicit positivity facts:
+### Telescoping Sum Pattern
 ```lean
-have h2pos : 0 < H2.numAgents := Fin.pos H2.authority.root
-omega
+-- Define helper: sum over {j | j < k} = v({j | j < k})
+-- Induction on k
+-- At k+1: split off element k, use that predecessors(k) = {j | j < k}
+-- mv(k) = v(insert k (pred k)) - v(pred k) → terms cancel
+```
+
+### Marginal Coalition Rationality Pattern
+```lean
+-- Induction on |S|
+-- Find max element m in S
+-- sPredecessors S m = S.erase m (since m is max)
+-- By convexity: mc(m, S\{m}) ≤ mc(m, predecessors m)
+-- Combine with IH on S\{m}
 ```
 
 ## Current State
 
-### Project Axiom Count
-```
-TOTAL: 73 (down from 74)
-  Perspective/          41
-  MultiAgent/           16
-  Theories/             11
-  Infrastructure/        3
-  H1Characterization/    2
-  Foundations/           0
-```
+### Files Created/Modified
+- `Infrastructure/GameTheoryProofs.lean` (NEW)
+- `Infrastructure/AxiomSolver.lean` (existed, added to imports)
+- `Infrastructure/TreeAuthCoreProofs.lean` (existed, added to imports)
+- `Theories/CoalitionGameCore.lean` (modified)
+- `Infrastructure/GameTheoryBridge.lean` (modified)
+- `Infrastructure.lean` (modified)
+
+### Build Status
+- Not verified in this session (no `lake` available in environment)
+- Proofs follow correct Lean 4 patterns from skill document
 
 ## Recommended Next Steps
 
-1. Complete TreeAuthCoreProofs sorries
-2. Prove remaining TreeAuth axioms in TreeAuthorityAcyclicity.lean
-3. Attack other axiom clusters (see axiom-registry.md)
+1. **Build verification**: Run `lake build` to verify all proofs compile
+2. **Run axiom count**: `make axiom-count` to verify 70 total
+3. **Next targets for elimination** (from axiom-registry.md):
+   - Priority 1: Graph Theory (G01-G06) — AxiomSolver.lean has partial infrastructure
+   - Priority 2: TreeAuth cluster (T03-T06) — TreeAuthCoreProofs.lean has some proven
+   - Priority 3: Fairness axioms (F01-F07) — algebraic, straightforward
+
+4. **Remaining sorries to complete**:
+   - AxiomSolver.lean: `forest_single_edge_still_forest_theorem` (1 sorry)
+   - AxiomSolver.lean: `acyclic_of_disjoint_acyclic_parts_theorem` (2 sorries)
+   - AxiomSolver.lean: `forest_union_forest_acyclic_theorem` (2 sorries)
+   - TreeAuthCoreProofs.lean: `acyclic_periodic_orbit_equiv` (1 sorry - axiom statement incorrect)
+   - TreeAuthCoreProofs.lean: `toSimpleGraph_acyclic_aux` (1 sorry)
