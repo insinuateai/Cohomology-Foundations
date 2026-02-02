@@ -9,8 +9,8 @@
 | Status | Count | Description |
 |--------|-------|-------------|
 | KEEP | ~15 | External math requiring Mathlib extensions |
-| ELIMINATED | 2 | G01 (forest_single_edge_still_forest_aux), X28 (acyclic_periodic_orbit_equiv) |
-| ELIMINATE | ~51 | Provable from current Mathlib |
+| ELIMINATED | 3 | G01, X28 (acyclic_periodic_orbit_equiv), X29 (pathToRoot_consecutive_adjacent) |
+| ELIMINATE | ~50 | Provable from current Mathlib |
 
 ## By Priority (Recommended Elimination Order)
 
@@ -130,7 +130,7 @@
 | X26 | `StrategicGame.coordination_nash_player_bound` | GameTheoreticH1.lean:286 |
 | X27 | `compose_path_reaches_root` | HierarchicalNetworkComplete.lean:136 |
 | X28 | `acyclic_periodic_orbit_equiv` | ~~HierarchicalNetworkComplete.lean:182~~ | **ELIMINATED** - TreeAuthCoreProofs.lean |
-| X29 | `pathToRoot_consecutive_adjacent` | HierarchicalNetworkComplete.lean:188 |
+| X29 | `pathToRoot_consecutive_adjacent` | ~~HierarchicalNetworkComplete.lean:188~~ | **ELIMINATED** - was duplicate of proven theorem |
 
 ---
 

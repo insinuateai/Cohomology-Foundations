@@ -256,21 +256,21 @@ theorem acyclic_periodic_orbit_equiv (T : TreeAuth n) :
       intro j
       obtain ⟨m, hm⟩ := hlhs j
       use m
-      rw [← parentOrRoot_iterate_eq_core, ← root_eq_core]
+      rw [← TreeAuth.parentOrRoot_iterate_eq_core, ← TreeAuth.root_eq_core]
       exact hm
-    have hi_not_root' : i ≠ T.toCore.root := by rwa [← root_eq_core]
+    have hi_not_root' : i ≠ T.toCore.root := by rwa [← TreeAuth.root_eq_core]
     have hcycle' : T.toCore.parentOrRoot^[k] i = i := by
-      rw [← parentOrRoot_iterate_eq_core]; exact hcycle
+      rw [← TreeAuth.parentOrRoot_iterate_eq_core]; exact hcycle
     exact h.mp hlhs' i hi_not_root' k hk hcycle'
   · intro hrhs i
     have hrhs' : ∀ i, i ≠ T.toCore.root → ∀ k > 0, T.toCore.parentOrRoot^[k] i ≠ i := by
       intro j hj k hk
-      have hj' : j ≠ T.root := by rwa [root_eq_core]
+      have hj' : j ≠ T.root := by rwa [TreeAuth.root_eq_core]
       have := hrhs j hj' k hk
-      rwa [parentOrRoot_iterate_eq_core]
+      rwa [← TreeAuth.parentOrRoot_iterate_eq_core]
     obtain ⟨m, hm⟩ := h.mpr hrhs' i
     use m
-    rw [parentOrRoot_iterate_eq_core, root_eq_core]
+    rw [TreeAuth.parentOrRoot_iterate_eq_core, TreeAuth.root_eq_core]
     exact hm
 
 theorem acyclic_iff_no_periodic_orbit (T : TreeAuth n) :

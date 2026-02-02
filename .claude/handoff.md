@@ -6,62 +6,76 @@
 ## Session Metadata
 
 - **Date**: 2026-02-02
-- **Primary goal**: Analyze axioms/sorries and create roadmap for elimination
-- **User intent**: Identify 5 new infrastructure files to create that would maximize axiom elimination
+- **Primary goal**: Fix `acyclic_periodic_orbit_equiv` sorry and eliminate axioms
+- **User intent**: Understand and fix the "incorrect for root case" sorry at TreeAuthCoreProofs.lean:486
 
 ## What Was Accomplished
 
 ### Completed
-- [x] Full audit of axioms (68 total) and sorries (4 total) across codebase
-- [x] Identified axioms already proven but not updated in registry (T01, F04, F05, F06)
-- [x] Analyzed axiom clusters by mathematical theme
-- [x] Created `.claude/next-5-targets.md` with detailed implementation guide
+- [x] Fixed `acyclic_periodic_orbit_equiv` theorem statement (was mathematically false)
+- [x] Removed sorry from TreeAuthCoreProofs.lean:486
+- [x] Created bridging lemmas to connect local TreeAuth to TreeAuthCoreProofs.TreeAuth
+- [x] Eliminated X28 and X29 axioms from HierarchicalNetworkComplete.lean
+- [x] Updated axiom-registry.md with eliminations
 
-### Key Deliverable
+### Key Changes
 
-Created `.claude/next-5-targets.md` describing 5 new infrastructure files to create:
-
-| # | File | Axioms Eliminated |
-|---|------|-------------------|
-| 1 | `Infrastructure/DepthTheoryComplete.lean` | 6 (T01-T05, X28) |
-| 2 | `Infrastructure/SimplicialGraphBridge.lean` | 6 (G02, G03, R01-R03, C03) |
-| 3 | `Infrastructure/PathDecompositionComplete.lean` | 5 (G04, G05, T06, T07, X27) |
-| 4 | `Infrastructure/ComponentCountingComplete.lean` | 4 (G06, C05, X22, X23) |
-| 5 | `Infrastructure/FairnessH1Bridge.lean` | 3 (F01, F02, F07) |
-
-**Total potential: -24 axioms**
+| File | Change |
+|------|--------|
+| `Infrastructure/TreeAuthCoreProofs.lean:472` | Fixed theorem: added `i ≠ T.root →` to RHS |
+| `Infrastructure/TreeAuthCoreProofs.lean:486` | Removed sorry (proof now complete) |
+| `Theories/HierarchicalNetworkComplete.lean:117-131` | Added bridging lemmas |
+| `Theories/HierarchicalNetworkComplete.lean:248-274` | Replaced axiom with proven theorem |
 
 ### Axiom Status
 
-- **Before**: 68 axioms (per registry)
-- **After**: 68 axioms (no changes this session - analysis only)
-- **Already proven but in registry**: T01, F04, F05, F06 (should be removed)
+- **Before**: 68 axioms
+- **After**: 66 axioms
+- **Eliminated**: X28 (`acyclic_periodic_orbit_equiv`), X29 (`pathToRoot_consecutive_adjacent`)
 
 ## Current State
 
-### Sorries (4 total)
+### Sorries (3 total - reduced from 4)
 | File | Line | Issue |
 |------|------|-------|
-| `Infrastructure/TreeAuthCoreProofs.lean` | 486 | Theorem incorrect for root case |
-| `Infrastructure/TreeAuthCoreProofs.lean` | 582 | Minimum-depth cycle argument |
-| `Theories/TreeAuthDepthTheory.lean` | 127 | Pigeonhole for depth bound |
-| `Theories/TreeAuthDepthTheory.lean` | 408 | Unknown |
+| `Infrastructure/TreeAuthCoreProofs.lean` | 551 | `toSimpleGraph_acyclic_aux` - minimum-depth cycle argument |
+| `Theories/TreeAuthDepthTheory.lean` | 127 | `depth_bounded` - pigeonhole for depth bound |
+| `Theories/TreeAuthDepthTheory.lean` | 408 | `no_cycle_via_depth_aux` |
 
-### Key Infrastructure Already Exists
-- `WalkDecomposition.lean`: Walk decomposition lemmas (eliminated G01)
-- `ExtendedGraphInfra.lean`: `vertex_in_v_or_w_component` (proves G04/G05 logic), `bridge_splits_component_aux` (proves G06)
-- `TreeAuthCoreProofs.lean`: `stepsToRoot`, depth definitions
+### Key Insight from This Session
+
+**When an axiom's statement is mathematically false, fix the statement rather than trying to prove the unprovable.**
+
+The original `acyclic_periodic_orbit_equiv` claimed:
+```
+(∀ i, ∃ k, parentOrRoot^[k] i = T.root) ↔ ∀ i, ∀ k > 0, parentOrRoot^[k] i ≠ i
+```
+
+But the RHS is FALSE for the root node because `parentOrRoot root = root` (root is a fixed point). The corrected statement adds `i ≠ T.root →` to the RHS.
+
+### Bridging Pattern for TreeAuth
+
+When HierarchicalNetworkComplete.lean has its own local `TreeAuth` type but needs to use theorems from TreeAuthCoreProofs.lean:
+
+```lean
+-- Convert function values
+lemma parentOrRoot_eq_core (T : TreeAuth n) (i : Fin n) :
+    T.parentOrRoot i = T.toCore.parentOrRoot i
+
+-- Convert iterations
+lemma parentOrRoot_iterate_eq_core (T : TreeAuth n) (i : Fin n) (k : ℕ) :
+    T.parentOrRoot^[k] i = T.toCore.parentOrRoot^[k] i
+
+-- Root unchanged
+lemma root_eq_core (T : TreeAuth n) : T.root = T.toCore.root
+```
 
 ## Recommended Next Steps
 
-### Immediate (High ROI)
-1. **Create DepthTheoryComplete.lean** - Unblocks 6 tree authority axioms
-2. **Create PathDecompositionComplete.lean** - Builds on existing WalkDecomposition, LOW difficulty
+### High Value
+1. **X27** (`compose_path_reaches_root`) - Last axiom in HierarchicalNetworkComplete.lean
+2. **T01-T05** - Tree authority depth axioms (TreeAuthDepthTheory.lean)
 
-### Medium Term
-3. **Create SimplicialGraphBridge.lean** - Unblocks conflict resolution and Euler formula
-4. **Create ComponentCountingComplete.lean** - Pure cardinality arguments
-
-### Lower Priority
-5. **Create FairnessH1Bridge.lean** - Ties together fairness theory
-6. **Update axiom-registry.md** - Remove T01, F04, F05, F06 (already proven)
+### Remaining Sorries
+3. Fix `toSimpleGraph_acyclic_aux` (TreeAuthCoreProofs.lean:551) - needs minimum-depth argument
+4. Fix `depth_bounded` (TreeAuthDepthTheory.lean:127) - needs pigeonhole
