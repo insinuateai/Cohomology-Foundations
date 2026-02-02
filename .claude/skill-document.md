@@ -39,6 +39,7 @@
 - **▸ operator fails for Reachable**: `hG'.symm ▸ h` fails with "failed to compute motive". Use helper: `def reachable_cast (heq : G1 = G2) (h : G1.Reachable a b) : G2.Reachable a b := heq ▸ h`
 - **absurd for False→goal**: When deriving goal from contradiction, use `exact absurd hReach hNotReach` not `exact hNotReach hReach`
 - **Fintype instance mismatch**: When `convert` leaves goal `Fintype.card X = Fintype.card X` with different instances, use `simp only [Fintype.card_eq_nat_card]` to normalize both sides to `Nat.card` (instance-independent)
+- **Walk.support_takeUntil_append_dropUntil**: Doesn't exist. To show vertex in either takeUntil or dropUntil, use `List.mem_append` after manually constructing the support equality
 
 ## Patterns
 
@@ -75,6 +76,7 @@
 ## Session Log
 
 <!-- Newest first -->
+- 2026-02-02: **AxiomSolver.lean analysis** - File from `claude/lean-axiom-solver-TCj6F` branch was redundant: all proven theorems already in GraphComposition.lean, had 7 sorries, key target axiom (G01) still had sorry. **Deleted file.** G01 (`forest_single_edge_still_forest_aux`) remains - needs `Walk.support_takeUntil_append_dropUntil` which doesn't exist. Pattern for proof: see TreeGraphInfra.lean's `takeUntil_first_endpoint_no_edge` (lines 60-82).
 - 2026-02-01: **cycleIndicator_is_cocycle axiom eliminated** - Added `hasNoFilledTriangles K` hypothesis to forward direction of main theorem. Key insight: the axiom is FALSE for complexes with filled 2-simplices (counterexample: filled triangle gives δf ≠ 0). For hollow complexes, use proven `cycleIndicator_is_cocycle_hollow` (via `cochain_one_is_cocycle_of_no_2simplices`). Pattern: when eliminating axioms by adding hypotheses, use direct theorems (`oneConnected_implies_h1_trivial`) for backward direction instead of iff rewrites (avoids needing hypothesis for unused direction). Files updated: CycleCochain/Definitions.lean, Characterization.lean, SmallGraphs.lean, LinearComplexity.lean, ConflictLocalization.lean, ConflictResolution.lean, AgentCoordination.lean, IncrementalUpdates.lean, HierarchicalAlignment.lean, DimensionBound.lean. Axioms: 72→71.
 - 2026-02-01: **Axiom signature mismatch analysis** - AxiomElimination.lean theorems with same names as source file axioms may have DIFFERENT signatures: (1) `forms_cycle_from_global_failure` in AxiomElim returns cocycle existence, source returns pairwise agreement; (2) `fairness_loss_bounded` in AxiomElim has h_total/h_valid hypotheses, source is unconditional; (3) `h1_trivial_implies_fair_allocation` in AxiomElim just unfolds H1Trivial definition, source proves ∃ fair allocation. Pitfall: Same-named declarations across files aren't necessarily duplicates - always compare full signatures before attempting elimination.
 - 2026-02-01: **Deleted 7 unused axioms** - Removed `potential_has_nash`, `h1_local_global_gap`, `convex_implies_superadditive`, `convex_nonempty_core`, `core_h1_relation`, `convex_h1_zero`, `h1_pos_ic_obstruction` from MultiAgent/. Pitfall: docstrings before axioms sometimes extend upward; deleting just the axiom+immediate docstring can leave orphaned comment blocks causing "unterminated comment" errors.

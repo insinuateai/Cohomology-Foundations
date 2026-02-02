@@ -435,7 +435,13 @@ theorem forest_union_forest_acyclic {W : Type*} [Fintype W] [DecidableEq W]
     Case 2: If the cycle uses the new edge (u,v), then removing this edge
     from the cycle gives a path from u to v in G, contradicting h_not_reach.
 
-    We use the axiom placeholder while proper walk decomposition lemmas are developed. -/
+    The full proof requires walk decomposition lemmas (splitting cycle at edge,
+    extracting the "long way around"). The key lemma is:
+    - takeUntil_first_endpoint_no_edge: For any walk containing edge s(u,v),
+      at least one of the takeUntil prefixes doesn't use that edge.
+
+    This axiom is targeted for elimination using Walk.takeUntil/dropUntil infrastructure.
+    See Infrastructure/TreeGraphInfra.lean for the proof pattern. -/
 axiom forest_single_edge_still_forest_aux (G : SimpleGraph V) [DecidableRel G.Adj]
     (hG : G.IsAcyclic) (u v : V) (h_neq : u ≠ v) (h_not_reach : ¬G.Reachable u v) :
     (G ⊔ fromEdgeSet {s(u, v)}).IsAcyclic

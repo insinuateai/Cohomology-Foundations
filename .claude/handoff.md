@@ -6,66 +6,64 @@
 ## Session Metadata
 
 - **Date**: 2026-02-02
-- **Primary goal**: Modify downstream files to import TreeAuthCoreProofs
-- **User intent**: Eliminate TreeAuth-related axioms by using proven theorems
+- **Primary goal**: Evaluate and integrate AxiomSolver.lean from another branch
+- **User intent**: Determine if the file helps eliminate axioms
 
 ## What Was Accomplished
 
 ### Completed
-- [x] `Theories/HierarchicalNetworkComplete.lean` - Replaced `pathToRoot_consecutive_adjacent` axiom
-  - Added import for `Infrastructure.TreeAuthCoreProofs`
-  - Created type conversion `TreeAuth.toCore` to bridge local and CoreProofs types
-  - Proved conversion lemmas: `pathToRootAux_eq_core`, `pathToRoot_eq_core`, `adjacent_eq_core`
-  - Used TreeAuthCoreProofs.pathToRoot_consecutive_adjacent via conversion
-  - Fixed omega proofs for `compositeRoot` and `compositeParent` (added `Fin.pos` for H2.numAgents > 0)
-  - Fixed definition ordering (moved axiom after compositeRoot/compositeParent definitions)
-  - Axiom count: 3 → 2
+- [x] Analyzed `Infrastructure/AxiomSolver.lean` from `claude/lean-axiom-solver-TCj6F` branch
+- [x] **Deleted AxiomSolver.lean** - Found it was redundant and harmful:
+  - Most theorems already proven in GraphComposition.lean
+  - Had **7 sorries** violating "0 sorries" goal
+  - Key target axiom (G01) wasn't actually eliminated (replacement had sorry)
+- [x] Improved G01 axiom documentation with proof strategy
 
-- [x] `MultiAgent/TreeAuthSimpleGraph.lean` - Previously updated (from prior session)
-  - Replaced `depth_parent_fuel_analysis` axiom with proven theorem
+### Analysis Results
+| AxiomSolver.lean Content | Status |
+|-------------------------|--------|
+| `subgraph_acyclic_of_acyclic` | Already in GraphComposition.lean |
+| `induce_acyclic_of_acyclic` | Already in GraphComposition.lean |
+| `cycle_transfer_to_subgraph` | Already in GraphComposition.lean |
+| `forest_union_forest_acyclic` | Already in GraphComposition.lean |
+| `acyclic_of_disjoint_acyclic_parts` | Already in GraphComposition.lean |
+| `forest_single_edge_still_forest_theorem` | **1 sorry** - incomplete |
+| `acyclic_of_disjoint_acyclic_parts_theorem` | **2 sorries** - incomplete |
+| `forest_union_forest_acyclic_theorem` | **2 sorries** - incomplete |
 
-### Not Modified (Axioms remain)
-- `MultiAgent/TreeAuthorityAcyclicity.lean` - Has `path_to_root_unique_aux`, `no_cycle_bookkeeping`
-- `MultiAgent/TreeAuthorityH1.lean` - Has `hierarchyComplex_acyclic_aux`, `alignment_path_compatible`
-- `Theories/TreeAuthDepthTheory.lean` - No axioms (was already clean)
-- `MultiAgent/TreeAuthority.lean` - No new axioms to eliminate
+### Not Changed
+- `forest_single_edge_still_forest_aux` axiom (G01) remains in GraphComposition.lean
+  - Proof requires `Walk.support_takeUntil_append_dropUntil` (doesn't exist in Mathlib 4.27.0)
+  - Pattern exists in TreeGraphInfra.lean's `takeUntil_first_endpoint_no_edge`
 
 ## Key Technical Insights
 
-### Type Conversion Pattern
-When two files define identical TreeAuth structures, use conversion:
-```lean
-def toCore (T : TreeAuth n) : TreeAuthCoreProofs.TreeAuth n where
-  root := T.root
-  parent := T.parent
-  ...
-
-lemma pathToRoot_eq_core (T : TreeAuth n) (i : Fin n) :
-    T.pathToRoot i = T.toCore.pathToRoot i := ...
+### G01 Proof Strategy (for future elimination)
+```
+1. For cycle c using edge s(u,v):
+   - Both u, v ∈ c.support
+   - By takeUntil_first_endpoint_no_edge, one prefix is clean
+2. The "long way around" the cycle gives a path u→v avoiding s(u,v)
+3. This path transfers to G, giving G.Reachable u v
+4. Contradiction with h_not_reach
 ```
 
-### Omega and Nat Subtraction
-When proving bounds involving `n - 1`, omega needs explicit positivity facts:
-```lean
-have h2pos : 0 < H2.numAgents := Fin.pos H2.authority.root
-omega
-```
+### Walk Decomposition Lemmas Needed
+- `Walk.edges_takeUntil_subset`: edges in takeUntil are subset of original
+- Support splitting: showing vertex in either takeUntil or dropUntil
+- See TreeGraphInfra.lean lines 60-82 for working `takeUntil_first_endpoint_no_edge`
 
 ## Current State
 
-### Project Axiom Count
-```
-TOTAL: 73 (down from 74)
-  Perspective/          41
-  MultiAgent/           16
-  Theories/             11
-  Infrastructure/        3
-  H1Characterization/    2
-  Foundations/           0
-```
+### Files Changed
+- `Infrastructure/AxiomSolver.lean` - **DELETED**
+- `Infrastructure/GraphComposition.lean` - Improved axiom docstring
+
+### Axiom Status
+- G01 (`forest_single_edge_still_forest_aux`) - Still axiom, needs walk decomposition
 
 ## Recommended Next Steps
 
-1. Complete TreeAuthCoreProofs sorries
-2. Prove remaining TreeAuth axioms in TreeAuthorityAcyclicity.lean
-3. Attack other axiom clusters (see axiom-registry.md)
+1. Complete G01 elimination by adapting TreeGraphInfra pattern
+2. Attack other axiom clusters (see axiom-registry.md)
+3. Consider adding missing Mathlib lemmas as local helpers
