@@ -1,6 +1,7 @@
 # Axiom Signature Registry
 
 > Authoritative source of axiom declarations. Compare FULL signatures before elimination.
+> See `.claude/axiom-justifications.md` for publication-ready citations.
 > Last updated: 2026-02-01
 
 ## Quick Reference

@@ -7,7 +7,7 @@ Lean4 formalization of cohomology theory with applications to multi-agent coordi
 **START:**
 1. Read `.claude/skill-document.md` for patterns and pitfalls
 2. Read `.claude/handoff.md` for previous session state (if exists)
-3. If working on axiom elimination, check `.claude/axiom-registry.md`
+3. If working on axiom elimination, check `.claude/axiom-registry.md` and `.claude/axiom-justifications.md`
 
 **END:**
 1. Update `.claude/skill-document.md` with learnings (if >100 lines, compress)
