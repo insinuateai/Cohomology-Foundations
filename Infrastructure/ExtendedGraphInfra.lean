@@ -287,9 +287,10 @@ private theorem walk_to_G'_reachable {G : SimpleGraph V} [DecidableRel G.Adj]
       simp only [Walk.edges_cons, List.mem_cons]; right; exact he
     exact h_ab_G'.reachable.trans (ih h_rest)
 
-/-- Helper: every vertex in v's G-component is G'-reachable from v or w after removing an edge e = {v,w}.
-    This is the key lemma for showing the fiber over v's G-component has exactly 2 elements. -/
-private theorem vertex_in_v_or_w_component (G : SimpleGraph V) [DecidableRel G.Adj]
+/-- Every vertex in v's G-component is G'-reachable from v or w after removing edge e = {v,w}.
+    This is the key lemma for bridge path decomposition (G04) and component fiber analysis.
+    EXPORTED for use in PathDecompositionComplete.lean -/
+theorem vertex_in_v_or_w_component (G : SimpleGraph V) [DecidableRel G.Adj]
     (e : Sym2 V) (v w : V) (hvw : s(v, w) = e) (hadj : G.Adj v w) (u : V)
     (hu : G.connectedComponentMk u = G.connectedComponentMk v) :
     let G' := G.deleteEdges ({e} : Set (Sym2 V))
