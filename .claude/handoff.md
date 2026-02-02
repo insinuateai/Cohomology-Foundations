@@ -16,6 +16,10 @@
 - [x] Proved bijection between 1-simplices and skeleton edges
 - [x] Proved `acyclic_implies_euler_proven` (eliminates G02)
 - [x] Established `forest_euler_equality` using Mathlib's `IsAcyclic.card_edgeFinset`
+- [x] Created `Infrastructure/PathDecompositionComplete.lean` (new file)
+- [x] Proved `bridge_path_decomposition_proven` (eliminates G04)
+- [x] Proved `non_v_component_path_avoids_bridge_proven` (eliminates G05)
+- [x] Documented proof strategies for T06, T07, X27
 
 ### In Progress
 - [ ] `euler_implies_acyclic_graph` - Euler implies acyclic (G03) - structure complete, 2 sorries
@@ -26,12 +30,17 @@
 | File | Change |
 |------|--------|
 | `Infrastructure/SimplicialGraphBridge.lean` | NEW: 340 lines, bijection + Euler formula proofs |
+| `Infrastructure/PathDecompositionComplete.lean` | NEW: 200+ lines, bridge decomposition proofs |
+| `Infrastructure/ExtendedGraphInfra.lean` | Made `vertex_in_v_or_w_component` public |
 
 ### Axiom Status
 
 - **G02 (`acyclic_implies_euler`)**: ELIMINATED - now `acyclic_implies_euler_proven`
 - **G03 (`euler_implies_acyclic`)**: IN PROGRESS - proof structure complete
+- **G04 (`bridge_path_decomposition`)**: ELIMINATED - now `bridge_path_decomposition_proven`
+- **G05 (`non_v_component_path_avoids_bridge`)**: ELIMINATED - now `non_v_component_path_avoids_bridge_proven`
 - **C03 (`complete_complex_coboundary_aux'`)**: IN PROGRESS - proof structure complete
+- **T06, T07, X27**: Proof strategies documented, await HierarchicalNetwork integration
 
 ## Current State
 
@@ -87,4 +96,6 @@ The sorry is handling the dependent type details in the coboundary definition.
 
 ## Files Modified This Session
 
-1. `Infrastructure/SimplicialGraphBridge.lean` - NEW FILE
+1. `Infrastructure/SimplicialGraphBridge.lean` - NEW FILE (File #2 from roadmap)
+2. `Infrastructure/PathDecompositionComplete.lean` - NEW FILE (File #3 from roadmap)
+3. `Infrastructure/ExtendedGraphInfra.lean` - Made vertex_in_v_or_w_component public
