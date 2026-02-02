@@ -1,0 +1,75 @@
+name: Lean CI
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:  # Manual trigger from Actions tab
+
+# Cancel in-progress runs for the same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install elan
+        run: |
+          curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> $GITHUB_PATH
+
+      - name: Cache Mathlib
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.elan
+            .lake/packages
+            .lake/build
+          key: mathlib-${{ hashFiles('lakefile.toml', 'lake-manifest.json') }}
+          restore-keys: |
+            mathlib-
+
+      - name: Get Mathlib cache
+        run: lake exe cache get || true
+
+      - name: Build project
+        run: lake build
+
+      - name: Build tests
+        run: lake build Tests
+
+      - name: Verify no new sorries
+        run: |
+          echo "Checking for sorries..."
+          SORRIES=$(grep -rn "sorry" --include="*.lean" . --exclude-dir=.lake | grep -v "-- sorry" | grep -v "SORRIES:" | grep -v "^Binary" | wc -l)
+          echo "Found $SORRIES sorry occurrences"
+          # Report but don't fail - track count over time
+
+      - name: Count axioms
+        run: |
+          echo "=== Axiom Count by Directory ==="
+          for dir in Perspective MultiAgent Theories Infrastructure H1Characterization Foundations; do
+            if [ -d $dir ]; then
+              count=$(grep -rc "^axiom " $dir --include="*.lean" 2>/dev/null | awk -F: '{sum+=$2} END {print sum+0}')
+              printf "  %-20s %3d\n" "$dir/" "$count"
+            fi
+          done
+          echo "  ────────────────────────"
+          TOTAL=$(grep -rc '^axiom ' . --include='*.lean' | grep -v '\.lake' | awk -F: '{sum+=$2} END {print sum}')
+          printf "  %-20s %3d\n" "TOTAL" "$TOTAL"
+
+      - name: Summary
+        run: |
+          echo "## Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Build completed successfully" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Tests compiled" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Statistics" >> $GITHUB_STEP_SUMMARY
+          echo "- Lean files: $(find . -name '*.lean' -not -path './.lake/*' | wc -l)" >> $GITHUB_STEP_SUMMARY
+          echo "- Total lines: $(find . -name '*.lean' -not -path './.lake/*' -exec cat {} + | wc -l)" >> $GITHUB_STEP_SUMMARY

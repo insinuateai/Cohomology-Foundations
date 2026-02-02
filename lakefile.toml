@@ -44,3 +44,6 @@ name = "H2Characterization"
 
 [[lean_lib]]
 name = "Experimental"
+
+[[lean_lib]]
+name = "Tests"

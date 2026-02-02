@@ -255,6 +255,30 @@ axiom-list:
 	@grep -rn "^axiom " . --include="*.lean" | grep -v "\.lake" | \
 		sed 's/:axiom /:  /' | sort
 
+# === Test Suite ===
+
+.PHONY: test test-quick ci
+
+# Run full test suite
+test:
+	@echo "Building test suite..."
+	@lake build Tests
+	@echo "✓ All tests passed!"
+
+# Quick test - just verify tests compile
+test-quick:
+	@lake build Tests --old -q && echo "✓ Tests compile"
+
+# Full CI check (build + test + verify)
+ci: all test
+	@echo "Running CI checks..."
+	@make axiom-count
+	@echo ""
+	@echo "=== CI Summary ==="
+	@echo "✓ Build passed"
+	@echo "✓ Tests passed"
+	@echo "✓ Axiom count reported"
+
 help:
 	@echo "Available targets:"
 	@echo "  fast       - Fast incremental build (default)"
