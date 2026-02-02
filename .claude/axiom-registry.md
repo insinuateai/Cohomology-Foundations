@@ -2,14 +2,15 @@
 
 > Authoritative source of axiom declarations. Compare FULL signatures before elimination.
 > See `.claude/axiom-justifications.md` for publication-ready citations.
-> Last updated: 2026-02-01
+> Last updated: 2026-02-02
 
 ## Quick Reference
 
 | Status | Count | Description |
 |--------|-------|-------------|
 | KEEP | ~15 | External math requiring Mathlib extensions |
-| ELIMINATE | ~59 | Provable from current Mathlib |
+| ELIMINATED | 2 | G01 (forest_single_edge_still_forest_aux), X28 (acyclic_periodic_orbit_equiv) |
+| ELIMINATE | ~51 | Provable from current Mathlib |
 
 ## By Priority (Recommended Elimination Order)
 
@@ -17,7 +18,7 @@
 
 | ID | Axiom | File:Line | Notes |
 |----|-------|-----------|-------|
-| G01 | `forest_single_edge_still_forest_aux` | GraphComposition.lean:439 | Use `IsAcyclic.deleteEdges` |
+| G01 | `forest_single_edge_still_forest_aux` | ~~GraphComposition.lean:439~~ | **ELIMINATED** - WalkDecomposition.lean |
 | G02 | `acyclic_implies_euler` | LinearComplexity.lean:123 | Euler formula for forests |
 | G03 | `euler_implies_acyclic` | LinearComplexity.lean:143 | Converse of G02 |
 | G04 | `bridge_path_decomposition` | BridgeComponentTheory.lean:171 | Path through bridge |
@@ -128,22 +129,39 @@
 | X25 | `StrategicGame.actions_nonempty` | GameTheoreticH1.lean:274 |
 | X26 | `StrategicGame.coordination_nash_player_bound` | GameTheoreticH1.lean:286 |
 | X27 | `compose_path_reaches_root` | HierarchicalNetworkComplete.lean:136 |
-| X28 | `acyclic_periodic_orbit_equiv` | HierarchicalNetworkComplete.lean:182 |
+| X28 | `acyclic_periodic_orbit_equiv` | ~~HierarchicalNetworkComplete.lean:182~~ | **ELIMINATED** - TreeAuthCoreProofs.lean |
 | X29 | `pathToRoot_consecutive_adjacent` | HierarchicalNetworkComplete.lean:188 |
 
 ---
 
 ## Full Signatures (Key Axioms)
 
-### G01: forest_single_edge_still_forest_aux
+### G01: forest_single_edge_still_forest_aux — **ELIMINATED**
 
 ```lean
-axiom forest_single_edge_still_forest_aux (G : SimpleGraph V) [DecidableRel G.Adj]
-    (e : Sym2 V) (he : e ∈ G.edgeSet) (hF : G.IsAcyclic) :
-    (G.deleteEdges {e}).IsAcyclic
+-- ELIMINATED 2026-02-02 via Infrastructure/WalkDecomposition.lean
+-- Original axiom replaced with proven theorem:
+theorem forest_single_edge_still_forest (G : SimpleGraph V) [DecidableRel G.Adj]
+    (hG : G.IsAcyclic) (u v : V) (h_neq : u ≠ v) (h_not_reach : ¬G.Reachable u v) :
+    (G ⊔ fromEdgeSet {s(u, v)}).IsAcyclic
 ```
 
-**Approach**: Deleting an edge from an acyclic graph preserves acyclicity. Check if `SimpleGraph.IsAcyclic.deleteEdges` exists in Mathlib.
+**Resolution**: Proved using walk decomposition (`takeUntil`/`dropUntil`) and the "long way around" theorem for cycles.
+
+---
+
+### X28: acyclic_periodic_orbit_equiv — **ELIMINATED**
+
+```lean
+-- ELIMINATED 2026-02-02 via Infrastructure/TreeAuthCoreProofs.lean
+-- Original axiom was UNPROVABLE (RHS false for root node: parentOrRoot root = root)
+-- Fixed statement adds i ≠ T.root restriction:
+theorem acyclic_periodic_orbit_equiv (T : TreeAuth n) :
+    (∀ i, ∃ k, T.parentOrRoot^[k] i = T.root) ↔
+    ∀ i, i ≠ T.root → ∀ k > 0, T.parentOrRoot^[k] i ≠ i
+```
+
+**Resolution**: The original axiom's RHS was false because `parentOrRoot root = root` (root is a fixed point). Added `i ≠ T.root →` restriction to RHS. The non-root proof was already complete in the file; only needed to restructure to use the hypothesis from the corrected statement.
 
 ---
 

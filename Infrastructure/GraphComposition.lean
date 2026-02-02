@@ -5,12 +5,12 @@
   Provides lemmas for combining acyclic graphs while preserving acyclicity.
 
   SORRIES: 0
-  AXIOMS: 1 (forest_single_edge_still_forest_aux)
+  AXIOMS: 0
 
   Key theorems:
   - forest_union_forest_acyclic_aux: Disjoint union of acyclic graphs is acyclic (PROVED)
-  - forest_single_edge_still_forest_aux: Adding edge between disconnected vertices preserves
-    acyclicity (AXIOM - requires walk decomposition lemmas to eliminate)
+  - forest_single_edge_still_forest: Adding edge between disconnected vertices preserves
+    acyclicity (PROVED via WalkDecomposition)
 -/
 
 import Mathlib.Combinatorics.SimpleGraph.Basic
@@ -21,6 +21,7 @@ import Mathlib.Data.Fintype.Basic
 import Mathlib.Data.Finset.Card
 import Mathlib.Data.Sum.Basic
 import Infrastructure.GraphTheoryUtils
+import Infrastructure.WalkDecomposition
 import H1Characterization.Characterization
 
 namespace Infrastructure.GraphComposition
@@ -440,16 +441,12 @@ theorem forest_union_forest_acyclic {W : Type*} [Fintype W] [DecidableEq W]
     - takeUntil_first_endpoint_no_edge: For any walk containing edge s(u,v),
       at least one of the takeUntil prefixes doesn't use that edge.
 
-    This axiom is targeted for elimination using Walk.takeUntil/dropUntil infrastructure.
-    See Infrastructure/TreeGraphInfra.lean for the proof pattern. -/
-axiom forest_single_edge_still_forest_aux (G : SimpleGraph V) [DecidableRel G.Adj]
-    (hG : G.IsAcyclic) (u v : V) (h_neq : u ≠ v) (h_not_reach : ¬G.Reachable u v) :
-    (G ⊔ fromEdgeSet {s(u, v)}).IsAcyclic
-
+    This was previously an axiom, now proved using Walk.takeUntil/dropUntil infrastructure
+    in Infrastructure/WalkDecomposition.lean. -/
 theorem forest_single_edge_still_forest (G : SimpleGraph V) [DecidableRel G.Adj]
     (hG : G.IsAcyclic) (u v : V) (h_neq : u ≠ v) (h_not_reach : ¬G.Reachable u v) :
     (G ⊔ fromEdgeSet {s(u, v)}).IsAcyclic :=
-  forest_single_edge_still_forest_aux G hG u v h_neq h_not_reach
+  WalkDecomposition.forest_single_edge_still_forest G hG u v h_neq h_not_reach
 
 /-! ## Section 4: Main Composition Theorem -/
 

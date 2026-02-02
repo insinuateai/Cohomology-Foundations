@@ -6,64 +6,62 @@
 ## Session Metadata
 
 - **Date**: 2026-02-02
-- **Primary goal**: Evaluate and integrate AxiomSolver.lean from another branch
-- **User intent**: Determine if the file helps eliminate axioms
+- **Primary goal**: Analyze axioms/sorries and create roadmap for elimination
+- **User intent**: Identify 5 new infrastructure files to create that would maximize axiom elimination
 
 ## What Was Accomplished
 
 ### Completed
-- [x] Analyzed `Infrastructure/AxiomSolver.lean` from `claude/lean-axiom-solver-TCj6F` branch
-- [x] **Deleted AxiomSolver.lean** - Found it was redundant and harmful:
-  - Most theorems already proven in GraphComposition.lean
-  - Had **7 sorries** violating "0 sorries" goal
-  - Key target axiom (G01) wasn't actually eliminated (replacement had sorry)
-- [x] Improved G01 axiom documentation with proof strategy
+- [x] Full audit of axioms (68 total) and sorries (4 total) across codebase
+- [x] Identified axioms already proven but not updated in registry (T01, F04, F05, F06)
+- [x] Analyzed axiom clusters by mathematical theme
+- [x] Created `.claude/next-5-targets.md` with detailed implementation guide
 
-### Analysis Results
-| AxiomSolver.lean Content | Status |
-|-------------------------|--------|
-| `subgraph_acyclic_of_acyclic` | Already in GraphComposition.lean |
-| `induce_acyclic_of_acyclic` | Already in GraphComposition.lean |
-| `cycle_transfer_to_subgraph` | Already in GraphComposition.lean |
-| `forest_union_forest_acyclic` | Already in GraphComposition.lean |
-| `acyclic_of_disjoint_acyclic_parts` | Already in GraphComposition.lean |
-| `forest_single_edge_still_forest_theorem` | **1 sorry** - incomplete |
-| `acyclic_of_disjoint_acyclic_parts_theorem` | **2 sorries** - incomplete |
-| `forest_union_forest_acyclic_theorem` | **2 sorries** - incomplete |
+### Key Deliverable
 
-### Not Changed
-- `forest_single_edge_still_forest_aux` axiom (G01) remains in GraphComposition.lean
-  - Proof requires `Walk.support_takeUntil_append_dropUntil` (doesn't exist in Mathlib 4.27.0)
-  - Pattern exists in TreeGraphInfra.lean's `takeUntil_first_endpoint_no_edge`
+Created `.claude/next-5-targets.md` describing 5 new infrastructure files to create:
 
-## Key Technical Insights
+| # | File | Axioms Eliminated |
+|---|------|-------------------|
+| 1 | `Infrastructure/DepthTheoryComplete.lean` | 6 (T01-T05, X28) |
+| 2 | `Infrastructure/SimplicialGraphBridge.lean` | 6 (G02, G03, R01-R03, C03) |
+| 3 | `Infrastructure/PathDecompositionComplete.lean` | 5 (G04, G05, T06, T07, X27) |
+| 4 | `Infrastructure/ComponentCountingComplete.lean` | 4 (G06, C05, X22, X23) |
+| 5 | `Infrastructure/FairnessH1Bridge.lean` | 3 (F01, F02, F07) |
 
-### G01 Proof Strategy (for future elimination)
-```
-1. For cycle c using edge s(u,v):
-   - Both u, v ∈ c.support
-   - By takeUntil_first_endpoint_no_edge, one prefix is clean
-2. The "long way around" the cycle gives a path u→v avoiding s(u,v)
-3. This path transfers to G, giving G.Reachable u v
-4. Contradiction with h_not_reach
-```
+**Total potential: -24 axioms**
 
-### Walk Decomposition Lemmas Needed
-- `Walk.edges_takeUntil_subset`: edges in takeUntil are subset of original
-- Support splitting: showing vertex in either takeUntil or dropUntil
-- See TreeGraphInfra.lean lines 60-82 for working `takeUntil_first_endpoint_no_edge`
+### Axiom Status
+
+- **Before**: 68 axioms (per registry)
+- **After**: 68 axioms (no changes this session - analysis only)
+- **Already proven but in registry**: T01, F04, F05, F06 (should be removed)
 
 ## Current State
 
-### Files Changed
-- `Infrastructure/AxiomSolver.lean` - **DELETED**
-- `Infrastructure/GraphComposition.lean` - Improved axiom docstring
+### Sorries (4 total)
+| File | Line | Issue |
+|------|------|-------|
+| `Infrastructure/TreeAuthCoreProofs.lean` | 486 | Theorem incorrect for root case |
+| `Infrastructure/TreeAuthCoreProofs.lean` | 582 | Minimum-depth cycle argument |
+| `Theories/TreeAuthDepthTheory.lean` | 127 | Pigeonhole for depth bound |
+| `Theories/TreeAuthDepthTheory.lean` | 408 | Unknown |
 
-### Axiom Status
-- G01 (`forest_single_edge_still_forest_aux`) - Still axiom, needs walk decomposition
+### Key Infrastructure Already Exists
+- `WalkDecomposition.lean`: Walk decomposition lemmas (eliminated G01)
+- `ExtendedGraphInfra.lean`: `vertex_in_v_or_w_component` (proves G04/G05 logic), `bridge_splits_component_aux` (proves G06)
+- `TreeAuthCoreProofs.lean`: `stepsToRoot`, depth definitions
 
 ## Recommended Next Steps
 
-1. Complete G01 elimination by adapting TreeGraphInfra pattern
-2. Attack other axiom clusters (see axiom-registry.md)
-3. Consider adding missing Mathlib lemmas as local helpers
+### Immediate (High ROI)
+1. **Create DepthTheoryComplete.lean** - Unblocks 6 tree authority axioms
+2. **Create PathDecompositionComplete.lean** - Builds on existing WalkDecomposition, LOW difficulty
+
+### Medium Term
+3. **Create SimplicialGraphBridge.lean** - Unblocks conflict resolution and Euler formula
+4. **Create ComponentCountingComplete.lean** - Pure cardinality arguments
+
+### Lower Priority
+5. **Create FairnessH1Bridge.lean** - Ties together fairness theory
+6. **Update axiom-registry.md** - Remove T01, F04, F05, F06 (already proven)

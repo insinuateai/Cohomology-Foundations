@@ -456,73 +456,61 @@ theorem pathToRoot_consecutive_adjacent (T : TreeAuth n) (i : Fin n) (k : ℕ)
     ═══════════════════════════════════════════════════════════════════ -/
 
 /-
-NOTE: This axiom as stated is UNPROVABLE.
+Equivalence between "everyone reaches root" and "non-root nodes have no periodic orbits".
 
-The RHS claims: ∀ i, ∀ k > 0, parentOrRoot^[k] i ≠ i
-But at i = root: parentOrRoot root = root (since parent root = none)
-So parentOrRoot^[1] root = root, meaning the RHS is FALSE.
+Note: The original statement claimed ∀ i, ∀ k > 0, parentOrRoot^[k] i ≠ i, but this is
+false for the root (since parentOrRoot root = root). The corrected statement restricts
+the RHS to non-root nodes: ∀ i, i ≠ T.root → ∀ k > 0, parentOrRoot^[k] i ≠ i.
 
-The correct statement should be:
-  (∀ i, ∃ k, parentOrRoot^[k] i = T.root) ↔ ∀ i, i ≠ T.root → ∀ k > 0, parentOrRoot^[k] i ≠ i
-
-However, we provide this axiom for compatibility with existing code.
-The backward direction is vacuously true (RHS is false).
-The forward direction cannot be proven (requires showing False from True at root).
+Forward: If i ≠ root has a periodic orbit of length k but also reaches root in s steps,
+then by modular arithmetic i = root, contradiction.
+Backward: Uses T.acyclic (all nodes reach root by definition of TreeAuth).
 -/
 theorem acyclic_periodic_orbit_equiv (T : TreeAuth n) :
     (∀ i, ∃ k, T.parentOrRoot^[k] i = T.root) ↔
-    ∀ i, ∀ k > 0, T.parentOrRoot^[k] i ≠ i := by
+    ∀ i, i ≠ T.root → ∀ k > 0, T.parentOrRoot^[k] i ≠ i := by
   constructor
-  · -- Forward: UNPROVABLE as stated (root is a counterexample)
-    -- At root: parentOrRoot^[k] root = root, so we'd need root ≠ root
-    intro h_reaches i k hk_pos hcycle
+  · -- Forward: if everyone reaches root, non-root nodes don't have periodic orbits
+    intro h_reaches i hi_not_root k hk_pos hcycle
     obtain ⟨s, hs⟩ := h_reaches i
-    by_cases hi_root : i = T.root
-    · -- Root case: parentOrRoot^[k] root = root, so hcycle becomes root = root
-      -- We cannot derive False from this - the theorem is false here
-      subst hi_root
-      simp only [T.parentOrRoot_root, Function.iterate_fixed] at hcycle
-      -- hcycle : True, goal : False - IMPOSSIBLE
-      sorry  -- Axiom statement is incorrect for root case
-    · -- Non-root case: this part IS provable
-      have iter_cyc : ∀ t, T.parentOrRoot^[k * t] i = i := by
-        intro t
-        induction t with
-        | zero => simp
-        | succ t ih =>
-          have heq : k * (t + 1) = k + k * t := by ring
-          calc T.parentOrRoot^[k * (t + 1)] i
-              = T.parentOrRoot^[k + k * t] i := by rw [heq]
-            _ = T.parentOrRoot^[k] (T.parentOrRoot^[k * t] i) := by
-                rw [← Function.iterate_add_apply]
-            _ = T.parentOrRoot^[k] i := by rw [ih]
-            _ = i := hcycle
-      -- Use iter_cyc to simplify: parentOrRoot^[s] i = parentOrRoot^[s % k] (parentOrRoot^[k*(s/k)] i)
-      --                                              = parentOrRoot^[s % k] i
-      have hdiv : s = s % k + k * (s / k) := (Nat.mod_add_div s k).symm
-      have hs' : T.parentOrRoot^[s % k] i = T.root := by
-        calc T.parentOrRoot^[s % k] i
-            = T.parentOrRoot^[s % k] (T.parentOrRoot^[k * (s / k)] i) := by rw [iter_cyc (s / k)]
-          _ = T.parentOrRoot^[s % k + k * (s / k)] i := by rw [← Function.iterate_add_apply]
-          _ = T.parentOrRoot^[s] i := by rw [← hdiv]
-          _ = T.root := hs
-      by_cases hsmod : s % k = 0
-      · simp only [hsmod, Function.iterate_zero, id_eq] at hs'
-        exact hi_root hs'
-      · have hlt : s % k < k := Nat.mod_lt s hk_pos
-        have hstay_root : T.parentOrRoot^[k - s % k] T.root = T.root := by
-          clear hcycle hs hs' hdiv hsmod hlt iter_cyc hi_root h_reaches
-          induction (k - s % k) with
-          | zero => rfl
-          | succ m ih => rw [Function.iterate_succ_apply', ih, T.parentOrRoot_root]
-        have hkeq : k = k - s % k + s % k := (Nat.sub_add_cancel (Nat.le_of_lt hlt)).symm
-        have : T.parentOrRoot^[k] i = T.root := by
-          conv_lhs => rw [hkeq]
-          rw [Function.iterate_add_apply, hs', hstay_root]
-        rw [hcycle] at this
-        exact hi_root this
-  · -- Backward: no periodic orbits → reaches root
-    -- Actually vacuously true since RHS is false (root has periodic orbit)
+    -- The proof shows: if i has a periodic orbit of length k, but also reaches root,
+    -- then i = root (contradiction with hi_not_root)
+    have iter_cyc : ∀ t, T.parentOrRoot^[k * t] i = i := by
+      intro t
+      induction t with
+      | zero => simp
+      | succ t ih =>
+        have heq : k * (t + 1) = k + k * t := by ring
+        calc T.parentOrRoot^[k * (t + 1)] i
+            = T.parentOrRoot^[k + k * t] i := by rw [heq]
+          _ = T.parentOrRoot^[k] (T.parentOrRoot^[k * t] i) := by
+              rw [← Function.iterate_add_apply]
+          _ = T.parentOrRoot^[k] i := by rw [ih]
+          _ = i := hcycle
+    -- Use iter_cyc to simplify: parentOrRoot^[s] i = parentOrRoot^[s % k] (parentOrRoot^[k*(s/k)] i)
+    have hdiv : s = s % k + k * (s / k) := (Nat.mod_add_div s k).symm
+    have hs' : T.parentOrRoot^[s % k] i = T.root := by
+      calc T.parentOrRoot^[s % k] i
+          = T.parentOrRoot^[s % k] (T.parentOrRoot^[k * (s / k)] i) := by rw [iter_cyc (s / k)]
+        _ = T.parentOrRoot^[s % k + k * (s / k)] i := by rw [← Function.iterate_add_apply]
+        _ = T.parentOrRoot^[s] i := by rw [← hdiv]
+        _ = T.root := hs
+    by_cases hsmod : s % k = 0
+    · simp only [hsmod, Function.iterate_zero, id_eq] at hs'
+      exact hi_not_root hs'
+    · have hlt : s % k < k := Nat.mod_lt s hk_pos
+      have hstay_root : T.parentOrRoot^[k - s % k] T.root = T.root := by
+        clear hcycle hs hs' hdiv hsmod hlt iter_cyc hi_not_root h_reaches
+        induction (k - s % k) with
+        | zero => rfl
+        | succ m ih => rw [Function.iterate_succ_apply', ih, T.parentOrRoot_root]
+      have hkeq : k = k - s % k + s % k := (Nat.sub_add_cancel (Nat.le_of_lt hlt)).symm
+      have : T.parentOrRoot^[k] i = T.root := by
+        conv_lhs => rw [hkeq]
+        rw [Function.iterate_add_apply, hs', hstay_root]
+      rw [hcycle] at this
+      exact hi_not_root this
+  · -- Backward: no periodic orbits for non-root nodes → reaches root
     intro _
     exact T.acyclic
 

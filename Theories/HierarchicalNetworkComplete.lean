@@ -14,7 +14,7 @@ Path lengths, subtrees, composition, and compatibility proofs.
 Targets: Mathlib 4.27.0 / Lean 4.27.0
 
 SORRIES: 0
-AXIOMS: 2 (compose_path_reaches_root, acyclic_periodic_orbit_equiv)
+AXIOMS: 1 (compose_path_reaches_root)
 -/
 
 import Mathlib.Data.Fin.Basic
@@ -113,6 +113,23 @@ lemma pathToRoot_eq_core (T : TreeAuth n) (i : Fin n) :
 lemma adjacent_eq_core (T : TreeAuth n) (i j : Fin n) :
     T.adjacent i j ↔ T.toCore.adjacent i j := by
   simp [adjacent, TreeAuthCoreProofs.TreeAuth.adjacent, toCore]
+
+/-- parentOrRoot matches between local and core -/
+lemma parentOrRoot_eq_core (T : TreeAuth n) (i : Fin n) :
+    T.parentOrRoot i = T.toCore.parentOrRoot i := by
+  simp [parentOrRoot, TreeAuthCoreProofs.TreeAuth.parentOrRoot, toCore]
+
+/-- parentOrRoot iteration matches between local and core -/
+lemma parentOrRoot_iterate_eq_core (T : TreeAuth n) (i : Fin n) (k : ℕ) :
+    T.parentOrRoot^[k] i = T.toCore.parentOrRoot^[k] i := by
+  induction k generalizing i with
+  | zero => rfl
+  | succ k ih =>
+    simp only [Function.iterate_succ_apply']
+    rw [parentOrRoot_eq_core, ih]
+
+/-- root matches between local and core -/
+lemma root_eq_core (T : TreeAuth n) : T.root = T.toCore.root := rfl
 
 /-- PROVEN: Consecutive elements in pathToRoot are adjacent (via TreeAuthCoreProofs) -/
 theorem pathToRoot_consecutive_adjacent (T : TreeAuth n) (i : Fin n) (k : ℕ)
@@ -228,23 +245,37 @@ theorem compose_path_construction (hn1 : 0 < H1.numAgents)
 
 /-! ## Acyclicity Characterization -/
 
--- TEMP: axiomatized for speed, prove by 2026-02-07
--- Forward: periodic orbit contradicts reaching root (fixed point uniqueness)
--- Backward: pigeonhole + no periodic implies hitting root
-axiom acyclic_periodic_orbit_equiv (T : TreeAuth n) :
+-- PROVEN via TreeAuthCoreProofs (uses corrected statement with i ≠ T.root restriction)
+theorem acyclic_periodic_orbit_equiv (T : TreeAuth n) :
     (∀ i, ∃ k, T.parentOrRoot^[k] i = T.root) ↔
-    ∀ i, ∀ k > 0, T.parentOrRoot^[k] i ≠ i
-
--- TEMP: axiomatized for speed, prove by 2026-02-07
--- Proof: consecutive elements in pathToRoot are parent-child by construction
-axiom pathToRoot_consecutive_adjacent (T : TreeAuth n) (i : Fin n) (k : ℕ)
-    (hk : k + 1 < (T.pathToRoot i).length) :
-    T.adjacent ((T.pathToRoot i).get ⟨k, by omega⟩)
-               ((T.pathToRoot i).get ⟨k + 1, by omega⟩)
+    ∀ i, i ≠ T.root → ∀ k > 0, T.parentOrRoot^[k] i ≠ i := by
+  have h := TreeAuthCoreProofs.TreeAuth.acyclic_periodic_orbit_equiv T.toCore
+  constructor
+  · intro hlhs i hi_not_root k hk hcycle
+    have hlhs' : ∀ i, ∃ k, T.toCore.parentOrRoot^[k] i = T.toCore.root := by
+      intro j
+      obtain ⟨m, hm⟩ := hlhs j
+      use m
+      rw [← parentOrRoot_iterate_eq_core, ← root_eq_core]
+      exact hm
+    have hi_not_root' : i ≠ T.toCore.root := by rwa [← root_eq_core]
+    have hcycle' : T.toCore.parentOrRoot^[k] i = i := by
+      rw [← parentOrRoot_iterate_eq_core]; exact hcycle
+    exact h.mp hlhs' i hi_not_root' k hk hcycle'
+  · intro hrhs i
+    have hrhs' : ∀ i, i ≠ T.toCore.root → ∀ k > 0, T.toCore.parentOrRoot^[k] i ≠ i := by
+      intro j hj k hk
+      have hj' : j ≠ T.root := by rwa [root_eq_core]
+      have := hrhs j hj' k hk
+      rwa [parentOrRoot_iterate_eq_core]
+    obtain ⟨m, hm⟩ := h.mpr hrhs' i
+    use m
+    rw [parentOrRoot_iterate_eq_core, root_eq_core]
+    exact hm
 
 theorem acyclic_iff_no_periodic_orbit (T : TreeAuth n) :
     (∀ i, ∃ k, T.parentOrRoot^[k] i = T.root) ↔
-    ∀ i, ∀ k > 0, T.parentOrRoot^[k] i ≠ i :=
+    ∀ i, i ≠ T.root → ∀ k > 0, T.parentOrRoot^[k] i ≠ i :=
   acyclic_periodic_orbit_equiv T
 
 /-! ## Compatibility -/
