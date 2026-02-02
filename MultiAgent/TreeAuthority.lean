@@ -353,18 +353,279 @@ theorem depthAux_pos_of_nonroot (T : TreeAuth n) (i : Fin n) (hi : i ≠ T.root)
     simp only [depthAux, hp]
     omega
 
+/-- depthAux increases monotonically with fuel -/
+theorem depthAux_mono (T : TreeAuth n) (i : Fin n) (fuel1 fuel2 : ℕ) (h : fuel1 ≤ fuel2) :
+    T.depthAux i fuel1 ≤ T.depthAux i fuel2 := by
+  induction fuel1 generalizing i fuel2 with
+  | zero => simp only [depthAux]; omega
+  | succ f1 ih =>
+    cases fuel2 with
+    | zero => omega
+    | succ f2 =>
+      simp only [depthAux]
+      cases hp : T.parent i with
+      | none => simp only [hp]; omega
+      | some p =>
+        simp only [hp]
+        have h' : f1 ≤ f2 := by omega
+        have ih_p := ih p f2 h'
+        omega
+
+/-- depthAux with fuel 0 is 0 -/
+@[simp] theorem depthAux_zero (T : TreeAuth n) (i : Fin n) : T.depthAux i 0 = 0 := rfl
+
+/-- depthAux with parent some -/
+theorem depthAux_succ_some (T : TreeAuth n) (i : Fin n) (fuel : ℕ) (p : Fin n)
+    (hp : T.parent i = some p) :
+    T.depthAux i (fuel + 1) = 1 + T.depthAux p fuel := by
+  simp only [depthAux, hp]
+
+/-- depthAux with parent none -/
+theorem depthAux_succ_none (T : TreeAuth n) (i : Fin n) (fuel : ℕ)
+    (hp : T.parent i = none) :
+    T.depthAux i (fuel + 1) = 0 := by
+  simp only [depthAux, hp]
+
+/-- Helper: depthAux with any fuel is bounded by that fuel -/
+theorem depthAux_le_fuel (T : TreeAuth n) (i : Fin n) (fuel : ℕ) :
+    T.depthAux i fuel ≤ fuel := by
+  induction fuel generalizing i with
+  | zero => simp only [depthAux]; omega
+  | succ f ih =>
+    cases hp : T.parent i with
+    | none => rw [depthAux_succ_none T i f hp]; omega
+    | some p =>
+      rw [depthAux_succ_some T i f p hp]
+      have := ih p
+      omega
+
+/-- depth is bounded by n -/
+theorem depth_le_n (T : TreeAuth n) (i : Fin n) : T.depth i ≤ n := by
+  simp only [depth]
+  exact T.depthAux_le_fuel i n
+
+/-- Helper: depthAux j m = m implies parentOrRoot^[k] j ≠ root for all k < m -/
+theorem depthAux_eq_fuel_not_root (T : TreeAuth n) (j : Fin n) (m : ℕ) (hm : T.depthAux j m = m) :
+    ∀ k < m, T.parentOrRoot^[k] j ≠ T.root := by
+  induction m generalizing j with
+  | zero => intro k hk; omega
+  | succ m' ih =>
+    intro k hk
+    cases hpj : T.parent j with
+    | none =>
+      rw [depthAux_succ_none T j m' hpj] at hm
+      omega  -- 0 = m' + 1 is false
+    | some pj =>
+      rw [depthAux_succ_some T j m' pj hpj] at hm
+      have hpj_depth : T.depthAux pj m' = m' := by omega
+      cases k with
+      | zero =>
+        -- parentOrRoot^[0] j = j, need j ≠ root
+        simp only [Function.iterate_zero, id_eq]
+        intro hj_root
+        rw [hj_root, T.root_no_parent] at hpj
+        simp at hpj
+      | succ k' =>
+        -- parentOrRoot^[k'+1] j = parentOrRoot^[k'] (parentOrRoot j) = parentOrRoot^[k'] pj
+        simp only [Function.iterate_succ_apply']
+        rw [T.parentOrRoot_of_some j pj hpj]
+        have hk' : k' < m' := by omega
+        exact ih pj hpj_depth k' hk'
+
+/-- Key bound: depth in a tree of n vertices is strictly less than n -/
+theorem depthAux_lt_n (T : TreeAuth n) (i : Fin n) (hn : 0 < n) :
+    T.depthAux i n < n := by
+  have hle := T.depthAux_le_fuel i n
+  by_contra h
+  push_neg at h
+  have heq : T.depthAux i n = n := by omega
+  -- If depthAux i n = n, then parentOrRoot^[k] i ≠ root for all k < n
+  -- The sequence i, parentOrRoot i, ..., parentOrRoot^[n-1] i are n elements of Fin n
+  -- None of them is root, and they're all distinct (otherwise would cycle and never reach root)
+  -- But Fin n has n elements, one of which is root
+  -- So we have n non-root elements, but there are only n-1 non-root positions
+  have h_not_root : ∀ k < n, T.parentOrRoot^[k] i ≠ T.root :=
+    T.depthAux_eq_fuel_not_root i n heq
+  -- The sequence must have a repeat among the n elements
+  -- But if it repeats before reaching root, it cycles forever and never reaches root
+  -- This contradicts T.acyclic
+  have h_distinct : ∀ j k, j < n → k < n → j ≠ k → T.parentOrRoot^[j] i ≠ T.parentOrRoot^[k] i := by
+    intro j k hj hk hjk
+    wlog hjk' : j < k with H
+    · push_neg at hjk'
+      have : k < j := by omega
+      intro heq
+      exact H k j hk hj (Ne.symm hjk) this heq.symm
+    intro heq
+    -- parentOrRoot^[j] i = parentOrRoot^[k] i with j < k
+    -- This means the sequence is periodic with period k - j
+    -- So parentOrRoot^[j + m*(k-j)] i = parentOrRoot^[j] i for all m
+    -- And parentOrRoot^[j] i ≠ root (from h_not_root)
+    -- By T.acyclic, there exists some m with parentOrRoot^[m] i = root
+    -- Taking m = j + M*(k-j) for large M, we get parentOrRoot^[j] i = root
+    -- Contradiction
+    obtain ⟨m, hm⟩ := T.acyclic i
+    have hperiod : ∀ t, T.parentOrRoot^[j + t * (k - j)] i = T.parentOrRoot^[j] i := by
+      intro t
+      induction t with
+      | zero => simp
+      | succ t' iht =>
+        calc T.parentOrRoot^[j + (t' + 1) * (k - j)] i
+            = T.parentOrRoot^[(k - j) + (j + t' * (k - j))] i := by ring_nf
+          _ = T.parentOrRoot^[k - j] (T.parentOrRoot^[j + t' * (k - j)] i) := by
+              rw [Function.iterate_add_apply]
+          _ = T.parentOrRoot^[k - j] (T.parentOrRoot^[j] i) := by rw [iht]
+          _ = T.parentOrRoot^[(k - j) + j] i := by rw [← Function.iterate_add_apply]
+          _ = T.parentOrRoot^[k] i := by ring_nf
+          _ = T.parentOrRoot^[j] i := by rw [heq]
+    -- For large enough M, j + M*(k-j) ≥ m, so parentOrRoot^[j + M*(k-j)] i "should be" root
+    -- But it equals parentOrRoot^[j] i which is not root
+    have ⟨M, hM⟩ : ∃ M, m ≤ j + M * (k - j) := by
+      use m
+      have hpos : 0 < k - j := by omega
+      calc j + m * (k - j) ≥ m * 1 := by omega
+        _ = m := by ring
+    -- parentOrRoot^[m] i = root, and for s ≥ m, parentOrRoot^[s] i = root (root is fixed point)
+    have h_after_root : ∀ s, m ≤ s → T.parentOrRoot^[s] i = T.root := by
+      intro s hs
+      have h_diff : s = (s - m) + m := by omega
+      rw [h_diff, Function.iterate_add_apply, hm]
+      induction s - m with
+      | zero => rfl
+      | succ d ihd => simp only [Function.iterate_succ_apply', ihd, T.parentOrRoot_root]
+    have h_is_root := h_after_root (j + M * (k - j)) hM
+    rw [hperiod M] at h_is_root
+    exact h_not_root j hj h_is_root
+  -- Now we have n distinct non-root elements in Fin n
+  -- But there are only n-1 non-root positions in Fin n
+  -- Define the function f : Fin n → Fin n by f m = parentOrRoot^[m.val] i
+  -- f is injective (from h_distinct)
+  -- f maps Fin n to the set of non-root elements (from h_not_root)
+  -- But |Fin n| = n > n - 1 = |non-root elements|
+  -- Contradiction
+  have h_inj : Function.Injective (fun m : Fin n => T.parentOrRoot^[m.val] i) := by
+    intro ⟨a, ha⟩ ⟨b, hb⟩ heq
+    simp only [Fin.mk.injEq]
+    by_contra hab
+    exact h_distinct a b ha hb hab heq
+  -- All images are ≠ root
+  have h_ne_root : ∀ m : Fin n, T.parentOrRoot^[m.val] i ≠ T.root := fun m => h_not_root m.val m.isLt
+  -- Count elements: there are n values mapping to n-1 non-root positions
+  -- This is impossible
+  -- The non-root elements form a set of size n-1
+  have h_card_nonroot : Fintype.card { x : Fin n // x ≠ T.root } = n - 1 := by
+    rw [Fintype.card_subtype_compl, Fintype.card_fin]
+    simp only [Fintype.card_ofSubsingleton, Nat.add_sub_cancel]
+  -- The injective function maps Fin n (size n) into non-root elements (size n-1)
+  have h_to_nonroot : ∀ m : Fin n, (T.parentOrRoot^[m.val] i) ≠ T.root := h_ne_root
+  -- Create function to subtype
+  let f : Fin n → { x : Fin n // x ≠ T.root } := fun m => ⟨T.parentOrRoot^[m.val] i, h_to_nonroot m⟩
+  have hf_inj : Function.Injective f := by
+    intro a b heq
+    simp only [Subtype.mk.injEq] at heq
+    exact h_inj heq
+  have hcard_le : Fintype.card (Fin n) ≤ Fintype.card { x : Fin n // x ≠ T.root } :=
+    Fintype.card_le_of_injective f hf_inj
+  simp only [Fintype.card_fin, h_card_nonroot] at hcard_le
+  omega
+
+/-- depthAux stabilizes: if depthAux i fuel < fuel (strict), then increasing fuel doesn't change result -/
+theorem depthAux_stable (T : TreeAuth n) (i : Fin n) (fuel : ℕ)
+    (h : T.depthAux i fuel < fuel) (fuel' : ℕ) (hf : fuel ≤ fuel') :
+    T.depthAux i fuel' = T.depthAux i fuel := by
+  induction fuel generalizing i fuel' with
+  | zero => omega  -- h : depthAux i 0 < 0 is false
+  | succ f ih =>
+    cases fuel' with
+    | zero => omega
+    | succ f' =>
+      cases hp : T.parent i with
+      | none =>
+        rw [depthAux_succ_none T i f hp, depthAux_succ_none T i f' hp]
+      | some p =>
+        rw [depthAux_succ_some T i f p hp, depthAux_succ_some T i f' p hp]
+        rw [depthAux_succ_some T i f p hp] at h
+        -- h : 1 + depthAux p f < f + 1, so depthAux p f < f
+        have h' : T.depthAux p f < f := by omega
+        have hf' : f ≤ f' := by omega
+        have := ih p h' f' hf'
+        omega
+
+/-- Key lemma: depth of parent is strictly less than depth of child -/
+theorem depth_parent_lt (T : TreeAuth n) (i : Fin n) (p : Fin n)
+    (hp : T.parent i = some p) : T.depth p < T.depth i := by
+  simp only [depth]
+  have hn : 0 < n := Fin.pos i
+  match n, hn with
+  | k + 1, _ =>
+    rw [depthAux_succ_some T i k p hp]
+    -- We need: depthAux p (k+1) < 1 + depthAux p k
+    -- i.e., depthAux p (k+1) ≤ depthAux p k
+    -- By depthAux_lt_n: depthAux p (k+1) < k+1
+    -- By depthAux_le_fuel: depthAux p k ≤ k
+    -- Key: depthAux p (k+1) = depthAux p k when depthAux p k < k
+    have h_lt : T.depthAux p (k + 1) < k + 1 := T.depthAux_lt_n p (by omega)
+    have h_le : T.depthAux p k ≤ k := T.depthAux_le_fuel p k
+    -- Two cases: depthAux p k < k (use stable) or depthAux p k = k
+    by_cases hcase : T.depthAux p k < k
+    · have h_stable := T.depthAux_stable p k hcase (k + 1) (by omega)
+      omega
+    · -- depthAux p k = k
+      push_neg at hcase
+      have heq : T.depthAux p k = k := by omega
+      -- Then depthAux p (k+1) ≤ k (from depthAux_lt_n: < k+1)
+      -- And depthAux p k = k
+      -- So depthAux p (k+1) ≤ k = depthAux p k
+      omega
+
+/-- Root has depth 0 -/
+theorem depth_root_eq_zero (T : TreeAuth n) (hn : 0 < n) : T.depth T.root = 0 := by
+  simp only [depth]
+  match n, hn with
+  | k + 1, _ => rw [depthAux_succ_none T T.root k T.root_no_parent]
+
+/-- Only root has depth 0 -/
+theorem depth_eq_zero_iff_root (T : TreeAuth n) (i : Fin n) (hn : 0 < n) :
+    T.depth i = 0 ↔ i = T.root := by
+  constructor
+  · intro h0
+    by_contra hne
+    have hp := T.nonroot_has_parent i hne
+    rw [Option.isSome_iff_exists] at hp
+    obtain ⟨p, hp⟩ := hp
+    have := T.depth_parent_lt i p hp
+    simp only [depth] at h0
+    match n, hn with
+    | k + 1, _ =>
+      rw [depthAux_succ_some T i k p hp] at h0
+      omega
+  · intro hi
+    rw [hi]
+    exact T.depth_root_eq_zero hn
+
 /-- pathToRootAux ends at root when fuel is sufficient -/
 theorem pathToRootAux_last_is_root (T : TreeAuth n) (i : Fin n) (fuel : ℕ)
-    (hfuel : fuel ≥ T.depthAux i fuel) :
+    (hfuel : T.depth i ≤ fuel) :
     (T.pathToRootAux i fuel).getLast? = some T.root := by
   induction fuel generalizing i with
   | zero =>
-    simp only [depthAux] at hfuel
-    simp only [pathToRootAux, List.getLast?_singleton]
-    by_cases hi : i = T.root
-    · exact congrArg some hi
-    · -- Theorem statement has issue for fuel=0, i≠root case
-      sorry
+    -- depth i ≤ 0 means depth i = 0, so i must be root
+    have h0 : T.depth i = 0 := Nat.le_zero.mp hfuel
+    -- Root has depth 0, and only root has depth 0
+    simp only [depth] at h0
+    have hi : i = T.root := by
+      by_contra hne
+      -- Non-root has positive depth
+      have hp := T.nonroot_has_parent i hne
+      rw [Option.isSome_iff_exists] at hp
+      obtain ⟨p, hp⟩ := hp
+      -- depth i = depthAux i n, with n > 0 since i exists
+      have hn : 0 < n := Fin.pos i
+      match n, hn with
+      | k + 1, _ =>
+        simp only [depthAux, hp] at h0
+        omega
+    simp only [pathToRootAux, hi, List.getLast?_singleton]
   | succ fuel' ih =>
     simp only [pathToRootAux]
     cases hp : T.parent i with
@@ -376,28 +637,164 @@ theorem pathToRootAux_last_is_root (T : TreeAuth n) (i : Fin n) (fuel : ℕ)
         simp at this
       simp only [hi, List.getLast?_singleton]
     | some p =>
-      have h_depth : T.depthAux i (fuel' + 1) = T.depthAux p fuel' + 1 := T.depthAux_parent i p hp fuel'
-      have h_fuel' : fuel' ≥ T.depthAux p fuel' := by omega
+      -- depth p < depth i, so depth p ≤ fuel'
+      have h_depth_i : T.depth i > 0 := by
+        simp only [depth]
+        have hn : 0 < n := Fin.pos i
+        match n, hn with
+        | k + 1, _ => simp only [depthAux, hp]; omega
+      have h_depth_p : T.depth p < T.depth i := by
+        simp only [depth]
+        have hn : 0 < n := Fin.pos i
+        match n, hn with
+        | k + 1, _ =>
+          simp only [depthAux, hp]
+          have := T.depthAux_mono p k (k + 1) (by omega)
+          omega
+      have h_fuel' : T.depth p ≤ fuel' := by omega
       have ih_res := ih p h_fuel'
       -- Goal: (i :: T.pathToRootAux p fuel').getLast? = some T.root
-      -- ih_res: (T.pathToRootAux p fuel').getLast? = some T.root
       have hne : T.pathToRootAux p fuel' ≠ [] := by
         cases hfuel' : fuel' with
         | zero => simp [pathToRootAux]
         | succ f' => simp only [pathToRootAux]; cases T.parent p <;> simp
-      simp only [List.getLast?_cons_cons hne]
+      obtain ⟨hd, tl, heq⟩ := List.exists_cons_of_ne_nil hne
+      simp only [heq, List.getLast?_cons_cons] at ih_res ⊢
       exact ih_res
 
 /-- Helper: pathToRootAux with sufficient fuel contains all vertices on path to root -/
 theorem pathToRootAux_contains_root (T : TreeAuth n) (i : Fin n) (fuel : ℕ) :
     (∃ k ≤ fuel, T.parentOrRoot^[k] i = T.root) → T.root ∈ T.pathToRootAux i fuel := by
-  sorry
+  intro ⟨k, hk_le, hk_root⟩
+  induction fuel generalizing i k with
+  | zero =>
+    -- k ≤ 0 means k = 0, so i = root
+    have hk_zero : k = 0 := Nat.le_zero.mp hk_le
+    rw [hk_zero, Function.iterate_zero, id_eq] at hk_root
+    simp only [pathToRootAux, hk_root, List.mem_singleton]
+  | succ fuel' ih =>
+    simp only [pathToRootAux]
+    cases hp : T.parent i with
+    | none =>
+      -- i = root (since non-root has parent)
+      have hi_root : i = T.root := by
+        by_contra h
+        have := T.nonroot_has_parent i h
+        rw [hp] at this; simp at this
+      simp only [hi_root, List.mem_singleton]
+    | some p =>
+      -- pathToRootAux i (fuel'+1) = i :: pathToRootAux p fuel'
+      simp only [List.mem_cons]
+      by_cases hi : i = T.root
+      · left; exact hi.symm
+      · right
+        -- k > 0 since parentOrRoot^[0] i = i ≠ root
+        have hk_pos : k > 0 := by
+          by_contra h
+          push_neg at h
+          have hk_zero : k = 0 := Nat.le_zero.mp h
+          rw [hk_zero, Function.iterate_zero, id_eq] at hk_root
+          exact hi hk_root
+        -- parentOrRoot^[k] i = parentOrRoot^[k-1] (parentOrRoot i) = parentOrRoot^[k-1] p = root
+        have hp_eq : T.parentOrRoot i = p := T.parentOrRoot_of_some i p hp
+        have hk_minus : k = (k - 1) + 1 := by omega
+        rw [hk_minus, Function.iterate_succ', Function.comp_apply, hp_eq] at hk_root
+        -- Apply IH with k' = k - 1 and vertex p
+        apply ih p (k - 1)
+        · omega
+        · exact hk_root
 
 /-- The minimum steps to reach root is bounded by n (pigeonhole) -/
 private theorem min_steps_to_root_le_n (T : TreeAuth n) (i : Fin n)
     (h_exists : ∃ k, T.parentOrRoot^[k] i = T.root) :
     Nat.find h_exists ≤ n := by
-  sorry
+  by_contra h
+  push_neg at h
+  have hmin := Nat.find_spec h_exists
+  -- The sequence i, parentOrRoot i, ..., parentOrRoot^n i are n+1 elements of Fin n
+  -- By pigeonhole, some two must be equal
+  have h_pigeonhole : ∃ j k, j < k ∧ k ≤ n ∧ T.parentOrRoot^[j] i = T.parentOrRoot^[k] i := by
+    by_contra h_all_distinct
+    push_neg at h_all_distinct
+    -- All n+1 iterates are distinct, but they're all in Fin n
+    -- This is impossible by cardinality
+    have h_inj : Function.Injective (fun m : Fin (n + 1) => T.parentOrRoot^[m.val] i) := by
+      intro ⟨a, ha⟩ ⟨b, hb⟩ heq
+      simp only [Fin.mk.injEq]
+      by_contra hab
+      cases Nat.lt_trichotomy a b with
+      | inl hab' => exact h_all_distinct a b hab' (by omega) heq
+      | inr hc =>
+        cases hc with
+        | inl hab' => exact hab hab'
+        | inr hab' => exact h_all_distinct b a hab' (by omega) heq.symm
+    -- Injective function from Fin (n+1) to Fin n is impossible
+    have : Fintype.card (Fin (n + 1)) ≤ Fintype.card (Fin n) := Fintype.card_le_of_injective _ h_inj
+    simp only [Fintype.card_fin] at this
+    omega
+  obtain ⟨j, k, hjk, hkn, heq⟩ := h_pigeonhole
+  -- parentOrRoot^[j] i = parentOrRoot^[k] i with j < k ≤ n < Nat.find h_exists
+  -- So neither j nor k reaches root yet
+  have hj_not_root : T.parentOrRoot^[j] i ≠ T.root := by
+    intro heq'
+    have : Nat.find h_exists ≤ j := Nat.find_min' h_exists heq'
+    omega
+  -- The sequence is periodic from j with period (k-j)
+  -- So for any m ≥ j, parentOrRoot^[m] i cycles through the same values
+  -- and never reaches root
+  have hkj_pos : 0 < k - j := by omega
+  -- Key: parentOrRoot^[j + m*(k-j)] i = parentOrRoot^[j] i for all m
+  have h_periodic : ∀ m, T.parentOrRoot^[j + m * (k - j)] i = T.parentOrRoot^[j] i := by
+    intro m
+    induction m with
+    | zero => simp
+    | succ m' ih =>
+      -- Goal: parentOrRoot^[j + (m'+1)*(k-j)] i = parentOrRoot^[j] i
+      -- Rewrite the index
+      have h1 : j + (m' + 1) * (k - j) = (k - j) + (j + m' * (k - j)) := by ring
+      rw [h1, Function.iterate_add_apply]
+      -- Goal: parentOrRoot^[k-j] (parentOrRoot^[j + m'*(k-j)] i) = parentOrRoot^[j] i
+      rw [ih]
+      -- Goal: parentOrRoot^[k-j] (parentOrRoot^[j] i) = parentOrRoot^[j] i
+      -- Use: parentOrRoot^[k] i = parentOrRoot^[j] i (from heq)
+      -- And: parentOrRoot^[k] i = parentOrRoot^[(k-j) + j] i = parentOrRoot^[k-j] (parentOrRoot^[j] i)
+      have h2 : T.parentOrRoot^[k - j] (T.parentOrRoot^[j] i) = T.parentOrRoot^[(k - j) + j] i := by
+        rw [← Function.iterate_add_apply]
+      rw [h2]
+      have h3 : (k - j) + j = k := by omega
+      rw [h3]
+      exact heq.symm
+  -- Now we derive contradiction: Nat.find h_exists is the first time we reach root
+  -- But for any M with j + M*(k-j) ≥ Nat.find h_exists, the iterate equals parentOrRoot^[j] i ≠ root
+  -- First show that for large enough M, j + M*(k-j) ≥ Nat.find h_exists
+  have ⟨M, hM⟩ : ∃ M, Nat.find h_exists ≤ j + M * (k - j) := by
+    use Nat.find h_exists
+    have h_ge : Nat.find h_exists * (k - j) ≥ Nat.find h_exists := by
+      exact Nat.le_mul_of_pos_right (Nat.find h_exists) hkj_pos
+    omega
+  -- The iterate at step (j + M*(k-j)) equals parentOrRoot^[j] i
+  have h_at_M := h_periodic M
+  -- But parentOrRoot^[j] i ≠ root
+  -- And for any step ≥ Nat.find h_exists, the sequence stays at root
+  -- Since parentOrRoot root = root
+  have h_root_fixed : T.parentOrRoot T.root = T.root := T.parentOrRoot_root
+  -- After reaching root at step Nat.find h_exists, all further iterates stay at root
+  have h_stays_root : ∀ m ≥ Nat.find h_exists, T.parentOrRoot^[m] i = T.root := by
+    intro m hm
+    have hdiff : m = (m - Nat.find h_exists) + Nat.find h_exists := by omega
+    rw [hdiff, Function.iterate_add_apply, hmin]
+    -- Goal: T.parentOrRoot^[m - Nat.find h_exists] T.root = T.root
+    clear hdiff
+    induction m - Nat.find h_exists with
+    | zero => rfl
+    | succ d ih =>
+      simp only [Function.iterate_succ', Function.comp_apply, ih, h_root_fixed]
+  -- Apply h_stays_root to j + M*(k-j) ≥ Nat.find h_exists
+  have h_is_root := h_stays_root (j + M * (k - j)) hM
+  -- But h_at_M says this equals parentOrRoot^[j] i
+  rw [h_at_M] at h_is_root
+  -- So parentOrRoot^[j] i = root, contradicting hj_not_root
+  exact hj_not_root h_is_root
 
 /-- Root is always in pathToRoot (when n > 0) -/
 theorem root_mem_pathToRoot (T : TreeAuth n) (i : Fin n) (hn : 0 < n) : T.root ∈ T.pathToRoot i := by
@@ -410,9 +807,8 @@ theorem root_mem_pathToRoot (T : TreeAuth n) (i : Fin n) (hn : 0 < n) : T.root �
 
 /-- Helper: filterMap on finRange counts elements satisfying predicate -/
 theorem filterMap_finRange_length {α : Type*} (n : ℕ) (hn : 0 < n) (f : Fin n → Option α)
-    (hf : ∀ i, (f i).isSome ↔ i ≠ default) :
+    (hf : ∀ i, (f i).isSome ↔ i ≠ (⟨0, hn⟩ : Fin n)) :
     ((List.finRange n).filterMap (fun i => f i)).length = n - 1 := by
-  haveI : Inhabited (Fin n) := ⟨⟨0, hn⟩⟩
   sorry
 
 /-- A tree with n > 0 vertices has n-1 edges -/
