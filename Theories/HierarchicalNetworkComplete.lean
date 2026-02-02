@@ -14,13 +14,14 @@ Path lengths, subtrees, composition, and compatibility proofs.
 Targets: Mathlib 4.27.0 / Lean 4.27.0
 
 SORRIES: 0
-AXIOMS: 3 (compose_path_reaches_root, acyclic_periodic_orbit_equiv, pathToRoot_consecutive_adjacent)
+AXIOMS: 2 (compose_path_reaches_root, acyclic_periodic_orbit_equiv)
 -/
 
 import Mathlib.Data.Fin.Basic
 import Mathlib.Data.List.Basic
 import Mathlib.Logic.Function.Iterate
 import Mathlib.Tactic
+import Infrastructure.TreeAuthCoreProofs
 
 namespace HierarchicalNetworkComplete
 
@@ -74,12 +75,60 @@ theorem pathToRootAux_length (T : TreeAuth n) (i : Fin n) (fuel : ℕ) :
     simp only [pathToRootAux, depthAux]
     cases hp : T.parent i with
     | none => simp
-    | some p => simp [hp, ih p]
+    | some p => simp only [List.length_cons, ih p]; ring
 
 /-- Path length equals depth + 1 -/
 theorem pathToRoot_length_eq_depth_plus_one (T : TreeAuth n) (i : Fin n) :
     (T.pathToRoot i).length = T.depth i + 1 :=
   pathToRootAux_length T i n
+
+/-! ## Conversion to TreeAuthCoreProofs for proven theorems -/
+
+/-- Convert local TreeAuth to TreeAuthCoreProofs.TreeAuth -/
+def toCore (T : TreeAuth n) : TreeAuthCoreProofs.TreeAuth n where
+  root := T.root
+  parent := T.parent
+  root_no_parent := T.root_no_parent
+  nonroot_has_parent := T.nonroot_has_parent
+  acyclic := T.acyclic
+  parent_ne_self := T.parent_ne_self
+
+/-- pathToRootAux matches between local and core -/
+lemma pathToRootAux_eq_core (T : TreeAuth n) (i : Fin n) (fuel : ℕ) :
+    T.pathToRootAux i fuel = T.toCore.pathToRootAux i fuel := by
+  induction fuel generalizing i with
+  | zero => rfl
+  | succ f ih =>
+    unfold pathToRootAux TreeAuthCoreProofs.TreeAuth.pathToRootAux
+    cases hp : T.parent i with
+    | none => simp only [toCore, hp]
+    | some p => simp only [toCore, hp, ih p]
+
+/-- pathToRoot matches between local and core -/
+lemma pathToRoot_eq_core (T : TreeAuth n) (i : Fin n) :
+    T.pathToRoot i = T.toCore.pathToRoot i := by
+  simp [pathToRoot, TreeAuthCoreProofs.TreeAuth.pathToRoot, pathToRootAux_eq_core]
+
+/-- adjacent matches between local and core -/
+lemma adjacent_eq_core (T : TreeAuth n) (i j : Fin n) :
+    T.adjacent i j ↔ T.toCore.adjacent i j := by
+  simp [adjacent, TreeAuthCoreProofs.TreeAuth.adjacent, toCore]
+
+/-- PROVEN: Consecutive elements in pathToRoot are adjacent (via TreeAuthCoreProofs) -/
+theorem pathToRoot_consecutive_adjacent (T : TreeAuth n) (i : Fin n) (k : ℕ)
+    (hk : k + 1 < (T.pathToRoot i).length) :
+    T.adjacent ((T.pathToRoot i).get ⟨k, by omega⟩)
+               ((T.pathToRoot i).get ⟨k + 1, hk⟩) := by
+  have heq : T.pathToRoot i = T.toCore.pathToRoot i := pathToRoot_eq_core T i
+  have hk' : k + 1 < (T.toCore.pathToRoot i).length := by rw [← heq]; exact hk
+  have h := TreeAuthCoreProofs.TreeAuth.pathToRoot_consecutive_adjacent T.toCore i k hk'
+  rw [adjacent_eq_core]
+  simp only [List.get_eq_getElem]
+  have hget1 : (T.pathToRoot i)[k] = (T.toCore.pathToRoot i)[k] := by simp [heq]
+  have hget2 : (T.pathToRoot i)[k + 1] = (T.toCore.pathToRoot i)[k + 1] := by simp [heq]
+  simp only [hget1, hget2]
+  simp only [List.get_eq_getElem] at h
+  exact h
 
 end TreeAuth
 
@@ -131,28 +180,24 @@ variable (b : Boundary H1 H2)
 /-- Composite size -/
 abbrev compositeSize : ℕ := H1.numAgents + H2.numAgents - 1
 
--- TEMP: axiomatized for speed, prove by 2026-02-07
--- Proof: agents from H1 use H1's acyclicity; agents from H2 reach boundary then use H1
-axiom compose_path_reaches_root (H1 H2 : HierarchicalNetwork S) (b : Boundary H1 H2)
-    (hn1 : 0 < H1.numAgents) (i : Fin (compositeSize H1 H2)) :
-    ∃ k, (fun j => (compositeParent H1 H2 b j).getD (compositeRoot H1 H2 hn1))^[k] i =
-         compositeRoot H1 H2 hn1
-
 /-- Composite root -/
 def compositeRoot (hn : 0 < H1.numAgents) : Fin (compositeSize H1 H2) :=
   ⟨H1.authority.root.val, by
     simp only [compositeSize]
-    have := H1.authority.root.isLt
+    have h1 := H1.authority.root.isLt
+    have h2pos : 0 < H2.numAgents := Fin.pos H2.authority.root
     omega⟩
 
 /-- Composite parent (simplified) -/
-noncomputable def compositeParent (i : Fin (compositeSize H1 H2)) : 
+noncomputable def compositeParent (i : Fin (compositeSize H1 H2)) :
     Option (Fin (compositeSize H1 H2)) := by
+  have h1pos : 0 < H1.numAgents := Fin.pos H1.authority.root
+  have h2pos : 0 < H2.numAgents := Fin.pos H2.authority.root
   by_cases h : i.val < H1.numAgents
   · let orig : Fin H1.numAgents := ⟨i.val, h⟩
     match H1.authority.parent orig with
     | none => exact none
-    | some p => exact some ⟨p.val, by simp [compositeSize]; have := p.isLt; omega⟩
+    | some p => exact some ⟨p.val, by simp only [compositeSize]; have hp := p.isLt; omega⟩
   · -- Agent from H2
     let idx := i.val - H1.numAgents
     by_cases hidx : idx < H2.numAgents - 1
@@ -160,12 +205,19 @@ noncomputable def compositeParent (i : Fin (compositeSize H1 H2)) :
       let h2idx : Fin H2.numAgents := ⟨idx + 1, by omega⟩  -- +1 for interface offset
       match H2.authority.parent h2idx with
       | none => exact none  -- H2's root maps to boundary
-      | some p => 
-        if p = b.agent2 then 
-          exact some ⟨b.agent1.val, by simp [compositeSize]; have := b.agent1.isLt; omega⟩
-        else 
-          exact some ⟨H1.numAgents + p.val - 1, by simp [compositeSize]; omega⟩
+      | some p =>
+        if p = b.agent2 then
+          exact some ⟨b.agent1.val, by simp only [compositeSize]; have ha := b.agent1.isLt; omega⟩
+        else
+          exact some ⟨H1.numAgents + p.val - 1, by simp only [compositeSize]; have hp := p.isLt; omega⟩
     · exact none
+
+-- TEMP: axiomatized for speed, prove by 2026-02-07
+-- Proof: agents from H1 use H1's acyclicity; agents from H2 reach boundary then use H1
+axiom compose_path_reaches_root (H1 H2 : HierarchicalNetwork S) (b : Boundary H1 H2)
+    (hn1 : 0 < H1.numAgents) (i : Fin (compositeSize H1 H2)) :
+    ∃ k, (fun j => (compositeParent H1 H2 b j).getD (compositeRoot H1 H2 hn1))^[k] i =
+         compositeRoot H1 H2 hn1
 
 /-- Composite reaches root -/
 theorem compose_path_construction (hn1 : 0 < H1.numAgents)
@@ -207,12 +259,12 @@ theorem path_adjacent_compatible (H : HierarchicalNetwork S)
 theorem path_pairwise_compatible (H : HierarchicalNetwork S) (i : Fin H.numAgents)
     (k : ℕ) (hk : k + 1 < (H.authority.pathToRoot i).length) :
     let path := H.authority.pathToRoot i
-    let a := path.get ⟨k, by omega⟩
-    let b := path.get ⟨k + 1, by omega⟩
+    let a := path.get ⟨k, Nat.lt_of_succ_lt hk⟩
+    let b := path.get ⟨k + 1, hk⟩
     H.compatible a b := by
   -- Consecutive in pathToRoot are parent-child, hence adjacent
   intro path a b
-  have h_adj : H.authority.adjacent a b := pathToRoot_consecutive_adjacent H.authority i k hk
+  have h_adj : H.authority.adjacent a b := TreeAuth.pathToRoot_consecutive_adjacent H.authority i k hk
   exact H.wellFormed a b h_adj
 
 end HierarchicalNetwork
