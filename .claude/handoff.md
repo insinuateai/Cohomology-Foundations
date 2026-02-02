@@ -6,96 +6,100 @@
 ## Session Metadata
 
 - **Date**: 2026-02-02
-- **Primary goal**: Create SimplicialGraphBridge.lean to eliminate axioms G02, G03, C03
-- **User intent**: Create second infrastructure file from next-5-targets.md roadmap
+- **Primary goal**: Create infrastructure files #2-#5 from next-5-targets.md roadmap
+- **User intent**: Write perfect lean files to eliminate axioms
 
 ## What Was Accomplished
 
 ### Completed
-- [x] Created `Infrastructure/SimplicialGraphBridge.lean` (new file)
-- [x] Proved bijection between 1-simplices and skeleton edges
-- [x] Proved `acyclic_implies_euler_proven` (eliminates G02)
-- [x] Established `forest_euler_equality` using Mathlib's `IsAcyclic.card_edgeFinset`
-- [x] Created `Infrastructure/PathDecompositionComplete.lean` (new file)
-- [x] Proved `bridge_path_decomposition_proven` (eliminates G04)
-- [x] Proved `non_v_component_path_avoids_bridge_proven` (eliminates G05)
-- [x] Documented proof strategies for T06, T07, X27
+- [x] Created `Infrastructure/SimplicialGraphBridge.lean` (File #2)
+- [x] Created `Infrastructure/PathDecompositionComplete.lean` (File #3)
+- [x] Created `Infrastructure/ComponentCountingComplete.lean` (File #4)
+- [x] Created `Infrastructure/FairnessH1Bridge.lean` (File #5)
+- [x] Made `vertex_in_v_or_w_component` public in ExtendedGraphInfra.lean
 
-### In Progress
-- [ ] `euler_implies_acyclic_graph` - Euler implies acyclic (G03) - structure complete, 2 sorries
-- [ ] `complete_complex_h1_trivial` - Complete complexes have H¹ = 0 (C03) - structure complete, 1 sorry
+### Axioms Eliminated (Fully Proven)
+- **G02** (`acyclic_implies_euler`): `acyclic_implies_euler_proven` in SimplicialGraphBridge.lean
+- **G04** (`bridge_path_decomposition`): `bridge_path_decomposition_proven` in PathDecompositionComplete.lean
+- **G05** (`non_v_component_path_avoids_bridge`): `non_v_component_path_avoids_bridge_proven` in PathDecompositionComplete.lean
+- **G06** (`bridge_component_cardinality`): `bridge_component_cardinality_proven` in ComponentCountingComplete.lean
+- **F07** (`optimal_lipschitz_achieves`): `optimal_lipschitz_achieves_proven` in FairnessH1Bridge.lean
 
-### Key Changes
+### In Progress (Sorries Remaining)
+| Axiom | File | Theorem | Sorries | Issue |
+|-------|------|---------|---------|-------|
+| G03 | SimplicialGraphBridge.lean | `euler_implies_acyclic_graph` | 2 | Cycle → non-bridge counting |
+| C03 | SimplicialGraphBridge.lean | `complete_complex_h1_trivial` | 1 | Coboundary calculation |
+| C05 | ComponentCountingComplete.lean | `h1_dim_components_bound_proven` | 1 | Algebraic manipulation |
+| X23 | ComponentCountingComplete.lean | `forest_bridge_acyclic` | 2 | Path analysis for forest composition |
+| F01 | FairnessH1Bridge.lean | `h1_trivial_implies_fair_allocation_proven` | 1 | Nerve theorem connection |
+| F02 | FairnessH1Bridge.lean | `fair_allocation_implies_h1_trivial_proven` | 1 | Cone contraction argument |
 
-| File | Change |
-|------|--------|
-| `Infrastructure/SimplicialGraphBridge.lean` | NEW: 340 lines, bijection + Euler formula proofs |
-| `Infrastructure/PathDecompositionComplete.lean` | NEW: 200+ lines, bridge decomposition proofs |
-| `Infrastructure/ExtendedGraphInfra.lean` | Made `vertex_in_v_or_w_component` public |
+### Documented Strategies (Await Integration)
+- **T06** (`alignment_path_compatible`): Strategy in PathDecompositionComplete.lean
+- **T07** (`path_compatible_aux`): Strategy in PathDecompositionComplete.lean
+- **X22** (`subtree_partition_aux`): Strategy in ComponentCountingComplete.lean
+- **X27** (`compose_path_reaches_root`): Strategy in PathDecompositionComplete.lean
 
-### Axiom Status
+## New Files Summary
 
-- **G02 (`acyclic_implies_euler`)**: ELIMINATED - now `acyclic_implies_euler_proven`
-- **G03 (`euler_implies_acyclic`)**: IN PROGRESS - proof structure complete
-- **G04 (`bridge_path_decomposition`)**: ELIMINATED - now `bridge_path_decomposition_proven`
-- **G05 (`non_v_component_path_avoids_bridge`)**: ELIMINATED - now `non_v_component_path_avoids_bridge_proven`
-- **C03 (`complete_complex_coboundary_aux'`)**: IN PROGRESS - proof structure complete
-- **T06, T07, X27**: Proof strategies documented, await HierarchicalNetwork integration
+| File | Lines | Axioms Targeted | Proven | Sorries |
+|------|-------|-----------------|--------|---------|
+| `SimplicialGraphBridge.lean` | ~340 | G02, G03, C03 | 1 | 3 |
+| `PathDecompositionComplete.lean` | ~240 | G04, G05, T06, T07, X27 | 2 | 0 |
+| `ComponentCountingComplete.lean` | ~290 | G06, C05, X22, X23 | 1 | 3 |
+| `FairnessH1Bridge.lean` | ~400 | F01, F02, F07 | 1 | 2 |
 
-## Current State
+**Total: 5 axioms fully eliminated, 8 in progress**
 
-### New File: Infrastructure/SimplicialGraphBridge.lean
+## Key Technical Patterns
 
-Key theorems proven:
-1. `ksimplex_one_gives_skeleton_edge` - 1-simplices correspond to edges
-2. `skeleton_edge_gives_ksimplex_one` - Converse direction
-3. `edge_count_eq_ksimplex_count` - Cardinality equality
-4. `forest_euler_equality` - |E| + |C| = |V| for forests (via Mathlib)
-5. `acyclic_implies_euler_proven` - Forest → Euler condition
+### Pattern 1: Wrapping Existing Infrastructure
+Many axioms were proven by adapting existing proofs in ExtendedGraphInfra.lean:
+- `bridge_splits_component_aux` → `bridge_component_cardinality_proven` (G06)
+- `vertex_in_v_or_w_component` → `bridge_path_decomposition_proven` (G04)
 
-Remaining sorries (4 total):
-| Theorem | Sorry Count | Issue |
-|---------|-------------|-------|
-| `euler_implies_acyclic_graph` | 2 | Cycle → non-bridge → Euler violation |
-| `complete_complex_h1_trivial` | 1 | Root vertex coboundary calculation |
+### Pattern 2: Mathlib Direct Usage
+- `IsAcyclic.card_edgeFinset` for Euler formula
+- `ConnectedComponent.eq` for reachability
+- `Walk.transfer` for graph morphisms
 
-### Proof Strategy for G03 (euler_implies_acyclic)
+### Pattern 3: Lipschitz Constants via Supremum
+F07 proof uses `Finset.sup'` and `Finset.le_sup'` to show the supremum achieves the bound.
 
-The contrapositive approach is correct:
-1. If not acyclic, there's a cycle
-2. Any edge in a cycle is NOT a bridge (cycle provides alternate path)
-3. Non-bridge edge means |E| > spanning forest size = |V| - |C|
-4. This contradicts the Euler hypothesis |E| ≤ |V| - |C|
+## Proof Strategies for Remaining Sorries
 
-The sorries are:
-- Showing cycle edge is not a bridge (needs Walk manipulation)
-- Final counting argument (needs Mathlib lemmas)
+### G03: Euler Implies Acyclic
+Contrapositive: cycle → non-bridge → Euler violation
+1. Edge in cycle is not a bridge (cycle provides alternate path)
+2. Non-bridge edge removal doesn't split component
+3. Too many edges for spanning forest size
 
-### Proof Strategy for C03 (complete_complex_h1_trivial)
+### C05: H¹ Dimension Bound
+Need algebraic manipulation showing:
+```
+|E| + |C| ≤ (n-1)(n-2)/2 + n
+```
+when `|E| ≤ n(n-1)/2`. Key: bound is tight at complete graph.
 
-The root vertex method is correct:
-1. Pick arbitrary root vertex r
-2. Define g({v}) = f({r, v}) for v ≠ r, and g({r}) = 0
-3. For edge {a, b}:
-   - If r ∈ {a, b}: coboundary directly gives f({r, x})
-   - If r ∉ {a, b}: cocycle condition on triangle {r, a, b} gives f({a,b}) = g({b}) - g({a})
-
-The sorry is handling the dependent type details in the coboundary definition.
+### F01/F02: Nerve Theorem
+Connection between H¹ triviality and global satisfiability requires:
+- F01: Nerve theorem - H¹ = 0 implies intersection non-empty
+- F02: Cone contraction - full simplex implies H¹ = 0
 
 ## Recommended Next Steps
 
-### Complete G03 and C03
-1. Prove cycle edge is not a bridge (use Walk.tail to get alternate path)
-2. Add counting argument for non-bridge → Euler violation
-3. Complete coboundary calculation for complete_complex_h1_trivial
-
-### Continue with Roadmap
-4. Create `Infrastructure/PathDecompositionComplete.lean` (File #3 from roadmap)
-5. Create `Infrastructure/ComponentCountingComplete.lean` (File #4)
-6. Create `Infrastructure/FairnessH1Bridge.lean` (File #5)
+1. **Complete G03**: Prove cycle edge is not a bridge using `Walk.tail`
+2. **Complete C03**: Handle dependent types in coboundary calculation
+3. **Complete F01/F02**: Implement nerve theorem or find alternative approach
+4. **Create File #1**: `Infrastructure/DepthTheoryComplete.lean` for tree depth axioms T01-T05, X28
+5. **Update axiom registry**: Remove proven axioms, update status
 
 ## Files Modified This Session
 
-1. `Infrastructure/SimplicialGraphBridge.lean` - NEW FILE (File #2 from roadmap)
-2. `Infrastructure/PathDecompositionComplete.lean` - NEW FILE (File #3 from roadmap)
-3. `Infrastructure/ExtendedGraphInfra.lean` - Made vertex_in_v_or_w_component public
+1. `Infrastructure/SimplicialGraphBridge.lean` - NEW (File #2)
+2. `Infrastructure/PathDecompositionComplete.lean` - NEW (File #3)
+3. `Infrastructure/ComponentCountingComplete.lean` - NEW (File #4)
+4. `Infrastructure/FairnessH1Bridge.lean` - NEW (File #5)
+5. `Infrastructure/ExtendedGraphInfra.lean` - Made vertex_in_v_or_w_component public
+6. `.claude/handoff.md` - Updated with progress
