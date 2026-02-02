@@ -92,21 +92,167 @@ theorem h2_trivial_three_vertices (K : SimplicialComplex) [Fintype K.vertexSet]
   by_cases h2 : K.ksimplices 2 = ∅
   · exact h2_trivial_of_no_2simplices K h2
   · -- K has at least one 2-simplex (triangle with 3 vertices)
-    -- With exactly 3 vertices, there's at most one 2-simplex (the full triangle {v₀,v₁,v₂})
-    --
-    -- The coboundary formula for a 2-simplex t with faces f₀, f₁, f₂ is:
-    --   (δg)(t) = g(f₀) - g(f₁) + g(f₂)
-    --
-    -- For surjectivity: given any value c, set g(f₂) = c and g = 0 elsewhere
-    -- Then (δg)(t) = 0 - 0 + c = c
-    --
-    -- This shows δ¹ is surjective, so H² = ker(δ²)/im(δ¹) = 0
-    --
-    -- The formal proof requires explicit simplex manipulation to construct g
-    -- such that for each 2-simplex t, (δg)(t) = f(t). With 3 vertices, there's
-    -- exactly one 2-simplex, making the construction straightforward.
-    -- TEMP: axiomatized for speed, prove by 2026-02-07
-    exact three_vertex_coboundary_exists K h f
+    -- With exactly 3 vertices, there's exactly one possible 2-simplex
+    intro f hf
+
+    -- Get the unique 2-simplex
+    push_neg at h2
+    rw [Set.nonempty_def] at h2
+    obtain ⟨t, ht⟩ := h2
+
+    -- f(t) is the only value that matters
+    let target := f ⟨t, ht⟩
+
+    -- Construct g: set g(last_edge) = target, g = 0 elsewhere
+    -- We need to find an edge of t that has coefficient +1 in the coboundary formula
+    -- Face 2 of a triangle (the edge {v₀, v₁}) has coefficient sign(2) = +1
+
+    have ht_card : t.card = 3 := ht.2
+    have ht_mem : t ∈ K.simplices := ht.1
+    have h_face2_card : t.card > 0 := by omega
+
+    -- Face 2 of t is an edge with coefficient +1
+    have h_face2_mem : t.face ⟨2, by rw [ht_card]; omega⟩ ∈ K.ksimplices 1 := by
+      simp only [SimplicialComplex.ksimplices, Set.mem_setOf_eq]
+      constructor
+      · exact K.down_closed t ht_mem ⟨2, by rw [ht_card]; omega⟩
+      · rw [Simplex.face_card h_face2_card, ht_card]
+
+    -- Define g: assign target to face 2, 0 elsewhere
+    use fun ⟨e, he⟩ =>
+      if e = t.face ⟨2, by rw [ht_card]; omega⟩ then target else 0
+
+    -- Prove δg = f
+    funext ⟨s, hs⟩
+
+    -- s must equal t (only one 2-simplex with 3 vertices)
+    have hs_eq_t : s = t := by
+      have hs_card : s.card = 3 := hs.2
+      have hs_sub : ∀ v ∈ s, v ∈ K.vertexSet := fun v hv => K.vertex_of_mem_simplex s hs.1 v hv
+      have ht_sub : ∀ v ∈ t, v ∈ K.vertexSet := fun v hv => K.vertex_of_mem_simplex t ht.1 v hv
+      -- Both s and t are 3-element subsets of a 3-element set
+      have hs_finset : ∃ (s'' : Finset K.vertexSet), s''.card = 3 ∧ s''.image Subtype.val = s := by
+        use s.subtype (· ∈ K.vertexSet)
+        constructor
+        · rw [Finset.card_subtype]
+          convert hs_card using 1
+          ext v; simp [hs_sub]
+        · ext v; simp [hs_sub]
+      have ht_finset : ∃ (t'' : Finset K.vertexSet), t''.card = 3 ∧ t''.image Subtype.val = t := by
+        use t.subtype (· ∈ K.vertexSet)
+        constructor
+        · rw [Finset.card_subtype]
+          convert ht_card using 1
+          ext v; simp [ht_sub]
+        · ext v; simp [ht_sub]
+      obtain ⟨s'', hs''_card, hs''_img⟩ := hs_finset
+      obtain ⟨t'', ht''_card, ht''_img⟩ := ht_finset
+      have hs''_univ : s'' = Finset.univ := Finset.eq_univ_of_card s'' (by rw [hs''_card, h])
+      have ht''_univ : t'' = Finset.univ := Finset.eq_univ_of_card t'' (by rw [ht''_card, h])
+      calc s = s''.image Subtype.val := hs''_img.symm
+        _ = Finset.univ.image Subtype.val := by rw [hs''_univ]
+        _ = t''.image Subtype.val := by rw [ht''_univ]
+        _ = t := ht''_img
+
+    -- Compute coboundary
+    simp only [coboundary]
+    have h_eq : (⟨s, hs⟩ : K.ksimplices 2) = ⟨t, ht⟩ := Subtype.ext hs_eq_t
+
+    -- The sum is over Fin s.card = Fin 3
+    -- sign(0) * g(face0) + sign(1) * g(face1) + sign(2) * g(face2)
+    -- = 1 * 0 + (-1) * 0 + 1 * target = target = f(t)
+
+    -- Convert indices
+    have hs_card : s.card = 3 := hs.2
+
+    -- Face membership in ksimplices 1
+    have h_face_in : ∀ i : Fin s.card, s.face i ∈ K.ksimplices 1 := by
+      intro i
+      simp only [SimplicialComplex.ksimplices, Set.mem_setOf_eq]
+      constructor
+      · exact K.down_closed s hs.1 i
+      · rw [Simplex.face_card (by omega : s.card > 0), hs_card]
+
+    -- Compute each term
+    -- Face 0 and 1 are not equal to t.face 2 (after accounting for hs_eq_t)
+    have h_face0_ne : s.face ⟨0, by rw [hs_card]; omega⟩ ≠ t.face ⟨2, by rw [ht_card]; omega⟩ := by
+      rw [hs_eq_t]
+      intro heq
+      -- Faces at different positions of the same simplex are different
+      simp only [Simplex.face] at heq
+      have h_sorted := finset_sort_erase_eq_eraseIdx t ⟨0, by rw [ht_card]; omega⟩
+      have h_sorted' := finset_sort_erase_eq_eraseIdx t ⟨2, by rw [ht_card]; omega⟩
+      have h_nodup := t.sort_nodup (· ≤ ·)
+      have h_len : (t.sort (· ≤ ·)).length = 3 := by rw [Finset.length_sort]; exact ht_card
+      have h_eq_lists : (t.sort (· ≤ ·)).eraseIdx 0 = (t.sort (· ≤ ·)).eraseIdx 2 := by
+        calc (t.sort (· ≤ ·)).eraseIdx 0
+          = (t.erase ((t.sort (· ≤ ·)).get ⟨0, by rw [h_len]; omega⟩)).sort (· ≤ ·) := h_sorted.symm
+        _ = (t.erase ((t.sort (· ≤ ·)).get ⟨2, by rw [h_len]; omega⟩)).sort (· ≤ ·) := by rw [heq]
+        _ = (t.sort (· ≤ ·)).eraseIdx 2 := h_sorted'
+      -- eraseIdx 0 of [a,b,c] = [b,c], eraseIdx 2 = [a,b]
+      -- [b,c] = [a,b] implies b = a, contradicting nodup
+      have h_get0 : ((t.sort (· ≤ ·)).eraseIdx 0).get ⟨0, by rw [List.length_eraseIdx, h_len]; omega⟩ =
+                    (t.sort (· ≤ ·)).get ⟨1, by rw [h_len]; omega⟩ := by
+        rw [List.get_eq_getElem, List.get_eq_getElem, List.getElem_eraseIdx]; simp
+      have h_get2 : ((t.sort (· ≤ ·)).eraseIdx 2).get ⟨0, by rw [List.length_eraseIdx, h_len]; omega⟩ =
+                    (t.sort (· ≤ ·)).get ⟨0, by rw [h_len]; omega⟩ := by
+        rw [List.get_eq_getElem, List.get_eq_getElem, List.getElem_eraseIdx]; simp
+      have : (t.sort (· ≤ ·)).get ⟨1, _⟩ = (t.sort (· ≤ ·)).get ⟨0, _⟩ := by
+        calc (t.sort (· ≤ ·)).get ⟨1, _⟩
+          = ((t.sort (· ≤ ·)).eraseIdx 0).get ⟨0, _⟩ := h_get0.symm
+        _ = ((t.sort (· ≤ ·)).eraseIdx 2).get ⟨0, _⟩ := by rw [h_eq_lists]
+        _ = (t.sort (· ≤ ·)).get ⟨0, _⟩ := h_get2
+      exact absurd (h_nodup.get_inj_iff.mp this) (by simp [Fin.ext_iff])
+
+    have h_face1_ne : s.face ⟨1, by rw [hs_card]; omega⟩ ≠ t.face ⟨2, by rw [ht_card]; omega⟩ := by
+      rw [hs_eq_t]
+      intro heq
+      simp only [Simplex.face] at heq
+      have h_sorted := finset_sort_erase_eq_eraseIdx t ⟨1, by rw [ht_card]; omega⟩
+      have h_sorted' := finset_sort_erase_eq_eraseIdx t ⟨2, by rw [ht_card]; omega⟩
+      have h_nodup := t.sort_nodup (· ≤ ·)
+      have h_len : (t.sort (· ≤ ·)).length = 3 := by rw [Finset.length_sort]; exact ht_card
+      have h_eq_lists : (t.sort (· ≤ ·)).eraseIdx 1 = (t.sort (· ≤ ·)).eraseIdx 2 := by
+        calc (t.sort (· ≤ ·)).eraseIdx 1
+          = (t.erase ((t.sort (· ≤ ·)).get ⟨1, by rw [h_len]; omega⟩)).sort (· ≤ ·) := h_sorted.symm
+        _ = (t.erase ((t.sort (· ≤ ·)).get ⟨2, by rw [h_len]; omega⟩)).sort (· ≤ ·) := by rw [heq]
+        _ = (t.sort (· ≤ ·)).eraseIdx 2 := h_sorted'
+      -- eraseIdx 1 of [a,b,c] = [a,c], eraseIdx 2 = [a,b]
+      -- [a,c] = [a,b] implies c = b, contradicting nodup
+      have h_get1 : ((t.sort (· ≤ ·)).eraseIdx 1).get ⟨1, by rw [List.length_eraseIdx, h_len]; omega⟩ =
+                    (t.sort (· ≤ ·)).get ⟨2, by rw [h_len]; omega⟩ := by
+        rw [List.get_eq_getElem, List.get_eq_getElem, List.getElem_eraseIdx]; simp
+      have h_get2 : ((t.sort (· ≤ ·)).eraseIdx 2).get ⟨1, by rw [List.length_eraseIdx, h_len]; omega⟩ =
+                    (t.sort (· ≤ ·)).get ⟨1, by rw [h_len]; omega⟩ := by
+        rw [List.get_eq_getElem, List.get_eq_getElem, List.getElem_eraseIdx]; simp
+      have : (t.sort (· ≤ ·)).get ⟨2, _⟩ = (t.sort (· ≤ ·)).get ⟨1, _⟩ := by
+        calc (t.sort (· ≤ ·)).get ⟨2, _⟩
+          = ((t.sort (· ≤ ·)).eraseIdx 1).get ⟨1, _⟩ := h_get1.symm
+        _ = ((t.sort (· ≤ ·)).eraseIdx 2).get ⟨1, _⟩ := by rw [h_eq_lists]
+        _ = (t.sort (· ≤ ·)).get ⟨1, _⟩ := h_get2
+      exact absurd (h_nodup.get_inj_iff.mp this) (by simp [Fin.ext_iff])
+
+    have h_face2_eq : s.face ⟨2, by rw [hs_card]; omega⟩ = t.face ⟨2, by rw [ht_card]; omega⟩ := by
+      rw [hs_eq_t]
+
+    -- Compute the sum
+    rw [show Finset.univ = ({0, 1, 2} : Finset (Fin s.card)) by rw [hs_card]; native_decide]
+    simp only [Finset.sum_insert, Finset.mem_insert, Finset.mem_singleton]
+    simp only [Finset.sum_singleton]
+
+    -- Signs
+    have hs0 : sign 0 = 1 := by native_decide
+    have hs1 : sign 1 = -1 := by native_decide
+    have hs2 : sign 2 = 1 := by native_decide
+
+    simp only [hs0, hs1, hs2, one_mul, neg_mul, neg_one_mul]
+
+    -- The g values: face0 and face1 map to 0, face2 maps to target
+    simp only [h_face0_ne, h_face1_ne, h_face2_eq, ↓reduceIte, mul_zero, add_zero, neg_zero]
+
+    -- target = f(t) = f(s) by hs_eq_t
+    calc target = f ⟨t, ht⟩ := rfl
+      _ = f ⟨s, hs⟩ := by rw [h_eq]
 
 /-- H² = 0 for complexes with ≤ 3 vertices -/
 theorem h2_trivial_le_three_vertices (K : SimplicialComplex) [Fintype K.vertexSet]
