@@ -6,99 +6,64 @@
 ## Session Metadata
 
 - **Date**: 2026-02-02
-- **Primary goal**: Eliminate game theory axioms
-- **User intent**: Build next best file for fixing as many axioms as possible
+- **Primary goal**: Evaluate and integrate AxiomSolver.lean from another branch
+- **User intent**: Determine if the file helps eliminate axioms
 
 ## What Was Accomplished
 
 ### Completed
+- [x] Analyzed `Infrastructure/AxiomSolver.lean` from `claude/lean-axiom-solver-TCj6F` branch
+- [x] **Deleted AxiomSolver.lean** - Found it was redundant and harmful:
+  - Most theorems already proven in GraphComposition.lean
+  - Had **7 sorries** violating "0 sorries" goal
+  - Key target axiom (G01) wasn't actually eliminated (replacement had sorry)
+- [x] Improved G01 axiom documentation with proof strategy
 
-1. **Created `Infrastructure/GameTheoryProofs.lean`** — Comprehensive proof file with:
-   - `supermodular_of_convex` — Convexity implies supermodularity (induction on |T \ S|)
-   - `marginal_sum_telescope` — Sum of marginal vector equals v(N) (telescoping)
-   - `convex_marginal_sum_ge` — Marginal vector satisfies coalition rationality
-   - `marginal_vector_in_core` — For convex games, marginal vector is in the core (Shapley's theorem)
-   - All proofs complete with 0 sorries, 0 axioms
+### Analysis Results
+| AxiomSolver.lean Content | Status |
+|-------------------------|--------|
+| `subgraph_acyclic_of_acyclic` | Already in GraphComposition.lean |
+| `induce_acyclic_of_acyclic` | Already in GraphComposition.lean |
+| `cycle_transfer_to_subgraph` | Already in GraphComposition.lean |
+| `forest_union_forest_acyclic` | Already in GraphComposition.lean |
+| `acyclic_of_disjoint_acyclic_parts` | Already in GraphComposition.lean |
+| `forest_single_edge_still_forest_theorem` | **1 sorry** - incomplete |
+| `acyclic_of_disjoint_acyclic_parts_theorem` | **2 sorries** - incomplete |
+| `forest_union_forest_acyclic_theorem` | **2 sorries** - incomplete |
 
-2. **Updated `Theories/CoalitionGameCore.lean`**:
-   - Replaced `supermodular_of_convex` axiom → proven theorem
-   - Replaced `marginal_sum_telescope_aux` axiom → proven theorem `marginal_sum_eq_grand`
-   - Axiom count: 2 → 0
-
-3. **Updated `Infrastructure/GameTheoryBridge.lean`**:
-   - Replaced `convex_marginal_sum_ge` axiom → proven theorem
-   - Simplified `convex_nonempty_core` proof to use the proven theorem
-   - Axiom count: 1 → 0
-
-4. **Updated `Infrastructure.lean`** to import new modules:
-   - `Infrastructure.AxiomSolver`
-   - `Infrastructure.GameTheoryProofs`
-   - `Infrastructure.TreeAuthCoreProofs`
-
-### Axiom Elimination Summary
-
-| File | Before | After | Eliminated |
-|------|--------|-------|------------|
-| CoalitionGameCore.lean | 2 | 0 | supermodular_of_convex, marginal_sum_telescope_aux |
-| GameTheoryBridge.lean | 1 | 0 | convex_marginal_sum_ge |
-| **Total** | **3** | **0** | **3 axioms** |
-
-**Expected project total: 73 → 70 axioms**
+### Not Changed
+- `forest_single_edge_still_forest_aux` axiom (G01) remains in GraphComposition.lean
+  - Proof requires `Walk.support_takeUntil_append_dropUntil` (doesn't exist in Mathlib 4.27.0)
+  - Pattern exists in TreeGraphInfra.lean's `takeUntil_first_endpoint_no_edge`
 
 ## Key Technical Insights
 
-### Supermodularity Proof Pattern
-Induction on |T \ S|:
-```lean
--- Base: T ⊆ S → equality holds
--- Inductive: find i ∈ T \ S, apply IH to S' = insert i S, T
--- Use convexity: mc(i, S ∩ T) ≤ mc(i, S) since S ∩ T ⊆ S
--- Combine bounds via linarith
+### G01 Proof Strategy (for future elimination)
+```
+1. For cycle c using edge s(u,v):
+   - Both u, v ∈ c.support
+   - By takeUntil_first_endpoint_no_edge, one prefix is clean
+2. The "long way around" the cycle gives a path u→v avoiding s(u,v)
+3. This path transfers to G, giving G.Reachable u v
+4. Contradiction with h_not_reach
 ```
 
-### Telescoping Sum Pattern
-```lean
--- Define helper: sum over {j | j < k} = v({j | j < k})
--- Induction on k
--- At k+1: split off element k, use that predecessors(k) = {j | j < k}
--- mv(k) = v(insert k (pred k)) - v(pred k) → terms cancel
-```
-
-### Marginal Coalition Rationality Pattern
-```lean
--- Induction on |S|
--- Find max element m in S
--- sPredecessors S m = S.erase m (since m is max)
--- By convexity: mc(m, S\{m}) ≤ mc(m, predecessors m)
--- Combine with IH on S\{m}
-```
+### Walk Decomposition Lemmas Needed
+- `Walk.edges_takeUntil_subset`: edges in takeUntil are subset of original
+- Support splitting: showing vertex in either takeUntil or dropUntil
+- See TreeGraphInfra.lean lines 60-82 for working `takeUntil_first_endpoint_no_edge`
 
 ## Current State
 
-### Files Created/Modified
-- `Infrastructure/GameTheoryProofs.lean` (NEW)
-- `Infrastructure/AxiomSolver.lean` (existed, added to imports)
-- `Infrastructure/TreeAuthCoreProofs.lean` (existed, added to imports)
-- `Theories/CoalitionGameCore.lean` (modified)
-- `Infrastructure/GameTheoryBridge.lean` (modified)
-- `Infrastructure.lean` (modified)
+### Files Changed
+- `Infrastructure/AxiomSolver.lean` - **DELETED**
+- `Infrastructure/GraphComposition.lean` - Improved axiom docstring
 
-### Build Status
-- Not verified in this session (no `lake` available in environment)
-- Proofs follow correct Lean 4 patterns from skill document
+### Axiom Status
+- G01 (`forest_single_edge_still_forest_aux`) - Still axiom, needs walk decomposition
 
 ## Recommended Next Steps
 
-1. **Build verification**: Run `lake build` to verify all proofs compile
-2. **Run axiom count**: `make axiom-count` to verify 70 total
-3. **Next targets for elimination** (from axiom-registry.md):
-   - Priority 1: Graph Theory (G01-G06) — AxiomSolver.lean has partial infrastructure
-   - Priority 2: TreeAuth cluster (T03-T06) — TreeAuthCoreProofs.lean has some proven
-   - Priority 3: Fairness axioms (F01-F07) — algebraic, straightforward
-
-4. **Remaining sorries to complete**:
-   - AxiomSolver.lean: `forest_single_edge_still_forest_theorem` (1 sorry)
-   - AxiomSolver.lean: `acyclic_of_disjoint_acyclic_parts_theorem` (2 sorries)
-   - AxiomSolver.lean: `forest_union_forest_acyclic_theorem` (2 sorries)
-   - TreeAuthCoreProofs.lean: `acyclic_periodic_orbit_equiv` (1 sorry - axiom statement incorrect)
-   - TreeAuthCoreProofs.lean: `toSimpleGraph_acyclic_aux` (1 sorry)
+1. Complete G01 elimination by adapting TreeGraphInfra pattern
+2. Attack other axiom clusters (see axiom-registry.md)
+3. Consider adding missing Mathlib lemmas as local helpers
