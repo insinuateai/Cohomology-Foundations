@@ -70,9 +70,20 @@ exact ⟨p.toDeleteEdge e hp_no_e⟩  -- G'-reachability
 
 **Component-wise summing** (e.g., Σ|E_i| = |E|) requires `Setoid.IsPartition.ncard_eq_finsum` pattern.
 
+## Axiom Elimination Categories
+
+| Category | Status | Example Axioms |
+|----------|--------|----------------|
+| Coalition Game | **Provable** | `supermodular_of_convex`, `marginal_sum_telescope` (induction on |T\S|) |
+| Fairness/Allocation | **Provable** | `fairness_loss_bounded` (max of finite set), `envy_free_implies_proportional` |
+| Graph Cycles | **Partial** | Need walk construction lemmas for full proofs |
+| Spectral Theory | **Essential** | Laplacian construction requires matrix infrastructure not in Mathlib 4.27 |
+| Persistence | **Essential** | Stability theorems require persistent homology |
+
 ## Session Log
 
 <!-- Newest first -->
-- 2026-01-31: **Full Build Success** - Build completes with 3174 jobs. TreeGraphInfra.lean has 6 sorries for Walk→deleteEdges conversions. Key finding: use `Walk.toDeleteEdge` with proof `e ∉ p.edges` (see pattern above).
-- 2026-01-31: Fixed Mathlib 4.27.0 compatibility across 8+ files. Key API changes documented above. TreeH1Trivial.lean compiles (2 sorries). ConnectedCocycleLemma.lean complete (0 sorries). DoubleSquaredZero.lean complete (sum_involution pattern).
-- 2026-01-30: TreeGraphInfra.lean added. TreeAuthority.lean `pathBetween_head/last` fixed. `alignment_computable` fixed.
+- 2026-02-02: Created AxiomMinimization.lean. Proved `supermodular_of_convex` (induction on |T\S|), `marginal_sum_telescope` (telescoping), fairness axioms. Categorized ~95 axioms by eliminability.
+- 2026-01-31: **Full Build Success** - Build completes with 3174 jobs. TreeGraphInfra.lean has 6 sorries for Walk→deleteEdges conversions.
+- 2026-01-31: Fixed Mathlib 4.27.0 compatibility across 8+ files. Key API changes documented above.
+- 2026-01-30: TreeGraphInfra.lean added. TreeAuthority.lean `pathBetween_head/last` fixed.
