@@ -55,6 +55,7 @@ import Mathlib.Tactic.FinCases
 import Mathlib.Tactic.IntervalCases
 import Mathlib.Tactic.FieldSimp
 import H1Characterization.ForestCoboundary
+import Infrastructure.CompleteComplexH1
 
 namespace Perspective
 
@@ -188,49 +189,8 @@ theorem not_alignable_of_large_disagreement [Nonempty S] (H A : ValueSystem S) (
 def Reconciles (R V : ValueSystem S) (ε : ℚ) : Prop :=
   ∀ s : S, |R.values s - V.values s| ≤ ε
 
-/-- The value complex for n value systems.
-    Vertices are Fin n representing the n systems.
-    A simplex σ is in the complex iff all its vertices agree pairwise within 2ε.
-
-    NOTE: We use 2ε (not ε) for edges because:
-    - When a reconciler R exists with threshold ε, systems agree within 2ε
-    - This makes the theorem work: reconciliation with ε ↔ H¹ = 0 for complex with 2ε edges
-
-    The complex is a flag complex:
-    - An edge {i,j} exists iff systems i and j agree on SOME situation within 2ε
-    - Higher simplices exist iff all their edges exist (flag complex property)
--/
-def valueComplex {n : ℕ} (systems : Fin n → ValueSystem S) (ε : ℚ) : SimplicialComplex where
-  simplices := {σ : Simplex |
-    -- All vertices must be < n
-    (∀ v ∈ σ, v < n) ∧
-    -- Pairwise agreement for edges
-    (∀ i j : ℕ, i ∈ σ → j ∈ σ → i < j → (hi : i < n) → (hj : j < n) →
-      ∃ s : S, |(systems ⟨i, hi⟩).values s - (systems ⟨j, hj⟩).values s| ≤ 2 * ε)}
-  has_vertices := by
-    intro s hs v hv
-    simp only [Set.mem_setOf_eq, Simplex.vertex] at hs ⊢
-    constructor
-    · intro w hw
-      simp only [Finset.mem_singleton] at hw
-      rw [hw]
-      exact hs.1 v hv
-    · intro i j hi hj hij hi_lt hj_lt
-      -- For a singleton {v}, i and j must both equal v, contradicting i < j
-      simp only [Finset.mem_singleton] at hi hj
-      omega
-  down_closed := by
-    intro s hs i
-    simp only [Set.mem_setOf_eq] at hs ⊢
-    constructor
-    · intro v hv
-      have : v ∈ s := Simplex.face_subset s i hv
-      exact hs.1 v this
-    · intro a b ha hb hab ha_lt hb_lt
-      -- s.face i is a subset of s, so the pairwise agreement still holds
-      have ha' : a ∈ s := Simplex.face_subset s i ha
-      have hb' : b ∈ s := Simplex.face_subset s i hb
-      exact hs.2 a b ha' hb' hab ha_lt hb_lt
+-- NOTE: `valueComplex` is now defined in Perspective/ValueComplex.lean
+-- and imported via Infrastructure/CompleteComplexH1.lean
 
 /-
 ## The Hollow Triangle (Multi-Stakeholder Extension)
@@ -918,20 +878,32 @@ The main theorem: complete simplicial complexes have trivial H¹.
 -/
 
 /-- Auxiliary result: In a complete complex, every cocycle is a coboundary.
-    This is axiomatized as the formal proof requires extensive infrastructure
-    for simplex membership that doesn't add mathematical insight.
+    **ELIMINATED 2026-02-02** via Infrastructure/CompleteComplexH1.lean
 
     The mathematical proof (root vertex method):
     - Pick vertex 0 as the root
     - Define g({0}) = 0, g({v}) = f({0, v}) for v > 0
     - The cocycle condition on triangles {0, u, v} ensures δg = f -/
-axiom complete_complex_coboundary_aux' {S' : Type*} [Fintype S'] [DecidableEq S']
+theorem complete_complex_coboundary_aux' {S' : Type*} [Fintype S'] [DecidableEq S']
     {n : ℕ} (systems : Fin n → ValueSystem S') (ε : ℚ)
     (f : Cochain (valueComplex systems ε) 1)
     (hf : IsCocycle (valueComplex systems ε) 1 f)
     (h_complete : ∀ (i j : ℕ) (hi : i < n) (hj : j < n), i < j →
       ∃ s : S', |(systems ⟨i, hi⟩).values s - (systems ⟨j, hj⟩).values s| ≤ 2 * ε) :
-    IsCoboundary (valueComplex systems ε) 1 f
+    IsCoboundary (valueComplex systems ε) 1 f := by
+  cases n with
+  | zero =>
+    -- No vertices means no 1-simplices, so any cochain is trivially a coboundary
+    use 0
+    funext ⟨σ, hσ⟩
+    exfalso
+    have h1 := hσ.1
+    simp only [valueComplex] at h1
+    have ⟨v, hv⟩ := Finset.card_pos.mp (hσ.2 ▸ Nat.succ_pos 1 : σ.card > 0)
+    exact Nat.not_lt_zero v (h1.1 v hv)
+  | succ m =>
+    exact Infrastructure.CompleteComplexH1.complete_complex_coboundary_proven
+      (Nat.succ_pos m) systems ε f hf h_complete
 
 /-- For a complete simplicial complex (all edges exist), every 1-cocycle is a coboundary.
     This is a standard result in algebraic topology: complete graphs have trivial H¹.

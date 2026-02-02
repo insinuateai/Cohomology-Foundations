@@ -6,76 +6,68 @@
 ## Session Metadata
 
 - **Date**: 2026-02-02
-- **Primary goal**: Fix `acyclic_periodic_orbit_equiv` sorry and eliminate axioms
-- **User intent**: Understand and fix the "incorrect for root case" sorry at TreeAuthCoreProofs.lean:486
+- **Primary goal**: Analyze and document unprovable axioms (X25, X26, R01, R02, R03)
+- **User intent**: Properly classify axioms that cannot be eliminated
 
 ## What Was Accomplished
 
-### Completed
-- [x] Fixed `acyclic_periodic_orbit_equiv` theorem statement (was mathematically false)
-- [x] Removed sorry from TreeAuthCoreProofs.lean:486
-- [x] Created bridging lemmas to connect local TreeAuth to TreeAuthCoreProofs.TreeAuth
-- [x] Eliminated X28 and X29 axioms from HierarchicalNetworkComplete.lean
-- [x] Updated axiom-registry.md with eliminations
+### Axioms Marked as KEEP (5 total)
 
-### Key Changes
+| ID | Axiom | Category | Reason |
+|----|-------|----------|--------|
+| X25 | `StrategicGame.actions_nonempty` | Structural | Type allows empty action sets |
+| X26 | `StrategicGame.coordination_nash_player_bound` | Model limitation | False in full game theory |
+| R01 | `remove_edge_from_single_cycle_aux'` | Multi-cycle | False for 2+ independent cycles |
+| R02 | `fill_triangle_h1_trivial_aux'` | Multi-cycle | False for 2+ independent cycles |
+| R03 | `resolution_edge_exists_maximal_aux` | Multi-cycle | False for disjoint cycles |
 
-| File | Change |
-|------|--------|
-| `Infrastructure/TreeAuthCoreProofs.lean:472` | Fixed theorem: added `i ≠ T.root →` to RHS |
-| `Infrastructure/TreeAuthCoreProofs.lean:486` | Removed sorry (proof now complete) |
-| `Theories/HierarchicalNetworkComplete.lean:117-131` | Added bridging lemmas |
-| `Theories/HierarchicalNetworkComplete.lean:248-274` | Replaced axiom with proven theorem |
+### Files Updated
 
-### Axiom Status
+- `.claude/axiom-justifications.md` - Added detailed documentation for all 5 axioms
+- `.claude/axiom-registry.md` - Moved axioms to KEEP sections with proper notes
+- `.claude/skill-document.md` - Added session log entry
 
-- **Before**: 68 axioms
-- **After**: 66 axioms
-- **Eliminated**: X28 (`acyclic_periodic_orbit_equiv`), X29 (`pathToRoot_consecutive_adjacent`)
+## Key Findings
+
+### R01/R02/R03: Multi-Cycle Counterexample
+
+**Counterexample**: Two disjoint hollow triangles {a,b,c} and {x,y,z}
+- R01 claims: Removing any maximal edge makes H¹=0 → FALSE (removing edge from one triangle leaves other intact)
+- R02 claims: Adding any triangle makes H¹=0 → FALSE (filling one triangle leaves other cycle)
+- R03 claims: ∃ maximal edge whose removal makes H¹=0 → FALSE (no edge in both cycles)
+
+**Why not fixed**: Adding `dim H¹(K) = 1` hypothesis would fix the math but requires refactoring:
+- `remove_edge_from_single_cycle_aux` (wrapper)
+- `resolution_edge_exists_aux` (line 275 caller)
+- `resolution_exists` (line 431 caller)
+
+This is significant refactoring that cascades through the resolution pipeline.
+
+### X25/X26: Type System Issues
+
+**X25**: `StrategicGame.actions : Agent → Finset ℕ` allows empty sets. Proof:
+```lean
+def StrategicGame.empty : StrategicGame where
+  actions := fun _ => ∅  -- Counterexample exists in codebase!
+```
+
+**X26**: Claims coordination games with Nash + >2 players is impossible. This is false in real game theory but true in the simplified forest-based model (forests require ≤1 player).
 
 ## Current State
 
-### Sorries (3 total - reduced from 4)
-| File | Line | Issue |
-|------|------|-------|
-| `Infrastructure/TreeAuthCoreProofs.lean` | 551 | `toSimpleGraph_acyclic_aux` - minimum-depth cycle argument |
-| `Theories/TreeAuthDepthTheory.lean` | 127 | `depth_bounded` - pigeonhole for depth bound |
-| `Theories/TreeAuthDepthTheory.lean` | 408 | `no_cycle_via_depth_aux` |
+### Counts
+- **Sorries**: 12 (unchanged - handled in parallel session)
+- **Axioms KEEP**: ~20 (increased from ~15)
+- **Axioms ELIMINATE**: ~34 (decreased from ~39)
 
-### Key Insight from This Session
+### Next Steps (for future sessions)
 
-**When an axiom's statement is mathematically false, fix the statement rather than trying to prove the unprovable.**
+1. **Sorries first** - The 12 existing sorries block more progress than axiom work
+2. **Consider R01/R02 refactor** - If single-cycle restriction is acceptable, add hypotheses throughout pipeline
+3. **Consider X25 refactor** - `WellFormedGame` wrapper or dependent types (~20 locations)
 
-The original `acyclic_periodic_orbit_equiv` claimed:
-```
-(∀ i, ∃ k, parentOrRoot^[k] i = T.root) ↔ ∀ i, ∀ k > 0, parentOrRoot^[k] i ≠ i
-```
+## Important Notes
 
-But the RHS is FALSE for the root node because `parentOrRoot root = root` (root is a fixed point). The corrected statement adds `i ≠ T.root →` to the RHS.
-
-### Bridging Pattern for TreeAuth
-
-When HierarchicalNetworkComplete.lean has its own local `TreeAuth` type but needs to use theorems from TreeAuthCoreProofs.lean:
-
-```lean
--- Convert function values
-lemma parentOrRoot_eq_core (T : TreeAuth n) (i : Fin n) :
-    T.parentOrRoot i = T.toCore.parentOrRoot i
-
--- Convert iterations
-lemma parentOrRoot_iterate_eq_core (T : TreeAuth n) (i : Fin n) (k : ℕ) :
-    T.parentOrRoot^[k] i = T.toCore.parentOrRoot^[k] i
-
--- Root unchanged
-lemma root_eq_core (T : TreeAuth n) : T.root = T.toCore.root
-```
-
-## Recommended Next Steps
-
-### High Value
-1. **X27** (`compose_path_reaches_root`) - Last axiom in HierarchicalNetworkComplete.lean
-2. **T01-T05** - Tree authority depth axioms (TreeAuthDepthTheory.lean)
-
-### Remaining Sorries
-3. Fix `toSimpleGraph_acyclic_aux` (TreeAuthCoreProofs.lean:551) - needs minimum-depth argument
-4. Fix `depth_bounded` (TreeAuthDepthTheory.lean:127) - needs pigeonhole
+- Build fails due to pre-existing `CompleteComplexH1.lean` errors (handled in parallel session)
+- Documentation changes don't affect build
+- Axiom counts in registry are approximate (~) since some are uncategorized

@@ -69,8 +69,88 @@
 
 7. Thom, R. (1972). *Structural Stability and Morphogenesis*. W.A. Benjamin.
 
+## Structural Assumptions (Type System Limitations)
+
+These axioms cannot be proven because the type system doesn't enforce the required properties.
+
+### X25: StrategicGame.actions_nonempty — KEEP (Structural)
+
+| Property | Value |
+|----------|-------|
+| File | GameTheoreticH1.lean:274 |
+| Usages | 4 locations in `nash_iff_h1_trivial_coordination` |
+
+**Why unprovable**: The `StrategicGame` type defines `actions : Agent → Finset ℕ` which allows empty sets. The type explicitly permits counterexamples:
+```lean
+def StrategicGame.empty : StrategicGame where
+  actions := fun _ => ∅  -- Empty actions allowed
+```
+
+**Elimination would require**: Refactoring `StrategicGame` to use dependent types or a `WellFormedGame` wrapper (~20 locations affected).
+
+### X26: StrategicGame.coordination_nash_player_bound — KEEP (Model Limitation)
+
+| Property | Value |
+|----------|-------|
+| File | GameTheoreticH1.lean:286 |
+| Usages | 1 location in `nash_implies_h1_trivial` |
+
+**Why unprovable**: This axiom claims coordination games with Nash equilibrium cannot have >2 players. This contradicts full game theory where coordination games typically have Nash equilibria for n ≥ 2.
+
+The axiom documents a known gap: the simplified forest-based formalization (forests ≤1 player) doesn't match real coordination game behavior. The code comments (line 284) acknowledge this limitation.
+
+**Elimination would require**: Redesigning the Nash ↔ H¹ connection to not assume forest structure implies ≤1 player.
+
+---
+
+## Mathematically Strong Statements (Multi-Cycle Issues)
+
+These axioms are mathematically false for complexes with multiple independent cycles. They hold for single-cycle complexes but are stated without this restriction.
+
+### R01: remove_edge_from_single_cycle_aux' — KEEP (False for Multi-Cycle)
+
+| Property | Value |
+|----------|-------|
+| File | ConflictResolution.lean:163 |
+| Usages | wrapper (line 172), `resolution_edge_exists_aux` (line 275), `remove_edge_resolves` (line 343) |
+
+**What it claims**: Removing any maximal edge makes H¹ = 0.
+
+**Counterexample**: A complex with two disjoint hollow triangles {a,b,c} and {x,y,z}. Removing an edge from the first triangle leaves the second cycle intact. H¹ ≠ 0.
+
+**Why not fixed**: Adding `dim H¹(K) = 1` hypothesis would break `resolution_edge_exists_aux` which lacks this context. Full fix requires refactoring the entire resolution pipeline.
+
+### R02: fill_triangle_h1_trivial_aux' — KEEP (False for Multi-Cycle)
+
+| Property | Value |
+|----------|-------|
+| File | ConflictResolution.lean:196 |
+| Usages | wrapper (line 200), `fill_triangle_resolves` (line 389) |
+
+**What it claims**: Adding any triangle makes H¹ = 0.
+
+**Counterexample**: Same as R01 - filling one triangle in a two-triangle complex leaves the other cycle intact.
+
+**Why not fixed**: Same as R01 - would require pipeline-wide changes.
+
+### R03: resolution_edge_exists_maximal_aux — KEEP (False for Multi-Cycle)
+
+| Property | Value |
+|----------|-------|
+| File | ConflictResolution.lean:217 |
+| Usages | 1 location as fallback in `resolution_edge_exists_aux` (line 284) |
+
+**What it claims**: If H¹ ≠ 0, there exists a maximal edge whose removal makes H¹ = 0.
+
+**Counterexample**: Two disjoint hollow triangles have no edge appearing in both cycles. Removing any edge breaks only one cycle.
+
+**Note**: This is existential (∃) not universal (∀), so initially seemed possibly true. However, for truly independent (disjoint) cycles, no single edge can break all cycles.
+
+---
+
 ## Notes
 
 - H² axioms are marked TEMP in source with target date 2026-02-07; may become eliminable
 - Spectral axioms require ~100+ theorems to eliminate (characteristic polynomial, algebraic closure, sorting)
 - Stability axioms require persistent homology formalization not in Mathlib
+- R01/R02/R03 could theoretically be fixed by adding `dim H¹(K) = 1` hypothesis, but this requires refactoring the entire conflict resolution pipeline

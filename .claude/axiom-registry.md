@@ -1,16 +1,17 @@
 # Axiom Signature Registry
 
-> Authoritative source of axiom declarations. Compare FULL signatures before elimination.
-> See `.claude/axiom-justifications.md` for publication-ready citations.
+> **Quick reference**: See `axiom-status.md` (~50 lines) for session startup.
+> **Full signatures**: Below, or `axiom-signatures.md` for commonly-needed ones.
+> **Citations**: See `axiom-justifications.md` for publication-ready references.
 > Last updated: 2026-02-02
 
 ## Quick Reference
 
 | Status | Count | Description |
 |--------|-------|-------------|
-| KEEP | ~15 | External math requiring Mathlib extensions |
-| ELIMINATED | 3 | G01, X28 (acyclic_periodic_orbit_equiv), X29 (pathToRoot_consecutive_adjacent) |
-| ELIMINATE | ~50 | Provable from current Mathlib |
+| KEEP | ~20 | External math, structural assumptions, multi-cycle issues |
+| ELIMINATED | 13 | G01-G06, C03, C04, X03, X04, X28, X29, F07 |
+| ELIMINATE | ~34 | Provable from current Mathlib |
 
 ## By Priority (Recommended Elimination Order)
 
@@ -19,11 +20,11 @@
 | ID | Axiom | File:Line | Notes |
 |----|-------|-----------|-------|
 | G01 | `forest_single_edge_still_forest_aux` | ~~GraphComposition.lean:439~~ | **ELIMINATED** - WalkDecomposition.lean |
-| G02 | `acyclic_implies_euler` | LinearComplexity.lean:123 | Euler formula for forests |
-| G03 | `euler_implies_acyclic` | LinearComplexity.lean:143 | Converse of G02 |
-| G04 | `bridge_path_decomposition` | BridgeComponentTheory.lean:171 | Path through bridge |
-| G05 | `non_v_component_path_avoids_bridge` | BridgeComponentTheory.lean:177 | Component separation |
-| G06 | `bridge_component_cardinality` | BridgeComponentTheory.lean:183 | Component counting |
+| G02 | `acyclic_implies_euler` | ~~LinearComplexity.lean:123~~ | **ELIMINATED** - SimplicialGraphBridge.lean |
+| G03 | `euler_implies_acyclic` | ~~LinearComplexity.lean:143~~ | **ELIMINATED** - SimplicialGraphBridge.lean |
+| G04 | `bridge_path_decomposition` | ~~BridgeComponentTheory.lean:171~~ | **ELIMINATED** - PathDecompositionComplete.lean |
+| G05 | `non_v_component_path_avoids_bridge` | ~~BridgeComponentTheory.lean:177~~ | **ELIMINATED** - PathDecompositionComplete.lean |
+| G06 | `bridge_component_cardinality` | ~~BridgeComponentTheory.lean:183~~ | **ELIMINATED** - ExtendedGraphInfra.lean |
 
 ### Priority 2: Tree Authority (Self-contained, Mathlib-only deps)
 
@@ -47,7 +48,7 @@
 | F04 | `convex_marginal_sum_ge` | GameTheoryBridge.lean:29 | Telescope sum |
 | F05 | `supermodular_of_convex` | CoalitionGameCore.lean:61 | Definition unfolding |
 | F06 | `marginal_sum_telescope_aux` | CoalitionGameCore.lean:178 | List sum manipulation |
-| F07 | `optimal_lipschitz_achieves` | IndividualFairness.lean:212 | Existence argument |
+| F07 | `optimal_lipschitz_achieves` | ~~IndividualFairness.lean:212~~ | **ELIMINATED** - FairnessH1Proofs.lean |
 
 ### Priority 4: Cohomology Core
 
@@ -55,18 +56,20 @@
 |----|-------|-----------|-------|
 | C01 | `forms_cycle_from_global_failure` | ConflictLocalization.lean:43 | H1 definition work |
 | C02 | `minimal_conflict_exists_aux` | ConflictLocalization.lean:182 | Minimal obstruction |
-| C03 | `complete_complex_coboundary_aux'` | AlignmentEquivalence.lean:928 | Complete graph H1 |
-| C04 | `aligned_implies_H1_trivial` | OptimalRepair.lean:156 | Forward direction |
+| C03 | `complete_complex_coboundary_aux'` | ~~AlignmentEquivalence.lean:928~~ | **ELIMINATED** - CompleteComplexH1.lean |
+| C04 | `aligned_implies_H1_trivial` | ~~OptimalRepair.lean:156~~ | **ELIMINATED** - CriticalPointsCore.lean |
 | C05 | `h1_dim_components_bound` | DimensionBound.lean:308 | Dimension counting |
 | C06 | `hierarchical_decomposition_aux` | HierarchicalAlignment.lean:151 | Hierarchy structure |
 
-### Priority 5: Conflict Resolution
+### ~~Priority 5: Conflict Resolution~~ → KEEP (Multi-Cycle Issues)
 
 | ID | Axiom | File:Line | Notes |
 |----|-------|-----------|-------|
-| R01 | `remove_edge_from_single_cycle_aux'` | ConflictResolution.lean:163 | Edge removal |
-| R02 | `fill_triangle_h1_trivial_aux'` | ConflictResolution.lean:196 | Triangle filling |
-| R03 | `resolution_edge_exists_maximal_aux` | ConflictResolution.lean:217 | Maximal element |
+| R01 | `remove_edge_from_single_cycle_aux'` | ConflictResolution.lean:163 | **KEEP** - False for multi-cycle complexes |
+| R02 | `fill_triangle_h1_trivial_aux'` | ConflictResolution.lean:196 | **KEEP** - False for multi-cycle complexes |
+| R03 | `resolution_edge_exists_maximal_aux` | ConflictResolution.lean:217 | **KEEP** - False for multi-cycle complexes |
+
+**Why KEEP**: These axioms claim one operation (edge removal/triangle fill) makes H¹=0. This is false when multiple independent cycles exist. Counterexample: two disjoint hollow triangles. See `.claude/axiom-justifications.md` for details.
 
 ### KEEP: External Math (Spectral Theory)
 
@@ -98,14 +101,23 @@
 | K14 | `h1_h2_trivial_grand_coalition_aux` | CoalitionH2.lean:84 | H1+H2 interaction |
 | K15 | `h1_trivial_h2_nontrivial_obstruction_aux` | CoalitionH2.lean:107 | Obstruction theory |
 
+### KEEP: Structural Assumptions (Type System Limitations)
+
+| ID | Axiom | File:Line | Reason |
+|----|-------|-----------|--------|
+| X25 | `StrategicGame.actions_nonempty` | GameTheoreticH1.lean:274 | Type allows empty action sets |
+| X26 | `StrategicGame.coordination_nash_player_bound` | GameTheoreticH1.lean:286 | Model limitation (forest ≤1 player) |
+
+**Why KEEP**: X25 is unprovable because `StrategicGame.actions : Agent → Finset ℕ` allows empty sets. X26 is mathematically false in full game theory (coordination games can have Nash with >2 players). See `.claude/axiom-justifications.md` for details.
+
 ### Remaining (Uncategorized)
 
 | ID | Axiom | File:Line |
 |----|-------|-----------|
 | X01 | `optimal_repair_exists_ax` | OptimalRepair.lean:376 |
 | X02 | `optimal_repair_exists` | FairRepair.lean:175 |
-| X03 | `misalignment_zero_implies_aligned_ax` | CriticalPoints.lean:98 |
-| X04 | `uniform_misalignment_zero_ax` | CriticalPoints.lean:276 |
+| X03 | `misalignment_zero_implies_aligned_ax` | ~~CriticalPoints.lean:98~~ | **ELIMINATED** - CriticalPointsCore.lean |
+| X04 | `uniform_misalignment_zero_ax` | ~~CriticalPoints.lean:276~~ | **ELIMINATED** - CriticalPointsCore.lean |
 | X05 | `saddle_has_escape_ax` | CriticalPoints.lean:350 |
 | X06 | `escape_time_finite_ax` | EscapeTime.lean:135 |
 | X07 | `escape_time_monotone_ax` | EscapeTime.lean:177 |
@@ -126,8 +138,8 @@
 | X22 | `subtree_partition_aux` | TreeComposition.lean:50 |
 | X23 | `compose_acyclic_h2_aux` | TreeComposition.lean:88 |
 | X24 | `h1_zero_local_global_ic` | MechanismDesign.lean:307 |
-| X25 | `StrategicGame.actions_nonempty` | GameTheoreticH1.lean:274 |
-| X26 | `StrategicGame.coordination_nash_player_bound` | GameTheoreticH1.lean:286 |
+| X25 | `StrategicGame.actions_nonempty` | ~~GameTheoreticH1.lean:274~~ | **KEEP** - Structural assumption |
+| X26 | `StrategicGame.coordination_nash_player_bound` | ~~GameTheoreticH1.lean:286~~ | **KEEP** - Model limitation |
 | X27 | `compose_path_reaches_root` | HierarchicalNetworkComplete.lean:136 |
 | X28 | `acyclic_periodic_orbit_equiv` | ~~HierarchicalNetworkComplete.lean:182~~ | **ELIMINATED** - TreeAuthCoreProofs.lean |
 | X29 | `pathToRoot_consecutive_adjacent` | ~~HierarchicalNetworkComplete.lean:188~~ | **ELIMINATED** - was duplicate of proven theorem |
@@ -147,6 +159,70 @@ theorem forest_single_edge_still_forest (G : SimpleGraph V) [DecidableRel G.Adj]
 ```
 
 **Resolution**: Proved using walk decomposition (`takeUntil`/`dropUntil`) and the "long way around" theorem for cycles.
+
+---
+
+### G02: acyclic_implies_euler — **ELIMINATED**
+
+```lean
+-- ELIMINATED 2026-02-02 via Infrastructure/SimplicialGraphBridge.lean
+-- Original axiom replaced with proven theorem:
+theorem acyclic_implies_euler (K : SimplicialComplex)
+    [Fintype K.vertexSet] [Fintype (K.ksimplices 1)]
+    [DecidableEq K.vertexSet] [DecidableRel (oneSkeleton K).Adj]
+    [Fintype (oneSkeleton K).edgeSet] [Fintype (oneSkeleton K).ConnectedComponent]
+    [Nonempty K.vertexSet]
+    (h : OneConnected K) : EulerForestCondition K
+```
+
+**Resolution**: Proved via `SimplicialGraphBridge.acyclic_implies_euler_proven` which:
+1. Uses bijection between K.ksimplices 1 and (oneSkeleton K).edgeSet
+2. Applies `ForestEulerFormula.acyclic_euler_eq`: |E| + |C| = |V| for forests
+3. Converts to inequality |E| ≤ |V| - |C|
+
+---
+
+### G03: euler_implies_acyclic — **ELIMINATED**
+
+```lean
+-- ELIMINATED 2026-02-02 via Infrastructure/SimplicialGraphBridge.lean
+-- Original axiom replaced with proven theorem:
+theorem euler_implies_acyclic (K : SimplicialComplex)
+    [Fintype K.vertexSet] [Fintype (K.ksimplices 1)]
+    [DecidableEq K.vertexSet] [DecidableRel (oneSkeleton K).Adj]
+    [Fintype (oneSkeleton K).edgeSet] [Fintype (oneSkeleton K).ConnectedComponent]
+    [Nonempty K.vertexSet]
+    (h : EulerForestCondition K) : OneConnected K
+```
+
+**Resolution**: Proved via `SimplicialGraphBridge.euler_implies_acyclic_proven` which:
+1. Uses bijection to convert ksimplex count to edge count
+2. Applies `ForestEulerFormula.euler_eq_implies_acyclic`
+3. Uses surjectivity of connectedComponentMk to show |C| ≤ |V|
+4. Combined with |E| ≤ |V| - |C| gives |E| + |C| = |V|, hence acyclic
+
+---
+
+### C03: complete_complex_coboundary_aux' — **ELIMINATED**
+
+```lean
+-- ELIMINATED 2026-02-02 via Infrastructure/CompleteComplexH1.lean
+-- Moved valueComplex to ValueComplex.lean to break circular dependency
+theorem complete_complex_coboundary_aux' {S' : Type*} [Fintype S'] [DecidableEq S']
+    {n : ℕ} (systems : Fin n → ValueSystem S') (ε : ℚ)
+    (f : Cochain (valueComplex systems ε) 1)
+    (hf : IsCocycle (valueComplex systems ε) 1 f)
+    (h_complete : ∀ (i j : ℕ) (hi : i < n) (hj : j < n), i < j →
+      ∃ s : S', |(systems ⟨i, hi⟩).values s - (systems ⟨j, hj⟩).values s| ≤ 2 * ε) :
+    IsCoboundary (valueComplex systems ε) 1 f
+```
+
+**Resolution**: The root vertex method proof in Infrastructure/CompleteComplexH1.lean:
+1. Pick vertex 0 as root
+2. Define g({0}) = 0, g({v}) = f({0,v}) for v > 0
+3. Cocycle condition on triangles {0,u,v} ensures δg = f
+
+**Module reorganization**: Moved `valueComplex` from AlignmentEquivalence.lean to ValueComplex.lean to break circular dependency. Now CompleteComplexH1 imports ValueComplex, and AlignmentEquivalence imports CompleteComplexH1.
 
 ---
 

@@ -287,9 +287,10 @@ private theorem walk_to_G'_reachable {G : SimpleGraph V} [DecidableRel G.Adj]
       simp only [Walk.edges_cons, List.mem_cons]; right; exact he
     exact h_ab_G'.reachable.trans (ih h_rest)
 
-/-- Helper: every vertex in v's G-component is G'-reachable from v or w after removing an edge e = {v,w}.
-    This is the key lemma for showing the fiber over v's G-component has exactly 2 elements. -/
-private theorem vertex_in_v_or_w_component (G : SimpleGraph V) [DecidableRel G.Adj]
+/-- Every vertex in v's G-component is G'-reachable from v or w after removing an edge e = {v,w}.
+    This is the key lemma for showing the fiber over v's G-component has exactly 2 elements.
+    Also used by PathDecompositionComplete for G04/G05 proofs. -/
+theorem vertex_in_v_or_w_component (G : SimpleGraph V) [DecidableRel G.Adj]
     (e : Sym2 V) (v w : V) (hvw : s(v, w) = e) (hadj : G.Adj v w) (u : V)
     (hu : G.connectedComponentMk u = G.connectedComponentMk v) :
     let G' := G.deleteEdges ({e} : Set (Sym2 V))
@@ -575,5 +576,40 @@ theorem isAcyclic_path_unique (h : G.IsAcyclic) (v w : V)
 
 -- NOW FULLY PROVEN (was axiom):
 #check bridge_splits_component
+
+/-! ## Section 11: G06 Bridge Component Cardinality Wrapper -/
+
+/-- Alternative bridge definition matching BridgeComponentTheory -/
+def IsBridge' (G : SimpleGraph V) (v w : V) : Prop :=
+  G.Adj v w ∧ ¬(G.deleteEdges {s(v, w)}).Reachable v w
+
+/-- THEOREM G06: Bridge removal increases component count by 1.
+
+    Wrapper around bridge_splits_component_aux with vertex-based signature
+    matching the axiom in BridgeComponentTheory.lean.
+-/
+theorem bridge_component_cardinality_proven (G : SimpleGraph V) [DecidableRel G.Adj]
+    [Fintype G.ConnectedComponent]
+    (v w : V)
+    [Fintype (G.deleteEdges {s(v, w)}).ConnectedComponent]
+    (hb : IsBridge' G v w) :
+    Fintype.card (G.deleteEdges {s(v, w)}).ConnectedComponent =
+    Fintype.card G.ConnectedComponent + 1 := by
+  -- Convert to edge-set form for bridge_splits_component_aux
+  have he : s(v, w) ∈ G.edgeSet := hb.1
+  let e : G.edgeSet := ⟨s(v, w), he⟩
+  -- Show the sets are equal for instance resolution
+  have h_sets_eq : ({s(v, w)} : Set (Sym2 V)) = {e.val} := rfl
+  have h_bridge : IsBridge G e.val := by
+    constructor
+    · exact he
+    · use v, w
+      exact ⟨rfl, hb.2⟩
+  -- Use the existing theorem with the correct instance
+  have key := @bridge_splits_component_aux V _ _ G _ _ e (by rw [← h_sets_eq]; infer_instance) h_bridge
+  simp only [componentCount] at key
+  convert key using 2
+
+#check bridge_component_cardinality_proven  -- G06: PROVEN
 
 end ExtendedGraphInfra

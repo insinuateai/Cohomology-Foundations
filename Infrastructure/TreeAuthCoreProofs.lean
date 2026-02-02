@@ -372,6 +372,48 @@ lemma pathToRoot_length (T : TreeAuth n) (i : Fin n) :
   simp only [pathToRoot]
   exact T.pathToRootAux_length i n (le_of_lt (T.stepsToRoot_lt_n i))
 
+/-- pathToRootAux gives the same result when fuel is sufficient -/
+lemma pathToRootAux_stabilizes (T : TreeAuth n) (i : Fin n) (fuel1 fuel2 : ℕ)
+    (h1 : fuel1 ≥ T.stepsToRoot i) (h2 : fuel2 ≥ T.stepsToRoot i) :
+    T.pathToRootAux i fuel1 = T.pathToRootAux i fuel2 := by
+  induction fuel1 generalizing i fuel2 with
+  | zero =>
+    have hs : T.stepsToRoot i = 0 := Nat.eq_zero_of_le_zero h1
+    have hi_root : i = T.root := by
+      have := T.stepsToRoot_spec i
+      rw [hs, Function.iterate_zero, id_eq] at this
+      exact this
+    cases fuel2 with
+    | zero => rfl
+    | succ f2 => simp only [pathToRootAux, hi_root, T.root_no_parent]
+  | succ f1 ih =>
+    cases hs : T.stepsToRoot i with
+    | zero =>
+      have hi_root : i = T.root := by
+        have := T.stepsToRoot_spec i
+        rw [hs, Function.iterate_zero, id_eq] at this
+        exact this
+      cases fuel2 with
+      | zero => simp only [pathToRootAux, hi_root, T.root_no_parent]
+      | succ f2 => simp only [pathToRootAux, hi_root, T.root_no_parent]
+    | succ s =>
+      have hi_ne_root : i ≠ T.root := by
+        intro heq
+        rw [heq, T.stepsToRoot_root] at hs
+        cases hs
+      have hpar := T.nonroot_has_parent i hi_ne_root
+      rw [Option.isSome_iff_exists] at hpar
+      obtain ⟨p, hp⟩ := hpar
+      have hsteps_p : T.stepsToRoot p = s := by
+        have := T.stepsToRoot_parent hp
+        omega
+      cases fuel2 with
+      | zero => omega
+      | succ f2 =>
+        simp only [pathToRootAux, hp]
+        congr 1
+        exact ih p f2 (by omega) (by omega)
+
 /-! ═══════════════════════════════════════════════════════════════════
     THEOREM 7/7 — pathToRoot_consecutive_adjacent
     ═══════════════════════════════════════════════════════════════════ -/
@@ -548,26 +590,464 @@ lemma adjacent_depth (T : TreeAuth n) {i j : Fin n} (hadj : T.adjacent i j) :
   | inl hi => left; exact T.depth_parent_fuel_analysis hi
   | inr hj => right; exact T.depth_parent_fuel_analysis hj
 
+/-- Depth equality implies both parent relations are equivalent -/
+lemma depth_eq_parent_eq (T : TreeAuth n) {a b c : Fin n}
+    (ha : T.parent a = some c) (hb : T.parent b = some c) (heq : T.depth a = T.depth b) :
+    T.depth a = T.depth c + 1 ∧ T.depth b = T.depth c + 1 := by
+  have h1 := T.depth_parent_fuel_analysis ha
+  have h2 := T.depth_parent_fuel_analysis hb
+  exact ⟨h1, heq ▸ h1⟩
+
+/-- If both a and b are children of c, they're not adjacent (no edge between siblings) -/
+lemma siblings_not_adjacent (T : TreeAuth n) {a b c : Fin n}
+    (ha : T.parent a = some c) (hb : T.parent b = some c) (hab : a ≠ b) :
+    ¬T.adjacent a b := by
+  intro hadj
+  simp only [adjacent] at hadj
+  cases hadj with
+  | inl hpar_a =>
+    -- parent a = some b, but parent a = some c, so c = b
+    have hcb : c = b := Option.some_injective _ (ha.symm.trans hpar_a)
+    -- Then parent b = some c = some b, contradicting parent_ne_self
+    rw [← hcb] at hb
+    exact T.parent_ne_self c hb
+  | inr hpar_b =>
+    -- parent b = some a, but parent b = some c, so c = a
+    have hca : c = a := Option.some_injective _ (hb.symm.trans hpar_b)
+    -- Then parent a = some c = some a, contradicting parent_ne_self
+    rw [← hca] at ha
+    exact T.parent_ne_self c ha
+
+/-- Ancestor relation: v is on the path from u to root -/
+def isAncestor (T : TreeAuth n) (ancestor descendant : Fin n) : Prop :=
+  ancestor ∈ T.pathToRoot descendant
+
+/-- Parent is an ancestor -/
+lemma parent_isAncestor (T : TreeAuth n) {u p : Fin n} (hp : T.parent u = some p) :
+    T.isAncestor p u := by
+  simp only [isAncestor, pathToRoot]
+  -- pathToRootAux u n = u :: pathToRootAux p (n-1) when parent u = some p
+  have hfuel : n > 0 := Fin.pos u
+  -- Unfold pathToRootAux using n > 0
+  have hunfold : T.pathToRootAux u n = u :: T.pathToRootAux (T.parentOrRoot u) (n - 1) := by
+    match hn : n with
+    | 0 => omega
+    | m + 1 =>
+      simp only [pathToRootAux, hp, Nat.add_sub_cancel]
+      rw [T.parentOrRoot_of_parent hp]
+  rw [hunfold, T.parentOrRoot_of_parent hp, List.mem_cons]
+  right
+  -- p is at the head of pathToRootAux p (n-1)
+  have hhead := T.pathToRootAux_head p (n - 1)
+  rw [List.head?_eq_some_iff] at hhead
+  obtain ⟨tail, heq⟩ := hhead
+  rw [heq, List.mem_cons]
+  left; rfl
+
+/-- The pathToRoot is unique: following parent pointers gives the same path -/
+lemma pathToRoot_parent_cons (T : TreeAuth n) {u p : Fin n} (hp : T.parent u = some p) :
+    T.pathToRoot u = u :: T.pathToRoot p := by
+  simp only [pathToRoot]
+  have hfuel : n > T.stepsToRoot u := T.stepsToRoot_lt_n u
+  have hn_pos : n > 0 := Nat.lt_of_le_of_lt (Nat.zero_le _) hfuel
+  -- Unfold pathToRootAux u n = u :: pathToRootAux (parentOrRoot u) (n - 1)
+  have hunfold : T.pathToRootAux u n = u :: T.pathToRootAux (T.parentOrRoot u) (n - 1) := by
+    match n with
+    | 0 => omega
+    | m + 1 => simp only [pathToRootAux, hp, Nat.add_sub_cancel, T.parentOrRoot_of_parent hp]
+  rw [hunfold, T.parentOrRoot_of_parent hp]
+  congr 1
+  -- Need: pathToRootAux p (n - 1) = pathToRootAux p n
+  -- Both paths have the same content when fuel is sufficient
+  have hsteps_p : T.stepsToRoot p < n := by
+    have h1 := T.stepsToRoot_parent hp
+    have h2 : T.stepsToRoot u < n := hfuel
+    omega
+  -- pathToRootAux gives the same result when fuel is sufficient
+  -- Both (n-1) and n are ≥ stepsToRoot p, so the lists are identical
+  exact T.pathToRootAux_stabilizes p (n - 1) n (by omega) (by omega)
+
+/-- Helper: pathToRootAux of root is singleton -/
+lemma pathToRootAux_root (T : TreeAuth n) (fuel : ℕ) : T.pathToRootAux T.root fuel = [T.root] := by
+  cases fuel with
+  | zero => rfl
+  | succ m => simp only [pathToRootAux, T.root_no_parent]
+
+/-- Elements of pathToRoot have stepsToRoot ≤ the starting node -/
+lemma stepsToRoot_of_mem_pathToRoot (T : TreeAuth n) (i x : Fin n)
+    (hx : x ∈ T.pathToRoot i) : T.stepsToRoot x ≤ T.stepsToRoot i := by
+  -- Key insight: pathToRoot i lists vertices from i toward root
+  -- Each element is reached by following parent pointers
+  -- So stepsToRoot decreases along the path
+  simp only [pathToRoot] at hx
+  -- Induction on i's stepsToRoot using well-founded recursion
+  induction hi : T.stepsToRoot i using Nat.strongRecOn generalizing i with
+  | ind si ih =>
+    by_cases hi_root : i = T.root
+    · -- i is root, pathToRoot i = [i]
+      rw [hi_root, T.pathToRootAux_root] at hx
+      simp only [List.mem_singleton] at hx
+      rw [hx, T.stepsToRoot_root]
+      omega
+    · -- i is not root, pathToRoot i = i :: pathToRoot (parent i)
+      have hpar := T.nonroot_has_parent i hi_root
+      rw [Option.isSome_iff_exists] at hpar
+      obtain ⟨p, hp⟩ := hpar
+      have hn_pos : 0 < n := Fin.pos i
+      have hpath_i : T.pathToRootAux i n = i :: T.pathToRootAux p (n - 1) := by
+        match hn : n with
+        | 0 => omega
+        | m + 1 => simp only [pathToRootAux, hp, Nat.add_sub_cancel]
+      rw [hpath_i] at hx
+      simp only [List.mem_cons] at hx
+      cases hx with
+      | inl heq => rw [heq, hi]
+      | inr hx_in_p =>
+        have hsteps_p : T.stepsToRoot p < si := by
+          have := T.stepsToRoot_parent hp
+          omega
+        have hp_stable : T.pathToRootAux p (n - 1) = T.pathToRootAux p n :=
+          T.pathToRootAux_stabilizes p (n - 1) n
+            (by have := T.stepsToRoot_lt_n p; omega)
+            (le_of_lt (T.stepsToRoot_lt_n p))
+        rw [hp_stable] at hx_in_p
+        have hx_le_p := ih (T.stepsToRoot p) hsteps_p p hx_in_p rfl
+        have hp_le_i : T.stepsToRoot p < T.stepsToRoot i := by
+          have := T.stepsToRoot_parent hp
+          omega
+        omega
+
+/-- a is NOT an ancestor of b when they are distinct siblings -/
+lemma not_ancestor_of_sibling (T : TreeAuth n) {a b c : Fin n}
+    (ha : T.parent a = some c) (hb : T.parent b = some c) (hab : a ≠ b) :
+    a ∉ T.pathToRoot b := by
+  -- If a ∈ pathToRoot b, then stepsToRoot a ≤ stepsToRoot b
+  -- But stepsToRoot a = stepsToRoot c + 1 = stepsToRoot b, and
+  -- a ∈ pathToRoot b means either a = b (contradicts hab) or a ∈ pathToRoot c
+  -- If a ∈ pathToRoot c, then stepsToRoot a ≤ stepsToRoot c, but stepsToRoot a = stepsToRoot c + 1
+  intro h_in
+  -- pathToRoot b = b :: pathToRoot c
+  have hpath_b : T.pathToRoot b = b :: T.pathToRoot c := T.pathToRoot_parent_cons hb
+  rw [hpath_b, List.mem_cons] at h_in
+  cases h_in with
+  | inl heq => exact hab heq
+  | inr h_in_c =>
+    -- a ∈ pathToRoot c, so stepsToRoot a ≤ stepsToRoot c
+    have ha_le_c := T.stepsToRoot_of_mem_pathToRoot c a h_in_c
+    -- But stepsToRoot a = stepsToRoot c + 1 (since parent a = some c)
+    have hdepth_a := T.stepsToRoot_parent ha
+    omega
+
+/-- Generalized lemma: walk from descendant of a to sibling of a passes through parent c -/
+lemma walk_from_descendant_to_sibling_passes_parent (T : TreeAuth n) {a b c : Fin n}
+    (ha : T.parent a = some c) (hb : T.parent b = some c) (hab : a ≠ b)
+    (u : Fin n) (h_anc : a ∈ T.pathToRoot u)
+    (w : T.toSimpleGraph.Walk u b) : c ∈ w.support := by
+  -- Use strong induction on walk length
+  induction h : w.length using Nat.strong_induction_on generalizing u h_anc w with
+  | _ wlen ih =>
+    match w with
+    | .nil =>
+      -- u = b, but a ∈ pathToRoot u = pathToRoot b
+      -- This contradicts not_ancestor_of_sibling
+      exact (T.not_ancestor_of_sibling ha hb hab h_anc).elim
+    | .cons hadj w' =>
+      simp only [SimpleGraph.Walk.support_cons, List.mem_cons]
+      rename_i v
+      -- hadj : T.toSimpleGraph.Adj u v, which is T.adjacent u v
+      have hadj' : T.adjacent u v := hadj
+      simp only [adjacent] at hadj'
+      cases hadj' with
+      | inl hpar_u =>
+        -- parent u = some v, going UP
+        by_cases hva : v = a
+        · -- Reached a (v = a), now at parent position
+          -- w' : Walk v b = Walk a b (since v = a)
+          -- First step from a must be either UP to c or DOWN to a child
+          match w' with
+          | .nil =>
+            -- w' is nil means v = b, and v = a, so a = b, contradiction with hab
+            exact (hab hva.symm).elim
+          | .cons hadj'' w'' =>
+            simp only [SimpleGraph.Walk.support_cons, List.mem_cons]
+            rename_i v'
+            -- hadj'' : Adj v v' where v = a
+            have hadj''' : T.adjacent v v' := hadj''
+            simp only [adjacent] at hadj'''
+            cases hadj''' with
+            | inl hpar_v =>
+              -- parent v = some v', and v = a, so parent a = some v'
+              -- Combined with ha: parent a = some c, we get v' = c
+              have hv'c : v' = c := Option.some_injective _ ((hva ▸ hpar_v).symm.trans ha)
+              -- Goal is c = v ∨ c ∈ w''.support (after simp), and v' is the start of w''
+              right; right
+              -- c ∈ w''.support, and v' = c is at the start of w''
+              rw [← hv'c]
+              exact SimpleGraph.Walk.start_mem_support w''
+            | inr hpar_v' =>
+              -- parent v' = some v = some a, so v' is a child of a
+              right; right
+              have hv'_anc : a ∈ T.pathToRoot v' := by
+                have := T.parent_isAncestor (hva ▸ hpar_v' : T.parent v' = some a)
+                exact this
+              have hw''_len : w''.length < wlen := by
+                simp only [SimpleGraph.Walk.length_cons] at h
+                omega
+              exact ih w''.length hw''_len v' hv'_anc w'' rfl
+        · -- v ≠ a but v = parent u
+          -- a ∈ pathToRoot u = u :: pathToRoot v (since parent u = some v)
+          -- So a = u or a ∈ pathToRoot v
+          have hpath_u : T.pathToRoot u = u :: T.pathToRoot v := T.pathToRoot_parent_cons hpar_u
+          rw [hpath_u] at h_anc
+          simp only [List.mem_cons] at h_anc
+          cases h_anc with
+          | inl hau =>
+            -- a = u, so v = parent a = c (since parent a = some c and parent u = some v)
+            have hvc : v = c := Option.some_injective _ (hpar_u.symm.trans (hau ▸ ha))
+            right
+            rw [← hvc]
+            exact SimpleGraph.Walk.start_mem_support w'
+          | inr h_anc_v =>
+            -- a ∈ pathToRoot v, apply IH
+            right
+            have hw'_len : w'.length < wlen := by
+              simp only [SimpleGraph.Walk.length_cons] at h
+              omega
+            exact ih w'.length hw'_len v h_anc_v w' rfl
+      | inr hpar_v =>
+        -- parent v = some u, going DOWN (v is a child of u)
+        -- v is still in the subtree of a
+        right
+        have hv_anc : a ∈ T.pathToRoot v := by
+          -- pathToRoot v = v :: pathToRoot u (since parent v = some u)
+          have hpath_v : T.pathToRoot v = v :: T.pathToRoot u := T.pathToRoot_parent_cons hpar_v
+          rw [hpath_v, List.mem_cons]
+          right; exact h_anc
+        have hw'_len : w'.length < wlen := by
+          simp only [SimpleGraph.Walk.length_cons] at h
+          omega
+        exact ih w'.length hw'_len v hv_anc w' rfl
+
+/-- Key lemma: In a tree, any walk from vertex a to vertex b must pass through
+    their lowest common ancestor. For siblings (children of same parent c),
+    any walk between them must pass through c. -/
+lemma walk_between_siblings_passes_parent (T : TreeAuth n) {a b c : Fin n}
+    (ha : T.parent a = some c) (hb : T.parent b = some c) (hab : a ≠ b)
+    (w : T.toSimpleGraph.Walk a b) : c ∈ w.support := by
+  -- Proof by induction on walk
+  -- Core insight: any walk from a to b must either:
+  -- 1. Go directly through c (if first step is a → c)
+  -- 2. Go down first (a → child), but then must come back up through c to reach b
+  -- Since both a and b are children of c, any path between them in the tree
+  -- must pass through their parent c.
+  -- Use the generalized lemma: a is an ancestor of a (trivially)
+  have ha_anc : a ∈ T.pathToRoot a := by
+    simp only [pathToRoot]
+    have := T.pathToRootAux_head a n
+    rw [List.head?_eq_some_iff] at this
+    obtain ⟨tail, heq⟩ := this
+    rw [heq, List.mem_cons]
+    left; rfl
+  exact T.walk_from_descendant_to_sibling_passes_parent ha hb hab a ha_anc w
+
 theorem toSimpleGraph_acyclic_aux (T : TreeAuth n) (v : Fin n)
     (p : T.toSimpleGraph.Walk v v) (hp : p.IsCycle) : False := by
-  -- Key insight: In a tree (parent-pointer structure), every vertex except root
-  -- has a unique parent. A cycle would require going "down" and "back up" to return,
-  -- but the minimum-depth vertex in the cycle has both neighbors deeper,
-  -- meaning it's the parent of both - but then the path between those children
-  -- must go through their common parent, contradicting the cycle being simple.
-  -- Use strong induction on n
+  /-
+  Proof Strategy (Minimum Depth Argument):
+  1. Find vertex m with minimum depth in the cycle's support
+  2. Both neighbors of m in the cycle have depth ≥ depth(m) (by minimality)
+  3. By adjacent_depth, neighbors have depth = depth(m) ± 1
+  4. Combined: both neighbors have depth = depth(m) + 1, so m is parent of both
+  5. The cycle provides a walk between the two neighbors not through m
+  6. But walk_between_siblings_passes_parent requires any such walk to include m
+  7. Contradiction
+  -/
+
   have hlen := hp.three_le_length
-  -- For now, use sorry as the full proof requires careful minimum-depth argument
-  -- The cycle has support [v, v₁, v₂, ..., vₖ] with v = endpoint
-  -- Let m be the vertex with minimum depth in the support (excluding last v)
-  -- By IsCycle, support.tail has no repeats, so m appears once in interior
-  -- m's two neighbors in the cycle (prev, next) are adjacent to m
-  -- adjacent means parent relation, so depth differs by 1
-  -- Both prev and next have depth ≥ depth m (m is minimum)
-  -- So both have depth = depth m + 1, meaning m is parent of both
-  -- But then any path from prev to next in the tree must go through m (their LCA)
-  -- The cycle path prev → ... → next avoids m (appears once), contradiction
-  sorry
+
+  -- Find minimum depth vertex using Finset.min'
+  let support_finset : Finset (Fin n) := p.support.toFinset
+  have hsup_nonempty : support_finset.Nonempty := by
+    use v
+    simp only [support_finset, List.mem_toFinset]
+    exact SimpleGraph.Walk.start_mem_support p
+
+  -- Get a vertex with minimum depth using Classical.choose
+  have hmin_exists : ∃ m ∈ p.support, ∀ x ∈ p.support, T.depth m ≤ T.depth x := by
+    -- Use well-ordering on the image of depth
+    let depths := support_finset.image T.depth
+    have hdepths_nonempty : depths.Nonempty := hsup_nonempty.image _
+    let min_depth := depths.min' hdepths_nonempty
+    have hmin_in : min_depth ∈ depths := Finset.min'_mem depths hdepths_nonempty
+    rw [Finset.mem_image] at hmin_in
+    obtain ⟨m, hm_in, hm_eq⟩ := hmin_in
+    use m
+    constructor
+    · exact List.mem_toFinset.mp hm_in
+    · intro x hx
+      have hx_in : x ∈ support_finset := List.mem_toFinset.mpr hx
+      have hx_depth_in : T.depth x ∈ depths := Finset.mem_image_of_mem _ hx_in
+      rw [hm_eq]
+      exact Finset.min'_le depths (T.depth x) hx_depth_in
+
+  obtain ⟨m, hm_sup, hm_min⟩ := hmin_exists
+
+  -- Rotate the cycle so m is at position 0, giving c : Walk m m
+  let c := p.rotate hm_sup
+  have hc_cycle : c.IsCycle := hp.rotate hm_sup
+
+  -- The rotated cycle has the same length
+  -- rotate = dropUntil.append(takeUntil), and length is preserved
+  have hc_len_ge : 3 ≤ c.length := by
+    have h_edges_perm : ∃ k, c.edges.rotate k = p.edges :=
+      SimpleGraph.Walk.rotate_edges p hm_sup
+    obtain ⟨k, hk⟩ := h_edges_perm
+    have h_len : c.edges.length = p.edges.length := by
+      rw [← hk, List.length_rotate]
+    simp only [SimpleGraph.Walk.length_edges] at h_len hlen
+    omega
+
+  -- c.getVert 0 = m, c.getVert c.length = m
+  have hc_start : c.getVert 0 = m := SimpleGraph.Walk.getVert_zero c
+  have hc_end : c.getVert c.length = m := SimpleGraph.Walk.getVert_length c
+
+  -- The two neighbors of m in the cycle are at positions 1 and length-1
+  let n1 := c.getVert 1
+  let n2 := c.getVert (c.length - 1)
+
+  -- Both neighbors are adjacent to m
+  have h_adj_n1 : T.toSimpleGraph.Adj m n1 := by
+    have h : 0 < c.length := by omega
+    have := c.adj_getVert_succ h
+    simp only [hc_start, Nat.zero_add] at this
+    exact this
+
+  have h_adj_n2 : T.toSimpleGraph.Adj n2 m := by
+    have h : c.length - 1 < c.length := by omega
+    have := c.adj_getVert_succ h
+    have heq : c.length - 1 + 1 = c.length := by omega
+    simp only [heq, hc_end] at this
+    exact this
+
+  -- n1 and n2 are distinct (by getVert_injOn' on the rotated cycle)
+  -- getVert_injOn' is injective on {i | i ≤ p.length - 1}
+  have hn12_ne : n1 ≠ n2 := by
+    have h_inj := hc_cycle.getVert_injOn'
+    intro heq
+    have h1_range : (1 : ℕ) ∈ {i | i ≤ c.length - 1} := by simp; omega
+    have h2_range : c.length - 1 ∈ {i | i ≤ c.length - 1} := by simp
+    have h12_eq : (1 : ℕ) = c.length - 1 := h_inj h1_range h2_range heq
+    omega
+
+  -- Both neighbors are in the original cycle's support (via mem_support_rotate_iff)
+  have h_n1_in_support : n1 ∈ p.support := by
+    rw [← SimpleGraph.Walk.mem_support_rotate_iff p hm_sup]
+    exact SimpleGraph.Walk.getVert_mem_support c 1
+
+  have h_n2_in_support : n2 ∈ p.support := by
+    rw [← SimpleGraph.Walk.mem_support_rotate_iff p hm_sup]
+    exact SimpleGraph.Walk.getVert_mem_support c (c.length - 1)
+
+  -- By minimality, both neighbors have depth ≥ depth m
+  have h_depth_n1_ge : T.depth m ≤ T.depth n1 := hm_min n1 h_n1_in_support
+  have h_depth_n2_ge : T.depth m ≤ T.depth n2 := hm_min n2 h_n2_in_support
+
+  -- By adjacent_depth, neighbors have depth = depth m ± 1
+  -- Combined with ≥, both must have depth = depth m + 1
+  have h_adj_n1' : T.adjacent m n1 := h_adj_n1
+  have h_adj_n2' : T.adjacent n2 m := h_adj_n2
+
+  have h_depth_n1 : T.depth n1 = T.depth m + 1 := by
+    have h := T.adjacent_depth h_adj_n1'
+    omega
+
+  have h_depth_n2 : T.depth n2 = T.depth m + 1 := by
+    have h_adj_sym : T.adjacent m n2 := by simp only [adjacent] at h_adj_n2' ⊢; tauto
+    have h := T.adjacent_depth h_adj_sym
+    omega
+
+  -- So m is the parent of both n1 and n2
+  have h_parent_n1 : T.parent n1 = some m := by
+    simp only [adjacent] at h_adj_n1'
+    cases h_adj_n1' with
+    | inl h => have := T.depth_parent_fuel_analysis h; omega
+    | inr h => exact h
+
+  have h_parent_n2 : T.parent n2 = some m := by
+    simp only [adjacent] at h_adj_n2'
+    cases h_adj_n2' with
+    | inl h => exact h
+    | inr h => have := T.depth_parent_fuel_analysis h; omega
+
+  -- Now we extract the inner walk from n1 to n2 that avoids m
+  -- c = cons h_adj c_tail where c_tail : Walk n1' m
+  have hc_not_nil : ¬c.Nil := hc_cycle.not_nil
+
+  -- Decompose c as cons h_adj c_tail
+  -- not_nil_iff: ∃ (u : V) (h : G.Adj v u) (q : G.Walk u w), p = cons h q
+  obtain ⟨n1', h_adj, c_tail, hc_eq⟩ := SimpleGraph.Walk.not_nil_iff.mp hc_not_nil
+
+  -- n1' = n1 (both are c.getVert 1)
+  have hn1'_eq : n1' = n1 := by
+    -- n1 := c.getVert 1, and (cons h_adj c_tail).getVert 1 = c_tail.getVert 0 = n1'
+    have h1 : c.getVert 1 = c_tail.getVert 0 := by
+      conv_lhs => rw [hc_eq]
+      rfl  -- by definition of getVert on cons
+    have h2 : c_tail.getVert 0 = n1' := SimpleGraph.Walk.getVert_zero c_tail
+    -- n1' = c_tail.getVert 0 = c.getVert 1 = n1
+    rw [h2] at h1
+    exact h1.symm
+
+  -- c_tail is a path (by cons_isCycle_iff)
+  have h_c_tail_path : c_tail.IsPath := by
+    rw [hc_eq, SimpleGraph.Walk.cons_isCycle_iff] at hc_cycle
+    exact hc_cycle.1
+
+  have h_c_tail_len : c_tail.length = c.length - 1 := by
+    rw [hc_eq]; simp [SimpleGraph.Walk.length_cons]
+
+  -- c.length = (cons h_adj c_tail).length by hc_eq
+  have hc_len_eq_cons : c.length = (SimpleGraph.Walk.cons h_adj c_tail).length := by
+    rw [hc_eq]
+
+  -- n2 ∈ c_tail.support
+  have h_n2_in_tail : n2 ∈ c_tail.support := by
+    -- c.getVert (c.length - 1) = n2, and c.getVert (n+1) = c_tail.getVert n
+    have h_n2_pos : c_tail.getVert (c.length - 2) = n2 := by
+      -- (cons h_adj c_tail).getVert (c.length - 1) = c_tail.getVert (c.length - 2)
+      have hne : c.length - 1 ≠ 0 := by omega
+      have heq : c.getVert (c.length - 1) = c_tail.getVert (c.length - 1 - 1) := by
+        conv_lhs => rw [hc_eq]
+        -- Now LHS is (cons h_adj c_tail).getVert (c.length - 1)
+        -- But c.length = (cons h_adj c_tail).length, so this is still c.length - 1
+        rw [← hc_len_eq_cons]
+        exact SimpleGraph.Walk.getVert_cons c_tail h_adj hne
+      have : c.length - 1 - 1 = c.length - 2 := by omega
+      rw [this] at heq
+      exact heq.symm
+    rw [← h_n2_pos]
+    exact SimpleGraph.Walk.getVert_mem_support c_tail (c.length - 2)
+
+  -- The inner walk from n1' to n2
+  let inner_walk := c_tail.takeUntil n2 h_n2_in_tail
+
+  -- By walk_between_siblings_passes_parent, m must be in inner_walk.support
+  -- Need to convert n1' to n1 using hn1'_eq
+  have h_m_in_inner : m ∈ inner_walk.support := by
+    have h_parent_n1' : T.parent n1' = some m := hn1'_eq ▸ h_parent_n1
+    have hn1'2_ne : n1' ≠ n2 := hn1'_eq ▸ hn12_ne
+    exact T.walk_between_siblings_passes_parent h_parent_n1' h_parent_n2 hn1'2_ne inner_walk
+
+  -- But m ≠ n2 (m is parent of n2)
+  have hm_ne_n2 : m ≠ n2 := by
+    intro heq; rw [heq] at h_parent_n2
+    exact T.parent_ne_self n2 h_parent_n2
+
+  -- By endpoint_notMem_support_takeUntil: m ∉ inner_walk.support
+  have h_inner_not_m : m ∉ inner_walk.support :=
+    SimpleGraph.Walk.endpoint_notMem_support_takeUntil h_c_tail_path h_n2_in_tail hm_ne_n2
+
+  exact h_inner_not_m h_m_in_inner
 
 end TreeAuth
 
