@@ -70,9 +70,31 @@ exact ⟨p.toDeleteEdge e hp_no_e⟩  -- G'-reachability
 
 **Component-wise summing** (e.g., Σ|E_i| = |E|) requires `Setoid.IsPartition.ncard_eq_finsum` pattern.
 
+## Axiom Elimination Patterns
+
+**Walk Transfer Pattern** (transfer walk to subgraph when edges present):
+```lean
+def walk_transfer {G H} (p : G.Walk u v) (h : ∀ e ∈ p.edges, e ∈ H.edgeSet) : H.Walk u v := by
+  induction p with
+  | nil => exact Walk.nil
+  | @cons x y z hadj rest ih =>
+    have h_xy : s(x,y) ∈ H.edgeSet := h _ (by simp [Walk.edges_cons])
+    exact Walk.cons (mem_edgeSet.mp h_xy) (ih (fun e he => h e (by simp [he])))
+```
+
+**Cycle Transfer Theorem**: `walk_transfer` preserves edges/support/IsTrail/IsCycle.
+
+**Partition Walk Pattern** (walks stay in partition when no cross edges):
+```lean
+theorem walk_stays_in_part (p : G.Walk u v) (P : V → Prop)
+    (h_no_cross : ∀ a b, P a → ¬P b → ¬G.Adj a b) (hu : P u) :
+    ∀ x ∈ p.support, P x := by induction p ...
+```
+
 ## Session Log
 
 <!-- Newest first -->
+- 2026-02-02: **AxiomSolver.lean created** - Comprehensive axiom elimination file with: (1) cycle_transfer_to_subgraph_theorem (fully proven), (2) forest_single_edge_still_forest_theorem (1 sorry), (3) acyclic_of_disjoint_acyclic_parts_theorem (2 sorries), (4) forest_union_forest_acyclic_theorem (3 sorries). Key infrastructure: walk_transfer, walk_transfer_isCycle, walk_stays_in_part, acyclic_implies_bridge all fully proven.
 - 2026-01-31: **Full Build Success** - Build completes with 3174 jobs. TreeGraphInfra.lean has 6 sorries for Walk→deleteEdges conversions. Key finding: use `Walk.toDeleteEdge` with proof `e ∉ p.edges` (see pattern above).
 - 2026-01-31: Fixed Mathlib 4.27.0 compatibility across 8+ files. Key API changes documented above. TreeH1Trivial.lean compiles (2 sorries). ConnectedCocycleLemma.lean complete (0 sorries). DoubleSquaredZero.lean complete (sum_involution pattern).
 - 2026-01-30: TreeGraphInfra.lean added. TreeAuthority.lean `pathBetween_head/last` fixed. `alignment_computable` fixed.
