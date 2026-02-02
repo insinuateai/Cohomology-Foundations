@@ -6,76 +6,85 @@
 ## Session Metadata
 
 - **Date**: 2026-02-02
-- **Primary goal**: Fix `acyclic_periodic_orbit_equiv` sorry and eliminate axioms
-- **User intent**: Understand and fix the "incorrect for root case" sorry at TreeAuthCoreProofs.lean:486
+- **Primary goal**: Create SimplicialGraphBridge.lean to eliminate axioms G02, G03, C03
+- **User intent**: Create second infrastructure file from next-5-targets.md roadmap
 
 ## What Was Accomplished
 
 ### Completed
-- [x] Fixed `acyclic_periodic_orbit_equiv` theorem statement (was mathematically false)
-- [x] Removed sorry from TreeAuthCoreProofs.lean:486
-- [x] Created bridging lemmas to connect local TreeAuth to TreeAuthCoreProofs.TreeAuth
-- [x] Eliminated X28 and X29 axioms from HierarchicalNetworkComplete.lean
-- [x] Updated axiom-registry.md with eliminations
+- [x] Created `Infrastructure/SimplicialGraphBridge.lean` (new file)
+- [x] Proved bijection between 1-simplices and skeleton edges
+- [x] Proved `acyclic_implies_euler_proven` (eliminates G02)
+- [x] Established `forest_euler_equality` using Mathlib's `IsAcyclic.card_edgeFinset`
+
+### In Progress
+- [ ] `euler_implies_acyclic_graph` - Euler implies acyclic (G03) - structure complete, 2 sorries
+- [ ] `complete_complex_h1_trivial` - Complete complexes have H¹ = 0 (C03) - structure complete, 1 sorry
 
 ### Key Changes
 
 | File | Change |
 |------|--------|
-| `Infrastructure/TreeAuthCoreProofs.lean:472` | Fixed theorem: added `i ≠ T.root →` to RHS |
-| `Infrastructure/TreeAuthCoreProofs.lean:486` | Removed sorry (proof now complete) |
-| `Theories/HierarchicalNetworkComplete.lean:117-131` | Added bridging lemmas |
-| `Theories/HierarchicalNetworkComplete.lean:248-274` | Replaced axiom with proven theorem |
+| `Infrastructure/SimplicialGraphBridge.lean` | NEW: 340 lines, bijection + Euler formula proofs |
 
 ### Axiom Status
 
-- **Before**: 68 axioms
-- **After**: 66 axioms
-- **Eliminated**: X28 (`acyclic_periodic_orbit_equiv`), X29 (`pathToRoot_consecutive_adjacent`)
+- **G02 (`acyclic_implies_euler`)**: ELIMINATED - now `acyclic_implies_euler_proven`
+- **G03 (`euler_implies_acyclic`)**: IN PROGRESS - proof structure complete
+- **C03 (`complete_complex_coboundary_aux'`)**: IN PROGRESS - proof structure complete
 
 ## Current State
 
-### Sorries (3 total - reduced from 4)
-| File | Line | Issue |
-|------|------|-------|
-| `Infrastructure/TreeAuthCoreProofs.lean` | 551 | `toSimpleGraph_acyclic_aux` - minimum-depth cycle argument |
-| `Theories/TreeAuthDepthTheory.lean` | 127 | `depth_bounded` - pigeonhole for depth bound |
-| `Theories/TreeAuthDepthTheory.lean` | 408 | `no_cycle_via_depth_aux` |
+### New File: Infrastructure/SimplicialGraphBridge.lean
 
-### Key Insight from This Session
+Key theorems proven:
+1. `ksimplex_one_gives_skeleton_edge` - 1-simplices correspond to edges
+2. `skeleton_edge_gives_ksimplex_one` - Converse direction
+3. `edge_count_eq_ksimplex_count` - Cardinality equality
+4. `forest_euler_equality` - |E| + |C| = |V| for forests (via Mathlib)
+5. `acyclic_implies_euler_proven` - Forest → Euler condition
 
-**When an axiom's statement is mathematically false, fix the statement rather than trying to prove the unprovable.**
+Remaining sorries (4 total):
+| Theorem | Sorry Count | Issue |
+|---------|-------------|-------|
+| `euler_implies_acyclic_graph` | 2 | Cycle → non-bridge → Euler violation |
+| `complete_complex_h1_trivial` | 1 | Root vertex coboundary calculation |
 
-The original `acyclic_periodic_orbit_equiv` claimed:
-```
-(∀ i, ∃ k, parentOrRoot^[k] i = T.root) ↔ ∀ i, ∀ k > 0, parentOrRoot^[k] i ≠ i
-```
+### Proof Strategy for G03 (euler_implies_acyclic)
 
-But the RHS is FALSE for the root node because `parentOrRoot root = root` (root is a fixed point). The corrected statement adds `i ≠ T.root →` to the RHS.
+The contrapositive approach is correct:
+1. If not acyclic, there's a cycle
+2. Any edge in a cycle is NOT a bridge (cycle provides alternate path)
+3. Non-bridge edge means |E| > spanning forest size = |V| - |C|
+4. This contradicts the Euler hypothesis |E| ≤ |V| - |C|
 
-### Bridging Pattern for TreeAuth
+The sorries are:
+- Showing cycle edge is not a bridge (needs Walk manipulation)
+- Final counting argument (needs Mathlib lemmas)
 
-When HierarchicalNetworkComplete.lean has its own local `TreeAuth` type but needs to use theorems from TreeAuthCoreProofs.lean:
+### Proof Strategy for C03 (complete_complex_h1_trivial)
 
-```lean
--- Convert function values
-lemma parentOrRoot_eq_core (T : TreeAuth n) (i : Fin n) :
-    T.parentOrRoot i = T.toCore.parentOrRoot i
+The root vertex method is correct:
+1. Pick arbitrary root vertex r
+2. Define g({v}) = f({r, v}) for v ≠ r, and g({r}) = 0
+3. For edge {a, b}:
+   - If r ∈ {a, b}: coboundary directly gives f({r, x})
+   - If r ∉ {a, b}: cocycle condition on triangle {r, a, b} gives f({a,b}) = g({b}) - g({a})
 
--- Convert iterations
-lemma parentOrRoot_iterate_eq_core (T : TreeAuth n) (i : Fin n) (k : ℕ) :
-    T.parentOrRoot^[k] i = T.toCore.parentOrRoot^[k] i
-
--- Root unchanged
-lemma root_eq_core (T : TreeAuth n) : T.root = T.toCore.root
-```
+The sorry is handling the dependent type details in the coboundary definition.
 
 ## Recommended Next Steps
 
-### High Value
-1. **X27** (`compose_path_reaches_root`) - Last axiom in HierarchicalNetworkComplete.lean
-2. **T01-T05** - Tree authority depth axioms (TreeAuthDepthTheory.lean)
+### Complete G03 and C03
+1. Prove cycle edge is not a bridge (use Walk.tail to get alternate path)
+2. Add counting argument for non-bridge → Euler violation
+3. Complete coboundary calculation for complete_complex_h1_trivial
 
-### Remaining Sorries
-3. Fix `toSimpleGraph_acyclic_aux` (TreeAuthCoreProofs.lean:551) - needs minimum-depth argument
-4. Fix `depth_bounded` (TreeAuthDepthTheory.lean:127) - needs pigeonhole
+### Continue with Roadmap
+4. Create `Infrastructure/PathDecompositionComplete.lean` (File #3 from roadmap)
+5. Create `Infrastructure/ComponentCountingComplete.lean` (File #4)
+6. Create `Infrastructure/FairnessH1Bridge.lean` (File #5)
+
+## Files Modified This Session
+
+1. `Infrastructure/SimplicialGraphBridge.lean` - NEW FILE
