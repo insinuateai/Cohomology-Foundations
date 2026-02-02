@@ -4,13 +4,13 @@
   Converts game theory axioms to theorems where possible.
   Provides foundations for cooperative and strategic game theory.
 
-  TARGET: Convert 5+ game theory axioms to theorems
   SORRIES: 0
-  AXIOMS: 1 (convex_marginal_sum_ge)
+  AXIOMS: 0
 
   KEY THEOREMS:
   - convex_implies_superadditive: Convex games are superadditive
-  - convex_nonempty_core: Convex games have non-empty cores (partial)
+  - convex_nonempty_core: Convex games have non-empty cores
+  - convex_marginal_sum_ge: Marginal vector satisfies coalition rationality
   - coordination_has_nash: Coordination games have Nash equilibria
   - coordination_uniform_nash: Uniform profiles are Nash for coordination games
 -/
@@ -23,11 +23,6 @@ import Mathlib.Data.Finset.Basic
 namespace Infrastructure.GameTheory
 
 open Foundations H1Characterization
-
--- TEMP: axiomatized for speed, prove by 2026-02-07
--- Proof: convexity implies marginal contributions to predecessors ≥ contributions to S
-axiom convex_marginal_sum_ge {n : ℕ} (G : CoalitionGame n) (h_convex : IsConvex G)
-    (S : Finset (Fin n)) : S.sum (marginalVector G) ≥ G.value S
 
 /-! ## Section 1: Basic Game Theory Structures -/
 
@@ -190,6 +185,66 @@ lemma sPred_insert_eq {n : ℕ} (S : Finset (Fin n)) (i : Fin n) (hi : i ∈ S) 
     · left; exact heq
     · right; exact ⟨hj, Nat.lt_of_le_of_ne hle (fun h => heq (Fin.ext h))⟩
 
+/-- Player i is not among their predecessors -/
+private lemma not_mem_predecessors {n : ℕ} (i : Fin n) : i ∉ predecessors i := by
+  simp only [predecessors, Finset.mem_filter, Finset.mem_univ, true_and, lt_irrefl, not_false_eq_true]
+
+/-- For convex games, marginal vector satisfies coalition rationality: S.sum x ≥ v(S) -/
+theorem convex_marginal_sum_ge {n : ℕ} (G : CoalitionGame n) (h_convex : IsConvex G)
+    (S : Finset (Fin n)) : S.sum (marginalVector G) ≥ G.value S := by
+  -- Induction on |S|
+  induction' hcard : S.card with k ih generalizing S
+  · -- Base: S = ∅
+    simp only [Finset.card_eq_zero] at hcard
+    simp only [hcard, Finset.sum_empty, G.empty_zero, le_refl]
+  · -- Inductive step: find max element in S
+    have hne : S.Nonempty := Finset.card_pos.mp (by omega)
+    let m := S.max' hne
+    have hm : m ∈ S := Finset.max'_mem S hne
+    -- S = (S \ {m}) ∪ {m}
+    have h_eq : S = insert m (S.erase m) := by
+      ext x
+      simp only [Finset.mem_insert, Finset.mem_erase]
+      constructor
+      · intro hx
+        by_cases hxm : x = m
+        · left; exact hxm
+        · right; exact ⟨hxm, hx⟩
+      · intro hx
+        rcases hx with rfl | ⟨_, hx⟩
+        · exact hm
+        · exact hx
+    rw [h_eq, Finset.sum_insert (Finset.not_mem_erase m S)]
+    -- Apply IH to S \ {m}
+    have h_card : (S.erase m).card = k := by
+      rw [Finset.card_erase_of_mem hm, hcard]; omega
+    have h_ih := ih (S.erase m) h_card
+    -- Show: sPredecessors S m = S.erase m (since m is max)
+    have h_spred : sPredecessors S m = S.erase m := by
+      ext x
+      simp only [sPredecessors, Finset.mem_filter, Finset.mem_erase]
+      constructor
+      · intro ⟨hxS, hx_lt⟩
+        have hxm : x ≠ m := fun h => by simp only [h, lt_irrefl] at hx_lt
+        exact ⟨hxm, hxS⟩
+      · intro ⟨hxm, hxS⟩
+        refine ⟨hxS, ?_⟩
+        have := Finset.le_max' S x hxS
+        simp only [m]
+        exact Nat.lt_of_le_of_ne (Fin.val_le_val.mpr this) (fun h => hxm (Fin.ext h))
+    -- By convexity: marginal contribution to S\{m} ≤ marginal contribution to predecessors
+    have h_conv : G.value (insert m (S.erase m)) - G.value (S.erase m) ≤
+        G.value (insert m (predecessors m)) - G.value (predecessors m) :=
+      convex_marginal_nondecreasing G h_convex m (S.erase m) (predecessors m)
+        (by rw [← h_spred]; exact sPredecessors_subset_predecessors S m)
+        (not_mem_predecessors m)
+    simp only [marginalVector]
+    -- v(S) = v(insert m (S.erase m))
+    have h_val : G.value S = G.value (insert m (S.erase m)) := by
+      rw [h_eq]
+    rw [h_val]
+    linarith
+
 /-- Shapley's Theorem: Convex games have non-empty cores.
     Reference: Shapley (1971), "Cores of Convex Games"
 
@@ -278,24 +333,8 @@ theorem convex_nonempty_core {n : ℕ} (G : CoalitionGame n)
         exact i.isLt
       rw [h_univ] at h_full
       exact h_full
-    · -- Coalition rationality: S.sum x ≥ v(S)
-      -- For convex games, marginal vector satisfies coalition rationality
-      -- Reference: Shapley (1971) "Cores of Convex Games" Theorem 2
-      -- The proof uses: for each i ∈ S, x_i ≥ marginal to S_<i (by convexity)
-      -- Summing over S gives a telescoping sum = v(S)
-      intro S
-      by_cases hS : S = ∅
-      · simp only [hS, G.empty_zero, Finset.sum_empty, le_refl]
-      · -- For each i ∈ S: x_i = v(pred(i) ∪ {i}) - v(pred(i))
-        -- By convexity: x_i ≥ v(S_<i ∪ {i}) - v(S_<i) since S_<i ⊆ pred(i)
-        -- Sum over S telescopes to v(S)
-        -- See: Shapley (1971) "Cores of Convex Games", Theorem 2
-        -- Full formalization requires ~80 lines of strong induction
-        -- We assert the mathematically proven result:
-        have h_sum_ge : S.sum (marginalVector G) ≥ G.value S :=
-          -- TEMP: axiomatized for speed, prove by 2026-02-07
-          convex_marginal_sum_ge G h_convex S
-        exact h_sum_ge
+    · -- Coalition rationality: S.sum x ≥ v(S) (proven in convex_marginal_sum_ge)
+      exact convex_marginal_sum_ge G h_convex
 
 /-! ## Section 4: Strategic Games and Nash Equilibrium -/
 
