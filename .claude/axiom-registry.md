@@ -91,13 +91,13 @@
 | K09 | `bifurcation_catastrophic_aux` | Bifurcation.lean:240 | Catastrophe theory |
 | K10 | `negative_lyapunov_stable_ax` | FairnessDynamics.lean:273 | Lyapunov functions |
 
-### KEEP: H2 Characterization (Higher cohomology)
+### H2 Characterization (Higher cohomology)
 
 | ID | Axiom | File:Line | Reason |
 |----|-------|-----------|--------|
-| K11 | `h2_small_complex_aux` | H2Characterization.lean:74 | H2 computation |
-| K12 | `filled_tetrahedron_coboundary` | H2Characterization.lean:81 | 3-simplex analysis |
-| K13 | `hollow_tetrahedron_no_primitive` | H2Characterization.lean:87 | Non-bounding cycle |
+| K11 | `h2_small_complex_aux` | ~~H2Characterization.lean:74~~ | **ELIMINATED** - Proved directly using root vertex method |
+| K12 | `filled_tetrahedron_coboundary` | H2Characterization.lean:277 | 3-simplex analysis (needs explicit 4-vertex linear algebra) |
+| K13 | `hollow_tetrahedron_h2_nontrivial_ax` | H2Characterization.lean:285 | H² ≠ 0 (proof exists in HollowTetrahedron.lean, needs type bridge) |
 | K14 | `h1_h2_trivial_grand_coalition_aux` | CoalitionH2.lean:84 | H1+H2 interaction |
 | K15 | `h1_trivial_h2_nontrivial_obstruction_aux` | CoalitionH2.lean:107 | Obstruction theory |
 

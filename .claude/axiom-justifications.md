@@ -49,7 +49,7 @@
 |-------|------|----------|
 | `h2_small_complex_aux` | H2Characterization.lean:74 | Simplicial cohomology; H²=0 for ≤3 vertices by dimension |
 | `filled_tetrahedron_coboundary` | H2Characterization.lean:81 | Tetrahedron is contractible ⟹ H² = 0 |
-| `hollow_tetrahedron_no_primitive` | H2Characterization.lean:87 | Hollow tetrahedron has H² ≅ ℚ; standard counterexample |
+| `hollow_tetrahedron_h2_nontrivial_ax` | H2Characterization.lean:91 | Hollow tetrahedron has H² ≠ 0; complete proof in HollowTetrahedron.lean (uses witness 1,0,0,0) |
 | `h1_h2_trivial_grand_coalition_aux` | CoalitionH2.lean:84 | Coalition obstruction theory via H² |
 | `h1_trivial_h2_nontrivial_obstruction_aux` | CoalitionH2.lean:107 | H² creates scaling obstruction from triples to grand coalition |
 

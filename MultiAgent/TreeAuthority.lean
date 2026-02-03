@@ -427,8 +427,9 @@ theorem depthAux_eq_fuel_not_root (T : TreeAuth n) (j : Fin n) (m : ℕ) (hm : T
         simp at hpj
       | succ k' =>
         -- parentOrRoot^[k'+1] j = parentOrRoot^[k'] (parentOrRoot j) = parentOrRoot^[k'] pj
-        simp only [Function.iterate_succ_apply']
-        rw [T.parentOrRoot_of_some j pj hpj]
+        have heq_iter : T.parentOrRoot^[k' + 1] j = T.parentOrRoot^[k'] (T.parentOrRoot j) := by
+          rw [Function.iterate_succ_apply]
+        rw [heq_iter, T.parentOrRoot_of_some j pj hpj]
         have hk' : k' < m' := by omega
         exact ih pj hpj_depth k' hk'
 
@@ -450,52 +451,85 @@ theorem depthAux_lt_n (T : TreeAuth n) (i : Fin n) (hn : 0 < n) :
   -- But if it repeats before reaching root, it cycles forever and never reaches root
   -- This contradicts T.acyclic
   have h_distinct : ∀ j k, j < n → k < n → j ≠ k → T.parentOrRoot^[j] i ≠ T.parentOrRoot^[k] i := by
-    intro j k hj hk hjk
-    wlog hjk' : j < k with H
-    · push_neg at hjk'
-      have : k < j := by omega
+    intro j' k' hj' hk' hjk'
+    -- WLOG assume j' < k'
+    by_cases hjk'_lt : j' < k'
+    · -- Case j' < k'
       intro heq
-      exact H k j hk hj (Ne.symm hjk) this heq.symm
-    intro heq
-    -- parentOrRoot^[j] i = parentOrRoot^[k] i with j < k
-    -- This means the sequence is periodic with period k - j
-    -- So parentOrRoot^[j + m*(k-j)] i = parentOrRoot^[j] i for all m
-    -- And parentOrRoot^[j] i ≠ root (from h_not_root)
-    -- By T.acyclic, there exists some m with parentOrRoot^[m] i = root
-    -- Taking m = j + M*(k-j) for large M, we get parentOrRoot^[j] i = root
-    -- Contradiction
-    obtain ⟨m, hm⟩ := T.acyclic i
-    have hperiod : ∀ t, T.parentOrRoot^[j + t * (k - j)] i = T.parentOrRoot^[j] i := by
-      intro t
-      induction t with
-      | zero => simp
-      | succ t' iht =>
-        calc T.parentOrRoot^[j + (t' + 1) * (k - j)] i
-            = T.parentOrRoot^[(k - j) + (j + t' * (k - j))] i := by ring_nf
-          _ = T.parentOrRoot^[k - j] (T.parentOrRoot^[j + t' * (k - j)] i) := by
-              rw [Function.iterate_add_apply]
-          _ = T.parentOrRoot^[k - j] (T.parentOrRoot^[j] i) := by rw [iht]
-          _ = T.parentOrRoot^[(k - j) + j] i := by rw [← Function.iterate_add_apply]
-          _ = T.parentOrRoot^[k] i := by ring_nf
-          _ = T.parentOrRoot^[j] i := by rw [heq]
-    -- For large enough M, j + M*(k-j) ≥ m, so parentOrRoot^[j + M*(k-j)] i "should be" root
-    -- But it equals parentOrRoot^[j] i which is not root
-    have ⟨M, hM⟩ : ∃ M, m ≤ j + M * (k - j) := by
-      use m
-      have hpos : 0 < k - j := by omega
-      calc j + m * (k - j) ≥ m * 1 := by omega
-        _ = m := by ring
-    -- parentOrRoot^[m] i = root, and for s ≥ m, parentOrRoot^[s] i = root (root is fixed point)
-    have h_after_root : ∀ s, m ≤ s → T.parentOrRoot^[s] i = T.root := by
-      intro s hs
-      have h_diff : s = (s - m) + m := by omega
-      rw [h_diff, Function.iterate_add_apply, hm]
-      induction s - m with
-      | zero => rfl
-      | succ d ihd => simp only [Function.iterate_succ_apply', ihd, T.parentOrRoot_root]
-    have h_is_root := h_after_root (j + M * (k - j)) hM
-    rw [hperiod M] at h_is_root
-    exact h_not_root j hj h_is_root
+      -- parentOrRoot^[j'] i = parentOrRoot^[k'] i with j' < k'
+      -- This means the sequence is periodic with period k' - j'
+      obtain ⟨m, hm⟩ := T.acyclic i
+      have hperiod : ∀ t, T.parentOrRoot^[j' + t * (k' - j')] i = T.parentOrRoot^[j'] i := by
+        intro t
+        induction t with
+        | zero => simp
+        | succ t' iht =>
+          have hdiff : k' - j' + j' = k' := Nat.sub_add_cancel (le_of_lt hjk'_lt)
+          have h1 : j' + (t' + 1) * (k' - j') = (k' - j') + (j' + t' * (k' - j')) := by ring
+          calc T.parentOrRoot^[j' + (t' + 1) * (k' - j')] i
+              = T.parentOrRoot^[(k' - j') + (j' + t' * (k' - j'))] i := by rw [h1]
+            _ = T.parentOrRoot^[k' - j'] (T.parentOrRoot^[j' + t' * (k' - j')] i) := by
+                rw [Function.iterate_add_apply]
+            _ = T.parentOrRoot^[k' - j'] (T.parentOrRoot^[j'] i) := by rw [iht]
+            _ = T.parentOrRoot^[(k' - j') + j'] i := by rw [← Function.iterate_add_apply]
+            _ = T.parentOrRoot^[k'] i := by rw [hdiff]
+            _ = T.parentOrRoot^[j'] i := by rw [heq]
+      -- For large enough M, j' + M*(k'-j') ≥ m
+      have ⟨M, hM⟩ : ∃ M, m ≤ j' + M * (k' - j') := by
+        use m
+        have hpos : 1 ≤ k' - j' := Nat.one_le_iff_ne_zero.mpr (Nat.sub_ne_zero_of_lt hjk'_lt)
+        calc m ≤ m * 1 := by omega
+          _ ≤ m * (k' - j') := Nat.mul_le_mul_left m hpos
+          _ ≤ j' + m * (k' - j') := Nat.le_add_left _ _
+      have hm' : T.parentOrRoot^[m] i = T.root := hm
+      have h_after_root : ∀ s, m ≤ s → T.parentOrRoot^[s] i = T.root := by
+        intro s hs
+        have h_diff : s = (s - m) + m := by omega
+        rw [h_diff, Function.iterate_add_apply, hm']
+        induction s - m with
+        | zero => rfl
+        | succ d ihd => simp only [Function.iterate_succ_apply', ihd, T.parentOrRoot_root]
+      have h_is_root := h_after_root (j' + M * (k' - j')) hM
+      rw [hperiod M] at h_is_root
+      exact h_not_root j' hj' h_is_root
+    · -- Case k' < j' (or k' = j', but hjk' rules that out)
+      push_neg at hjk'_lt
+      have hk'_lt_j' : k' < j' := by omega
+      intro heq
+      -- Symmetric case: swap j' and k'
+      obtain ⟨m, hm⟩ := T.acyclic i
+      have hperiod : ∀ t, T.parentOrRoot^[k' + t * (j' - k')] i = T.parentOrRoot^[k'] i := by
+        intro t
+        induction t with
+        | zero => simp
+        | succ t' iht =>
+          have hdiff : j' - k' + k' = j' := Nat.sub_add_cancel (le_of_lt hk'_lt_j')
+          have h1 : k' + (t' + 1) * (j' - k') = (j' - k') + (k' + t' * (j' - k')) := by ring
+          calc T.parentOrRoot^[k' + (t' + 1) * (j' - k')] i
+              = T.parentOrRoot^[(j' - k') + (k' + t' * (j' - k'))] i := by rw [h1]
+            _ = T.parentOrRoot^[j' - k'] (T.parentOrRoot^[k' + t' * (j' - k')] i) := by
+                rw [Function.iterate_add_apply]
+            _ = T.parentOrRoot^[j' - k'] (T.parentOrRoot^[k'] i) := by rw [iht]
+            _ = T.parentOrRoot^[(j' - k') + k'] i := by rw [← Function.iterate_add_apply]
+            _ = T.parentOrRoot^[j'] i := by rw [hdiff]
+            _ = T.parentOrRoot^[k'] i := by rw [← heq]
+      have ⟨M, hM⟩ : ∃ M, m ≤ k' + M * (j' - k') := by
+        use m
+        have hpos : 1 ≤ j' - k' := Nat.one_le_iff_ne_zero.mpr (Nat.sub_ne_zero_of_lt hk'_lt_j')
+        calc m ≤ m * 1 := by omega
+          _ ≤ m * (j' - k') := Nat.mul_le_mul_left m hpos
+          _ ≤ k' + m * (j' - k') := Nat.le_add_left _ _
+      have hm' : T.parentOrRoot^[m] i = T.root := hm
+      have h_after_root : ∀ s, m ≤ s → T.parentOrRoot^[s] i = T.root := by
+        intro s hs
+        have h_diff : s = (s - m) + m := by omega
+        rw [h_diff, Function.iterate_add_apply, hm']
+        induction s - m with
+        | zero => rfl
+        | succ d ihd => simp only [Function.iterate_succ_apply', ihd, T.parentOrRoot_root]
+      have h_is_root := h_after_root (k' + M * (j' - k')) hM
+      rw [hperiod M] at h_is_root
+      exact h_not_root k' hk' h_is_root
   -- Now we have n distinct non-root elements in Fin n
   -- But there are only n-1 non-root positions in Fin n
   -- Define the function f : Fin n → Fin n by f m = parentOrRoot^[m.val] i
@@ -522,8 +556,10 @@ theorem depthAux_lt_n (T : TreeAuth n) (i : Fin n) (hn : 0 < n) :
   let f : Fin n → { x : Fin n // x ≠ T.root } := fun m => ⟨T.parentOrRoot^[m.val] i, h_to_nonroot m⟩
   have hf_inj : Function.Injective f := by
     intro a b heq
-    simp only [Subtype.mk.injEq] at heq
-    exact h_inj heq
+    have heq' : T.parentOrRoot^[a.val] i = T.parentOrRoot^[b.val] i := by
+      simp only [f, Subtype.mk.injEq] at heq
+      exact heq
+    exact h_inj heq'
   have hcard_le : Fintype.card (Fin n) ≤ Fintype.card { x : Fin n // x ≠ T.root } :=
     Fintype.card_le_of_injective f hf_inj
   simp only [Fintype.card_fin, h_card_nonroot] at hcard_le
@@ -638,19 +674,7 @@ theorem pathToRootAux_last_is_root (T : TreeAuth n) (i : Fin n) (fuel : ℕ)
       simp only [hi, List.getLast?_singleton]
     | some p =>
       -- depth p < depth i, so depth p ≤ fuel'
-      have h_depth_i : T.depth i > 0 := by
-        simp only [depth]
-        have hn : 0 < n := Fin.pos i
-        match n, hn with
-        | k + 1, _ => simp only [depthAux, hp]; omega
-      have h_depth_p : T.depth p < T.depth i := by
-        simp only [depth]
-        have hn : 0 < n := Fin.pos i
-        match n, hn with
-        | k + 1, _ =>
-          simp only [depthAux, hp]
-          have := T.depthAux_mono p k (k + 1) (by omega)
-          omega
+      have h_depth_p : T.depth p < T.depth i := T.depth_parent_lt i p hp
       have h_fuel' : T.depth p ≤ fuel' := by omega
       have ih_res := ih p h_fuel'
       -- Goal: (i :: T.pathToRootAux p fuel').getLast? = some T.root
@@ -697,12 +721,16 @@ theorem pathToRootAux_contains_root (T : TreeAuth n) (i : Fin n) (fuel : ℕ) :
           exact hi hk_root
         -- parentOrRoot^[k] i = parentOrRoot^[k-1] (parentOrRoot i) = parentOrRoot^[k-1] p = root
         have hp_eq : T.parentOrRoot i = p := T.parentOrRoot_of_some i p hp
-        have hk_minus : k = (k - 1) + 1 := by omega
-        rw [hk_minus, Function.iterate_succ', Function.comp_apply, hp_eq] at hk_root
+        have hk_root' : T.parentOrRoot^[k - 1] (T.parentOrRoot i) = T.root := by
+          have : T.parentOrRoot^[k] i = T.parentOrRoot^[k - 1] (T.parentOrRoot i) := by
+            conv_lhs => rw [show k = (k - 1) + 1 by omega, Function.iterate_succ_apply]
+          rw [← this]
+          exact hk_root
+        rw [hp_eq] at hk_root'
         -- Apply IH with k' = k - 1 and vertex p
         apply ih p (k - 1)
         · omega
-        · exact hk_root
+        · exact hk_root'
 
 /-- The minimum steps to reach root is bounded by n (pigeonhole) -/
 private theorem min_steps_to_root_le_n (T : TreeAuth n) (i : Fin n)
@@ -809,11 +837,81 @@ theorem root_mem_pathToRoot (T : TreeAuth n) (i : Fin n) (hn : 0 < n) : T.root �
 theorem filterMap_finRange_length {α : Type*} (n : ℕ) (hn : 0 < n) (f : Fin n → Option α)
     (hf : ∀ i, (f i).isSome ↔ i ≠ (⟨0, hn⟩ : Fin n)) :
     ((List.finRange n).filterMap (fun i => f i)).length = n - 1 := by
-  sorry
+  -- Prove via Finset cardinality
+  have h_card : (Finset.univ.filter (fun i : Fin n => (f i).isSome)).card = n - 1 := by
+    have h_eq : Finset.univ.filter (fun i : Fin n => (f i).isSome) =
+                Finset.univ.filter (fun i : Fin n => i ≠ ⟨0, hn⟩) := by
+      ext i
+      simp only [Finset.mem_filter, Finset.mem_univ, true_and, hf, decide_eq_true_eq]
+    rw [h_eq]
+    have h_compl : Finset.univ.filter (fun i : Fin n => i ≠ ⟨0, hn⟩) =
+                   Finset.univ \ {⟨0, hn⟩} := by
+      ext i
+      simp [Finset.mem_sdiff, Finset.mem_singleton, Finset.mem_filter]
+    rw [h_compl, Finset.card_sdiff]
+    simp only [Finset.singleton_inter_of_mem (Finset.mem_univ _), Finset.card_singleton,
+               Finset.card_univ, Fintype.card_fin]
+  -- Connect list filterMap length to finset card
+  have h_list_card : ((List.finRange n).filterMap (fun i => f i)).length =
+                     (Finset.univ.filter (fun i : Fin n => (f i).isSome)).card := by
+    -- Length of filterMap = count where f is some
+    have h1 : ((List.finRange n).filterMap (fun i => f i)).length =
+              (List.finRange n).countP (fun i => (f i).isSome) := by
+      induction (List.finRange n) with
+      | nil => simp
+      | cons hd tl ih =>
+        simp only [List.filterMap_cons, List.countP_cons]
+        cases hopt : f hd with
+        | none => simp only [Option.isSome_none, Bool.false_eq_true, ↓reduceIte, ih]; ring
+        | some v => simp only [List.length_cons, Option.isSome_some, ↓reduceIte, ih]
+    rw [h1]
+    -- countP on finRange equals card of filter on univ
+    rw [List.countP_eq_length_filter]
+    have h2 : ((List.finRange n).filter (fun i => (f i).isSome)).toFinset =
+              Finset.univ.filter (fun i : Fin n => (f i).isSome) := by
+      ext i
+      simp only [List.mem_toFinset, List.mem_filter, List.mem_finRange, Finset.mem_filter,
+                 Finset.mem_univ, true_and]
+    rw [← h2, List.toFinset_card_of_nodup (List.Nodup.filter _ (List.nodup_finRange n))]
+  rw [h_list_card, h_card]
 
 /-- A tree with n > 0 vertices has n-1 edges -/
 theorem edges_count (T : TreeAuth n) (hn : 0 < n) : T.edges.length = n - 1 := by
-  sorry
+  simp only [edges]
+  -- Count: |{i | parent i is some}| = |{i | i ≠ root}| = n - 1
+  have h_card : (Finset.univ.filter (fun i : Fin n => (T.parent i).isSome)).card = n - 1 := by
+    have h_eq : Finset.univ.filter (fun i : Fin n => (T.parent i).isSome) =
+                Finset.univ \ {T.root} := by
+      ext i
+      simp only [Finset.mem_filter, Finset.mem_univ, true_and, Finset.mem_sdiff,
+                 Finset.mem_singleton]
+      constructor
+      · intro hi hir
+        rw [hir, T.root_no_parent] at hi
+        exact absurd hi (by simp)
+      · intro hi
+        exact T.nonroot_has_parent i hi
+    rw [h_eq, Finset.card_sdiff]
+    simp only [Finset.singleton_inter_of_mem (Finset.mem_univ _), Finset.card_singleton,
+               Finset.card_univ, Fintype.card_fin]
+  -- Length of filterMap = countP of isSome condition
+  have h1 : ((List.finRange n).filterMap (fun i => match T.parent i with
+      | none => none | some p => some (i, p))).length =
+            (List.finRange n).countP (fun i => (T.parent i).isSome) := by
+    induction (List.finRange n) with
+    | nil => simp
+    | cons hd tl ih =>
+      simp only [List.filterMap_cons, List.countP_cons]
+      cases hp : T.parent hd with
+      | none => simp only [Option.isSome_none, Bool.false_eq_true, ↓reduceIte, ih]; omega
+      | some p => simp only [List.length_cons, Option.isSome_some, ↓reduceIte, ih]
+  rw [h1, List.countP_eq_length_filter]
+  have h2 : ((List.finRange n).filter (fun i => (T.parent i).isSome)).toFinset =
+            Finset.univ.filter (fun i : Fin n => (T.parent i).isSome) := by
+    ext i
+    simp only [List.mem_toFinset, List.mem_filter, List.mem_finRange, Finset.mem_filter,
+               Finset.mem_univ, true_and]
+  rw [← List.toFinset_card_of_nodup (List.Nodup.filter _ (List.nodup_finRange n)), h2, h_card]
 
 /-- Any two vertices can be connected via paths to root -/
 theorem connected (T : TreeAuth n) (i j : Fin n) :
