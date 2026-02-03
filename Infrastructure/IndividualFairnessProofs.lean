@@ -201,7 +201,27 @@ theorem always_lipschitz_for_large_L [NeZero n] (m : SimilarityMetric n) (T : Al
 /-- Lipschitz constant scales with allocation scaling -/
 theorem lipschitz_scaling [NeZero n] (m : SimilarityMetric n) (T : Allocation n) (c : ℚ) :
     optimalLipschitz m (fun i => c * T i) = |c| * optimalLipschitz m T := by
-  sorry
+  unfold optimalLipschitz
+  split_ifs with h
+  · -- n ≤ 1: both sides are 0
+    simp
+  · -- n > 1: use scaling property of sup
+    -- Need: sup (|c*T i - c*T j| / d) = |c| * sup (|T i - T j| / d)
+    by_cases hc : c = 0
+    · -- c = 0: LHS has |0 - 0| = 0, RHS has |0| * _ = 0
+      simp [hc]
+    · -- c ≠ 0: use the fact that |c*a - c*b| = |c| * |a - b|
+      congr 1
+      ext p
+      split_ifs with hp
+      · -- p.1 = p.2: both sides are 0
+        simp
+      · -- p.1 ≠ p.2: compute
+        have habs : |c * T p.1 - c * T p.2| = |c| * |T p.1 - T p.2| := by
+          rw [← mul_sub]
+          exact abs_mul c (T p.1 - T p.2)
+        rw [habs]
+        ring
 
 /-! ## Part 6: Summary -/
 

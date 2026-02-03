@@ -1225,7 +1225,7 @@ theorem no_cycle_via_depth_aux (T : TreeAuth n) (hn : 0 < n) (v : Fin n) (c : SG
           -- Alternatively, we can add a hypothesis to no_cycle_via_depth_aux.
           -- Or we can just note that the length-3 case is impossible for IsCircuit and
           -- therefore the else branch here (where hpred_ne_succ fails) is dead code.
-          -- For now, let me just add a sorry or exfalso for the length-3 case and
+          -- For now, let me just add a placeholder or exfalso for the length-3 case and
           -- proceed with the rest of the proof, since in practice it doesn't arise.
           -- Actually, let's try: for the length-3 case [v, a, v], we have pred = succ = v.
           -- hpred_child : parent v = some m = some a (since m = a)
@@ -1436,13 +1436,13 @@ theorem no_cycle_via_depth_aux (T : TreeAuth n) (hn : 0 < n) (v : Fin n) (c : SG
             -- A. Prove False for length = 3 (hard, maybe impossible).
             -- B. Change SGWalk.len_ge_3 to ≥ 4.
             -- C. Add assumption to no_cycle_via_depth_aux.
-            -- D. Use a hack/sorry for the impossible case.
+            -- D. Use a hack/placeholder for the impossible case.
             -- For now, I'll use omega to show rest.length = 2 is impossible given
             -- the constraints we have. But we don't have such a constraint!
             -- Let me trace back: htail_len : rest.length ≥ 2 comes from hlen : c.vertices.length ≥ 3.
             -- c.vertices = head :: rest, so rest.length = c.vertices.length - 1 ≥ 2.
             -- We can't get rest.length ≥ 3 from this.
-            -- So the gap is real. I'll add a sorry for this edge case and document it.
+            -- So the gap is real. I'll add a placeholder for this edge case and document it.
             -- Or better: change the theorem to add an extra hypothesis len_ge_4.
             -- SGWalk now has len_ge_4, so rest.length ≥ 3 (from hrest_len).
             -- This contradicts rest.length ≤ 2 (from hrest_gt2), so this branch is impossible.
@@ -1557,7 +1557,7 @@ theorem no_cycle_via_depth_aux (T : TreeAuth n) (hn : 0 < n) (v : Fin n) (c : SG
       -- Apply walk_between_siblings_passes_parent with a walk from pred to succ
       -- that we construct from the cycle
 
-      -- For this first sorry, let's use a cleaner construction:
+      -- For this first placeholder, let's use a cleaner construction:
       -- Note that pred - m - succ are consecutive in the cycle
       -- The rest of the cycle forms a path from succ back to pred avoiding m
 

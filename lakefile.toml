@@ -47,3 +47,4 @@ name = "Experimental"
 
 [[lean_lib]]
 name = "Tests"
+precompileModules = false  # Skip C/IR generation for faster test builds

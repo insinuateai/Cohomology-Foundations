@@ -6,85 +6,106 @@
 ## Session Metadata
 
 - **Date**: 2026-02-03
-- **Primary goal**: Integrate batch 4 files + discover proven axioms + fix sorries
-- **Status**: Completed - 4 axioms newly marked ELIMINATED, total now 29
+- **Primary goal**: Eliminate as many sorries as possible without introducing new sorries or axioms
+- **Status**: Analysis complete - identified tractability of remaining sorries
 
 ## What Was Done This Session
 
-### 1. Integrated Batch 4 Files from Remote Branch
+### 1. Fixed Build Error in PathCompatibilityProofs.lean
 
-Checked out 10 infrastructure files from `remotes/origin/claude/prove-axioms-TKNuH`:
+The file had a syntax error - a docstring (`/--`) at line 222 with no declaration following it. Changed to regular comment (`/-`). File now builds successfully.
 
-```bash
-git checkout remotes/origin/claude/prove-axioms-TKNuH -- Infrastructure/*Proofs.lean
-```
+### 2. Assessed Tier 1 Files (from plan)
 
-### 2. Key Discovery: 4 Target Axioms Already Proven!
+| File | Sorries | Assessment | Status |
+|------|---------|------------|--------|
+| FairnessDynamicsProofs.lean | 1 | Lyapunov convergence - needs rate-based analysis machinery | Intractable without new math |
+| DimensionBoundProofs.lean | 1 | Disconnected case - needs component size analysis | Intractable without new lemmas |
+| PathCompatibilityProofs.lean | 6 | List induction on path construction | Complex - cascading sorries |
+| OptimalRepairProofs.lean | 1 | Optimization theory - average is optimal | Intractable without new math |
+| GameTheoreticProofs.lean | 1 | Needs game-to-complex correspondence | Intractable without new definitions |
+| ExtendedGraphInfra.lean | 0 | Verified - no sorries | ✓ Complete |
 
-Analysis revealed these axioms are complete in batch 4 files (no sorry in target theorems):
+### 3. Assessed Tier 2 Files
 
-| Target | File | Line | Status |
-|--------|------|------|--------|
-| IF01 (`optimal_lipschitz_achieves`) | IndividualFairnessProofs.lean | 156 | **PROVEN** |
-| LY01/K10 (`negative_lyapunov_stable`) | LyapunovProofs.lean | 155 | **PROVEN** |
-| SM01/K08 (`safety_margin_aux`) | SafetyMarginProofs.lean | 111 | **PROVEN** |
-| SM02/K09 (`bifurcation_catastrophic_aux`) | SafetyMarginProofs.lean | 159 | **PROVEN** |
-
-### 3. Fixed Trivial Sorries
-
-**IndividualFairnessProofs.lean:**
-- Lines 174, 182: Fixed by proving L ≥ 0 for Lipschitz minimality (added `hL_nonneg` hypothesis for n ≤ 1 edge case)
-
-**LyapunovProofs.lean:**
-- Line 200: Fixed `robinHoodDynamics.conserves_total` by correcting the definition to use specific indices (argmax/argmin) instead of all elements matching max/min values
-
-### 4. Updated axiom-registry.md
-
-- K08, K09, K10 moved from KEEP to ELIMINATED
-- Count updated: 26 → 29 ELIMINATED
-- KEEP count: ~19 → ~16
+| File | Sorries | Assessment |
+|------|---------|------------|
+| LyapunovProofs.lean | 2 | `robinHood_stable` has bug when spread < δ; `strict_decrease_converges` needs rate analysis |
+| ConflictLocalizationProofs.lean | 3 | Definition issue: `PairwiseCompatible` uses ∃ but theorems need ∀ |
+| FairRepairProofs.lean | 3 | All need convex optimization arguments |
+| MechanismDesignProofs.lean | 3 | Not assessed |
 
 ## Current Status
 
-| Item | Value |
-|------|-------|
-| ELIMINATED (proven) | **29** |
-| KEEP (external math) | ~16 |
-| Total axioms in codebase | ~60 |
-| Infrastructure/ sorries | ~80 |
+| Metric | Value |
+|--------|-------|
+| Infrastructure/ standalone sorries | 51 |
+| Files with 0 sorries | ~35 |
+| Build status | ✓ Passing |
 
-## Batch 4 Status After Analysis
+### Sorry Count by File (descending)
 
-| File | Target | Status | Remaining Sorries |
-|------|--------|--------|-------------------|
-| IndividualFairnessProofs.lean | IF01 | **PROVEN** | 1 (scaling property) |
-| LyapunovProofs.lean | LY01/K10 | **PROVEN** | 2 (helper lemmas) |
-| SafetyMarginProofs.lean | SM01-SM02/K08-K09 | **PROVEN** | 3 (characterization lemmas) |
-| FairRepairProofs.lean | FR01/X02 | Partial | 3 (needs compactness) |
-| SpectralGapProofs.lean | K01-K05 | In progress | 9 |
-| Others | Various | In progress | ~25 |
+```
+9 SpectralGapProofs.lean
+6 PathCompatibilityProofs.lean
+5 MinimalConflictProofs.lean
+4 HierarchicalCompositionProofs.lean
+4 EntropyProductionProofs.lean
+4 BifurcationProofs.lean
+3 TreeAcyclicityComplete.lean
+3 MechanismDesignProofs.lean
+3 FairRepairProofs.lean
+3 ConflictLocalizationProofs.lean
+2 LyapunovProofs.lean
+1 OptimalRepairProofs.lean
+1 GameTheoreticProofs.lean
+1 FairnessDynamicsProofs.lean
+1 DimensionBoundProofs.lean
+1 CoalitionH2Proofs.lean
+```
+
+## Key Finding
+
+Most remaining sorries require one of:
+1. **Optimization theory** - proving optimality of constructions
+2. **Analysis machinery** - rate-based convergence arguments
+3. **Deeper formalization** - game-to-complex correspondence, component size analysis
+4. **Definition fixes** - some theorems need different compatibility definitions
+
+The "quick win" sorries have been exhausted. Further progress requires either:
+- Adding new mathematical lemmas to Infrastructure
+- Adjusting definitions to make theorems provable
+- Accepting certain mathematical results as axioms
 
 ## Next Session Recommendations
 
-### Priority A: Complete Remaining 3-Sorry Files
-- FairRepairProofs.lean (FR01) - needs compactness argument
+### Priority A: Definition Fixes
+- **ConflictLocalizationProofs.lean**: Change `PairwiseCompatible` from ∃ to ∀
+- **LyapunovProofs.lean**: Add constraint `δ ≤ spread/2` to `robinHood_stable`
 
-### Priority B: SpectralGap
-- SpectralGapProofs.lean targets 5 axioms (K01-K05)
-- Would reduce KEEP by 5 more
+### Priority B: Skip (need significant math infrastructure)
+- SpectralGapProofs (9) - spectral theory
+- EntropyProductionProofs (4) - entropy analysis
+- MinimalConflictProofs (5) - obstruction theory
 
-### Priority C: Zero-Sorry Files
-- Batch 3 has CriticalPointsProofs, EntropyProofs, InformationBoundProofs ready
+### Priority C: Consider Axiomatizing
+Some theorems are mathematically sound but need machinery not in Mathlib:
+- Optimization results (average minimizes cost)
+- Convergence from strict decrease
+
+## Plan File
+
+The detailed plan is at: `/home/codespace/.claude/plans/warm-splashing-dusk.md`
 
 ## Commands for Verification
 
 ```bash
-# Check sorry count
-grep -c "sorry" Infrastructure/*Proofs.lean | sort -t: -k2 -n
+# Count standalone sorry lines
+grep -rn "^\s*sorry$" Infrastructure/*.lean | wc -l
 
-# Check specific file
-grep -n "sorry" Infrastructure/IndividualFairnessProofs.lean
+# Count by file
+grep -rn "^\s*sorry$" Infrastructure/*.lean | cut -d: -f1 | sort | uniq -c | sort -rn
 
-# Verify build
-lake build Infrastructure.IndividualFairnessProofs Infrastructure.LyapunovProofs
+# Full build
+lake build
 ```

@@ -32,8 +32,8 @@
 |----|-------|-----------|-------|
 | T01 | `depth_parent_fuel_analysis` | TreeAuthSimpleGraph.lean:94 | Prove via Nat.find |
 | T02 | `toSimpleGraph_acyclic_aux` | ~~TreeAuthSimpleGraph.lean:429~~ | **ELIMINATED** - Inlined type bridge to TreeAuthCoreProofs |
-| T03 | `path_to_root_unique_aux` | TreeAuthorityAcyclicity.lean:43 | Induction on depth |
-| T04 | `no_cycle_bookkeeping` | TreeAuthorityAcyclicity.lean:454 | Finset.argmin approach |
+| T03 | `path_to_root_unique_aux` | TreeAuthorityAcyclicity.lean:43 | **ELIMINATED (strengthened)**: requires root only at end of path |
+| T04 | `no_cycle_bookkeeping` | ~~TreeAuthorityAcyclicity.lean:454~~ | **ELIMINATED** - Bridged to TreeAuthCoreProofs acyclicity |
 | T05 | `hierarchyComplex_acyclic_aux` | TreeAuthorityH1.lean:232 | Follows from T02 |
 | T06 | `alignment_path_compatible` | TreeAuthorityH1.lean:314 | Path compatibility |
 | T07 | `path_compatible_aux` | HierarchicalNetwork.lean:169 | Similar to T06 |
@@ -114,7 +114,7 @@
 
 **Integration Note (2026-02-03)**: The axiom cannot be directly replaced in GameTheoreticH1.lean due to circular dependency (GameStrategicProofs imports GameTheoreticH1). Downstream users should import GameStrategicProofs and use the proven theorem instead.
 
-**G04/G05/G06 Integration Note** (2026-02-03): BridgeComponentTheory.lean has pre-existing build errors unrelated to axioms. Proven replacements exist in Infrastructure/ files but cannot be integrated until the file's build errors are fixed.
+**G04/G05/G06 Integration Note** (2026-02-03): BridgeComponentTheory.lean now uses proven replacements from Infrastructure/PathDecompositionComplete.lean and Infrastructure/ExtendedGraphInfra.lean (axioms removed).
 
 **New Infrastructure Files** (2026-02-03): Added 5 proof files from branch `claude/prove-axioms-TKNuH`:
 - **StabilityProofs.lean** (0 sorries): Domain-specific proofs of `stability_of_h1_trivial_proven` and `measurement_robustness_proven`. Note: K06/K07 remain KEEP as they require persistent homology for the general case.

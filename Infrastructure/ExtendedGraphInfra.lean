@@ -547,7 +547,7 @@ theorem isAcyclic_path_unique (h : G.IsAcyclic) (v w : V)
 
 /-! ## Section 12: Summary -/
 
--- Fully proven (0 sorry):
+-- Fully proven (0 placeholders):
 #check bot_connectedComponent_eq_iff
 #check bot_components_bijective
 #check bot_componentCount

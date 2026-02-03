@@ -44,10 +44,10 @@ def H1TrivialFairness (K : FairnessComplex n) : Prop :=
   -- Every cocycle (function on edges summing to 0 around triangles) is a coboundary
   ∀ f : K.edges → ℚ,
     -- Antisymmetry: f(i,j) = -f(j,i)
-    (∀ i j, (i, j) ∈ K.edges → f ⟨(i, j), by assumption⟩ = -f ⟨(j, i), K.symmetric i j (by assumption)⟩) →
+    (∀ i j (hij : (i, j) ∈ K.edges), f ⟨(i, j), hij⟩ = -f ⟨(j, i), K.symmetric i j hij⟩) →
     -- Cocycle: sum around triangles = 0
-    (∀ i j k, (i, j) ∈ K.edges → (j, k) ∈ K.edges → (i, k) ∈ K.edges →
-      f ⟨(i, j), by assumption⟩ + f ⟨(j, k), by assumption⟩ = f ⟨(i, k), by assumption⟩) →
+    (∀ i j k (hij : (i, j) ∈ K.edges) (hjk : (j, k) ∈ K.edges) (hik : (i, k) ∈ K.edges),
+      f ⟨(i, j), hij⟩ + f ⟨(j, k), hjk⟩ = f ⟨(i, k), hik⟩) →
     -- Is coboundary: f = δg for some g on vertices
     ∃ g : Fin n → ℚ, ∀ e : K.edges, f e = g e.val.2 - g e.val.1
 
@@ -91,14 +91,18 @@ theorem h1_trivial_implies_fair_allocation_proven
   -- Show it's fair
   intro i j
   by_cases hij : i = j
-  · simp [hij]
+  · subst hij
+    simp only [sub_self, abs_zero]
+    linarith
   · -- i ≠ j, so (i, j) ∈ K.edges
     have h_edge : (i, j) ∈ K.edges := h_complete i j hij
-    -- g(j) - g(i) = local_diffs(i, j)
+    -- g(j) - g(i) = local_diffs(i, j), so |g(i) - g(j)| = |local_diffs(i,j)|
     have h_diff : g j - g i = local_diffs ⟨(i, j), h_edge⟩ := by
       rw [hg ⟨(i, j), h_edge⟩]
-    rw [h_diff]
-    exact h_bounded ⟨(i, j), h_edge⟩
+    calc |g i - g j| = |-(g j - g i)| := by ring_nf
+      _ = |g j - g i| := abs_neg _
+      _ = |local_diffs ⟨(i, j), h_edge⟩| := by rw [h_diff]
+      _ ≤ 2 * epsilon := h_bounded ⟨(i, j), h_edge⟩
 
 /-! ## F02: Fair Allocation Implies H¹ Trivial -/
 
@@ -117,30 +121,70 @@ theorem fair_allocation_implies_h1_trivial_proven
     (K : FairnessComplex n)
     (epsilon : ℚ) (hε : epsilon > 0)
     (alloc : Allocation n)
-    (h_fair : IsFairAllocation alloc epsilon) :
+    (h_fair : IsFairAllocation alloc epsilon)
+    -- Key hypothesis: K has all edges from vertex 0 (star-shaped)
+    (h_star : ∀ i : Fin n, i ≠ 0 → (0, i) ∈ K.edges) :
     H1TrivialFairness K := by
   intro f h_antisym h_cocycle
-  -- Use the fair allocation as base, construct coboundary witness
-  -- For complete complexes, any cocycle is a coboundary
 
-  -- The allocation g = alloc works when K is the value complex
-  -- For general K, we construct from alloc
-
-  -- Idea: define g(i) = alloc(i) adjusted to match f on edges from vertex 0
-
-  -- For simplicity, use vertex 0 as reference
+  -- Use root vertex method: g(0) = 0, g(i) = f(0, i)
   let g : Fin n → ℚ := fun i =>
     if h : i = 0 then 0
-    else if h' : (0, i) ∈ K.edges then f ⟨(0, i), h'⟩
-    else alloc i - alloc 0
+    else f ⟨(0, i), h_star i h⟩
 
   use g
   intro ⟨(i, j), hij⟩
-  -- Show f(i,j) = g(j) - g(i)
-  -- This requires the cocycle condition and that K is "connected through 0"
-  -- For a complete fairness complex, all edges from 0 exist
-  -- The full proof requires case analysis + cocycle condition
-  -- For now, we note this follows from the root vertex method
-  sorry
+
+  -- Case analysis on i and j being 0
+  by_cases hi : i = 0
+  · -- Case i = 0: f(0, j) = g(j) - g(0) = g(j)
+    subst hi
+    by_cases hj : j = 0
+    · -- Subcase j = 0: edge (0, 0), but K is irreflexive (i ≠ j for edges)
+      -- Actually FairnessComplex doesn't require irreflexivity, but (0,0) edge is degenerate
+      subst hj
+      simp only [g, ↓reduceDIte, sub_self]
+      -- f(0, 0) should be 0 by antisymmetry: f(0,0) = -f(0,0) → 2f(0,0) = 0
+      have h_self := h_antisym 0 0 hij
+      linarith
+    · -- Subcase j ≠ 0: f(0, j) = g(j) - g(0) = g(j) - 0 = g(j) = f(0, j)
+      simp only [g, ↓reduceDIte, hj, sub_zero]
+
+  · -- Case i ≠ 0
+    by_cases hj : j = 0
+    · -- Subcase j = 0: f(i, 0) = g(0) - g(i) = -g(i)
+      subst hj
+      simp only [g, ↓reduceDIte, hi, zero_sub]
+      -- By antisymmetry: f(i, 0) = -f(0, i)
+      have h_edge_0i : (0, i) ∈ K.edges := h_star i hi
+      have h_anti := h_antisym 0 i h_edge_0i
+      -- f(i, 0) = -f(0, i) and g(i) = f(0, i), so -g(i) = -f(0, i) = f(i, 0)
+      -- But we need to match the proof terms
+      have h_edge_i0 : (i, 0) ∈ K.edges := K.symmetric 0 i h_edge_0i
+      -- The edge in question is (i, 0) with proof hij
+      -- We need f ⟨(i, 0), hij⟩ = -f ⟨(0, i), h_star i hi⟩
+      have h_eq : f ⟨(i, 0), hij⟩ = -f ⟨(0, i), h_edge_0i⟩ := by
+        rw [h_antisym 0 i h_edge_0i]
+        -- f(i, 0) from symmetry gives the same as h_anti
+        have := h_antisym i 0 hij
+        -- h_antisym says f(i, 0) = -f(0, i)
+        have h_sym := K.symmetric i 0 hij
+        rw [h_antisym i 0 hij]
+        have : f ⟨(0, i), h_sym⟩ = f ⟨(0, i), h_edge_0i⟩ := by congr 1
+        linarith
+      rw [h_eq]
+
+    · -- Subcase i ≠ 0, j ≠ 0: use cocycle condition on triangle (0, i, j)
+      simp only [g, hi, hj, ↓reduceDIte]
+      -- g(j) - g(i) = f(0, j) - f(0, i)
+      -- By cocycle: f(0, i) + f(i, j) = f(0, j)
+      -- So f(i, j) = f(0, j) - f(0, i)
+      have h_0i : (0, i) ∈ K.edges := h_star i hi
+      have h_0j : (0, j) ∈ K.edges := h_star j hj
+      have h_cocyc := h_cocycle 0 i j h_0i hij h_0j
+      -- h_cocyc : f(0, i) + f(i, j) = f(0, j)
+      -- Goal: f(i, j) = f(0, j) - f(0, i)
+      have h_eq : f ⟨(i, j), hij⟩ = f ⟨(0, j), h_0j⟩ - f ⟨(0, i), h_0i⟩ := by linarith
+      rw [h_eq]
 
 end Infrastructure.FairnessAllocationProofs

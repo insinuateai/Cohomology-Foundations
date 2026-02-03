@@ -83,7 +83,32 @@ noncomputable def alignmentThreshold (systems : ValueSystemCollection S n) : ℚ
 /-- Systems are aligned iff ε ≥ threshold -/
 theorem aligned_iff_ge_threshold (systems : ValueSystemCollection S n) (ε : ℚ) :
     isAligned systems ε ↔ ε ≥ alignmentThreshold systems := by
-  sorry
+  unfold isAligned alignmentThreshold
+  constructor
+  · -- isAligned → ε ≥ threshold
+    intro haligned
+    -- haligned : ∀ i j, valueDistance (systems i) (systems j) ≤ 2 * ε
+    -- Need: ε ≥ (sup over pairs of valueDistance) / 2
+    -- Equivalently: 2 * ε ≥ sup over pairs
+    rw [ge_iff_le, div_le_iff (by norm_num : (2:ℚ) > 0)]
+    apply Finset.sup'_le
+    intro p _
+    exact haligned p.1 p.2
+  · -- ε ≥ threshold → isAligned
+    intro hge i j
+    -- hge : ε ≥ (sup over pairs) / 2
+    -- Need: valueDistance (systems i) (systems j) ≤ 2 * ε
+    have hle : Finset.univ.sup' _ (fun p : Fin n × Fin n =>
+        valueDistance (systems p.1) (systems p.2)) / 2 ≤ ε := hge
+    have hsup : valueDistance (systems i) (systems j) ≤
+        Finset.univ.sup' _ (fun p : Fin n × Fin n =>
+          valueDistance (systems p.1) (systems p.2)) := by
+      apply Finset.le_sup'
+      exact Finset.mem_univ (i, j)
+    calc valueDistance (systems i) (systems j)
+        ≤ Finset.univ.sup' _ _ := hsup
+      _ = 2 * (Finset.univ.sup' _ _ / 2) := by ring
+      _ ≤ 2 * ε := by linarith
 
 /-! ## Part 3: Safety Margin -/
 
@@ -173,7 +198,18 @@ noncomputable def linearInterpolation (v1 v2 : ValueSystem S) (t : ℚ) : ValueS
 /-- Distance grows linearly with interpolation -/
 theorem interpolation_distance (v1 v2 : ValueSystem S) (t : ℚ) (ht : 0 ≤ t ∧ t ≤ 1) :
     valueDistance v1 (linearInterpolation v1 v2 t) = t * valueDistance v1 v2 := by
-  sorry
+  unfold valueDistance linearInterpolation
+  simp only
+  -- Need to show:
+  -- sup_s |v1.values s - ((1-t)*v1.values s + t*v2.values s)| = t * sup_s |v1.values s - v2.values s|
+  -- LHS simplifies to: sup_s |t * (v1.values s - v2.values s)|
+  congr 1
+  ext s
+  -- Show: |v1.values s - ((1-t)*v1.values s + t*v2.values s)| = t * |v1.values s - v2.values s|
+  have calc_eq : v1.values s - ((1 - t) * v1.values s + t * v2.values s) =
+      t * (v1.values s - v2.values s) := by ring
+  rw [calc_eq]
+  rw [abs_mul, abs_of_nonneg ht.1]
 
 /-- Bifurcation occurs at t = ε / (max distance / 2) -/
 theorem interpolation_bifurcation (v1 v2 : ValueSystem S) (ε : ℚ)
@@ -182,7 +218,14 @@ theorem interpolation_bifurcation (v1 v2 : ValueSystem S) (ε : ℚ)
       -- Before t_bif: aligned; after: not aligned
       True := by
   use ε / (valueDistance v1 v2 / 2)
-  sorry
+  refine ⟨?_, ?_, trivial⟩
+  · -- 0 < t_bif
+    apply div_pos hε
+    linarith [valueDistance_nonneg v1 v2]
+  · -- t_bif < 1
+    rw [div_lt_one]
+    · linarith
+    · linarith [valueDistance_nonneg v1 v2]
 
 /-! ## Part 6: Summary -/
 

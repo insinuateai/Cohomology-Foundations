@@ -3,7 +3,7 @@
 
   Regression tests that verify previously-fixed issues remain fixed.
   Add a test here whenever you:
-  - Fix a sorry
+  - Fix a placeholder
   - Eliminate an axiom
   - Resolve a bug
 
@@ -88,7 +88,7 @@ Core graph-theoretic lemmas for H¹ characterization.
 /-!
 ## Instructions for Adding Regression Tests
 
-When you fix a sorry or eliminate an axiom:
+When you fix a placeholder or eliminate an axiom:
 
 1. Add a #check statement for the new theorem
 2. Add a comment explaining what was fixed

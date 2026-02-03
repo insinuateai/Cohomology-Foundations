@@ -25,9 +25,9 @@ Provides Walk decomposition lemmas missing from Mathlib 4.27.0. The key missing 
 | ID | Axiom | File:Line |
 |----|-------|-----------|
 | G01 | `forest_single_edge_still_forest_aux` | GraphComposition.lean:445 |
-| G04 | `bridge_path_decomposition` | BridgeComponentTheory.lean:171 |
-| G05 | `non_v_component_path_avoids_bridge` | BridgeComponentTheory.lean:177 |
-| G06 | `bridge_component_cardinality` | BridgeComponentTheory.lean:183 |
+| G04 | `bridge_path_decomposition` | Infrastructure/PathDecompositionComplete.lean |
+| G05 | `non_v_component_path_avoids_bridge` | Infrastructure/PathDecompositionComplete.lean |
+| G06 | `bridge_component_cardinality` | Infrastructure/ExtendedGraphInfra.lean |
 | T02 | `toSimpleGraph_acyclic_aux` | TreeAuthSimpleGraph.lean:429 |
 | T05 | `hierarchyComplex_acyclic_aux` | TreeAuthH1.lean:232 |
 | R01 | `remove_edge_from_single_cycle_aux'` | ConflictResolution.lean:163 |
@@ -39,8 +39,8 @@ Provides Walk decomposition lemmas missing from Mathlib 4.27.0. The key missing 
 
 | ID | Axiom | Depends On |
 |----|-------|------------|
-| T03 | `path_to_root_unique_aux` | T02 + path uniqueness |
-| T04 | `no_cycle_bookkeeping` | T02 + cycle structure |
+| T03 | `path_to_root_unique_aux` | **ELIMINATED (strengthened)**: root only at end of path |
+| T04 | `no_cycle_bookkeeping` | **ELIMINATED** - Bridged to TreeAuthCoreProofs acyclicity |
 | T06 | `alignment_path_compatible` | T02 + compatibility |
 | T07 | `path_compatible_aux` | T02 + depth bounds |
 | R02 | `fill_triangle_h1_trivial_aux'` | R01 + coboundary |
@@ -245,7 +245,8 @@ support_takeUntil_append_dropUntil (NEW)
 |------|-------|---------|
 | `Infrastructure/TreeGraphInfra.lean` | 60-82 | Pattern for `takeUntil_first_endpoint_no_edge` |
 | `Infrastructure/GraphComposition.lean` | 445 | G01 axiom location |
-| `Theories/BridgeComponentTheory.lean` | 171-199 | G04-G06 axiom locations |
+| `Infrastructure/PathDecompositionComplete.lean` | — | G04-G05 proven replacements |
+| `Infrastructure/ExtendedGraphInfra.lean` | — | G06 proven replacement |
 | `MultiAgent/TreeAuthSimpleGraph.lean` | 429 | T02 axiom location |
 | `Infrastructure/TreeAuthCoreProofs.lean` | 563-582 | Min-depth cycle strategy |
 

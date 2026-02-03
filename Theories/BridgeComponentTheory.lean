@@ -12,7 +12,7 @@ Precise theorems about how bridges affect connected components.
 Targets: Mathlib 4.27.0 / Lean 4.27.0
 
 SORRIES: 0
-AXIOMS: 3 (bridge_path_decomposition, non_v_component_path_avoids_bridge, bridge_component_cardinality)
+AXIOMS: 0
 
 Author: Tenured Cohomology Foundations
 Date: January 2026
@@ -24,6 +24,8 @@ import Mathlib.Combinatorics.SimpleGraph.Connectivity.Subgraph
 import Mathlib.Data.Fintype.Card
 import Mathlib.Data.Sym.Sym2
 import Mathlib.Tactic
+import Infrastructure.PathDecompositionComplete
+import Infrastructure.ExtendedGraphInfra
 
 namespace BridgeComponentTheory
 
@@ -66,14 +68,14 @@ theorem deleteEdges_le (G : SimpleGraph V) (s : Set (Sym2 V)) : G.deleteEdges s 
   exact hadj.1
 
 /-- Reachability lifts to supergraph -/
-theorem reachable_of_le {G H : SimpleGraph V} (hle : G ≤ H) {v w : V} 
+theorem reachable_of_le {G H : SimpleGraph V} (hle : G ≤ H) {v w : V}
     (hr : G.Reachable v w) : H.Reachable v w := by
   induction hr with
   | refl => exact Reachable.refl
   | tail _ hadj ih => exact ih.trans (hle hadj).reachable
 
 /-- Connected component map from subgraph to supergraph -/
-def componentMap {G H : SimpleGraph V} (hle : G ≤ H) : 
+def componentMap {G H : SimpleGraph V} (hle : G ≤ H) :
     G.ConnectedComponent → H.ConnectedComponent :=
   ConnectedComponent.map (Hom.mapSpanningSubgraphs hle)
 
@@ -168,19 +170,33 @@ theorem non_bridge_componentCount (G : SimpleGraph V) (e : Sym2 V) (he : e ∈ G
 -- NOTE: Proven replacement at Infrastructure/PathDecompositionComplete.lean:60
 -- Proof: any G-path from u to v either avoids edge {v,w} (gives G' path to v)
 -- or uses it (gives G' path to w by taking the part before crossing)
-axiom bridge_path_decomposition (G : SimpleGraph V) (v w : V) (hb : IsBridge' G v w)
+theorem bridge_path_decomposition (G : SimpleGraph V) (v w : V) (hb : IsBridge' G v w)
     (u : V) (hr : G.Reachable u v) :
-    (G.deleteEdges {s(v, w)}).Reachable u v ∨ (G.deleteEdges {s(v, w)}).Reachable u w
+    (G.deleteEdges {s(v, w)}).Reachable u v ∨ (G.deleteEdges {s(v, w)}).Reachable u w := by
+  classical
+  haveI : DecidableRel G.Adj := Classical.decRel _
+  have hb' : Infrastructure.PathDecompositionComplete.IsBridge' G v w := by
+    simpa [Infrastructure.PathDecompositionComplete.IsBridge', IsBridge'] using hb
+  simpa using
+    (Infrastructure.PathDecompositionComplete.bridge_path_decomposition_proven
+      (G := G) (v := v) (w := w) hb' u hr)
 
 -- NOTE: Proven replacement at Infrastructure/PathDecompositionComplete.lean:95
 -- Proof: if u not in v's G-component, G-path from u' to u avoids {v,w}
-axiom non_v_component_path_avoids_bridge (G : SimpleGraph V) (v w : V) (hb : IsBridge' G v w)
+theorem non_v_component_path_avoids_bridge (G : SimpleGraph V) (v w : V) (hb : IsBridge' G v w)
     (u : V) (hu : G.connectedComponentMk u ≠ G.connectedComponentMk v)
-    (u' : V) (hu' : G.Reachable u' u) (hn : ¬(G.deleteEdges {s(v, w)}).Reachable u' u) : False
+    (u' : V) (hu' : G.Reachable u' u) (hn : ¬(G.deleteEdges {s(v, w)}).Reachable u' u) : False := by
+  classical
+  haveI : DecidableRel G.Adj := Classical.decRel _
+  have hb' : Infrastructure.PathDecompositionComplete.IsBridge' G v w := by
+    simpa [Infrastructure.PathDecompositionComplete.IsBridge', IsBridge'] using hb
+  exact
+    Infrastructure.PathDecompositionComplete.non_v_component_path_avoids_bridge_proven
+      (G := G) (v := v) (w := w) hb' u hu u' hu' hn
 
 -- NOTE: Proven replacement at Infrastructure/ExtendedGraphInfra.lean:591
 -- Proof: fiber over v's component has exactly 2 elements, others have 1
-axiom bridge_component_cardinality (G : SimpleGraph V) (v w : V) (hb : IsBridge' G v w)
+theorem bridge_component_cardinality (G : SimpleGraph V) (v w : V) (hb : IsBridge' G v w)
     (h_fiber_vw : ∀ c : (G.deleteEdges {s(v, w)}).ConnectedComponent,
         componentMap (deleteEdges_le G {s(v, w)}) c = G.connectedComponentMk v →
         c = (G.deleteEdges {s(v, w)}).connectedComponentMk v ∨
@@ -196,7 +212,14 @@ axiom bridge_component_cardinality (G : SimpleGraph V) (v w : V) (hb : IsBridge'
                ((G.deleteEdges {s(v, w)}).connectedComponentMk v) =
              componentMap (deleteEdges_le G {s(v, w)})
                ((G.deleteEdges {s(v, w)}).connectedComponentMk w)) :
-    Fintype.card (G.deleteEdges {s(v, w)}).ConnectedComponent = Fintype.card G.ConnectedComponent + 1
+    Fintype.card (G.deleteEdges {s(v, w)}).ConnectedComponent = Fintype.card G.ConnectedComponent + 1 := by
+  classical
+  haveI : DecidableRel G.Adj := Classical.decRel _
+  have hb' : Infrastructure.ExtendedGraphInfra.IsBridge' G v w := by
+    simpa [Infrastructure.ExtendedGraphInfra.IsBridge', IsBridge'] using hb
+  simpa using
+    (Infrastructure.ExtendedGraphInfra.bridge_component_cardinality_proven
+      (G := G) (v := v) (w := w) hb')
 
 /-- Bridge endpoints are in same component before removal -/
 theorem bridge_same_component (G : SimpleGraph V) (v w : V) (hadj : G.Adj v w) :
@@ -206,7 +229,7 @@ theorem bridge_same_component (G : SimpleGraph V) (v w : V) (hadj : G.Adj v w) :
 
 /-- Bridge endpoints are in different components after removal -/
 theorem bridge_diff_component (G : SimpleGraph V) (v w : V) (hb : IsBridge' G v w) :
-    (G.deleteEdges {s(v, w)}).connectedComponentMk v ≠ 
+    (G.deleteEdges {s(v, w)}).connectedComponentMk v ≠
     (G.deleteEdges {s(v, w)}).connectedComponentMk w := by
   rw [ConnectedComponent.eq]
   exact hb.2
@@ -227,25 +250,25 @@ theorem bridge_splits_component_exact (G : SimpleGraph V) (v w : V) (hb : IsBrid
   simp only [componentCount]
   let G' := G.deleteEdges {s(v, w)}
   let f := componentMap (deleteEdges_le G {s(v, w)})
-  
+
   -- Key facts:
   -- 1. f is surjective (componentMap_surj)
   -- 2. f(comp_v) = f(comp_w) but comp_v ≠ comp_w (bridge property)
   -- 3. For all other c, f is injective on them
-  
+
   have hsurj := componentMap_surj (deleteEdges_le G {s(v, w)})
   have hdiff := bridge_diff_component G v w hb
   have hsame := bridge_componentMap_image G v w hb
-  
+
   -- The fiber over G.connectedComponentMk v has exactly 2 elements: comp_v, comp_w
   -- All other fibers have exactly 1 element
   -- So |G'.Components| = |G.Components| + 1
-  
+
   -- Construct explicit bijection
   -- G'.Components ≃ G.Components ⊔ {extra}
   -- where the v,w-component in G splits into 2
-  
-  have h_fiber_vw : ∀ c : G'.ConnectedComponent, 
+
+  have h_fiber_vw : ∀ c : G'.ConnectedComponent,
       f c = G.connectedComponentMk v → c = G'.connectedComponentMk v ∨ c = G'.connectedComponentMk w := by
     intro c hfc
     obtain ⟨u, rfl⟩ := c.exists_rep
@@ -267,9 +290,9 @@ theorem bridge_splits_component_exact (G : SimpleGraph V) (v w : V) (hb : IsBrid
       rcases this with h1 | h2
       · exact h h1
       · exact hnw h2
-  
-  have h_fiber_other : ∀ c : G.ConnectedComponent, 
-      c ≠ G.connectedComponentMk v → 
+
+  have h_fiber_other : ∀ c : G.ConnectedComponent,
+      c ≠ G.connectedComponentMk v →
       ∃! c' : G'.ConnectedComponent, f c' = c := by
     intro c hc
     obtain ⟨u, rfl⟩ := c.exists_rep
@@ -286,7 +309,7 @@ theorem bridge_splits_component_exact (G : SimpleGraph V) (v w : V) (hb : IsBrid
       -- If not G'.Reachable, the G-path must use {v,w}
       -- But then u would be in v's component
       exact non_v_component_path_avoids_bridge G v w hb u hc u' hc' hn
-  
+
   -- Now count: each G-component except v's has 1 preimage,
   -- v's component has 2 preimages (v and w in G')
   exact bridge_component_cardinality G v w hb h_fiber_vw h_fiber_other hsurj hdiff hsame
@@ -294,7 +317,7 @@ theorem bridge_splits_component_exact (G : SimpleGraph V) (v w : V) (hb : IsBrid
 /-! ## Section 6: Edge Set Version -/
 
 /-- Bridge removal (edge set version) -/
-theorem bridge_splits_component_exact' (G : SimpleGraph V) (e : G.edgeSet) 
+theorem bridge_splits_component_exact' (G : SimpleGraph V) (e : G.edgeSet)
     (h_bridge : IsBridge G e.val) :
     componentCount (G.deleteEdges {e.val}) = componentCount G + 1 := by
   obtain ⟨v, w, hvw, rfl⟩ := Sym2.exists_mem_mem e.val e.property
