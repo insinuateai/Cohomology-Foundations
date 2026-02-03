@@ -9,7 +9,6 @@ import Infrastructure.CohomologyInfra
 import Infrastructure.GraphTheoryUtils
 import Infrastructure.H1BridgeProofs
 import Infrastructure.AxiomElimination
-import Infrastructure.AxiomSolver
 import Infrastructure.GameTheoryBridge
 import Infrastructure.GameTheoryProofs
 import Infrastructure.SmallGraphsFixed
@@ -19,3 +18,5 @@ import Infrastructure.TreeGraphInfra
 import Infrastructure.TreeAuthCoreProofs
 import Infrastructure.ComponentCountingBasic
 import Infrastructure.ExtendedGraphInfra
+import Infrastructure.TreeAcyclicityComplete
+import Infrastructure.FairnessComplexH1
