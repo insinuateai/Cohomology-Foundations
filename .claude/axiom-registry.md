@@ -10,8 +10,8 @@
 | Status | Count | Description |
 |--------|-------|-------------|
 | KEEP | ~19 | External math, structural assumptions, multi-cycle issues |
-| ELIMINATED | 16 | G01-G06, C03, C04, X03, X04, X22, X26, X28, X29, F07, T02 |
-| ELIMINATE | ~33 | Provable from current Mathlib |
+| ELIMINATED | 21 | G01-G06, C03, C04, X03, X04, X11, X22, X26, X28, X29, F03-F07, T02 |
+| ELIMINATE | ~28 | Provable from current Mathlib |
 
 ## By Priority (Recommended Elimination Order)
 
@@ -44,10 +44,10 @@
 |----|-------|-----------|-------|
 | F01 | `h1_trivial_implies_fair_allocation` | FairnessFoundations.lean:184 | Unfold H1Trivial |
 | F02 | `fair_allocation_implies_h1_trivial` | FairnessFoundations.lean:195 | Converse |
-| F03 | `fairness_loss_bounded` | FairnessLearning.lean:169 | Finset.sup' bounds |
-| F04 | `convex_marginal_sum_ge` | GameTheoryBridge.lean:29 | Telescope sum |
-| F05 | `supermodular_of_convex` | CoalitionGameCore.lean:61 | Definition unfolding |
-| F06 | `marginal_sum_telescope_aux` | CoalitionGameCore.lean:178 | List sum manipulation |
+| F03 | `fairness_loss_bounded` | ~~FairnessLearning.lean:169~~ | **ELIMINATED** - Already theorem in FairnessLearning.lean:168 |
+| F04 | `convex_marginal_sum_ge` | ~~GameTheoryBridge.lean:29~~ | **ELIMINATED** - Proven in GameTheoryProofs.lean:494 |
+| F05 | `supermodular_of_convex` | ~~CoalitionGameCore.lean:61~~ | **ELIMINATED** - Proven in GameTheoryProofs.lean:87 |
+| F06 | `marginal_sum_telescope_aux` | ~~CoalitionGameCore.lean:178~~ | **ELIMINATED** - Proven as marginal_sum_telescope in GameTheoryProofs.lean:440 |
 | F07 | `optimal_lipschitz_achieves` | ~~IndividualFairness.lean:212~~ | **ELIMINATED** - FairnessH1Proofs.lean |
 
 ### Priority 4: Cohomology Core
@@ -116,6 +116,29 @@
 
 **G04/G05/G06 Integration Note** (2026-02-03): BridgeComponentTheory.lean has pre-existing build errors unrelated to axioms. Proven replacements exist in Infrastructure/ files but cannot be integrated until the file's build errors are fixed.
 
+**New Infrastructure Files** (2026-02-03): Added 5 proof files from branch `claude/prove-axioms-TKNuH`:
+- **StabilityProofs.lean** (0 sorries): Domain-specific proofs of `stability_of_h1_trivial_proven` and `measurement_robustness_proven`. Note: K06/K07 remain KEEP as they require persistent homology for the general case.
+- **MayerVietorisProofs.lean** (0 sorries): Proves `simple_mayer_vietoris_proven` (X11) - ELIMINATED
+- **OptimalRepairProofs.lean** (1 sorry): `aligned_implies_H1_trivial_proven` done; `optimal_repair_exists_proven` has existence but not optimality
+- **FairnessAllocationProofs.lean** (1 sorry): `h1_trivial_implies_fair_allocation_proven` (F01 direction) done
+- **GameTheoreticProofs.lean** (1 sorry): Structural solution via `WellFormedGame` for G01
+
+**Batch 3 Recovery** (2026-02-03): Recovered 10 files from commit 65af687:
+
+*Zero-sorry files (ready for axiom elimination):*
+- **CriticalPointsProofs.lean** (0 sorries): CP01-CP03 (alternative proofs to CriticalPointsCore)
+- **EntropyProofs.lean** (0 sorries): EP01 `lower_production_lower_cost_aux`
+- **InformationBoundProofs.lean** (0 sorries): IB01-IB03 (information bounds)
+
+*Files with sorries (partial proofs):*
+- **HierarchicalAlignmentProofs.lean** (1 sorry): HA01-HA04 targets
+- **CoalitionH2Proofs.lean** (2 sorries): CH01-CH04 (H² characterization)
+- **CurvatureProofs.lean** (2 sorries): CV01-CV03 (curvature-barrier)
+- **FairnessDynamicsProofs.lean** (2 sorries): FD01-FD02 (Lyapunov)
+- **MechanismDesignProofs.lean** (3 sorries): MD01
+- **ConflictLocalizationProofs.lean** (4 sorries): CL01-CL02
+- **BifurcationProofs.lean** (5 sorries): BF01-BF02
+
 ### Remaining (Uncategorized)
 
 | ID | Axiom | File:Line |
@@ -130,7 +153,7 @@
 | X08 | `escape_time_bounded_ax` | EscapeTime.lean:296 |
 | X09 | `composition_deadlock_example_aux` | AgentCoordination.lean:622 |
 | X10 | `information_alignment_requires_aux` | InformationBound.lean:190 |
-| X11 | `simple_mayer_vietoris` | MayerVietoris.lean:120 |
+| X11 | `simple_mayer_vietoris` | ~~MayerVietoris.lean:120~~ | **ELIMINATED** - MayerVietorisProofs.lean |
 | X12 | `h1_trivial_implies_bounded_disagreement_ax` | Curvature.lean:187 |
 | X13 | `barrier_implies_high_curvature_ax` | Curvature.lean:341 |
 | X14 | `low_curvature_implies_no_barrier_ax` | Curvature.lean:373 |

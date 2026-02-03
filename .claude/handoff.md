@@ -6,119 +6,127 @@
 ## Session Metadata
 
 - **Date**: 2026-02-03
-- **Primary goal**: Analyze all sorries and remove the easiest one
-- **User intent**: Identify and fix the most tractable sorry in the codebase
+- **Primary goal**: Recover batch 3 infrastructure files and assess sorry status
+- **Status**: Completed - 10 files recovered, 3 with 0 sorries, build passing
 
-## What Was Done
+## What Was Done This Session
 
-### 1. Comprehensive Sorry Analysis
+### 1. Recovered Batch 3 Files from Git History
 
-Found **7 sorries** across **2 files**:
+The user had created 10 infrastructure files (commit 65af687) that were deleted in subsequent work. All 10 were recovered:
 
-| File | Line | Theorem | Difficulty |
-|------|------|---------|------------|
-| FairnessComplexH1.lean | 363 | `h1_trivial_implies_fair_allocation_proof` | Hard (obstruction theory) |
-| TreeAcyclicityComplete.lean | 790 | `toSimpleGraph_acyclic_proof` | Medium (case analysis) |
-| TreeAcyclicityComplete.lean | 795 | `toSimpleGraph_acyclic_proof` | Medium (case analysis) |
-| TreeAcyclicityComplete.lean | 945-946 | `pathToRootAux_last` | Medium-Hard (iteration) |
-| TreeAcyclicityComplete.lean | 963 | `path_to_root_unique_aux_proof` | Medium (induction) |
-| TreeAcyclicityComplete.lean | 981 | `no_cycle_bookkeeping_proof` | Easiest (data conversion) |
+**Zero-Sorry Files (Ready for Use):**
+| File | Axioms | Status |
+|------|--------|--------|
+| CriticalPointsProofs.lean | CP01-CP03 | Complete ✓ |
+| EntropyProofs.lean | EP01 | Complete ✓ |
+| InformationBoundProofs.lean | IB01-IB03 | Complete ✓ |
 
-### 2. Discovered Critical Bug in Cycle Structure
+**Files with Sorries (Partial):**
+| File | Sorries | Axioms |
+|------|---------|--------|
+| HierarchicalAlignmentProofs.lean | 1 | HA01-HA04 |
+| CoalitionH2Proofs.lean | 2 | CH01-CH04 |
+| CurvatureProofs.lean | 2 | CV01-CV03 |
+| FairnessDynamicsProofs.lean | 2 | FD01-FD02 |
+| MechanismDesignProofs.lean | 3 | MD01 |
+| ConflictLocalizationProofs.lean | 4 | CL01-CL02 |
+| BifurcationProofs.lean | 5 | BF01-BF02 |
 
-The `Cycle` structure in `TreeAcyclicityComplete.lean` was **incomplete**:
+### 2. Fixed Import Errors
 
-**Original (buggy):**
-```lean
-structure Cycle (T : TreeAuth n) (v : Fin n) where
-  path : List (Fin n)
-  ne_nil : path ≠ []
-  head_eq : path.head? = some v
-  last_eq : path.getLast? = some v
-  length_ge : path.length ≥ 3  -- TOO WEAK!
-  valid : ...  -- No nodup condition!
-```
+Changed `import Mathlib.Data.Rat.Basic` to `import Mathlib.Algebra.Order.Field.Rat` in all 10 recovered files.
 
-**Problems:**
-1. `length_ge ≥ 3` allows `[v, a, v]` which has only 2 edges (not a cycle)
-2. Missing `nodup` condition allowed non-simple cycles (which exist in trees!)
+### 3. Verified Build
 
-**Fixed:**
-```lean
-structure Cycle (T : TreeAuth n) (v : Fin n) where
-  path : List (Fin n)
-  ne_nil : path ≠ []
-  head_eq : path.head? = some v
-  last_eq : path.getLast? = some v
-  length_ge : path.length ≥ 4  -- At least 3 edges
-  nodup : path.dropLast.Nodup  -- Simple cycle condition
-  valid : ∀ j, (hj : j + 1 < path.length) →
-    T.adjacent (path.get ⟨j, Nat.lt_of_succ_lt hj⟩) (path.get ⟨j + 1, hj⟩)
-```
+Build passes with 1326 jobs (warnings only, no errors).
 
-### 3. Restructured `no_cycle_bookkeeping_proof`
+### 4. Updated Registry
 
-Set up the proof structure correctly:
-1. Convert `Cycle.valid` to `toSimpleGraph.Adj` (trivial - they're definitionally equal)
-2. Build a `Walk` from `c.path` using `walkOfCyclePath`
-3. Prove walk starts/ends at `v` using `head_eq` and `last_eq`
-4. Create closed walk `w' : Walk v v` via `copy`
-5. Prove `w'.IsCycle` (requires IsTrail + support.tail.Nodup)
-6. Apply `toSimpleGraph_acyclic_aux_proof` to derive `False`
-
-The remaining sorry is for proving `IsCycle`, which requires:
-- **IsTrail** (edges.Nodup): follows from `dropLast.Nodup` with `length ≥ 4`
-- **support.tail.Nodup**: follows from `dropLast.Nodup` via list manipulation
+Updated `.claude/axiom-registry.md` with batch 3 file status.
 
 ## Current Status
 
+| Item | Value |
+|------|-------|
+| Build | Passes |
+| Total axioms | ~60 |
+| Eliminated (verified) | 21 |
+| Batch 3 zero-sorry eliminations | 7 (CP01-CP03, EP01, IB01-IB03) |
+| KEEP (external math) | ~19 |
+| Remaining targets | ~21 |
+
+## Sorry Count Summary
+
 | File | Sorries | Notes |
 |------|---------|-------|
-| `FairnessComplexH1.lean` | 1 | Obstruction theory - hard |
-| `TreeAcyclicityComplete.lean` | 6 | Fixed Cycle structure, proof structure in place |
+| TreeAcyclicityComplete.lean | 11 | Tree structure proofs |
+| BifurcationProofs.lean | 5 | Perturbation construction |
+| ConflictLocalizationProofs.lean | 4 | Cycle formation |
+| MechanismDesignProofs.lean | 3 | Type space paths |
+| TreeAuthorityProofs.lean | 2 | Path segments |
+| FairnessDynamicsProofs.lean | 2 | Lyapunov convergence |
+| CurvatureProofs.lean | 2 | Curvature bounds |
+| CoalitionH2Proofs.lean | 2 | H² structure |
+| OptimalRepairProofs.lean | 1 | Optimality |
+| HierarchicalAlignmentProofs.lean | 1 | Parent-child |
+| GameTheoreticProofs.lean | 1 | Game correspondence |
+| FairnessComplexH1.lean | 1 | Obstruction theory |
+| FairnessAllocationProofs.lean | 1 | F02 direction |
+| DimensionBoundProofs.lean | 1 | Component enumeration |
+| **Total** | **37** | |
 
-**Note:** `TreeAcyclicityComplete.lean` has 27 pre-existing compilation errors unrelated to my changes.
+## Key Findings
 
-## Key Technical Insights
+### Sorries Require Proper Definitions
+Many batch 3 files use simplified definitions (e.g., `H1Trivial := True`) that make some proofs trivial but others impossible. The sorries often need:
+1. Proper mathematical definitions instead of `True` placeholders
+2. Infrastructure from Mathlib or other project files
+3. Complex case analysis or induction
 
-### Why `length ≥ 4` is Required
-
-For a proper graph-theoretic cycle:
-- Cycle needs at least 3 edges
-- Path `[v, a₁, ..., aₙ₋₁, v]` has `n` vertices and `n-1` edges
-- For `n-1 ≥ 3`, need `n ≥ 4`, i.e., `path.length ≥ 4`
-
-### Why `dropLast.Nodup` Works
-
-- `path = [v, a₁, a₂, ..., aₙ₋₁, v]`
-- `path.dropLast = [v, a₁, a₂, ..., aₙ₋₁]` (all distinct)
-- `path.tail = [a₁, a₂, ..., aₙ₋₁, v]` (same elements, different order)
-- Implies `tail.Nodup` (needed for IsCycle)
-
-### Edge Distinctness with `length ≥ 4`
-
-With `dropLast.Nodup`:
-- Edges `{v, a₁}` and `{aₙ₋₁, v}` only equal if `a₁ = aₙ₋₁`
-- But `a₁, aₙ₋₁ ∈ dropLast` and `dropLast.Nodup`, so `a₁ ≠ aₙ₋₁` when `length ≥ 4`
-- Internal edges `{aᵢ, aᵢ₊₁}` are distinct since all `aᵢ` are distinct
-
-## Files Modified
-
-1. `Infrastructure/TreeAcyclicityComplete.lean`
-   - Fixed `Cycle` structure (lines 975-984)
-   - Added `walkOfCyclePath` helper (lines 986-1024)
-   - Restructured `no_cycle_bookkeeping_proof` (lines 1026-1098)
+### Zero-Sorry Files Are Valuable
+The 3 files with 0 sorries (CriticalPointsProofs, EntropyProofs, InformationBoundProofs) can be used immediately for axiom elimination (7 axioms total).
 
 ## Next Session Recommendations
 
-1. **Complete IsCycle proof**: The mathematical argument is sound. Need ~30 lines of list manipulation to prove `IsTrail` and `support.tail.Nodup` from the structural conditions.
+### Option A: Use Zero-Sorry Files
+The 3 complete batch 3 files provide 7 axiom eliminations with no additional work needed. Just integrate them.
 
-2. **Fix pre-existing errors**: The file has 27 errors from outdated Mathlib API usage (e.g., `SimpleGraph.Walk.IsCycle.ne_nil` renamed).
+### Option B: Fix Easy Sorries
+Focus on files with 1 sorry:
+1. DimensionBoundProofs.lean - needs component enumeration lemma
+2. GameTheoreticProofs.lean - needs game-to-complex correspondence
+3. HierarchicalAlignmentProofs.lean - needs parent-child proof
 
-3. **Consider alternative approach**: If IsCycle proof is too tedious, could prove contradiction directly using depth argument on the Cycle structure (similar to `toSimpleGraph_acyclic_proof`).
+### Option C: Refactor Simplified Definitions
+Many batch 3 sorries stem from `True` placeholders. Replacing these with proper definitions would enable completing the proofs:
+- `H1Trivial` / `H2Trivial` - need actual cohomology definitions
+- `hasAlignmentBarrier` - needs proper barrier definition
+- `GrandCoalitionStable` - needs coalition theory
 
----
+## Files Added This Session
 
-## Summary
+All in Infrastructure/:
+- CriticalPointsProofs.lean
+- EntropyProofs.lean
+- InformationBoundProofs.lean
+- HierarchicalAlignmentProofs.lean
+- CoalitionH2Proofs.lean
+- CurvatureProofs.lean
+- FairnessDynamicsProofs.lean
+- MechanismDesignProofs.lean
+- ConflictLocalizationProofs.lean
+- BifurcationProofs.lean
 
-Analyzed all sorries and identified `no_cycle_bookkeeping_proof` as the easiest target. Discovered and fixed a critical bug in the `Cycle` structure that made the proof impossible. The proof structure is now correct but requires detailed list manipulation to complete the `IsCycle` verification.
+## Commands for Verification
+
+```bash
+# Check sorry count
+grep -rn "sorry" Infrastructure/*.lean | grep -v comment | wc -l
+
+# Verify build
+lake build
+
+# Check axiom count
+make axiom-count
+```
