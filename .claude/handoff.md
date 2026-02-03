@@ -11,7 +11,7 @@
 
 ## What Was Done
 
-Created **12 infrastructure files** targeting **27 axioms** for elimination.
+Created **22 infrastructure files** targeting **52 axioms** for elimination.
 
 ### Files Created (Summary)
 
@@ -29,59 +29,58 @@ Created **12 infrastructure files** targeting **27 axioms** for elimination.
 | H2CharacterizationProofs.lean | 2 (H2-01, H2-02) | Structure complete |
 | MayerVietorisProofs.lean | 1 (MV01) | Structure complete |
 | OptimalRepairProofs.lean | 2 (OR01, OR02) | Mostly proven |
+| CoalitionH2Proofs.lean | 4 (CH01-CH04) | Structure complete |
+| CurvatureProofs.lean | 3 (CV01-CV03) | Structure complete |
+| CriticalPointsProofs.lean | 3 (CP01-CP03) | Structure complete |
+| BifurcationProofs.lean | 2 (BF01-BF02) | Structure complete |
+| ConflictLocalizationProofs.lean | 2 (CL01-CL02) | Structure complete |
+| MechanismDesignProofs.lean | 1 (MD01) | Structure complete |
+| HierarchicalAlignmentProofs.lean | 4 (HA01-HA04) | Structure complete |
+| EntropyProofs.lean | 1 (EP01) | Structure complete |
+| FairnessDynamicsProofs.lean | 2 (FD01-FD02) | Structure complete |
+| InformationBoundProofs.lean | 3 (IB01-IB03) | Structure complete |
 
-### Detailed File Descriptions
+### Batch 3 Files (New This Session)
 
-#### 1. TreeAuthorityProofs.lean (479 lines)
-- **Targets**: T03 `path_to_root_unique_aux`, T04 `no_cycle_bookkeeping`
-- **Key lemmas**: `stepsToRoot_parent`, `parentOrRoot_injective`, `adjacent_stepsToRoot_diff`
-- **Insight**: Depth changes by ±1 per step; cycle requires edge reuse
+#### 13. CoalitionH2Proofs.lean (192 lines)
+- **Targets**: CH01-CH04 coalition formation axioms
+- **Insight**: Coalition formation creates H² obstructions when cyclic dependencies exist
 
-#### 2. DimensionBoundProofs.lean (136 lines)
-- **Targets**: `h1_dim_components_bound`
-- **Proves**: |E| + |C| ≤ (n-1)(n-2)/2 + n
-- **Insight**: Complete graph maximizes the sum
+#### 14. CurvatureProofs.lean (174 lines)
+- **Targets**: CV01-CV03 curvature-based axioms
+- **Insight**: Negative curvature predicts conflict; integral bounded by defect count
 
-#### 3. GameTheoreticProofs.lean (115 lines)
-- **Targets**: G01 `actions_nonempty`, G02 `coordination_nash_player_bound`
-- **Approach**: WellFormedGame structure for G01; cohomological argument for G02
+#### 15. CriticalPointsProofs.lean (162 lines)
+- **Targets**: CP01-CP03 critical point axioms
+- **Insight**: Critical points = coboundary violations; count reflects misalignment
 
-#### 4. EscapeTimeProofs.lean (134 lines)
-- **Targets**: E01 `escape_time_finite_ax`, E02 `escape_time_monotone_ax`, E03 `escape_time_bounded_ax`
-- **Insight**: Escape time ≈ log(misalignment/tolerance)
+#### 16. BifurcationProofs.lean (125 lines)
+- **Targets**: BF01-BF02 bifurcation detection
+- **Insight**: Bifurcation points mark where value orderings swap
 
-#### 5. ConflictResolutionProofs.lean (173 lines)
-- **Targets**: C01 `remove_edge_from_single_cycle_aux'`, C02 `fill_triangle_h1_trivial_aux'`, C03 `resolution_edge_exists_maximal_aux`
-- **Insight**: Maximal edges can be removed to break cycles
+#### 17. ConflictLocalizationProofs.lean (147 lines)
+- **Targets**: CL01-CL02 conflict localization
+- **Insight**: Conflicts localize to disagreement edges; support bounded by disagreement
 
-#### 6. BridgeTheoryProofs.lean (173 lines)
-- **Targets**: B01 `bridge_path_decomposition`, B02 `non_v_component_path_avoids_bridge`, B03 `bridge_component_cardinality`
-- **Insight**: Bridge removal increases component count by exactly 1
+#### 18. MechanismDesignProofs.lean (132 lines)
+- **Targets**: MD01 incentive compatibility
+- **Insight**: IC mechanism exists when agents benefit from truth-telling
 
-#### 7. FairnessAllocationProofs.lean (148 lines)
-- **Targets**: F01 `h1_trivial_implies_fair_allocation`, F02 `fair_allocation_implies_h1_trivial`
-- **Insight**: Coboundary witness provides fair allocation
+#### 19. HierarchicalAlignmentProofs.lean (201 lines)
+- **Targets**: HA01-HA04 hierarchical alignment axioms
+- **Insight**: Tree hierarchies preserve alignment; cycles obstruct
 
-#### 8. StabilityProofs.lean (130 lines) ✓ COMPLETE
-- **Targets**: S01 `stability_of_h1_trivial_aux`, S02 `measurement_robustness_aux`
-- **Status**: Both theorems fully proven with triangle inequality
-- **Key theorem**: Perturbation by δ changes tolerance to ε + δ
+#### 20. EntropyProofs.lean (130 lines)
+- **Targets**: EP01 alignment entropy bound
+- **Insight**: Aligned systems have low entropy (concentrated agreement)
 
-#### 9. CompositionalProofs.lean (176 lines)
-- **Targets**: CM01-CM03 compositional alignment axioms
-- **Insight**: Forest composition preserves alignment; large disagreement breaks it
+#### 21. FairnessDynamicsProofs.lean (150 lines)
+- **Targets**: FD01-FD02 fairness dynamics
+- **Insight**: Lipschitz dynamics preserve alignment with bounded rate
 
-#### 10. H2CharacterizationProofs.lean (152 lines)
-- **Targets**: H2-01 `filled_tetrahedron_coboundary`, H2-02 `hollow_tetrahedron_h2_nontrivial_ax`
-- **Insight**: Filled tetrahedra have trivial H²; hollow ones don't
-
-#### 11. MayerVietorisProofs.lean (150 lines)
-- **Targets**: MV01 `simple_mayer_vietoris`
-- **Insight**: H¹(A∪B) = 0 when H¹(A) = H¹(B) = 0 and A∩B connected
-
-#### 12. OptimalRepairProofs.lean (156 lines)
-- **Targets**: OR01 `aligned_implies_H1_trivial`, OR02 `optimal_repair_exists_ax`
-- **Status**: OR01 fully proven; OR02 existence shown
+#### 22. InformationBoundProofs.lean (197 lines)
+- **Targets**: IB01-IB03 information bound axioms
+- **Insight**: Alignment requires O(n²|S|) information; acyclic composition preserves H²=0
 
 ## Key Technical Insights
 
@@ -99,21 +98,34 @@ Created **12 infrastructure files** targeting **27 axioms** for elimination.
 - Forest (acyclic) composition preserves H¹ = 0
 - Interface disagreement > 2ε breaks composition
 
+### Information Bounds
+- Alignment complexity: n(n-1)/2 × |S| comparisons
+- Information gain from reconciler: (n-1)|S| compression
+
+### Hierarchical Alignment
+- Tree hierarchies align when root-to-leaf chains preserve ε-closeness
+- Layer-by-layer alignment propagates through hierarchy
+
 ## Next Session Recommendations
 
-1. **Complete remaining sorries** (roughly 15 across all files):
-   - TreeAuthorityProofs: path uniqueness edge case, no-cycle pigeonhole
-   - DimensionBoundProofs: spanning forest argument
+1. **Complete remaining sorries** (roughly 30-40 across all files):
+   - Focus on algebraic proofs similar to StabilityProofs pattern
+   - TreeAuthorityProofs: path uniqueness, no-cycle pigeonhole
    - BridgeTheoryProofs: path decomposition walk construction
 
 2. **Verify compilation**: Run `make fast` once lake is available
 
-3. **High-value targets**: StabilityProofs is complete; consider similar algebraic proofs
+3. **High-value targets**:
+   - StabilityProofs pattern (triangle inequality) applicable elsewhere
+   - OptimalRepairProofs nearly complete
+
+4. **Integration**: Wire proofs back to original axiom locations
 
 ## Commit Info
 
 - **Commits**:
-  - `0f46520`: TreeAuthorityProofs, DimensionBoundProofs
-  - `ff2750e`: 10 additional infrastructure files
+  - `0f46520`: TreeAuthorityProofs, DimensionBoundProofs (batch 1)
+  - `ff2750e`: 10 additional infrastructure files (batch 2)
+  - `65af687`: 10 more infrastructure files (batch 3)
 - **Branch**: claude/prove-axioms-TKNuH (pushed)
-- **Total lines added**: ~2,400
+- **Total lines added**: ~4,100
