@@ -20,3 +20,5 @@ import Infrastructure.ComponentCountingBasic
 import Infrastructure.ExtendedGraphInfra
 import Infrastructure.TreeAcyclicityComplete
 import Infrastructure.FairnessComplexH1
+import Infrastructure.GameAxiomReplacements
+import Infrastructure.BridgeAxiomReplacements
