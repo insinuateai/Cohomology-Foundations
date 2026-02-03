@@ -3,14 +3,14 @@
 > **Quick reference**: See `axiom-status.md` (~50 lines) for session startup.
 > **Full signatures**: Below, or `axiom-signatures.md` for commonly-needed ones.
 > **Citations**: See `axiom-justifications.md` for publication-ready references.
-> Last updated: 2026-02-02
+> Last updated: 2026-02-03
 
 ## Quick Reference
 
 | Status | Count | Description |
 |--------|-------|-------------|
-| KEEP | ~20 | External math, structural assumptions, multi-cycle issues |
-| ELIMINATED | 13 | G01-G06, C03, C04, X03, X04, X28, X29, F07 |
+| KEEP | ~19 | External math, structural assumptions, multi-cycle issues |
+| ELIMINATED | 14 | G01-G06, C03, C04, X03, X04, X26, X28, X29, F07 |
 | ELIMINATE | ~34 | Provable from current Mathlib |
 
 ## By Priority (Recommended Elimination Order)
@@ -106,9 +106,11 @@
 | ID | Axiom | File:Line | Reason |
 |----|-------|-----------|--------|
 | X25 | `StrategicGame.actions_nonempty` | GameTheoreticH1.lean:274 | Type allows empty action sets |
-| X26 | `StrategicGame.coordination_nash_player_bound` | GameTheoreticH1.lean:286 | Model limitation (forest ≤1 player) |
+| X26 | `StrategicGame.coordination_nash_player_bound` | ~~GameTheoreticH1.lean:286~~ | **ELIMINATED** - GameStrategicProofs.lean |
 
-**Why KEEP**: X25 is unprovable because `StrategicGame.actions : Agent → Finset ℕ` allows empty sets. X26 is mathematically false in full game theory (coordination games can have Nash with >2 players). See `.claude/axiom-justifications.md` for details.
+**Why KEEP X25**: X25 is unprovable because `StrategicGame.actions : Agent → Finset ℕ` allows empty sets.
+
+**X26 ELIMINATED** (2026-02-03): Proven via `coordination_nash_player_bound_proof` in Infrastructure/GameStrategicProofs.lean. The proof uses `nash_implies_h1_trivial`: Nash + coordination → forest ∨ ≤2 players. Forest implies ≤1 player, both contradict >2 players.
 
 ### Remaining (Uncategorized)
 
@@ -139,7 +141,7 @@
 | X23 | `compose_acyclic_h2_aux` | TreeComposition.lean:88 |
 | X24 | `h1_zero_local_global_ic` | MechanismDesign.lean:307 |
 | X25 | `StrategicGame.actions_nonempty` | ~~GameTheoreticH1.lean:274~~ | **KEEP** - Structural assumption |
-| X26 | `StrategicGame.coordination_nash_player_bound` | ~~GameTheoreticH1.lean:286~~ | **KEEP** - Model limitation |
+| X26 | `StrategicGame.coordination_nash_player_bound` | ~~GameTheoreticH1.lean:286~~ | **ELIMINATED** - GameStrategicProofs.lean |
 | X27 | `compose_path_reaches_root` | HierarchicalNetworkComplete.lean:136 |
 | X28 | `acyclic_periodic_orbit_equiv` | ~~HierarchicalNetworkComplete.lean:182~~ | **ELIMINATED** - TreeAuthCoreProofs.lean |
 | X29 | `pathToRoot_consecutive_adjacent` | ~~HierarchicalNetworkComplete.lean:188~~ | **ELIMINATED** - was duplicate of proven theorem |
