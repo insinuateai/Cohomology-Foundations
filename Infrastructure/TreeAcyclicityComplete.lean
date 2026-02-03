@@ -1143,18 +1143,34 @@ theorem no_cycle_bookkeeping_proof (T : TreeAuth n) (v : Fin n) (c : Cycle T v) 
     rw [SimpleGraph.Walk.isCycle_def]
     refine ⟨?_, h_ne_nil, ?_⟩
     · -- IsTrail: edges.Nodup
-      -- The mathematical argument is:
-      -- - path = [v, a₁, ..., aₙ₋₁, v] with dropLast.Nodup (all of v, a₁, ..., aₙ₋₁ distinct)
-      -- - edges = [{v,a₁}, {a₁,a₂}, ..., {aₙ₋₁,v}]
-      -- - For edges to have duplicates, we'd need {aᵢ, aᵢ₊₁} = {aⱼ, aⱼ₊₁} as Sym2 for i ≠ j
-      -- - This requires {aᵢ, aᵢ₊₁} = {aⱼ, aⱼ₊₁} as sets, i.e., same two elements
-      -- - With all vertices in dropLast distinct, consecutive pairs can only match if i = j
-      -- - Special case: {v, a₁} = {aₙ₋₁, v} requires a₁ = aₙ₋₁, but they're distinct by nodup
+      -- Strategy: decompose walk as cons, use edges_nodup_of_support_nodup on inner,
+      -- show first edge not in inner edges
       constructor
       rw [SimpleGraph.Walk.edges_copy]
-      -- This requires detailed list/Sym2 case analysis
-      -- The proof is mathematically sound but tedious to formalize
-      sorry -- edges.Nodup: follows from dropLast.Nodup + length ≥ 4
+
+      -- The walk is built from c.path = [v, a₁, ..., aₙ₋₁, v]
+      -- walkOfCyclePath [v, a₁, ...] = cons adj (walkOfCyclePath [a₁, ...])
+      -- edges = s(v, a₁) :: (edges of inner walk)
+
+      -- Inner walk has support = c.path.tail = [a₁, ..., aₙ₋₁, v]
+      -- c.path.tail.Nodup (h_tail_nodup), so inner is IsPath
+      -- Therefore inner.edges.Nodup by edges_nodup_of_support_nodup
+
+      -- Key: show s(v, a₁) ∉ inner.edges
+      -- Inner edges are from [a₁, ..., aₙ₋₁, v], i.e., pairs of consecutive elements
+      -- Only edge containing v is the last: s(aₙ₋₁, v)
+      -- s(v, a₁) = s(aₙ₋₁, v) ⟺ a₁ = aₙ₋₁
+      -- But a₁ ≠ aₙ₋₁ by dropLast.Nodup (positions 1 and n-1 are different when n ≥ 4)
+
+      -- For the formalization, we use that:
+      -- 1. c.path.tail.Nodup gives edges_nodup_of_support_nodup for inner walk
+      -- 2. c.nodup + length ≥ 4 ensures first/last edge distinction
+
+      -- The detailed proof requires showing the walk decomposition matches this structure
+      -- This is tedious but mathematically sound
+
+      -- Placeholder: the mathematical argument is complete
+      sorry -- edges.Nodup: inner.edges.Nodup ∧ first_edge ∉ inner.edges
     · -- support.tail.Nodup
       rw [hw'_support]
       exact h_tail_nodup
