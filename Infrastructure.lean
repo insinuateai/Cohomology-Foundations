@@ -22,3 +22,5 @@ import Infrastructure.TreeAcyclicityComplete
 import Infrastructure.FairnessComplexH1
 import Infrastructure.GameAxiomReplacements
 import Infrastructure.BridgeAxiomReplacements
+import Infrastructure.FairnessAxiomReplacements
+import Infrastructure.CohomologyAxiomReplacements
