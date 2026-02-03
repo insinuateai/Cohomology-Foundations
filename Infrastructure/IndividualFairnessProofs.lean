@@ -158,28 +158,29 @@ theorem optimal_lipschitz_achieves [NeZero n] (m : SimilarityMetric n) (T : Allo
   intro i j
   exact optimalLipschitz_bound_pair m T i j
 
-/-- The optimal constant is minimal -/
+/-- The optimal constant is minimal (requires L ≥ 0 for n ≤ 1 case) -/
 theorem optimalLipschitz_minimal [NeZero n] (m : SimilarityMetric n) (T : Allocation n)
-    (L : ℚ) (hL : isLipschitzFair m L T) :
+    (L : ℚ) (hL_nonneg : L ≥ 0) (hL : isLipschitzFair m L T) :
     optimalLipschitz m T ≤ L := by
   unfold optimalLipschitz
   split_ifs with h
-  · have hL_nonneg : L ≥ 0 := by
-      have := hL ⟨0, NeZero.pos n⟩ ⟨0, NeZero.pos n⟩
-      simp at this
-      -- L * 0 ≥ 0, need L ≥ 0 separately
+  · -- n ≤ 1: optimalLipschitz = 0, need 0 ≤ L
+    exact hL_nonneg
+  · -- Prove L ≥ 0 using distinct elements (since n > 1)
+    have hL_nonneg : L ≥ 0 := by
+      have hn : n ≥ 2 := by omega
+      have h01 : (⟨0, NeZero.pos n⟩ : Fin n) ≠ ⟨1, by omega⟩ := by simp [Fin.ext_iff]
+      have hpos : m.dist ⟨0, NeZero.pos n⟩ ⟨1, by omega⟩ > 0 := m.pos_of_ne _ _ h01
+      have hbound := hL ⟨0, NeZero.pos n⟩ ⟨1, by omega⟩
       by_contra hL_neg
       push_neg at hL_neg
-      -- For i ≠ j with d > 0, L * d < 0 but |T i - T j| ≥ 0
-      sorry -- This case is degenerate (n ≤ 1)
-    exact hL_nonneg
-  · apply Finset.sup'_le
+      have h1 : L * m.dist ⟨0, NeZero.pos n⟩ ⟨1, by omega⟩ < 0 := mul_neg_of_neg_of_pos hL_neg hpos
+      linarith [abs_nonneg (T ⟨0, NeZero.pos n⟩ - T ⟨1, by omega⟩)]
+    apply Finset.sup'_le
     intro p _
     split_ifs with hp
     · -- p.1 = p.2: ratio is 0
-      have := hL p.1 p.1
-      simp at this
-      sorry -- Need L ≥ 0
+      exact hL_nonneg
     · -- p.1 ≠ p.2: ratio ≤ L
       have hpos : m.dist p.1 p.2 > 0 := m.pos_of_ne p.1 p.2 hp
       have hbound := hL p.1 p.2

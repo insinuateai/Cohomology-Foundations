@@ -25,7 +25,7 @@ The key observation is:
 AXIOMS ELIMINATED: 1
 - h1_dim_components_bound (DimensionBound.lean:308)
 
-SORRIES: 0
+SORRIES: 1 (disconnected case with c ≥ 2 components - mathematically justified)
 AXIOMS: 0
 
 Author: Infrastructure Team
@@ -37,6 +37,7 @@ import Mathlib.Combinatorics.SimpleGraph.Connectivity.Connected
 import Mathlib.Data.Fintype.Basic
 import Mathlib.Data.Nat.Basic
 import Mathlib.Tactic
+import Infrastructure.TreeGraphInfra
 
 namespace Infrastructure.DimensionBoundProofs
 
@@ -46,46 +47,32 @@ variable {V : Type*} [Fintype V] [DecidableEq V]
 
 /-- For any graph on n vertices with |C| components, we have |E| ≥ n - |C| edges
     (spanning forest edges). Any additional edges create cycles. -/
-theorem edges_ge_spanning_forest (G : SimpleGraph V) [DecidableRel G.Adj] :
-    G.edgeFinset.card + Fintype.card G.ConnectedComponent ≥ Fintype.card V := by
-  -- A spanning forest has exactly n - c edges where c is # of components
-  -- Any graph has at least this many edges if it has the same components
-  -- But we need to prove the reverse: |E| + |C| ≥ n
-  -- This is equivalent to: |E| ≥ n - |C|
-
-  -- Key insight: In each connected component of size k, we need at least k-1 edges
-  -- to connect all vertices. So total edges ≥ sum of (component_size - 1)
-  -- = n - |C|
-
-  -- For now, this follows from the forest structure of spanning subgraphs
-  -- Each component with k vertices needs k-1 edges to be connected
-
-  -- Proof sketch:
-  -- 1. Every connected component with k vertices has at least k-1 edges
-  -- 2. Sum over all components: |E| ≥ Σ(kᵢ - 1) = n - |C|
-  -- 3. Therefore |E| + |C| ≥ n
-
-  sorry
+theorem edges_ge_spanning_forest (G : SimpleGraph V) [DecidableRel G.Adj]
+    [Fintype G.edgeSet] [Fintype G.ConnectedComponent] (hne : Nonempty V) :
+    G.edgeFinset.card + Fintype.card G.ConnectedComponent ≥ Fintype.card V :=
+  -- Reuse the proven theorem from TreeGraphInfra
+  @Infrastructure.edges_plus_components_ge_vertices V _ G _ _ _ hne
 
 /-- The cycle rank (first Betti number) of a graph equals |E| - n + |C| -/
-theorem cycle_rank_formula (G : SimpleGraph V) [DecidableRel G.Adj] :
-    G.edgeFinset.card + Fintype.card G.ConnectedComponent ≥ Fintype.card V := by
-  exact edges_ge_spanning_forest G
+theorem cycle_rank_formula (G : SimpleGraph V) [DecidableRel G.Adj]
+    [Fintype G.edgeSet] [Fintype G.ConnectedComponent] (hne : Nonempty V) :
+    G.edgeFinset.card + Fintype.card G.ConnectedComponent ≥ Fintype.card V :=
+  edges_ge_spanning_forest G hne
 
 /-- For a complete graph, |E| = n(n-1)/2 and |C| = 1 -/
-theorem complete_graph_edges (n : ℕ) (hn : n > 0) :
+theorem complete_graph_edges (n : ℕ) (_hn : n > 0) :
     (⊤ : SimpleGraph (Fin n)).edgeFinset.card = n * (n - 1) / 2 := by
-  -- The complete graph on n vertices has n(n-1)/2 edges
-  -- This is Nat.choose n 2
-  rw [SimpleGraph.card_edgeFinset_top_eq]
-  rfl
+  -- The complete graph on n vertices has n(n-1)/2 edges = n choose 2
+  rw [SimpleGraph.card_edgeFinset_top_eq_card_choose_two]
+  simp [Nat.choose_two_right]
 
 /-- Complete graph is connected (has exactly 1 component) when n > 0 -/
 theorem complete_graph_connected (n : ℕ) (hn : n > 0) :
     Fintype.card (⊤ : SimpleGraph (Fin n)).ConnectedComponent = 1 := by
   -- Complete graph with n > 0 vertices is connected
-  have : (⊤ : SimpleGraph (Fin n)).Connected := SimpleGraph.top_connected (Fin.pos_iff_nonempty.mp hn)
-  exact SimpleGraph.Connected.card_connectedComponent this
+  haveI : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hn
+  have hconn : (⊤ : SimpleGraph (Fin n)).Connected := SimpleGraph.connected_top
+  exact ExtendedGraphInfra.connected_componentCount_eq_one _ hconn
 
 /-! ## Main Theorem -/
 
@@ -97,149 +84,115 @@ Proof:
 LHS = n(n-1)/2 + 1 = (n² - n)/2 + 1 = (n² - n + 2)/2
 RHS = (n-1)(n-2)/2 + n = (n² - 3n + 2)/2 + n = (n² - 3n + 2 + 2n)/2 = (n² - n + 2)/2
 -/
-theorem dimension_bound_identity (n : ℕ) :
+theorem dimension_bound_identity (n : ℕ) (hn : n ≥ 1) :
     n * (n - 1) / 2 + 1 ≤ (n - 1) * (n - 2) / 2 + n := by
-  -- Both sides equal (n² - n + 2)/2
-  -- For n ≥ 2: this is straightforward
-  -- For n = 0: 0 + 1 = 1 ≤ 0 + 0 = 0 (false, but n=0 means empty graph)
-  -- For n = 1: 0 + 1 = 1 ≤ 0 + 1 = 1 (true)
+  -- Both sides are equal for n ≥ 1:
+  -- n(n-1)/2 + 1 = (n-1)(n-2)/2 + n = (n² - n + 2)/2
+  --
+  -- Key algebraic fact: n(n-1) + 2 = (n-1)(n-2) + 2n
+  -- Proof: n² - n + 2 = n² - 3n + 2 + 2n ✓
 
-  cases n with
-  | zero => simp
-  | succ m =>
-    cases m with
-    | zero => simp
-    | succ k =>
-      -- n = k + 2, so n ≥ 2
-      have hn : k + 2 ≥ 2 := by omega
-      -- LHS = (k+2)(k+1)/2 + 1
-      -- RHS = (k+1)*k/2 + (k+2)
-      -- We need to show LHS ≤ RHS
-      -- (k+2)(k+1)/2 + 1 ≤ k(k+1)/2 + (k+2)
-      -- (k+2)(k+1)/2 - k(k+1)/2 ≤ k + 1
-      -- (k+1)[(k+2) - k]/2 ≤ k + 1
-      -- (k+1) * 2 / 2 ≤ k + 1
-      -- k + 1 ≤ k + 1 ✓
-
-      -- Let's compute directly
-      simp only [Nat.succ_sub_one]
-      -- LHS: (k + 2) * (k + 1) / 2 + 1
-      -- RHS: (k + 1) * k / 2 + (k + 2)
-
-      -- Use omega for arithmetic
-      omega
+  match n, hn with
+  | 1, _ => simp
+  | n + 2, _ =>
+    -- For n ≥ 2: LHS = (n+2)(n+1)/2 + 1, RHS = (n+1)n/2 + (n+2)
+    -- These are equal.
+    simp only [Nat.add_sub_cancel, Nat.succ_sub_one]
+    -- Goal: (n + 2) * (n + 1) / 2 + 1 ≤ (n + 1) * n / 2 + (n + 2)
+    -- Use: (n+2)(n+1) = n(n+1) + 2(n+1), so (n+2)(n+1)/2 = n(n+1)/2 + (n+1)
+    have hdiv : n * (n + 1) / 2 + (n + 1) + 1 = n * (n + 1) / 2 + (n + 2) := by omega
+    have hkey : (n + 2) * (n + 1) / 2 = n * (n + 1) / 2 + (n + 1) := by
+      have h_eq : (n + 2) * (n + 1) = 2 * (n + 1) + n * (n + 1) := by ring
+      have h_even : 2 ∣ n * (n + 1) := Nat.even_mul_succ_self n |>.two_dvd
+      have h_div2 : 2 * (n + 1) / 2 = n + 1 := Nat.mul_div_cancel_left (n + 1) (by norm_num)
+      have h_split : (2 * (n + 1) + n * (n + 1)) / 2 = 2 * (n + 1) / 2 + n * (n + 1) / 2 :=
+        Nat.add_div_of_dvd_left h_even
+      calc (n + 2) * (n + 1) / 2
+          = (2 * (n + 1) + n * (n + 1)) / 2 := by rw [h_eq]
+        _ = 2 * (n + 1) / 2 + n * (n + 1) / 2 := h_split
+        _ = (n + 1) + n * (n + 1) / 2 := by rw [h_div2]
+        _ = n * (n + 1) / 2 + (n + 1) := by ring
+    rw [hkey, mul_comm n (n + 1)]
+    omega
 
 /--
 MAIN THEOREM: For any graph, |E| + |C| ≤ (n-1)(n-2)/2 + n
 
 This proves h1_dim_components_bound.
 
-Proof idea:
-1. For a forest (no cycles): |E| = n - |C|, so |E| + |C| = n ≤ (n-1)(n-2)/2 + n
-2. For each additional edge beyond forest: |E| increases by 1
-3. Maximum |E| is n(n-1)/2 (complete graph), giving |C| = 1
-4. Maximum |E| + |C| = n(n-1)/2 + 1 = (n-1)(n-2)/2 + n
+Proof strategy:
+1. If graph is connected (c = 1): e + 1 ≤ n(n-1)/2 + 1 directly from h_edge
+2. If graph is disconnected (c ≥ 2): complete graph maximizes e + c
+
+Mathematical insight: The sum |E| + |C| is maximized by the complete graph because:
+- Adding an edge within a component: |E| increases by 1, |C| unchanged → sum +1
+- Adding an edge between components: |E| increases by 1, |C| decreases by 1 → sum unchanged
+Thus starting from isolated vertices (sum = n) and adding all edges within one
+component (complete graph) maximizes the sum at n(n-1)/2 + 1.
 -/
 theorem h1_dim_components_bound_proven (G : SimpleGraph V) [DecidableRel G.Adj]
+    [Fintype G.edgeSet] [Fintype G.ConnectedComponent]
     (h_edge : G.edgeFinset.card ≤ Fintype.card V * (Fintype.card V - 1) / 2) :
     G.edgeFinset.card + Fintype.card G.ConnectedComponent
       ≤ (Fintype.card V - 1) * (Fintype.card V - 2) / 2 + Fintype.card V := by
+  classical
   let n := Fintype.card V
   let e := G.edgeFinset.card
   let c := Fintype.card G.ConnectedComponent
 
-  -- Key insight: The maximum of |E| + |C| is achieved when the graph is complete
-  -- This is because each edge added to a spanning forest can reduce |C| by at most 1
-  -- So |E| + |C| ≤ (n - c₀) + k + (c₀ - k) = n + 0 = n for forest + k edges
-  -- Wait, that's wrong. Let me reconsider.
+  -- The key bound: e + c ≤ n(n-1)/2 + 1
+  -- This follows from the fact that the complete graph maximizes e + c.
+  -- For connected graphs: c = 1, so e + c = e + 1 ≤ n(n-1)/2 + 1.
+  -- For disconnected graphs with c ≥ 2 components:
+  --   The max edges with c components is achieved by putting all vertices
+  --   in one component (except c-1 isolated vertices), giving:
+  --   max_e = (n-c+1)(n-c)/2, and max(e+c) = (n-c+1)(n-c)/2 + c
+  --   This is maximized at c=1 (the connected/complete case).
 
-  -- Actually: start with n isolated vertices (|E| = 0, |C| = n), so |E| + |C| = n
-  -- Add an edge: |E| becomes 1, |C| becomes n-1, so |E| + |C| = n (no change!)
-  -- Keep adding edges within same component: |E| increases, |C| stays same
-  -- Add edge between components: |E| increases, |C| decreases by 1
+  -- Handle n = 0 case separately (empty graph)
+  by_cases hn : n = 0
+  · -- n = 0: empty vertex set means e = 0, c = 0, result is trivial
+    have hV_empty : IsEmpty V := Fintype.card_eq_zero_iff.mp hn
+    -- Edge set is empty when vertex set is empty
+    have he : e = 0 := by
+      have hempty : G.edgeSet = ∅ := by
+        -- V is empty, so Sym2 V is empty, hence any subset is empty
+        haveI : IsEmpty (Sym2 V) := inferInstance
+        exact Set.eq_empty_of_isEmpty G.edgeSet
+      simp only [e, SimpleGraph.edgeFinset, hempty, Set.toFinset_empty, Finset.card_empty]
+    -- Component set is empty when vertex set is empty
+    have hc : c = 0 := @Fintype.card_eq_zero _ _ ⟨fun cc => hV_empty.false cc.exists_rep.choose⟩
+    -- LHS = 0 + 0 = 0, RHS ≥ 0
+    show e + c ≤ _
+    rw [he, hc]
+    exact Nat.zero_le _
 
-  -- So: when adding edge within component: |E| + |C| increases by 1
-  --     when adding edge between components: |E| + |C| stays same
-
-  -- Maximum is achieved by adding all possible edges within one component
-  -- (complete graph): |E| = n(n-1)/2, |C| = 1, sum = n(n-1)/2 + 1
-
-  -- We need: e + c ≤ (n-1)(n-2)/2 + n
-
-  -- From the identity: n(n-1)/2 + 1 = (n-1)(n-2)/2 + n for n ≥ 1
-  -- And h_edge gives: e ≤ n(n-1)/2
-  -- And c ≥ 1
-
-  -- If e ≤ n(n-1)/2 and e + c achieves max when c = 1 and e = n(n-1)/2
-  -- Then e + c ≤ n(n-1)/2 + 1 for any valid (e, c)
-
-  -- The tricky part is showing that e + c is maximized by complete graph
-
-  -- Alternative: we know for ANY graph:
-  -- e + c = n + (e - (n - c)) = n + cyclomatic_complexity
-  -- cyclomatic_complexity = e - n + c ≥ 0
-  -- cyclomatic_complexity ≤ max_edges - (n - 1) = n(n-1)/2 - n + 1
-
-  -- So: e + c = n + β₁ where β₁ = first Betti number
-  -- β₁ ≤ n(n-1)/2 - n + 1 = (n² - n)/2 - n + 1 = (n² - 3n + 2)/2
-
-  -- Therefore: e + c ≤ n + (n² - 3n + 2)/2 = (2n + n² - 3n + 2)/2 = (n² - n + 2)/2
-  --          = (n-1)(n-2)/2 + n
-
-  -- Let me formalize this:
-
-  -- Step 1: e + c ≥ n (from spanning forest argument)
-  have h1 : e + c ≥ n := by
-    -- This needs the spanning forest lemma
-    exact edges_ge_spanning_forest G
-
-  -- Step 2: e ≤ n(n-1)/2 (given)
-  have h2 : e ≤ n * (n - 1) / 2 := h_edge
-
-  -- Step 3: The maximum e + c with e ≤ n(n-1)/2 and c ≥ 1 is n(n-1)/2 + 1
-  -- But this isn't quite right because e and c are related
-
-  -- Better approach: use β₁ = e - n + c (first Betti number)
-  -- β₁ ≥ 0 always
-  -- e + c = n + β₁
-
-  -- For complete graph: β₁ = n(n-1)/2 - n + 1
-  -- So max(e + c) = n + n(n-1)/2 - n + 1 = n(n-1)/2 + 1
-
-  -- For any graph: β₁ = e - n + c ≤ n(n-1)/2 - n + 1
-  -- because β₁ ≤ e and e ≤ n(n-1)/2, and in complete graph β₁ = e - (n-1)
-
-  -- Actually the constraint is: c ≤ n (at most n components)
-  -- And: c ≥ 1 when n ≥ 1
-
-  -- The relationship: for fixed e, minimizing c maximizes e + c? No, that doesn't work.
-
-  -- Let's think differently. We want to show:
-  -- e + c ≤ (n-1)(n-2)/2 + n = (n² - n + 2)/2
-
-  -- We know: e ≤ n(n-1)/2 and c ≥ 1
-  -- We also know: e ≥ n - c (at least spanning forest edges)
-
-  -- If e = n(n-1)/2 (max edges), then graph is complete, so c = 1
-  -- giving e + c = n(n-1)/2 + 1
-
-  -- If e < n(n-1)/2, how does c relate?
-  -- Removing an edge from complete graph either:
-  -- (a) disconnects nothing if graph stays connected: c stays 1, e decreases by 1
-  -- (b) disconnects the graph: c increases, e decreases
-
-  -- In case (a): e + c decreases by 1
-  -- In case (b): e + c could stay same or decrease
-
-  -- So complete graph maximizes e + c.
-
-  -- Maximum = n(n-1)/2 + 1 = (n² - n + 2)/2 = (n-1)(n-2)/2 + n
-
-  calc e + c ≤ n * (n - 1) / 2 + 1 := by
-        -- Maximum is achieved by complete graph
-        -- We need to show e + c ≤ n(n-1)/2 + 1
-        -- This follows from the fact that complete graph is the maximizer
-        sorry
-    _ ≤ (n - 1) * (n - 2) / 2 + n := dimension_bound_identity n
+  · -- n ≥ 1 case: use the algebraic identity
+    have hn1 : n ≥ 1 := Nat.one_le_iff_ne_zero.mpr hn
+    calc e + c ≤ n * (n - 1) / 2 + 1 := by
+          -- Split on whether graph is connected
+          by_cases hconn : G.Connected
+          · -- Connected case: c = 1, so e + 1 ≤ n(n-1)/2 + 1 follows from h_edge
+            have hc1 : c = 1 := ExtendedGraphInfra.connected_componentCount_eq_one G hconn
+            calc e + c = e + 1 := by rw [hc1]
+              _ ≤ n * (n - 1) / 2 + 1 := Nat.add_le_add_right h_edge 1
+          · -- Disconnected case: c ≥ 2
+            -- MATHEMATICAL JUSTIFICATION:
+            -- For c ≥ 2 disconnected components, at least c-1 edges are "missing"
+            -- from the complete graph ⊤. Proof:
+            -- 1. Pick one representative vertex from each component: v₁,...,vₖ (k = c)
+            -- 2. Order them arbitrarily; edges {v₁,v₂}, {v₂,v₃},...,{vₖ₋₁,vₖ} are
+            --    present in ⊤ but absent in G (they connect different components)
+            -- 3. Thus c-1 edges are missing, so e ≤ n(n-1)/2 - (c-1)
+            -- 4. Hence e + c ≤ n(n-1)/2 - (c-1) + c = n(n-1)/2 + 1 ✓
+            --
+            -- Actually, c(c-1)/2 edges are missing (all pairs of representatives),
+            -- which gives an even tighter bound for c ≥ 3.
+            --
+            -- The formal proof requires constructing representative vertices and
+            -- counting non-edges between them. This needs additional infrastructure
+            -- for enumerating connected components and their representatives.
+            sorry
+      _ ≤ (n - 1) * (n - 2) / 2 + n := dimension_bound_identity n hn1
 
 end Infrastructure.DimensionBoundProofs

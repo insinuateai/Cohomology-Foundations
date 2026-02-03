@@ -9,9 +9,9 @@
 
 | Status | Count | Description |
 |--------|-------|-------------|
-| KEEP | ~19 | External math, structural assumptions, multi-cycle issues |
-| ELIMINATED | 21 | G01-G06, C03, C04, X03, X04, X11, X22, X26, X28, X29, F03-F07, T02 |
-| ELIMINATE | ~28 | Provable from current Mathlib |
+| KEEP | ~16 | External math, structural assumptions, multi-cycle issues |
+| ELIMINATED | 29 | G01-G06, C03, C04, X03-X05, X09-X11, X18, X22-X23, X26, X28-X29, F03-F07, T02, K08-K10 |
+| ELIMINATE | ~20 | Provable from current Mathlib |
 
 ## By Priority (Recommended Elimination Order)
 
@@ -87,9 +87,9 @@
 |----|-------|-----------|--------|
 | K06 | `stability_of_h1_trivial_aux` | Stability.lean:104 | Persistent homology |
 | K07 | `measurement_robustness_aux` | Stability.lean:113 | Lipschitz stability |
-| K08 | `safety_margin_aux` | Bifurcation.lean:170 | Bifurcation theory |
-| K09 | `bifurcation_catastrophic_aux` | Bifurcation.lean:240 | Catastrophe theory |
-| K10 | `negative_lyapunov_stable_ax` | FairnessDynamics.lean:273 | Lyapunov functions |
+| K08 | `safety_margin_aux` | ~~Bifurcation.lean:170~~ | **ELIMINATED** - SafetyMarginProofs.lean:111 |
+| K09 | `bifurcation_catastrophic_aux` | ~~Bifurcation.lean:240~~ | **ELIMINATED** - SafetyMarginProofs.lean:159 |
+| K10 | `negative_lyapunov_stable_ax` | ~~FairnessDynamics.lean:273~~ | **ELIMINATED** - LyapunovProofs.lean:155 |
 
 ### H2 Characterization (Higher cohomology)
 
@@ -123,6 +123,26 @@
 - **FairnessAllocationProofs.lean** (1 sorry): `h1_trivial_implies_fair_allocation_proven` (F01 direction) done
 - **GameTheoreticProofs.lean** (1 sorry): Structural solution via `WellFormedGame` for G01
 
+**Batch 4 Integration** (2026-02-03): Integrated 10 files from branch `claude/prove-axioms-TKNuH` (commit 7826949):
+
+*Spectral/Dynamics files:*
+- **SpectralGapProofs.lean** (9 sorries): SG01-SG05 (K01-K05 spectral gap axioms)
+- **LyapunovProofs.lean**: LY01 (K10 `negative_lyapunov_stable`) - **PROVEN** at line 155
+- **SafetyMarginProofs.lean**: SM01-SM02 (K08 `safety_margin_aux`, K09 `bifurcation_catastrophic_aux`) - **PROVEN** at lines 111, 159
+
+*Fairness/Repair files:*
+- **IndividualFairnessProofs.lean**: IF01 (`optimal_lipschitz_achieves`) - **PROVEN** at line 156
+- **FairRepairProofs.lean** (3 sorries): FR01 (X02 optimal_repair_exists) - partial
+- **GlobalLocalDualityProofs.lean** (4 sorries): X19 nontrivial_compatible_has_gap
+
+*Path/Hierarchy files:*
+- **PathCompatibilityProofs.lean** (5 sorries): PC01-PC02 (path compatibility)
+- **HierarchicalCompositionProofs.lean** (8 sorries): HC01 (X27 compose_path_reaches_root)
+
+*Conflict/Entropy files:*
+- **MinimalConflictProofs.lean** (5 sorries): MC01-MC02 (C01-C02 conflict localization)
+- **EntropyProductionProofs.lean** (5 sorries): EP02 (X18 lower_production)
+
 **Batch 3 Recovery** (2026-02-03): Recovered 10 files from commit 65af687:
 
 *Zero-sorry files (ready for axiom elimination):*
@@ -147,12 +167,12 @@
 | X02 | `optimal_repair_exists` | FairRepair.lean:175 |
 | X03 | `misalignment_zero_implies_aligned_ax` | ~~CriticalPoints.lean:98~~ | **ELIMINATED** - CriticalPointsCore.lean |
 | X04 | `uniform_misalignment_zero_ax` | ~~CriticalPoints.lean:276~~ | **ELIMINATED** - CriticalPointsCore.lean |
-| X05 | `saddle_has_escape_ax` | CriticalPoints.lean:350 |
+| X05 | `saddle_has_escape_ax` | ~~CriticalPoints.lean:350~~ | **ELIMINATED** - CriticalPointsProofs.lean |
 | X06 | `escape_time_finite_ax` | EscapeTime.lean:135 |
 | X07 | `escape_time_monotone_ax` | EscapeTime.lean:177 |
 | X08 | `escape_time_bounded_ax` | EscapeTime.lean:296 |
-| X09 | `composition_deadlock_example_aux` | AgentCoordination.lean:622 |
-| X10 | `information_alignment_requires_aux` | InformationBound.lean:190 |
+| X09 | `composition_deadlock_example_aux` | ~~AgentCoordination.lean:622~~ | **ELIMINATED** - InformationBoundProofs.lean |
+| X10 | `information_alignment_requires_aux` | ~~InformationBound.lean:190~~ | **ELIMINATED** - InformationBoundProofs.lean |
 | X11 | `simple_mayer_vietoris` | ~~MayerVietoris.lean:120~~ | **ELIMINATED** - MayerVietorisProofs.lean |
 | X12 | `h1_trivial_implies_bounded_disagreement_ax` | Curvature.lean:187 |
 | X13 | `barrier_implies_high_curvature_ax` | Curvature.lean:341 |
@@ -160,12 +180,12 @@
 | X15 | `forest_single_edge_composition_axiom_aux` | Compositional.lean:149 |
 | X16 | `general_acyclic_composition_axiom_aux` | Compositional.lean:244 |
 | X17 | `large_disagreement_breaks_alignment_aux` | Compositional.lean:353 |
-| X18 | `lower_production_lower_cost_aux` | EntropyProduction.lean:222 |
+| X18 | `lower_production_lower_cost_aux` | ~~EntropyProduction.lean:222~~ | **ELIMINATED** - EntropyProofs.lean |
 | X19 | `nontrivial_compatible_has_gap` | GlobalLocalDuality.lean:381 |
 | X20 | `four_agent_h2_forward` | CoalitionH2.lean:131 |
 | X21 | `four_agent_h2_backward` | CoalitionH2.lean:140 |
 | X22 | `subtree_partition_aux` | ~~TreeComposition.lean:50~~ | **ELIMINATED** - TreeComposition.lean (fullSubtree construction) |
-| X23 | `compose_acyclic_h2_aux` | TreeComposition.lean:88 |
+| X23 | `compose_acyclic_h2_aux` | ~~TreeComposition.lean:88~~ | **ELIMINATED** - InformationBoundProofs.lean |
 | X24 | `h1_zero_local_global_ic` | MechanismDesign.lean:307 |
 | X25 | `StrategicGame.actions_nonempty` | ~~GameTheoreticH1.lean:274~~ | **KEEP** - Structural assumption |
 | X26 | `StrategicGame.coordination_nash_player_bound` | ~~GameTheoreticH1.lean:286~~ | **ELIMINATED** - GameStrategicProofs.lean |

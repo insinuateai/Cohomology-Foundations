@@ -15,7 +15,7 @@ SORRIES: 0
 AXIOMS: 0
 -/
 
-import Mathlib.Data.Rat.Basic
+import Mathlib.Algebra.Order.Field.Rat
 import Mathlib.Data.Fin.Basic
 import Mathlib.Data.Finset.Basic
 import Mathlib.Tactic

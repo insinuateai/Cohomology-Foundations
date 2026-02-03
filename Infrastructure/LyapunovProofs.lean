@@ -183,21 +183,56 @@ theorem strict_decrease_converges [NeZero n] (dynamics : FairnessDynamics n)
 
 /-! ## Part 5: Application to Fairness -/
 
-/-- Robin Hood dynamics: transfer from max to min -/
+/-- Index achieving maximum value -/
+noncomputable def argmaxIndex [NeZero n] (a : Allocation n) : Fin n :=
+  Finset.univ.sup' ⟨⟨0, NeZero.pos n⟩, Finset.mem_univ _⟩ (fun i => (a i, i))
+  |>.2
+
+/-- Index achieving minimum value -/
+noncomputable def argminIndex [NeZero n] (a : Allocation n) : Fin n :=
+  Finset.univ.inf' ⟨⟨0, NeZero.pos n⟩, Finset.mem_univ _⟩ (fun i => (a i, i))
+  |>.2
+
+/-- Robin Hood dynamics: transfer from max index to min index -/
 noncomputable def robinHoodDynamics [NeZero n] (δ : ℚ) (hδ : δ > 0) : FairnessDynamics n where
   step := fun a =>
-    let imax := Finset.univ.sup' ⟨⟨0, NeZero.pos n⟩, Finset.mem_univ _⟩ a
-    let imin := Finset.univ.inf' ⟨⟨0, NeZero.pos n⟩, Finset.mem_univ _⟩ a
-    -- Find indices achieving max and min
-    -- Transfer δ from max to min
+    let imax := argmaxIndex a
+    let imin := argminIndex a
+    -- Transfer δ from max index to min index
     fun i =>
-      if a i = imax then a i - δ
-      else if a i = imin then a i + δ
+      if i = imax ∧ imax ≠ imin then a i - δ
+      else if i = imin ∧ imax ≠ imin then a i + δ
       else a i
   conserves_total := by
     intro a
-    -- Transfer from one to another preserves total
-    sorry
+    simp only [total]
+    by_cases heq : argmaxIndex a = argminIndex a
+    · -- max = min: no change (at equilibrium)
+      apply Finset.sum_congr rfl
+      intro i _
+      simp only [heq, ne_eq, not_true, and_false, ↓reduceIte]
+    · -- max ≠ min: transfer δ from imax to imin, total preserved
+      have hne : argmaxIndex a ≠ argminIndex a := heq
+      -- Split the sum: imax term + imin term + rest
+      have himax_mem : argmaxIndex a ∈ Finset.univ := Finset.mem_univ _
+      have himin_mem : argminIndex a ∈ Finset.univ := Finset.mem_univ _
+      -- At imax: a - δ; at imin: a + δ; elsewhere: a
+      -- Total change: -δ + δ = 0
+      calc Finset.sum Finset.univ (fun i =>
+              if i = argmaxIndex a ∧ argmaxIndex a ≠ argminIndex a then a i - δ
+              else if i = argminIndex a ∧ argmaxIndex a ≠ argminIndex a then a i + δ
+              else a i)
+          = Finset.sum Finset.univ (fun i =>
+              a i + (if i = argminIndex a then δ else 0) - (if i = argmaxIndex a then δ else 0)) := by
+            apply Finset.sum_congr rfl
+            intro i _
+            simp only [hne, ne_eq, not_false_eq_true, and_true]
+            split_ifs with h1 h2 <;> ring
+        _ = Finset.sum Finset.univ a + δ - δ := by
+            simp only [Finset.sum_add_distrib, Finset.sum_sub_distrib]
+            simp only [Finset.sum_ite_eq', himax_mem, himin_mem, if_true]
+            ring
+        _ = Finset.sum Finset.univ a := by ring
 
 /-- Robin Hood is Lyapunov stable -/
 theorem robinHood_stable [NeZero n] (δ : ℚ) (hδ : δ > 0) :
