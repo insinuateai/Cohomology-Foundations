@@ -10,7 +10,7 @@ Key insight: Trees can be composed while preserving H¹ = 0.
 - This enables modular design of hierarchical systems
 
 QUALITY STANDARDS:
-- Axioms: 2 (subtree_partition_aux, compose_acyclic_h2_aux)
+- Axioms: 1 (compose_acyclic_h2_aux)
 - Sorries: 0
 - Core theorems: Complete
 -/
@@ -45,11 +45,20 @@ structure Subtree (H : HierarchicalNetwork S) (i : Fin H.numAgents) where
   /-- Closed under children: if j is in subtree and k is child of j, then k is in subtree -/
   children_closed : ∀ j ∈ agents, ∀ k, k ∈ H.authority.children j → k ∈ agents
 
--- TEMP: axiomatized for speed, prove by 2026-02-07
--- Proof: pathToRoot contains j (first element) and ends at root
-axiom subtree_partition_aux {S : Type*} [Fintype S] [DecidableEq S]
-    (H : HierarchicalNetwork S) (j : Fin H.numAgents) :
-    ∃ (sub : Subtree H H.root), j ∈ sub.agents
+/-- The full subtree containing all agents -/
+def fullSubtree (H : HierarchicalNetwork S) : Subtree H H.root where
+  agents := List.finRange H.numAgents
+  root_mem := List.mem_finRange H.root
+  children_closed := by intro j _ k _; exact List.mem_finRange k
+
+/-- Every agent is in the full subtree -/
+theorem mem_fullSubtree (H : HierarchicalNetwork S) (j : Fin H.numAgents) :
+    j ∈ (fullSubtree H).agents := List.mem_finRange j
+
+/-- Every agent is in some subtree of root -/
+theorem subtree_partition_aux (H : HierarchicalNetwork S) (j : Fin H.numAgents) :
+    ∃ (sub : Subtree H H.root), j ∈ sub.agents :=
+  ⟨fullSubtree H, mem_fullSubtree H j⟩
 
 /-- Every agent is in exactly one subtree of the root -/
 theorem subtree_partition (H : HierarchicalNetwork S) :

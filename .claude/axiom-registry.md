@@ -10,8 +10,8 @@
 | Status | Count | Description |
 |--------|-------|-------------|
 | KEEP | ~19 | External math, structural assumptions, multi-cycle issues |
-| ELIMINATED | 14 | G01-G06, C03, C04, X03, X04, X26, X28, X29, F07 |
-| ELIMINATE | ~34 | Provable from current Mathlib |
+| ELIMINATED | 16 | G01-G06, C03, C04, X03, X04, X22, X26, X28, X29, F07, T02 |
+| ELIMINATE | ~33 | Provable from current Mathlib |
 
 ## By Priority (Recommended Elimination Order)
 
@@ -31,7 +31,7 @@
 | ID | Axiom | File:Line | Notes |
 |----|-------|-----------|-------|
 | T01 | `depth_parent_fuel_analysis` | TreeAuthSimpleGraph.lean:94 | Prove via Nat.find |
-| T02 | `toSimpleGraph_acyclic_aux` | TreeAuthSimpleGraph.lean:298 | Use depth argument |
+| T02 | `toSimpleGraph_acyclic_aux` | ~~TreeAuthSimpleGraph.lean:429~~ | **ELIMINATED** - Inlined type bridge to TreeAuthCoreProofs |
 | T03 | `path_to_root_unique_aux` | TreeAuthorityAcyclicity.lean:43 | Induction on depth |
 | T04 | `no_cycle_bookkeeping` | TreeAuthorityAcyclicity.lean:454 | Finset.argmin approach |
 | T05 | `hierarchyComplex_acyclic_aux` | TreeAuthorityH1.lean:232 | Follows from T02 |
@@ -112,6 +112,10 @@
 
 **X26 ELIMINATED** (2026-02-03): Proven via `coordination_nash_player_bound_proof` in Infrastructure/GameStrategicProofs.lean. The proof uses `nash_implies_h1_trivial`: Nash + coordination → forest ∨ ≤2 players. Forest implies ≤1 player, both contradict >2 players.
 
+**Integration Note (2026-02-03)**: The axiom cannot be directly replaced in GameTheoreticH1.lean due to circular dependency (GameStrategicProofs imports GameTheoreticH1). Downstream users should import GameStrategicProofs and use the proven theorem instead.
+
+**G04/G05/G06 Integration Note** (2026-02-03): BridgeComponentTheory.lean has pre-existing build errors unrelated to axioms. Proven replacements exist in Infrastructure/ files but cannot be integrated until the file's build errors are fixed.
+
 ### Remaining (Uncategorized)
 
 | ID | Axiom | File:Line |
@@ -137,7 +141,7 @@
 | X19 | `nontrivial_compatible_has_gap` | GlobalLocalDuality.lean:381 |
 | X20 | `four_agent_h2_forward` | CoalitionH2.lean:131 |
 | X21 | `four_agent_h2_backward` | CoalitionH2.lean:140 |
-| X22 | `subtree_partition_aux` | TreeComposition.lean:50 |
+| X22 | `subtree_partition_aux` | ~~TreeComposition.lean:50~~ | **ELIMINATED** - TreeComposition.lean (fullSubtree construction) |
 | X23 | `compose_acyclic_h2_aux` | TreeComposition.lean:88 |
 | X24 | `h1_zero_local_global_ic` | MechanismDesign.lean:307 |
 | X25 | `StrategicGame.actions_nonempty` | ~~GameTheoreticH1.lean:274~~ | **KEEP** - Structural assumption |

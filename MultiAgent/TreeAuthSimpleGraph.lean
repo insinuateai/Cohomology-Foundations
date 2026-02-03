@@ -23,7 +23,7 @@ Acyclicity via depth function:
 Targets: Mathlib 4.27.0 / Lean 4.27.0
 
 SORRIES: 0
-AXIOMS: 2 (depth_parent_fuel_analysis, toSimpleGraph_acyclic_aux)
+AXIOMS: 1 (depth_parent_fuel_analysis)
 
 Author: Tenured Cohomology Foundations
 Date: January 2026
@@ -424,10 +424,43 @@ theorem toSimpleGraph_connected (T : TreeAuth n) (hn : 0 < n) : T.toSimpleGraph.
 
 /-! ## Section 6: Acyclicity -/
 
--- TEMP: axiomatized for speed, prove by 2026-02-07
--- Proof: depth-based minimum vertex argument shows cycle creates path contradiction
-axiom toSimpleGraph_acyclic_aux (T : TreeAuth n) (v : Fin n)
-    (p : T.toSimpleGraph.Walk v v) (hp : p.IsCycle) : False
+/-! ### Type Bridge to TreeAuthCoreProofs
+
+TreeAuthSimpleGraph.TreeAuth and TreeAuthCoreProofs.TreeAuth have identical
+structure definitions. We provide conversion to use the proven acyclicity theorem.
+-/
+
+/-- Convert TreeAuthSimpleGraph.TreeAuth to TreeAuthCoreProofs.TreeAuth -/
+private def toProofTreeAuth (T : TreeAuth n) : TreeAuthCoreProofs.TreeAuth n where
+  root := T.root
+  parent := T.parent
+  root_no_parent := T.root_no_parent
+  nonroot_has_parent := T.nonroot_has_parent
+  acyclic := T.acyclic
+  parent_ne_self := T.parent_ne_self
+
+/-- The SimpleGraphs from both TreeAuth types have the same adjacency relation -/
+private lemma toSimpleGraph_adj_iff' (T : TreeAuth n) (i j : Fin n) :
+    T.toSimpleGraph.Adj i j ↔ (toProofTreeAuth T).toSimpleGraph.Adj i j := by
+  simp only [toSimpleGraph_adj, TreeAuthCoreProofs.TreeAuth.toSimpleGraph]
+  rfl
+
+/-- The SimpleGraphs are equal -/
+private lemma toSimpleGraph_eq (T : TreeAuth n) :
+    T.toSimpleGraph = (toProofTreeAuth T).toSimpleGraph := by
+  ext i j
+  exact toSimpleGraph_adj_iff' T i j
+
+-- T02 ELIMINATED: Proven via type bridge to TreeAuthCoreProofs
+-- The proof TreeAuth has the same graph (definitionally equal adjacency)
+theorem toSimpleGraph_acyclic_aux (T : TreeAuth n) (v : Fin n)
+    (p : T.toSimpleGraph.Walk v v) (hp : p.IsCycle) : False := by
+  -- Show graphs are equal
+  have h_eq : T.toSimpleGraph = (toProofTreeAuth T).toSimpleGraph := toSimpleGraph_eq T
+  -- Use Eq.rec to transport everything at once
+  exact Eq.rec (motive := fun G _ => ∀ (q : G.Walk v v), q.IsCycle → False)
+    (fun q hq => TreeAuthCoreProofs.TreeAuth.toSimpleGraph_acyclic_aux (toProofTreeAuth T) v q hq)
+    h_eq.symm p hp
 
 /-- Key lemma: No cycle exists in the tree graph.
 

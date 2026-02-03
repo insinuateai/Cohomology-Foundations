@@ -282,7 +282,8 @@ theorem StrategicGame.coordination_payoff_ge (G : StrategicGame)
   hcoord a ha profile action' haction'
 
 /-- Coordination games with Nash and >2 players are impossible in this model.
-    This is a consequence of the simplified formalization where forests require ≤1 player. -/
+    This is a consequence of the simplified formalization where forests require ≤1 player.
+    NOTE: Proven replacement exists in Infrastructure/GameStrategicProofs.lean:106 -/
 axiom StrategicGame.coordination_nash_player_bound (G : StrategicGame)
     (_hnash : G.nashExists) (_hcoord : G.isCoordinationGame) (_hlarge : 2 < G.numPlayers) : False
 

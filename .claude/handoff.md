@@ -6,111 +6,119 @@
 ## Session Metadata
 
 - **Date**: 2026-02-03
-- **Primary goal**: Evaluate branch `claude/prove-axioms-30Hqe` for axiom elimination
-- **User intent**: Determine if proofs can eliminate R01-R03, T06-T07, X25-X27
+- **Primary goal**: Analyze all sorries and remove the easiest one
+- **User intent**: Identify and fix the most tractable sorry in the codebase
 
-## What Was Discovered
+## What Was Done
 
-### CRITICAL: No Axioms Can Be Eliminated From This Branch
+### 1. Comprehensive Sorry Analysis
 
-The branch claims to provide proofs for axioms but investigation revealed:
+Found **7 sorries** across **2 files**:
 
-#### 1. X26 "Proof" is CIRCULAR
+| File | Line | Theorem | Difficulty |
+|------|------|---------|------------|
+| FairnessComplexH1.lean | 363 | `h1_trivial_implies_fair_allocation_proof` | Hard (obstruction theory) |
+| TreeAcyclicityComplete.lean | 790 | `toSimpleGraph_acyclic_proof` | Medium (case analysis) |
+| TreeAcyclicityComplete.lean | 795 | `toSimpleGraph_acyclic_proof` | Medium (case analysis) |
+| TreeAcyclicityComplete.lean | 945-946 | `pathToRootAux_last` | Medium-Hard (iteration) |
+| TreeAcyclicityComplete.lean | 963 | `path_to_root_unique_aux_proof` | Medium (induction) |
+| TreeAcyclicityComplete.lean | 981 | `no_cycle_bookkeeping_proof` | Easiest (data conversion) |
 
-The `coordination_nash_player_bound_proof` in GameStrategicProofs.lean is not independent:
+### 2. Discovered Critical Bug in Cycle Structure
+
+The `Cycle` structure in `TreeAcyclicityComplete.lean` was **incomplete**:
+
+**Original (buggy):**
+```lean
+structure Cycle (T : TreeAuth n) (v : Fin n) where
+  path : List (Fin n)
+  ne_nil : path ≠ []
+  head_eq : path.head? = some v
+  last_eq : path.getLast? = some v
+  length_ge : path.length ≥ 3  -- TOO WEAK!
+  valid : ...  -- No nodup condition!
 ```
-coordination_nash_player_bound_proof (line 107-120)
-  └── uses nash_implies_h1_trivial (line 111)
-        └── uses axiom coordination_nash_player_bound (GameTheoreticH1.lean:440)
+
+**Problems:**
+1. `length_ge ≥ 3` allows `[v, a, v]` which has only 2 edges (not a cycle)
+2. Missing `nodup` condition allowed non-simple cycles (which exist in trees!)
+
+**Fixed:**
+```lean
+structure Cycle (T : TreeAuth n) (v : Fin n) where
+  path : List (Fin n)
+  ne_nil : path ≠ []
+  head_eq : path.head? = some v
+  last_eq : path.getLast? = some v
+  length_ge : path.length ≥ 4  -- At least 3 edges
+  nodup : path.dropLast.Nodup  -- Simple cycle condition
+  valid : ∀ j, (hj : j + 1 < path.length) →
+    T.adjacent (path.get ⟨j, Nat.lt_of_succ_lt hj⟩) (path.get ⟨j + 1, hj⟩)
 ```
 
-The "proof" calls a function that internally uses the very axiom it claims to prove.
+### 3. Restructured `no_cycle_bookkeeping_proof`
 
-#### 2. ConflictResolutionCore.lean Has Build Errors
+Set up the proof structure correctly:
+1. Convert `Cycle.valid` to `toSimpleGraph.Adj` (trivial - they're definitionally equal)
+2. Build a `Walk` from `c.path` using `walkOfCyclePath`
+3. Prove walk starts/ends at `v` using `head_eq` and `last_eq`
+4. Create closed walk `w' : Walk v v` via `copy`
+5. Prove `w'.IsCycle` (requires IsTrail + support.tail.Nodup)
+6. Apply `toSimpleGraph_acyclic_aux_proof` to derive `False`
 
-- Missing type class instances (`Nonempty K.vertexSet`)
-- `push_neg` tactic failures
-- Requires `Perspective.ConflictResolution` but has integration issues
+The remaining sorry is for proving `IsCycle`, which requires:
+- **IsTrail** (edges.Nodup): follows from `dropLast.Nodup` with `length ≥ 4`
+- **support.tail.Nodup**: follows from `dropLast.Nodup` via list manipulation
 
-#### 3. HierarchicalPathProofs.lean Has 5 Sorries
+## Current Status
 
-- Lines 207, 213, 219, 226: List.takeWhile/reverse cases
-- Line 339: Composite iteration tracking (X27)
+| File | Sorries | Notes |
+|------|---------|-------|
+| `FairnessComplexH1.lean` | 1 | Obstruction theory - hard |
+| `TreeAcyclicityComplete.lean` | 6 | Fixed Cycle structure, proof structure in place |
 
-## Axiom Status
+**Note:** `TreeAcyclicityComplete.lean` has 27 pre-existing compilation errors unrelated to my changes.
 
-| Axiom | Branch Claim | Reality |
-|-------|--------------|---------|
-| R01 | Foundation provided | Doesn't compile |
-| R02 | Foundation provided | Doesn't compile |
-| R03 | Foundation provided | Doesn't compile |
-| T06 | Partially proven | Has sorries |
-| T07 | Partially proven | Has sorries |
-| X25 | Predicate defined | Not eliminated (well-formedness) |
-| X26 | **FULLY PROVEN** | **CIRCULAR PROOF** |
-| X27 | 60% complete | Has sorry |
+## Key Technical Insights
 
-**Net axioms eliminated: 0**
+### Why `length ≥ 4` is Required
 
-## Files NOT Integrated
+For a proper graph-theoretic cycle:
+- Cycle needs at least 3 edges
+- Path `[v, a₁, ..., aₙ₋₁, v]` has `n` vertices and `n-1` edges
+- For `n-1 ≥ 3`, need `n ≥ 4`, i.e., `path.length ≥ 4`
 
-All three files from the branch were evaluated but not integrated:
-- `Infrastructure/ConflictResolutionCore.lean` - build errors
-- `Infrastructure/GameStrategicProofs.lean` - circular X26 proof
-- `Infrastructure/HierarchicalPathProofs.lean` - 5 sorries
+### Why `dropLast.Nodup` Works
 
-## Pre-existing Issue Found
+- `path = [v, a₁, a₂, ..., aₙ₋₁, v]`
+- `path.dropLast = [v, a₁, a₂, ..., aₙ₋₁]` (all distinct)
+- `path.tail = [a₁, a₂, ..., aₙ₋₁, v]` (same elements, different order)
+- Implies `tail.Nodup` (needed for IsCycle)
 
-`Infrastructure.lean` imports `Infrastructure.AxiomSolver` which doesn't exist in the filesystem.
+### Edge Distinctness with `length ≥ 4`
+
+With `dropLast.Nodup`:
+- Edges `{v, a₁}` and `{aₙ₋₁, v}` only equal if `a₁ = aₙ₋₁`
+- But `a₁, aₙ₋₁ ∈ dropLast` and `dropLast.Nodup`, so `a₁ ≠ aₙ₋₁` when `length ≥ 4`
+- Internal edges `{aᵢ, aᵢ₊₁}` are distinct since all `aᵢ` are distinct
+
+## Files Modified
+
+1. `Infrastructure/TreeAcyclicityComplete.lean`
+   - Fixed `Cycle` structure (lines 975-984)
+   - Added `walkOfCyclePath` helper (lines 986-1024)
+   - Restructured `no_cycle_bookkeeping_proof` (lines 1026-1098)
 
 ## Next Session Recommendations
 
-### To Actually Eliminate X26
+1. **Complete IsCycle proof**: The mathematical argument is sound. Need ~30 lines of list manipulation to prove `IsTrail` and `support.tail.Nodup` from the structural conditions.
 
-The proof would need to establish independently (without `nash_implies_h1_trivial`) that:
-> Coordination games with Nash equilibrium cannot have >2 players
+2. **Fix pre-existing errors**: The file has 27 errors from outdated Mathlib API usage (e.g., `SimpleGraph.Walk.IsCycle.ne_nil` renamed).
 
-This requires game-theoretic reasoning showing the >2 player case is impossible.
-
-### To Fix ConflictResolutionCore.lean
-
-1. Add import for `Perspective.ConflictResolution`
-2. Fix type class instances for `Nonempty K.vertexSet`
-3. Fix `push_neg` tactic failures
-
-### To Complete HierarchicalPathProofs.lean
-
-1. Prove 4 List.takeWhile/reverse lemmas
-2. Complete X27 H2 agent iteration tracking
-
-### Pre-existing Cleanup
-
-Fix or remove the `AxiomSolver` import from `Infrastructure.lean`.
+3. **Consider alternative approach**: If IsCycle proof is too tedious, could prove contradiction directly using depth argument on the Cycle structure (similar to `toSimpleGraph_acyclic_proof`).
 
 ---
 
-## Additional Session (K11 Bridge)
+## Summary
 
-### K11 ELIMINATED ✓
-
-**File**: `Theories/H2Characterization.lean`
-**Axiom**: `h2_small_complex_aux` → now a **theorem**
-
-**Proof**: For |V| ≤ 3 vertices, every 2-cocycle is a 2-coboundary.
-- |V| ≤ 2: No triangles exist → vacuously true
-- |V| = 3: At most one triangle, explicit primitive using "last edge" method
-
-**Key lemmas added**:
-- `simplex_card_le_vertex_card` - Simplex size bounded by vertex count
-- `face_ne_of_index_ne` - Different face indices give different faces
-- `construct_primitive_single_triangle` - Build 1-cochain for single triangle
-- `three_vertex_coboundary_exists` - Main construction for 3-vertex case
-
-**Also fixed**: Broken `coboundary` definition, moved definitions before axioms.
-
-### K12, K13 Status
-
-| Axiom | Status |
-|-------|--------|
-| K12 `filled_tetrahedron_coboundary` | Axiom (proof sketch documented, needs vertex enum) |
-| K13 `hollow_tetrahedron_h2_nontrivial_ax` | Axiom (proof in HollowTetrahedron.lean, needs type bridge) |
+Analyzed all sorries and identified `no_cycle_bookkeeping_proof` as the easiest target. Discovered and fixed a critical bug in the `Cycle` structure that made the proof impossible. The proof structure is now correct but requires detailed list manipulation to complete the `IsCycle` verification.

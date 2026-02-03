@@ -479,6 +479,190 @@ theorem adj_depth_le (T : TreeAuth n) {a b : Fin n} (h : T.toSimpleGraph.Adj a b
   | inl h1 => omega
   | inr h2 => exact h2
 
+/-- From adjacency and depth, determine parent relationship -/
+theorem parent_of_adj_depth (T : TreeAuth n) {a b : Fin n}
+    (hadj : T.toSimpleGraph.Adj a b) (hdepth : T.depth a = T.depth b + 1) :
+    T.parent a = some b := by
+  simp only [toSimpleGraph] at hadj
+  cases hadj with
+  | inl h => exact h
+  | inr h => have := (depth_parent T h).symm; omega
+
+/-- If x ∈ pathToRoot y, then depth x ≤ depth y -/
+theorem mem_pathToRoot_depth_le (T : TreeAuth n) {x y : Fin n}
+    (hmem : x ∈ T.pathToRoot y) : T.depth x ≤ T.depth y := by
+  -- Strong induction on depth of y
+  have : ∀ d, ∀ y : Fin n, T.depth y = d → x ∈ T.pathToRoot y → T.depth x ≤ T.depth y := by
+    intro d
+    induction d using Nat.strong_induction_on with
+    | _ d ih =>
+      intro y hdy hmem_y
+      cases hp : T.parent y with
+      | none =>
+        -- y is root
+        have hy_root : y = T.root := by
+          by_contra hne; have := T.nonroot_has_parent y hne; simp [hp] at this
+        subst hy_root
+        rw [pathToRoot_root] at hmem_y
+        simp at hmem_y
+        rw [hmem_y]
+      | some p =>
+        rw [pathToRoot_cons T hp, List.mem_cons] at hmem_y
+        cases hmem_y with
+        | inl heq => rw [heq]
+        | inr hmem_p =>
+          have hdep_p : T.depth p < T.depth y := depth_lt_of_parent T hp
+          have hle_p := ih (T.depth p) (hdy ▸ hdep_p) p rfl hmem_p
+          omega
+  exact this (T.depth y) y rfl hmem
+
+/-- Sibling cannot be ancestor: if a and b are both children of c, then a ∉ pathToRoot b -/
+theorem sibling_not_in_path (T : TreeAuth n) {a b c : Fin n}
+    (ha : T.parent a = some c) (hb : T.parent b = some c) (hab : a ≠ b) :
+    a ∉ T.pathToRoot b := by
+  intro hmem
+  have ha_depth : T.depth a = T.depth c + 1 := (depth_parent T ha).symm
+  have hb_depth : T.depth b = T.depth c + 1 := (depth_parent T hb).symm
+  -- pathToRoot b = b :: pathToRoot c (since parent b = some c)
+  have hpath : T.pathToRoot b = b :: T.pathToRoot c := pathToRoot_cons T hb
+  rw [hpath, List.mem_cons] at hmem
+  cases hmem with
+  | inl h => exact hab h
+  | inr h =>
+    -- a ∈ pathToRoot c means depth a ≤ depth c
+    -- But depth a = depth c + 1 > depth c - contradiction
+    have hle := T.mem_pathToRoot_depth_le h
+    omega
+
+/-- Helper: walk from child to non-descendant must go through parent -/
+theorem walk_from_child_passes_parent (T : TreeAuth n) {x a b : Fin n}
+    (hxa : T.parent x = some a) (hdepth : T.depth x > T.depth b)
+    (w : T.toSimpleGraph.Walk x b) : a ∈ w.support := by
+  match w with
+  | .nil =>
+    -- x = b contradicts depth(x) > depth(b)
+    simp only [gt_iff_lt, lt_self_iff_false] at hdepth
+  | @SimpleGraph.Walk.cons _ _ _ y _ hadj w' =>
+    simp only [SimpleGraph.Walk.support_cons, List.mem_cons]
+    -- hadj : Adj x y, w' : Walk y b
+    -- Goal: a = x ∨ a ∈ w'.support
+    simp only [toSimpleGraph] at hadj
+    cases hadj with
+    | inl hxy =>
+      -- parent x = some y, combined with parent x = some a gives y = a
+      rw [hxa] at hxy; cases hxy
+      -- Now y = a, and w' : Walk a b, so a ∈ w'.support
+      right; exact SimpleGraph.Walk.start_mem_support w'
+    | inr hyx =>
+      -- parent y = some x, so y is child of x
+      -- depth(y) = depth(x) + 1 > depth(b), so y is also deeper than b
+      have hdepth_y : T.depth y = T.depth x + 1 := (depth_parent T hyx).symm
+      have hdepth' : T.depth y > T.depth b := by omega
+      -- By recursion, walk from y to b passes through x
+      have hx_mem : x ∈ w'.support := walk_from_child_passes_parent T hyx hdepth' w'
+      -- Split w' at x and show a ∈ suffix
+      obtain ⟨w1, w2, hw'_eq⟩ := SimpleGraph.Walk.mem_support_iff_exists_append.mp hx_mem
+      -- w2 is a walk from x to b, apply recursively
+      have hdepth2 : T.depth x > T.depth b := by omega
+      have ha_in_w2 : a ∈ w2.support := walk_from_child_passes_parent T hxa hdepth2 w2
+      -- a ∈ w2.support ⊆ w'.support (via the tail of w2.support)
+      right
+      rw [hw'_eq, SimpleGraph.Walk.support_append]
+      -- w'.support = w1.support ++ w2.support.tail
+      -- a ∈ w2.support, and w2 starts at x, so a ∈ x :: w2.support.tail
+      have hax : a ≠ x := by intro h; rw [h] at hxa; exact T.parent_ne_self x hxa
+      have ha_tail : a ∈ w2.support.tail := by
+        rw [SimpleGraph.Walk.support_eq_cons w2, List.mem_cons] at ha_in_w2
+        rcases ha_in_w2 with rfl | h
+        · exact (hax rfl).elim
+        · exact h
+      exact List.mem_append_right _ ha_tail
+termination_by w.length
+
+/-- Key lemma: In a tree, any walk between siblings must pass through their parent -/
+theorem walk_between_siblings_passes_parent (T : TreeAuth n) {a b c : Fin n}
+    (ha : T.parent a = some c) (hb : T.parent b = some c) (hab : a ≠ b)
+    (w : T.toSimpleGraph.Walk a b) : c ∈ w.support := by
+  match w with
+  | .nil => exact (hab rfl).elim
+  | @SimpleGraph.Walk.cons _ _ _ x _ hadj w' =>
+    simp only [SimpleGraph.Walk.support_cons, List.mem_cons]
+    -- hadj : Adj a x, w' : Walk x b
+    -- Goal: c = a ∨ c ∈ w'.support
+    simp only [toSimpleGraph] at hadj
+    cases hadj with
+    | inl hax =>
+      -- parent a = some x, but parent a = some c, so x = c
+      rw [ha] at hax; cases hax
+      -- Now x = c, and c ∈ w'.support (it's the first element)
+      right; exact SimpleGraph.Walk.start_mem_support w'
+    | inr hxa =>
+      -- parent x = some a, so x is child of a (grandchild of c)
+      by_cases hxc : x = c
+      · right; rw [← hxc]; exact SimpleGraph.Walk.start_mem_support w'
+      · right
+        -- depth(x) = depth(a) + 1 = depth(c) + 2 > depth(c) + 1 = depth(b)
+        have hdepth_x : T.depth x = T.depth a + 1 := (depth_parent T hxa).symm
+        have hdepth_a : T.depth a = T.depth c + 1 := (depth_parent T ha).symm
+        have hdepth_b : T.depth b = T.depth c + 1 := (depth_parent T hb).symm
+        have hdepth : T.depth x > T.depth b := by omega
+        -- Walk from x to b must pass through a (x's parent)
+        have ha_mem : a ∈ w'.support := walk_from_child_passes_parent T hxa hdepth w'
+        -- Split w' at a
+        obtain ⟨w1, w2, hw'_eq⟩ := SimpleGraph.Walk.mem_support_iff_exists_append.mp ha_mem
+        -- w2 is a walk from a to b, apply recursively
+        have hc_in_w2 : c ∈ w2.support := walk_between_siblings_passes_parent T ha hb hab w2
+        -- c ∈ w2.support ⊆ w'.support (via the tail of w2.support)
+        rw [hw'_eq, SimpleGraph.Walk.support_append]
+        -- w'.support = w1.support ++ w2.support.tail
+        -- c ∈ w2.support, and w2 starts at a
+        have hca : c ≠ a := by intro h; rw [h] at ha; exact T.parent_ne_self a ha
+        have hc_tail : c ∈ w2.support.tail := by
+          rw [SimpleGraph.Walk.support_eq_cons w2, List.mem_cons] at hc_in_w2
+          rcases hc_in_w2 with rfl | h
+          · exact (hca rfl).elim
+          · exact h
+        exact List.mem_append_right _ hc_tail
+termination_by w.length
+
+/-- Build a Walk from a list where consecutive elements are adjacent -/
+def walkOfList (T : TreeAuth n) (vs : List (Fin n)) (hne : vs ≠ [])
+    (hadj : ∀ i, (hi : i + 1 < vs.length) →
+      T.toSimpleGraph.Adj (vs[i]'(Nat.lt_of_succ_lt hi)) (vs[i + 1]'hi)) :
+    T.toSimpleGraph.Walk (vs.head hne) (vs.getLast hne) :=
+  match vs, hne with
+  | [_], _ => .nil
+  | a :: b :: rest, _ =>
+    let h1 : 0 + 1 < (a :: b :: rest).length := by simp
+    have hadj0 : T.toSimpleGraph.Adj a b := hadj 0 h1
+    have hne' : (b :: rest) ≠ [] := List.cons_ne_nil _ _
+    have hadj' : ∀ i, (hi : i + 1 < (b :: rest).length) →
+        T.toSimpleGraph.Adj ((b :: rest)[i]'(Nat.lt_of_succ_lt hi)) ((b :: rest)[i + 1]'hi) := by
+      intro i hi
+      have h2 : (i + 1) + 1 < (a :: b :: rest).length := by simp at hi ⊢; omega
+      exact hadj (i + 1) h2
+    .cons hadj0 (walkOfList T (b :: rest) hne' hadj')
+termination_by vs.length
+
+/-- The support of walkOfList contains exactly the input list -/
+theorem walkOfList_support (T : TreeAuth n) (vs : List (Fin n)) (hne : vs ≠ [])
+    (hadj : ∀ i, (hi : i + 1 < vs.length) →
+      T.toSimpleGraph.Adj (vs[i]'(Nat.lt_of_succ_lt hi)) (vs[i + 1]'hi)) :
+    (walkOfList T vs hne hadj).support = vs := by
+  match vs, hne with
+  | [x], _ => simp [walkOfList, SimpleGraph.Walk.support_nil]
+  | a :: b :: rest, _ =>
+    simp only [walkOfList, SimpleGraph.Walk.support_cons]
+    have hne' : (b :: rest) ≠ [] := List.cons_ne_nil _ _
+    have hadj' : ∀ i, (hi : i + 1 < (b :: rest).length) →
+        T.toSimpleGraph.Adj ((b :: rest)[i]'(Nat.lt_of_succ_lt hi)) ((b :: rest)[i + 1]'hi) := by
+      intro i hi
+      have h2 : (i + 1) + 1 < (a :: b :: rest).length := by simp at hi ⊢; omega
+      exact hadj (i + 1) h2
+    have ih := walkOfList_support T (b :: rest) hne' hadj'
+    exact congrArg (a :: ·) ih
+termination_by vs.length
+
 /-- No cycle via depth argument - the core lemma
 
 Proof outline: Consider minimum depth vertex m in the cycle's tail.
@@ -766,9 +950,15 @@ theorem no_cycle_via_depth_aux (T : TreeAuth n) (hn : 0 < n) (v : Fin n) (c : SG
           have hp_idx : m_idx - 1 - 1 < rest.length := by omega
           have hs_idx : m_idx + 1 - 1 < rest.length := by simp [hcv] at hsucc_exists; omega
           have hpred' : pred = rest[m_idx - 1 - 1]'hp_idx := by
-            -- TODO: Fix dependent type issue with index rewriting
+            -- pred = c.vertices[m_idx - 1] = (head :: rest)[m_idx - 1]
+            -- Since m_idx ≥ 2, m_idx - 1 ≥ 1, so (head :: rest)[m_idx - 1] = rest[m_idx - 2]
+            have hlt : (m_idx - 1 - 1) + 1 < (head :: rest).length := by
+              simp only [hcv] at hpred_idx_lt; omega
+            have heq : (head :: rest)[(m_idx - 1 - 1) + 1]'hlt = rest[m_idx - 1 - 1]'hp_idx :=
+              List.getElem_cons_succ head rest (m_idx - 1 - 1) hlt
             simp only [pred, hcv]
-            sorry
+            convert heq using 2
+            omega
           have hsucc' : succ = rest[m_idx + 1 - 1]'hs_idx := by
             simp only [succ, hcv, Nat.add_sub_cancel, List.getElem_cons_succ]
           rw [hpred', hsucc'] at heq
@@ -1165,8 +1355,18 @@ theorem no_cycle_via_depth_aux (T : TreeAuth n) (hn : 0 < n) (v : Fin n) (c : SG
             have hv_last : rest[rest.length - 1]'hlast_idx = v := by
               have hfinish := c.finish_eq
               have hrest_ne : rest ≠ [] := by intro h; simp [h] at hrest_len
-              -- TODO: Fix getLast lemma application
-              sorry
+              -- (head :: rest).getLast? = some v
+              have hfull_ne : (head :: rest : List (Fin n)) ≠ [] := List.cons_ne_nil _ _
+              simp only [hcv] at hfinish
+              rw [List.getLast?_eq_some_getLast hfull_ne] at hfinish
+              have hlast_eq_v : (head :: rest).getLast hfull_ne = v := Option.some.inj hfinish
+              -- (head :: rest).getLast = rest.getLast when rest ≠ []
+              have hcons_last : (head :: rest).getLast hfull_ne = rest.getLast hrest_ne :=
+                List.getLast_cons hrest_ne
+              rw [hcons_last] at hlast_eq_v
+              -- rest.getLast = rest[rest.length - 1]
+              rw [← List.getLast_eq_getElem hrest_ne]
+              exact hlast_eq_v
             have h1_ne_last : (1 : ℕ) ≠ rest.length - 1 := by omega
             have hnodup' : rest.Nodup := by simp only [hcv, List.tail_cons] at hnodup; exact hnodup
             -- heq : pred = succ, hpred' : pred = head, hsucc' : succ = rest[1]
@@ -1253,18 +1453,521 @@ theorem no_cycle_via_depth_aux (T : TreeAuth n) (hn : 0 < n) (v : Fin n) (c : SG
       -- But in a tree, any path between siblings must go through their parent
       -- This is a contradiction
       --
-      -- Key insight: The edge succ - c[m_idx+2] in the cycle means either:
-      -- (a) parent(succ) = c[m_idx+2], i.e., m = c[m_idx+2]. But by Nodup, c[m_idx] ≠ c[m_idx+2].
-      -- (b) parent(c[m_idx+2]) = succ
-      -- Since (a) leads to contradiction, we have (b). So c[m_idx+2] is a child of succ.
-      -- Similarly, c[m_idx-2] is a child of pred.
-      -- The LCA of vertices in subtree(succ) and subtree(pred) is m.
-      -- So any path between them must include m. But the cycle path doesn't.
-      --
-      -- The proof traces edges in the cycle path and shows that some vertex would need
-      -- two different parents, which is impossible since parent is a function.
-      -- TODO: Complete this proof by formalizing the "two parents" contradiction.
-      sorry
+      -- Build the walk from succ to pred using cycle vertices, avoiding m
+      -- The path goes: succ → c[m_idx+2] → ... → c[last-1] → v → c[1] → ... → pred
+      -- Since m is at index m_idx and we skip that index, m ∉ path
+
+      -- First, we build a walk from succ to pred using the cycle's adjacency
+      -- The cycle wraps: succ = c[m_idx+1] → ... → c[last] = v = c[0] → ... → c[m_idx-1] = pred
+
+      -- Key observation: since m_idx + 1 < c.vertices.length (hsucc_exists),
+      -- m is NOT at the last position, so m ≠ v (since v is at positions 0 and last)
+      have hm_ne_v : m ≠ v := by
+        intro heq
+        -- If m = v, then m is at the last position of the tail (since tail ends with v)
+        -- But m is at index idx in the tail, where idx = m_idx - 1
+        -- The tail's last index is rest.length - 1
+        -- If m = v, then idx = rest.length - 1
+        -- So m_idx - 1 = rest.length - 1, i.e., m_idx = rest.length
+        -- But m_idx < c.vertices.length - 1 (since hsucc_exists says m_idx + 1 < c.vertices.length)
+        -- c.vertices.length = 1 + rest.length (from hcv), so m_idx < rest.length
+        -- This contradicts m_idx = rest.length
+        have hm_idx_bound : m_idx < rest.length := by simp [hcv] at hsucc_exists; omega
+        -- v is at the last position of rest (from finish_eq)
+        have hrest_ne : rest ≠ [] := by intro h; simp [h] at hrest_len
+        have hfull_ne : (head :: rest : List (Fin n)) ≠ [] := List.cons_ne_nil _ _
+        have hfinish := c.finish_eq
+        simp only [hcv] at hfinish
+        rw [List.getLast?_eq_some_getLast hfull_ne] at hfinish
+        have hlast_eq_v : (head :: rest).getLast hfull_ne = v := Option.some.inj hfinish
+        have hcons_last : (head :: rest).getLast hfull_ne = rest.getLast hrest_ne := List.getLast_cons hrest_ne
+        rw [hcons_last] at hlast_eq_v
+        have hv_idx : rest[rest.length - 1]'(by omega) = v := by
+          rw [← List.getLast_eq_getElem hrest_ne]; exact hlast_eq_v
+        have hm_at : rest[idx] = m := hm_at_rest_idx
+        rw [heq] at hm_at
+        -- hm_at : rest[idx] = v
+        have hnodup' : rest.Nodup := by simp only [hcv, List.tail_cons] at hnodup; exact hnodup
+        have hidx_eq : idx = rest.length - 1 := by
+          have h1 : rest[idx]'hidx_tail = v := hm_at
+          have h2 : rest[rest.length - 1]'(by omega) = v := hv_idx
+          exact (List.Nodup.getElem_inj_iff hnodup').mp (h1.trans h2.symm)
+        have : m_idx = rest.length := by simp only [m_idx, hidx_eq]; omega
+        omega
+
+      -- Use walk_between_siblings_passes_parent: any walk from pred to succ must pass through m
+      -- But we can build a walk from pred to succ using cycle that avoids m
+
+      -- The walk uses the cycle going "backwards" from pred through v to succ
+      -- Actually, let's just use the fact that adjacency is symmetric
+
+      -- Build the path vertices: we go from pred backwards to c[0] = v, then from v forwards to succ
+      -- Path: pred = c[m_idx-1] ← c[m_idx-2] ← ... ← c[1] ← c[0] = v → c[last] → ... → c[m_idx+1] = succ
+      -- In terms of adjacencies: pred - c[m_idx-2] - ... - c[1] - v - c[last-1] - ... - succ
+
+      -- Actually this is getting complex. Let me use a simpler observation:
+      -- The cycle tail is [c[1], ..., c[last]], which is Nodup and contains m at index idx = m_idx - 1.
+      -- The vertices pred, succ are in the tail at indices m_idx - 2 and m_idx (for m_idx ≥ 2) or similar.
+      -- We can extract a sublist that goes from one to the other, avoiding m.
+
+      -- Even simpler: use hw_support from walkOfList on a suitable segment
+
+      -- For now, observe that by walk_between_siblings_passes_parent applied to ANY walk from pred to succ,
+      -- m must be in the walk. But the cycle provides a path avoiding m.
+      -- Let's extract that path from the cycle structure.
+
+      -- The cycle vertices form a closed loop: v, c[1], c[2], ..., c[last-1], v
+      -- pred is at index m_idx - 1, succ at m_idx + 1, m at m_idx
+      -- The "long way" from pred to succ avoiding m:
+      --   pred ← c[m_idx-2] ← ... ← c[1] ← v → c[last-1] → ... → c[m_idx+2] → succ
+      -- Note: v = c[0] = c[last], and we use adjacencies from the cycle
+
+      -- Path from pred to v: c[m_idx-1], c[m_idx-2], ..., c[1], c[0] = v
+      -- Path from v to succ: c[0] = v = c[last], c[last-1], ..., c[m_idx+2], c[m_idx+1] = succ
+
+      -- Actually the adjacencies in the cycle are c[i] - c[i+1] for i = 0, ..., last-1
+      -- So for reversed path we need to use that SimpleGraph.Adj is symmetric
+
+      -- For simplicity, let's use a direct argument:
+      -- Consider the walk from pred to succ that goes through v (the "long way")
+      -- This walk exists by the cycle structure and doesn't include m
+
+      -- Extract path segments from cycle
+      -- Segment 1: pred = c[m_idx-1] → c[m_idx-2] → ... → c[0] = v (reversed direction)
+      -- Segment 2: v = c[last] → c[last-1] → ... → c[m_idx+1] = succ (reversed direction)
+
+      -- Since the graph is simple (undirected), adjacency is symmetric
+      -- So we can walk in either direction along cycle edges
+
+      -- The combined path has vertices:
+      -- [pred, c[m_idx-2], ..., c[1], v, c[last-1], ..., c[m_idx+2], succ]
+      -- m is at index m_idx, and this path uses indices:
+      -- m_idx-1, m_idx-2, ..., 1, 0 (=last), last-1, ..., m_idx+2, m_idx+1
+      -- None of these equals m_idx, so m is not in the path!
+
+      -- Build the walk using walkOfList on the appropriate vertex list
+      -- First segment: [c[m_idx-1], c[m_idx-2], ..., c[0]] (length = m_idx)
+      -- Second segment: [c[last-1], c[last-2], ..., c[m_idx+1]] (length = last - 1 - m_idx)
+      -- Combined with v in the middle, total length = m_idx + 1 + (last - 1 - m_idx) = last
+
+      -- This is getting quite complex. Let me use a simpler approach:
+      -- Use the existing infrastructure to show m must be in any walk between its children,
+      -- then show that the cycle structure gives a walk without m.
+
+      -- Apply walk_between_siblings_passes_parent with a walk from pred to succ
+      -- that we construct from the cycle
+
+      -- For this first sorry, let's use a cleaner construction:
+      -- Note that pred - m - succ are consecutive in the cycle
+      -- The rest of the cycle forms a path from succ back to pred avoiding m
+
+      -- Vertices from succ to pred avoiding m (going the long way):
+      -- Start: succ = c[m_idx+1]
+      -- Through: c[m_idx+2], ..., c[last-1], c[last]=v=c[0], c[1], ..., c[m_idx-2]
+      -- End: pred = c[m_idx-1]
+
+      -- Wait, but this goes through v = c[0] = c[last], which is NOT m (we proved hm_ne_v)
+
+      -- The path vertices list (from succ to pred):
+      let path_len := c.vertices.length - 2  -- total - 2 (removing m's neighbors transition)
+
+      -- Actually, let me just use the symmetry of the problem.
+      -- We have pred and succ as children of m, and a cycle that connects them without m.
+      -- The cycle structure guarantees such a path exists.
+
+      -- Use the existing walk_between_siblings_passes_parent lemma
+      -- We need to construct a walk from pred to succ (or succ to pred) that avoids m
+      -- and show this contradicts the lemma
+
+      -- For the cycle structure, note that the tail vertices [c[1], ..., c[last]] form a chain
+      -- with edges c[i] - c[i+1]. We can pick out the path from succ to pred.
+
+      -- The tail indices for succ and pred:
+      -- succ = c[m_idx+1] = rest[m_idx] (since c[k] = rest[k-1] for k ≥ 1)
+      -- pred = c[m_idx-1] = rest[m_idx-2] (for m_idx ≥ 2) or = c[0] = v (for m_idx = 1)
+      -- m = c[m_idx] = rest[m_idx-1] = rest[idx]
+
+      -- Case: m_idx ≥ 2 (m is in the interior of the cycle, not at position 1)
+      -- Then both pred and succ are in rest (the tail)
+      -- The path from succ to pred avoiding m in rest:
+      -- Option A: succ → rest[m_idx+1] → ... → rest[last-1] = v → rest[0] → ... → pred
+      --   (wraps around v)
+      -- Option B: Just observe indices in tail are different and use Nodup
+
+      -- Let me simplify by using the adjacency directly
+      -- The cycle provides edges. We build a walk from the edges.
+
+      -- For any walk w from pred to succ in T.toSimpleGraph:
+      --   walk_between_siblings_passes_parent says m ∈ w.support
+      -- The cycle provides such a walk (going the long way) where m ∉ support
+      -- This is a contradiction
+
+      -- I'll construct the walk by showing the cycle edges give adjacencies
+      -- and using walkOfList on a sublist of cycle vertices
+
+      -- Get the path from succ back to pred going through v
+      -- In the cycle list, this means taking c[m_idx+1..last] ++ c[0..m_idx-1]
+      -- But c[last] = c[0] = v, so we can merge at v
+
+      -- Actually, let's use a very direct approach:
+      -- We apply walk_between_siblings_passes_parent to get m ∈ walk.support for any walk
+      -- But the cycle's "other path" doesn't contain m
+      -- The "other path" vertices are: cycle vertices except {m}
+      -- These form a connected path from pred to succ (via v)
+
+      -- Using the fact that the cycle has edges between consecutive vertices,
+      -- and m appears only once (at m_idx), the path without m is:
+      -- c[0] - c[1] - ... - c[m_idx-1] = pred and
+      -- succ = c[m_idx+1] - c[m_idx+2] - ... - c[last] = v = c[0]
+      -- Connected at v = c[0] = c[last]
+
+      -- For the walk, we use: [pred, c[m_idx-2], ..., c[1], v, c[last-1], ..., succ]
+      -- reversed from pred to succ direction
+
+      -- Since this is getting very long, let me use a structural approach:
+      -- Note that with m_idx+1 < c.vertices.length and m_idx ≥ 1,
+      -- the cycle has at least 4 vertices, and we can always find a path avoiding m.
+
+      -- The key is: in a cycle of length ≥ 4 with vertices [v, x1, ..., xn, v],
+      -- for any interior vertex m (not at position 0 or n+1),
+      -- there's a path from pred to succ not using m.
+
+      -- This path exists because the cycle is connected and m is not a cut vertex
+      -- (in a cycle, no vertex is a cut vertex)
+
+      -- Rather than constructing the walk explicitly, let me use proof by contradiction:
+      -- Assume the walk from pred to succ avoiding m doesn't exist.
+      -- But the cycle structure guarantees it does (cycle with ≥4 vertices, m interior)
+      -- So we have a contradiction.
+
+      -- Actually, let's just use omega on the impossible case
+      -- Since we're in the hsucc_exists branch with all the constraints,
+      -- and we've established pred and succ are both children of m,
+      -- the walk_between_siblings_passes_parent gives us the contradiction.
+
+      -- Use the cycle to build a walk that avoids m, then apply the lemma
+      -- The contradiction comes from m being required (by lemma) but absent (by construction)
+
+      -- Build walk from pred to succ using cycle vertices excluding m
+      -- Path indices: m_idx-1, m_idx-2, ..., 1, 0, last, last-1, ..., m_idx+2, m_idx+1
+      -- Note: 0 and last are both v, so the path goes through v once
+
+      -- Since c[0] = c[last] = v and m ≠ v, this path doesn't include m
+
+      have hpath_exists : ∃ (w : T.toSimpleGraph.Walk pred succ), m ∉ w.support := by
+        -- Build the walk from pred to succ going through v
+        -- This avoids m because m_idx is not in the index range we use
+
+        -- The path uses: pred → c[m_idx-2] → ... → c[1] → v → c[last-1] → ... → succ
+        -- With adjacencies from the cycle (reversed as needed)
+
+        -- Using SimpleGraph.Walk.reverse, we can reverse walks as needed
+        -- First build walk from v to pred (using c[0] → c[1] → ... → c[m_idx-1])
+        -- Then build walk from v to succ (using c[0] = c[last] → c[last-1] → ... → c[m_idx+1])
+        -- Reverse the first and concatenate
+
+        -- Get v (head of cycle)
+        have hstart := c.start_eq
+        simp only [hcv, List.head?_cons] at hstart
+        have hhead_eq_v : head = v := Option.some.inj hstart
+        have hrest_ne : rest ≠ [] := by intro h; simp [h] at hrest_len
+
+        -- Get finish vertex = v
+        have hfinish' := c.finish_eq
+        simp only [hcv] at hfinish'
+        have hfull_ne' : (head :: rest : List (Fin n)) ≠ [] := List.cons_ne_nil _ _
+        rw [List.getLast?_eq_some_getLast hfull_ne'] at hfinish'
+        have hlast_eq_v' : (head :: rest).getLast hfull_ne' = v := Option.some.inj hfinish'
+
+        -- Build list of vertices from pred to v (backwards in cycle)
+        -- and from v to succ (also backwards in cycle)
+
+        -- The key observation: we have a cycle with consecutive edges
+        -- m is at position m_idx, pred at m_idx-1, succ at m_idx+1
+        -- Going from pred backwards to c[0]=v uses positions m_idx-1, m_idx-2, ..., 1, 0
+        -- Going from c[last]=v backwards to succ uses positions last, last-1, ..., m_idx+1
+        -- Note: c[0] = c[last] = v (same vertex)
+
+        -- Use SimpleGraph adjacency symmetry: if Adj a b then Adj b a
+        -- The cycle gives Adj c[j] c[j+1], so we also have Adj c[j+1] c[j]
+
+        -- For simplicity, construct the walk using the fact that the graph is connected
+        -- and m is not on the "other half" of the cycle
+
+        -- Strategy: Build walks segment by segment
+
+        -- Segment 1: from pred = c[m_idx-1] to v = c[0], going through c[m_idx-2], ..., c[1]
+        -- This is the reverse of the walk from v to pred
+
+        -- First, we build a walk from c[0] = v to c[m_idx-1] = pred
+        -- Vertices: [c[0], c[1], ..., c[m_idx-1]]
+
+        -- Get the list slice c[0..m_idx-1]
+        let seg1_vertices := (c.vertices.take m_idx)
+        have hseg1_ne : seg1_vertices ≠ [] := by
+          simp only [seg1_vertices]
+          have hseg1_len : (List.take m_idx c.vertices).length = m_idx := by
+            rw [List.length_take, Nat.min_eq_left (by omega : m_idx ≤ c.vertices.length)]
+          intro h
+          rw [h] at hseg1_len
+          simp at hseg1_len
+          omega
+
+        -- seg1_vertices = [c[0], c[1], ..., c[m_idx-1]]
+        have hseg1_head : seg1_vertices.head hseg1_ne = v := by
+          simp only [seg1_vertices, hcv]
+          have htake_ne' : List.take m_idx (head :: rest) ≠ [] := by
+            have hseg1_len : (List.take m_idx (head :: rest)).length = m_idx := by
+              rw [List.length_take, Nat.min_eq_left (by simp; omega : m_idx ≤ (head :: rest).length)]
+            intro h; rw [h] at hseg1_len; simp at hseg1_len; omega
+          rw [List.head_eq_getElem_zero htake_ne']
+          simp only [List.getElem_take, List.getElem_cons_zero]
+          exact hhead_eq_v
+
+        have hseg1_last : seg1_vertices.getLast hseg1_ne = pred := by
+          simp only [seg1_vertices, hcv]
+          -- The last element is c.vertices[m_idx - 1] = pred
+          have hm_lt : m_idx ≤ (head :: rest).length := by simp; omega
+          have htake_ne : List.take m_idx (head :: rest) ≠ [] := by
+            have htake_len : (List.take m_idx (head :: rest)).length = m_idx := by
+              rw [List.length_take, Nat.min_eq_left hm_lt]
+            intro h; rw [h] at htake_len; simp at htake_len; omega
+          rw [List.getLast_eq_getElem htake_ne]
+          have htake_len : (List.take m_idx (head :: rest)).length = m_idx := by
+            rw [List.length_take, Nat.min_eq_left hm_lt]
+          simp only [List.getElem_take, htake_len]
+          simp only [pred, hcv]
+
+        -- Adjacencies for seg1
+        have hseg1_adj : ∀ i, (hi : i + 1 < seg1_vertices.length) →
+            T.toSimpleGraph.Adj (seg1_vertices[i]'(Nat.lt_of_succ_lt hi)) (seg1_vertices[i+1]'hi) := by
+          intro i hi
+          simp only [seg1_vertices, List.length_take, Nat.min_eq_left (by omega : m_idx ≤ c.vertices.length)] at hi
+          have hi1 : i < m_idx := by omega
+          have hi2 : i + 1 < m_idx := by omega
+          simp only [seg1_vertices, List.getElem_take]
+          -- Get adjacency from cycle
+          have hcadj := c.adjacent i (by simp [hcv]; omega)
+          obtain ⟨a, b, ha, hb, hab⟩ := hcadj
+          have ha' : a = c.vertices[i] := by
+            rw [List.getElem?_eq_getElem (by simp [hcv]; omega)] at ha
+            exact Option.some.inj ha.symm
+          have hb' : b = c.vertices[i+1] := by
+            rw [List.getElem?_eq_getElem (by simp [hcv]; omega)] at hb
+            exact Option.some.inj hb.symm
+          rw [← ha', ← hb']; exact hab
+
+        -- Build walk from v to pred
+        let w1 := walkOfList T seg1_vertices hseg1_ne hseg1_adj
+
+        -- w1 goes from v to pred; reverse it to get pred to v
+        let w1_rev := w1.reverse
+
+        -- Now build segment 2: from v = c[last] to succ = c[m_idx+1]
+        -- Going backwards: c[last], c[last-1], ..., c[m_idx+1]
+
+        -- Get the list slice and reverse it
+        let seg2_len := c.vertices.length - m_idx - 1
+        let seg2_vertices := (c.vertices.drop (m_idx + 1)).reverse
+
+        have hseg2_ne : seg2_vertices ≠ [] := by
+          simp only [seg2_vertices]
+          intro h
+          have : (c.vertices.drop (m_idx + 1)) = [] := List.reverse_eq_nil_iff.mp h
+          rw [List.drop_eq_nil_iff] at this
+          omega
+
+        -- seg2_vertices starts at v = c[last] and ends at succ = c[m_idx+1]
+        have hdrop_ne : (c.vertices.drop (m_idx + 1)) ≠ [] := by
+          simp only [ne_eq, List.drop_eq_nil_iff, not_le]; omega
+
+        have hseg2_head : seg2_vertices.head hseg2_ne = v := by
+          simp only [seg2_vertices] at hseg2_ne ⊢
+          rw [List.head_reverse hseg2_ne]
+          -- getLast of drop is getLast of original
+          rw [List.getLast_eq_getElem hdrop_ne]
+          simp only [List.getElem_drop, List.length_drop]
+          -- (drop ...)[length - 1] = c.vertices[m_idx + 1 + (c.vertices.length - m_idx - 1 - 1)]
+          --                        = c.vertices[c.vertices.length - 1]
+          have hidx_eq : m_idx + 1 + (c.vertices.length - (m_idx + 1) - 1) = c.vertices.length - 1 := by omega
+          simp only [hidx_eq]
+          -- c.vertices[c.vertices.length - 1] = c.vertices.getLast = v
+          rw [← List.getLast_eq_getElem (by simp [hcv] : c.vertices ≠ [])]
+          simp only [hcv]
+          exact hlast_eq_v'
+
+        have hseg2_last : seg2_vertices.getLast hseg2_ne = succ := by
+          simp only [seg2_vertices] at hseg2_ne ⊢
+          rw [List.getLast_reverse hseg2_ne]
+          -- head of drop is c.vertices[m_idx + 1]
+          rw [List.head_eq_getElem_zero hdrop_ne]
+          simp only [List.getElem_drop, Nat.add_zero, succ, hcv]
+
+        -- Adjacencies for seg2 (using symmetry)
+        have hseg2_adj : ∀ i, (hi : i + 1 < seg2_vertices.length) →
+            T.toSimpleGraph.Adj (seg2_vertices[i]'(Nat.lt_of_succ_lt hi)) (seg2_vertices[i+1]'hi) := by
+          intro i hi
+          have hseg2_len' : seg2_vertices.length = c.vertices.length - m_idx - 1 := by
+            simp only [seg2_vertices, List.length_reverse, List.length_drop]; omega
+          simp only [seg2_vertices, List.length_reverse, List.length_drop] at hi
+          have hi' : i + 1 < c.vertices.length - m_idx - 1 := by omega
+          -- seg2_vertices[i] = c[last - i] and seg2_vertices[i+1] = c[last - i - 1]
+          -- Use Adj c[j] c[j+1] and symmetry to get Adj c[j+1] c[j]
+          simp only [seg2_vertices, List.getElem_reverse, List.length_drop, List.getElem_drop]
+          -- Now we need to show adjacency between two vertices in c.vertices
+          -- Indices: m_idx+1 + (c.vertices.length - (m_idx+1) - 1 - i) and
+          --          m_idx+1 + (c.vertices.length - (m_idx+1) - 1 - (i+1))
+          -- Which simplify to: c.vertices.length - 1 - i and c.vertices.length - 2 - i
+          have idx1 : m_idx + 1 + (c.vertices.length - (m_idx + 1) - 1 - i) = c.vertices.length - 1 - i := by omega
+          have idx2 : m_idx + 1 + (c.vertices.length - (m_idx + 1) - 1 - (i + 1)) = c.vertices.length - 2 - i := by omega
+          -- Get adjacency from cycle at position (c.vertices.length - 2 - i)
+          have hidx : c.vertices.length - 2 - i + 1 < c.vertices.length := by omega
+          have hcadj := c.adjacent (c.vertices.length - 2 - i) hidx
+          obtain ⟨a, b, ha, hb, hab⟩ := hcadj
+          have ha' : a = c.vertices[c.vertices.length - 2 - i] := by
+            rw [List.getElem?_eq_getElem (by omega)] at ha
+            exact Option.some.inj ha.symm
+          have hb' : b = c.vertices[c.vertices.length - 1 - i] := by
+            have h1 : c.vertices.length - 2 - i + 1 = c.vertices.length - 1 - i := by omega
+            rw [List.getElem?_eq_getElem (by omega)] at hb
+            have hb_orig := Option.some.inj hb.symm
+            simp only [h1] at hb_orig
+            exact hb_orig
+          -- Use congrArg to transfer the adjacency
+          have hadj_at : T.toSimpleGraph.Adj (c.vertices[c.vertices.length - 2 - i]) (c.vertices[c.vertices.length - 1 - i]) := by
+            rw [← ha', ← hb']; exact hab
+          -- Now we need to show the goal which involves adjusted indices
+          convert hadj_at.symm using 2 <;> (simp only [idx1, idx2]; omega)
+
+        -- Build walk from v to succ
+        let w2 := walkOfList T seg2_vertices hseg2_ne hseg2_adj
+
+        -- Combine: w1_rev goes pred → v, w2 goes v → succ
+        -- Need to show endpoints match
+        have hw1_start : w1.support.head (SimpleGraph.Walk.support_ne_nil w1) = v := by
+          simp only [SimpleGraph.Walk.head_support, hseg1_head]
+        have hw1_end : w1.support.getLast (SimpleGraph.Walk.support_ne_nil w1) = pred := by
+          simp only [SimpleGraph.Walk.getLast_support, hseg1_last]
+        have hw2_start : w2.support.head (SimpleGraph.Walk.support_ne_nil w2) = v := by
+          simp only [SimpleGraph.Walk.head_support, hseg2_head]
+        have hw2_end : w2.support.getLast (SimpleGraph.Walk.support_ne_nil w2) = succ := by
+          simp only [SimpleGraph.Walk.getLast_support, hseg2_last]
+
+        -- w1_rev : Walk pred v (reversed from w1 : Walk v pred)
+        let w1_copy := w1.copy hseg1_head hseg1_last
+        let hw1_rev_type := w1_copy.reverse
+        let hw2_copy := w2.copy hseg2_head hseg2_last
+        let w_combined := hw1_rev_type.append hw2_copy
+
+        use w_combined
+
+        -- Show m ∉ w_combined.support
+        intro hm_in_combined
+        rw [SimpleGraph.Walk.mem_support_append_iff] at hm_in_combined
+        cases hm_in_combined with
+        | inl hm_in_seg1 =>
+          -- m ∈ hw1_rev_type.support = w1_copy.reverse.support = w1_copy.support.reverse = w1.support.reverse
+          -- Unfold let bindings and apply Walk lemmas
+          have hm_in_seg1' : m ∈ w1_copy.reverse.support := hm_in_seg1
+          rw [SimpleGraph.Walk.support_reverse, SimpleGraph.Walk.support_copy] at hm_in_seg1'
+          -- w1.support = seg1_vertices (by walkOfList_support)
+          have hw1_support : w1.support = seg1_vertices := walkOfList_support T seg1_vertices hseg1_ne hseg1_adj
+          rw [hw1_support, List.mem_reverse] at hm_in_seg1'
+          -- seg1_vertices = c.vertices.take m_idx = [c[0], ..., c[m_idx-1]]
+          -- m = c[m_idx], so m ∉ seg1_vertices
+          simp only [seg1_vertices] at hm_in_seg1'
+          rw [List.mem_take_iff_getElem] at hm_in_seg1'
+          obtain ⟨i, hi, hmi⟩ := hm_in_seg1'
+          -- hmi : c.vertices[i] = m and i < m_idx
+          -- But m = c.vertices[m_idx], so by Nodup, i = m_idx. Contradiction!
+          have hnodup' : c.vertices.tail.Nodup := hnodup
+          simp only [hcv, List.tail_cons] at hnodup'
+          have hm_at' : c.vertices[m_idx] = m := hm_at_idx
+          -- Prove m ∉ c.vertices.take m_idx by showing indices don't match under Nodup
+          -- c.vertices[i] = m, and c.vertices[m_idx] = m
+          -- So c.vertices[i] = c.vertices[m_idx]
+          have hi_lt : i < c.vertices.length := by
+            have : i < min m_idx c.vertices.length := hi
+            omega
+          have heq : c.vertices[i]'hi_lt = c.vertices[m_idx]'hm_idx_lt := by
+            rw [hmi, hm_at']
+          -- For i > 0 and m_idx > 0, both are in the tail (rest), so we can use tail's Nodup
+          by_cases hi_zero : i = 0
+          · -- i = 0, so c.vertices[0] = m = c.vertices[m_idx]
+            -- c[0] = v (head), so v = m. But we proved hm_ne_v!
+            simp only [hcv, List.getElem_cons_zero, hi_zero] at heq
+            -- heq : head = (head :: rest)[m_idx]
+            have hm_at'' : (head :: rest)[m_idx]'(by simp only [hcv] at hm_idx_lt; exact hm_idx_lt) = m := by
+              simp only [← hcv]; exact hm_at_idx
+            rw [hm_at''] at heq
+            rw [hhead_eq_v] at heq
+            exact hm_ne_v heq.symm
+          · -- i > 0, so c[i] = rest[i-1]
+            have hi_pos : 0 < i := Nat.pos_of_ne_zero hi_zero
+            have hi_rest : i - 1 < rest.length := by simp only [hcv, List.length_cons] at hi_lt; omega
+            have hmi_rest : m_idx - 1 < rest.length := by simp only [hcv, List.length_cons] at hm_idx_lt; omega
+            have hm_idx_pos : 0 < m_idx := by omega
+            simp only [hcv] at heq
+            -- heq : (head :: rest)[i] = (head :: rest)[m_idx] with i > 0, m_idx > 0
+            -- Since i < m_idx (from hi), we derive contradiction from Nodup
+            -- (head :: rest)[k+1] = rest[k] for any k
+            -- So heq gives rest[i-1] = rest[m_idx-1]
+            -- But rest is Nodup, so i-1 = m_idx-1, hence i = m_idx
+            -- This contradicts i < m_idx
+            have hi_lt_m_idx : i < m_idx := by
+              have : i < min m_idx c.vertices.length := hi
+              omega
+            -- heq : (head :: rest)[i] = (head :: rest)[m_idx] with i > 0, m_idx > 0
+            -- Since i < m_idx (from hi_lt_m_idx), we should derive a contradiction
+            -- from the fact that rest is Nodup and the two indices differ.
+            -- The key insight: for k > 0, (head :: rest)[k] = rest[k-1]
+            -- So heq implies rest[i-1] = rest[m_idx-1]
+            -- By Nodup, i-1 = m_idx-1, hence i = m_idx, contradicting i < m_idx
+            have hi_bnd : i < (head :: rest).length := by simp; omega
+            have hm_bnd : m_idx < (head :: rest).length := by simp; omega
+            have hi_eq' : (head :: rest)[i]'hi_bnd = rest[i - 1]'hi_rest :=
+              List.getElem_cons_succ head rest (i - 1) hi_rest
+            have hm_eq' : (head :: rest)[m_idx]'hm_bnd = rest[m_idx - 1]'hmi_rest :=
+              List.getElem_cons_succ head rest (m_idx - 1) hmi_rest
+            have hrest_eq' : rest[i - 1]'hi_rest = rest[m_idx - 1]'hmi_rest := by
+              rw [← hi_eq', ← hm_eq']; exact heq
+            have hidx_eq : i - 1 = m_idx - 1 := (List.Nodup.getElem_inj_iff hnodup').mp hrest_eq'
+            omega
+        | inr hm_in_seg2 =>
+          -- m ∈ hw2_copy.support
+          -- hw2_copy = w2.copy ..., so hw2_copy.support = w2.support
+          have hw2_copy_support : hw2_copy.support = w2.support := SimpleGraph.Walk.support_copy _ _ _
+          rw [hw2_copy_support] at hm_in_seg2
+          have hw2_support : w2.support = seg2_vertices := walkOfList_support T seg2_vertices hseg2_ne hseg2_adj
+          rw [hw2_support] at hm_in_seg2
+          -- seg2_vertices = (c.vertices.drop (m_idx + 1)).reverse
+          -- = [c[last], c[last-1], ..., c[m_idx+1]]
+          -- m = c[m_idx], so m ∉ seg2_vertices (m_idx < m_idx+1)
+          simp only [seg2_vertices] at hm_in_seg2 ⊢
+          rw [List.mem_reverse, List.mem_drop_iff_getElem] at hm_in_seg2
+          obtain ⟨i, hi, hmi⟩ := hm_in_seg2
+          -- hmi : c.vertices[m_idx + 1 + i] = m
+          -- But m = c.vertices[m_idx], so by analyzing indices...
+          -- m_idx + 1 + i > m_idx for all i ≥ 0
+          -- By Nodup of tail, c[m_idx + 1 + i] ≠ c[m_idx] for i ≥ 0 (since indices differ)
+          have hm_at' : c.vertices[m_idx] = m := hm_at_idx
+          rw [← hm_at'] at hmi
+          have hidx_ne : m_idx + 1 + i ≠ m_idx := by omega
+          -- Both indices are > 0 (since m_idx ≥ 1), so both elements are in tail
+          have hm_idx_pos : 0 < m_idx := by omega
+          have hi_pos : 0 < m_idx + 1 + i := by omega
+          simp only [hcv] at hmi
+          have hnodup' : rest.Nodup := by simp only [hcv, List.tail_cons] at hnodup; exact hnodup
+          have h1 : (head :: rest)[m_idx + 1 + i] = rest[m_idx + i] := by
+            rw [List.getElem_cons_succ_of_pos head rest hi_pos]; congr 1; omega
+          have h2 : (head :: rest)[m_idx] = rest[m_idx - 1] := List.getElem_cons_succ_of_pos head rest hm_idx_pos
+          rw [h1, h2] at hmi
+          have hidx_ne' : m_idx + i ≠ m_idx - 1 := by omega
+          exact hidx_ne' ((List.Nodup.getElem_inj_iff hnodup').mp hmi)
+
+      obtain ⟨w_avoid, hm_notin⟩ := hpath_exists
+      have hm_in := walk_between_siblings_passes_parent T hpred_child hsucc_child hpred_ne_succ w_avoid
+      exact hm_notin hm_in
     · -- Successor doesn't exist (m is at the last position)
       -- This means m_idx + 1 ≥ c.vertices.length, i.e., m_idx ≥ c.vertices.length - 1.
       -- Combined with m_idx < c.vertices.length (implicit), m_idx = c.vertices.length - 1.
@@ -1312,8 +2015,240 @@ theorem no_cycle_via_depth_aux (T : TreeAuth n) (hn : 0 < n) (v : Fin n) (c : SG
         have h : c.vertices[m_idx]'hm_idx_lt = c.vertices[c.vertices.length - 1]'(by omega) := by
           congr 1
         rw [← hm_at', h, ← hlast_eq, hv_eq_last]
-      -- TODO: Complete the else branch - need to derive contradiction from m = v
-      sorry
+      -- m = v: the minimum depth vertex in the tail is v itself.
+      -- This means all tail vertices have depth ≥ depth(v).
+      -- The neighbors of v in the cycle (rest[0] and rest[rest.length-2]) both have depth = depth(v) + 1.
+      -- So both are children of v, but the cycle provides a path between them that avoids v.
+      -- In a tree, siblings can only connect through their parent, so this is a contradiction.
+      --
+      -- The path rest[0] → rest[1] → ... → rest[rest.length-2] avoids v (which is rest[rest.length-1]).
+      -- Using walk_between_siblings_passes_parent, v must be in this path. Contradiction.
+
+      -- First establish that rest has sufficient length
+      have hrest_ge3 : rest.length ≥ 3 := hrest_len
+
+      -- v is at the last position of rest
+      have hv_last_idx : rest.length - 1 < rest.length := by omega
+      have hfinish := c.finish_eq
+      have hrest_ne : rest ≠ [] := by intro h; simp [h] at hrest_len
+      have hfull_ne : (head :: rest : List (Fin n)) ≠ [] := List.cons_ne_nil _ _
+      simp only [hcv] at hfinish
+      rw [List.getLast?_eq_some_getLast hfull_ne] at hfinish
+      have hlast_eq_v : (head :: rest).getLast hfull_ne = v := Option.some.inj hfinish
+      have hcons_last : (head :: rest).getLast hfull_ne = rest.getLast hrest_ne := List.getLast_cons hrest_ne
+      rw [hcons_last] at hlast_eq_v
+      have hv_last : rest[rest.length - 1]'hv_last_idx = v := by
+        rw [← List.getLast_eq_getElem hrest_ne]
+        exact hlast_eq_v
+
+      -- head = v (from start_eq)
+      have hstart := c.start_eq
+      simp only [hcv, List.head?_cons] at hstart
+      have hhead_eq_v : head = v := Option.some.inj hstart
+
+      -- rest[0] is adjacent to head = v
+      have h0_idx : 0 < rest.length := by omega
+      have h0_adj : T.toSimpleGraph.Adj v rest[0] := by
+        have hadj := c.adjacent 0 (by simp [hcv]; omega)
+        obtain ⟨a, b, ha, hb, hab⟩ := hadj
+        have ha' : a = head := by
+          have : c.vertices[0]? = some head := by simp [hcv]
+          rw [this] at ha; exact Option.some.inj ha.symm
+        have hb' : b = rest[0] := by
+          have : c.vertices[1]? = some rest[0] := by
+            simp only [hcv, List.getElem?_cons_succ, List.getElem?_eq_getElem h0_idx]
+          rw [this] at hb; exact Option.some.inj hb.symm
+        subst ha' hb' hhead_eq_v
+        exact hab
+
+      -- rest[rest.length-2] is adjacent to v
+      have hpen_idx : rest.length - 2 < rest.length := by omega
+      have hpen_adj : T.toSimpleGraph.Adj rest[rest.length - 2] v := by
+        -- The edge from rest[rest.length-2] to rest[rest.length-1] = v
+        -- In full cycle (head :: rest), these are at indices rest.length-1 and rest.length
+        have hj : rest.length - 1 + 1 < c.vertices.length := by simp [hcv]; omega
+        have hadj := c.adjacent (rest.length - 1) hj
+        obtain ⟨a, b, ha, hb, hab⟩ := hadj
+        have ha' : a = rest[rest.length - 2] := by
+          have h1 : rest.length - 1 < (head :: rest).length := by simp
+          simp only [hcv, List.getElem?_eq_getElem h1] at ha
+          have : (head :: rest)[rest.length - 1] = rest[rest.length - 2] := by
+            match rest, hrest_ge3 with
+            | _ :: _ :: _ :: _, _ => simp [List.getElem_cons_succ]
+          rw [this] at ha
+          exact Option.some.inj ha.symm
+        have hb' : b = v := by
+          have h1 : rest.length < (head :: rest).length := by simp
+          have h2 : rest.length - 1 + 1 = rest.length := by omega
+          simp only [hcv, h2, List.getElem?_eq_getElem h1] at hb
+          have : (head :: rest)[rest.length] = rest[rest.length - 1] := by
+            match rest, hrest_ge3 with
+            | _ :: _ :: _ :: _, _ => simp [List.getElem_cons_succ]
+          rw [this, hv_last] at hb
+          exact Option.some.inj hb.symm
+        subst ha' hb'
+        exact hab
+
+      -- rest[0] is in tail and has min depth property
+      have h0_in_tail : rest[0] ∈ tailList := by
+        simp only [tailList, hcv, List.tail_cons]
+        exact List.getElem_mem h0_idx
+
+      -- rest[rest.length-2] is in tail
+      have hpen_in_tail : rest[rest.length - 2] ∈ tailList := by
+        simp only [tailList, hcv, List.tail_cons]
+        exact List.getElem_mem hpen_idx
+
+      -- Depth bounds: both have depth ≥ depth(v) = depth(m)
+      have h0_ge : T.depth rest[0] ≥ T.depth v := by rw [← hm_eq_v]; exact hmin_le _ h0_in_tail
+      have hpen_ge : T.depth rest[rest.length - 2] ≥ T.depth v := by rw [← hm_eq_v]; exact hmin_le _ hpen_in_tail
+
+      -- By adjacency, |depth diff| = 1
+      have h0_depth_diff := adj_depth T h0_adj
+      have hpen_depth_diff := adj_depth T hpen_adj
+
+      -- Combined: both have depth = depth(v) + 1 (children of v)
+      have h0_depth : T.depth rest[0] = T.depth v + 1 := by
+        cases h0_depth_diff with
+        | inl h => omega
+        | inr h => exact h
+      have hpen_depth : T.depth rest[rest.length - 2] = T.depth v + 1 := by
+        cases hpen_depth_diff with
+        | inl h => exact h
+        | inr h => omega
+
+      -- So rest[0] and rest[rest.length-2] are children of v
+      have h0_child : T.parent rest[0] = some v := by
+        simp only [toSimpleGraph] at h0_adj
+        cases h0_adj with
+        | inl h =>
+          -- h : T.parent v = some rest[0], so depth(v) = depth(rest[0]) + 1
+          -- But h0_depth says depth(rest[0]) = depth(v) + 1. Contradiction!
+          have := (depth_parent T h).symm
+          omega
+        | inr h => exact h
+      have hpen_child : T.parent rest[rest.length - 2] = some v := by
+        simp only [toSimpleGraph] at hpen_adj
+        cases hpen_adj with
+        | inl h => exact h
+        | inr h =>
+          -- h : T.parent v = some rest[rest.length - 2], so depth(v) = depth(rest[rest.length-2]) + 1
+          -- But hpen_depth says depth(rest[rest.length-2]) = depth(v) + 1. Contradiction!
+          have := (depth_parent T h).symm
+          omega
+
+      -- rest[0] ≠ rest[rest.length-2] (from Nodup + different indices)
+      have h0_ne_pen : rest[0] ≠ rest[rest.length - 2] := by
+        intro heq
+        have hnodup' : rest.Nodup := by simp only [hcv, List.tail_cons] at hnodup; exact hnodup
+        have hidx_ne : (0 : ℕ) ≠ rest.length - 2 := by omega
+        exact hidx_ne ((List.Nodup.getElem_inj_iff hnodup').mp heq)
+
+      -- Build walk from rest[0] to rest[rest.length-2] using rest.dropLast
+      -- rest.dropLast = [rest[0], rest[1], ..., rest[rest.length-2]]
+      have hdl_ne : rest.dropLast ≠ [] := by
+        intro h
+        have hlen_dl : rest.dropLast.length = rest.length - 1 := List.length_dropLast
+        rw [h] at hlen_dl
+        simp only [List.length_nil] at hlen_dl
+        omega
+
+      have hdl_len : rest.dropLast.length = rest.length - 1 := List.length_dropLast
+
+      have hdl_head : rest.dropLast.head hdl_ne = rest[0] := by
+        conv_lhs => rw [List.head_eq_getElem]
+        have h1 : rest.dropLast[0]'(by rw [hdl_len]; omega) = rest[0]'(by omega) := by
+          simp only [List.dropLast_eq_take, List.getElem_take]
+        exact h1
+
+      have hdl_last : rest.dropLast.getLast hdl_ne = rest[rest.length - 2] := by
+        have hpen_lt : rest.length - 2 < rest.length := by omega
+        have hpen_lt_dl : rest.length - 2 < rest.dropLast.length := by rw [hdl_len]; omega
+        have h1 : rest.dropLast.getLast hdl_ne = rest.dropLast[rest.length - 2]'hpen_lt_dl := by
+          rw [List.getLast_eq_getElem]
+          congr 1
+          omega
+        have h2 : rest.dropLast[rest.length - 2]'hpen_lt_dl = rest[rest.length - 2]'hpen_lt := by
+          simp only [List.dropLast_eq_take, List.getElem_take]
+        rw [h1, h2]
+
+      -- v is NOT in rest.dropLast (v = rest[rest.length-1], not in dropLast)
+      have hv_notin_dl : v ∉ rest.dropLast := by
+        intro hmem
+        have hnodup' : rest.Nodup := by simp only [hcv, List.tail_cons] at hnodup; exact hnodup
+        -- dropLast = take (rest.length - 1) rest, so elements are at indices 0..rest.length-2
+        rw [List.dropLast_eq_take] at hmem
+        -- v ∈ take means v = rest[i] for some i < rest.length - 1
+        have ⟨i, hi, hvi⟩ := List.mem_iff_getElem.mp hmem
+        simp only [List.length_take, Nat.min_eq_left (by omega : rest.length - 1 ≤ rest.length)] at hi
+        -- hvi : (take (rest.length - 1) rest)[i] = v
+        have hvi' : rest[i]'(by omega) = v := by
+          have h1 : i < rest.length := by omega
+          simp only [List.getElem_take] at hvi
+          exact hvi
+        -- But v = rest[rest.length - 1], so by Nodup i = rest.length - 1
+        have hidx_eq : i = rest.length - 1 := (List.Nodup.getElem_inj_iff hnodup').mp (hvi'.trans hv_last.symm)
+        omega
+
+      -- Adjacency for rest.dropLast elements
+      have hdl_adj : ∀ i, (hi : i + 1 < rest.dropLast.length) →
+          T.toSimpleGraph.Adj (rest.dropLast[i]'(Nat.lt_of_succ_lt hi)) (rest.dropLast[i + 1]'hi) := by
+        intro i hi
+        have hlen' : rest.dropLast.length = rest.length - 1 := hdl_len
+        have hi' : i + 1 < rest.length - 1 := by rw [← hlen']; exact hi
+        have hi1 : i < rest.length := by omega
+        have hi2 : i + 1 < rest.length := by omega
+        -- rest.dropLast[i] = rest[i] and rest.dropLast[i+1] = rest[i+1]
+        have hdl_i : rest.dropLast[i]'(Nat.lt_of_succ_lt hi) = rest[i]'hi1 := by
+          simp only [List.dropLast_eq_take, List.getElem_take]
+        have hdl_i1 : rest.dropLast[i + 1]'hi = rest[i + 1]'hi2 := by
+          simp only [List.dropLast_eq_take, List.getElem_take]
+        simp only [hdl_i, hdl_i1]
+        -- Get adjacency from cycle
+        -- rest[i] = c.vertices[i+1], rest[i+1] = c.vertices[i+2]
+        have hcadj := c.adjacent (i + 1) (by simp [hcv]; omega)
+        obtain ⟨a, b, ha, hb, hab⟩ := hcadj
+        have ha' : a = rest[i] := by
+          have h2 : i < rest.length := by omega
+          have : c.vertices[i + 1]? = some rest[i] := by
+            simp only [hcv, List.getElem?_cons_succ, List.getElem?_eq_getElem h2]
+          rw [this] at ha; exact Option.some.inj ha.symm
+        have hb' : b = rest[i + 1] := by
+          have h2 : i + 1 < rest.length := by omega
+          have : c.vertices[i + 1 + 1]? = some rest[i + 1] := by
+            simp only [hcv, List.getElem?_cons_succ, List.getElem?_eq_getElem h2]
+          rw [this] at hb; exact Option.some.inj hb.symm
+        subst ha' hb'; exact hab
+
+      -- Build the walk
+      let w := walkOfList T rest.dropLast hdl_ne hdl_adj
+      have hw_eq : walkOfList T rest.dropLast hdl_ne hdl_adj = w := rfl
+
+      -- The walk goes from rest[0] to rest[rest.length-2]
+      have hw_start : w.support.head (SimpleGraph.Walk.support_ne_nil w) = rest[0] := by
+        simp only [SimpleGraph.Walk.head_support, hdl_head]
+      have hw_support : w.support = rest.dropLast := walkOfList_support T rest.dropLast hdl_ne hdl_adj
+
+      -- Apply walk_between_siblings_passes_parent to get contradiction
+      -- w is a walk from rest.dropLast.head to rest.dropLast.getLast
+      -- i.e., from rest[0] to rest[rest.length-2]
+      -- Both are children of v, so by walk_between_siblings_passes_parent, v ∈ w.support
+      -- But w.support = rest.dropLast and v ∉ rest.dropLast. Contradiction!
+
+      -- Create a walk with explicit endpoints for the lemma
+      -- We use copy to change the type while preserving the walk
+      let hwalk : T.toSimpleGraph.Walk rest[0] rest[rest.length - 2] :=
+        w.copy hdl_head hdl_last
+
+      have hv_in := walk_between_siblings_passes_parent T h0_child hpen_child h0_ne_pen hwalk
+
+      -- hwalk.support = w.support = rest.dropLast
+      have hwalk_support_eq : hwalk.support = rest.dropLast := by
+        show (w.copy hdl_head hdl_last).support = rest.dropLast
+        rw [SimpleGraph.Walk.support_copy, hw_support]
+
+      rw [hwalk_support_eq] at hv_in
+      exact hv_notin_dl hv_in
 
 -- Consecutive elements in walk support are adjacent by walk definition
 theorem walk_adjacent_extraction (T : TreeAuth n) (v : Fin n) (p : T.toSimpleGraph.Walk v v) :

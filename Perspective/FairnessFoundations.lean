@@ -123,8 +123,12 @@ def agentsToSimplex {n : ℕ} (agents : Finset (Fin n)) : Simplex :=
 /--
 A set of agents (represented as natural number vertices) can be simultaneously satisfied
 if there exists an allocation fair to all of them.
+
+The condition includes: (1) all vertices are valid agent indices (< n), and
+(2) there exists an allocation satisfying all agents in the simplex.
 -/
 def canSatisfyAgents {n : ℕ} (profile : FairnessProfile n) (σ : Simplex) : Prop :=
+  (∀ v ∈ σ, v < n) ∧
   ∃ alloc : Fin n → ℚ, ∀ v ∈ σ, (hv : v < n) →
     (profile ⟨v, hv⟩).isFair alloc
 
@@ -140,21 +144,29 @@ def fairnessComplex {n : ℕ} (profile : FairnessProfile n) : SimplicialComplex 
   has_vertices := by
     intro s hs vertex hvertex
     simp only [Set.mem_setOf_eq, canSatisfyAgents] at hs ⊢
-    obtain ⟨alloc, halloc⟩ := hs
-    use alloc
-    intro w hw hw_lt
-    simp only [Simplex.vertex, Finset.mem_singleton] at hw
-    -- hw : w = vertex, and we have vertex ∈ s
-    cases hw
-    exact halloc vertex hvertex hw_lt
+    obtain ⟨hbounds, alloc, halloc⟩ := hs
+    constructor
+    · intro w hw
+      simp only [Simplex.vertex, Finset.mem_singleton] at hw
+      rw [hw]
+      exact hbounds vertex hvertex
+    · use alloc
+      intro w hw hw_lt
+      simp only [Simplex.vertex, Finset.mem_singleton] at hw
+      cases hw
+      exact halloc vertex hvertex hw_lt
   down_closed := by
     intro s hs i
     simp only [Set.mem_setOf_eq, canSatisfyAgents] at hs ⊢
-    obtain ⟨alloc, halloc⟩ := hs
-    use alloc
-    intro w hw hw_lt
-    have hw' : w ∈ s := Simplex.face_subset s i hw
-    exact halloc w hw' hw_lt
+    obtain ⟨hbounds, alloc, halloc⟩ := hs
+    constructor
+    · intro w hw
+      have hw' : w ∈ s := Simplex.face_subset s i hw
+      exact hbounds w hw'
+    · use alloc
+      intro w hw hw_lt
+      have hw' : w ∈ s := Simplex.face_subset s i hw
+      exact halloc w hw' hw_lt
 
 /--
 THEOREM: Fairness complex is well-defined (has at least one simplex).
@@ -163,9 +175,12 @@ theorem fairness_complex_valid {n : ℕ} (profile : FairnessProfile n) :
     (fairnessComplex profile).simplices.Nonempty := by
   use ∅
   simp only [fairnessComplex, Set.mem_setOf_eq, canSatisfyAgents]
-  use fun _ => 0
-  intro v hv
-  exact (Finset.notMem_empty v hv).elim
+  constructor
+  · intro v hv
+    exact (Finset.notMem_empty v hv).elim
+  · use fun _ => 0
+    intro v hv
+    exact (Finset.notMem_empty v hv).elim
 
 /-! ## Part 4: Fairness Cohomology -/
 

@@ -165,20 +165,20 @@ theorem non_bridge_componentCount (G : SimpleGraph V) (e : Sym2 V) (he : e ∈ G
 
 /-! ## Section 5: Bridge Splits Components -/
 
--- TEMP: axiomatized for speed, prove by 2026-02-07
+-- NOTE: Proven replacement at Infrastructure/PathDecompositionComplete.lean:60
 -- Proof: any G-path from u to v either avoids edge {v,w} (gives G' path to v)
 -- or uses it (gives G' path to w by taking the part before crossing)
 axiom bridge_path_decomposition (G : SimpleGraph V) (v w : V) (hb : IsBridge' G v w)
     (u : V) (hr : G.Reachable u v) :
     (G.deleteEdges {s(v, w)}).Reachable u v ∨ (G.deleteEdges {s(v, w)}).Reachable u w
 
--- TEMP: axiomatized for speed, prove by 2026-02-07
+-- NOTE: Proven replacement at Infrastructure/PathDecompositionComplete.lean:95
 -- Proof: if u not in v's G-component, G-path from u' to u avoids {v,w}
 axiom non_v_component_path_avoids_bridge (G : SimpleGraph V) (v w : V) (hb : IsBridge' G v w)
     (u : V) (hu : G.connectedComponentMk u ≠ G.connectedComponentMk v)
     (u' : V) (hu' : G.Reachable u' u) (hn : ¬(G.deleteEdges {s(v, w)}).Reachable u' u) : False
 
--- TEMP: axiomatized for speed, prove by 2026-02-07
+-- NOTE: Proven replacement at Infrastructure/ExtendedGraphInfra.lean:591
 -- Proof: fiber over v's component has exactly 2 elements, others have 1
 axiom bridge_component_cardinality (G : SimpleGraph V) (v w : V) (hb : IsBridge' G v w)
     (h_fiber_vw : ∀ c : (G.deleteEdges {s(v, w)}).ConnectedComponent,
