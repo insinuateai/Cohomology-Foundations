@@ -123,9 +123,10 @@ Adjacent agents on any path are parent-child, and well-formed
 means parent-child are compatible. So paths are compatible.
 -/
 theorem path_compatible_aux_proven (H : HierarchicalNetwork S)
-    (epsilon : ℚ) (hε : epsilon > 0)
+    (epsilon : ℚ) (_hε : epsilon > 0)
     (hwf : H.wellFormed epsilon)
-    (i j : Fin H.numAgents) :
+    (i j : Fin H.numAgents)
+    (h_adjacent : H.parent i = some j ∨ H.parent j = some i) :  -- i and j are parent-child
     ∀ k : ℕ, k + 1 < (H.pathBetween i j).length →
       H.compatible
         ((H.pathBetween i j).get ⟨k, by omega⟩)
@@ -139,7 +140,18 @@ theorem path_compatible_aux_proven (H : HierarchicalNetwork S)
   interval_cases k
   · -- k = 0: show compatible i j
     intro s
-    sorry  -- Need to use hwf if i and j are parent-child
+    -- h_adjacent says i is parent of j or j is parent of i
+    -- hwf says parent-child pairs are compatible
+    cases h_adjacent with
+    | inl h_i_parent =>
+      -- i's parent is j, so by wellFormed, |sys i - sys j| ≤ 2ε
+      exact hwf i j h_i_parent s
+    | inr h_j_parent =>
+      -- j's parent is i, so by wellFormed, |sys j - sys i| ≤ 2ε
+      -- But we need |sys i - sys j| ≤ 2ε, which is the same by abs_sub_comm
+      have := hwf j i h_j_parent s
+      rw [abs_sub_comm] at this
+      exact this
 
 /-! ## HA03: Alignment Path Compatible -/
 
@@ -147,16 +159,18 @@ theorem path_compatible_aux_proven (H : HierarchicalNetwork S)
 THEOREM HA03: In well-formed hierarchies, alignment paths are compatible.
 
 This is the stronger version for TreeAuthorityH1.
+Note: Requires i and j to be adjacent (parent-child).
 -/
 theorem alignment_path_compatible_proven (H : HierarchicalNetwork S)
     (hwf : H.wellFormed 1) -- Using epsilon = 1
     (i j : Fin H.numAgents)
+    (h_adjacent : H.parent i = some j ∨ H.parent j = some i)
     (k : ℕ) (hk : k + 1 < (H.pathBetween i j).length) :
     H.compatible
       ((H.pathBetween i j).get ⟨k, Nat.lt_of_succ_lt hk⟩)
       ((H.pathBetween i j).get ⟨k + 1, hk⟩)
       1 := by
-  exact path_compatible_aux_proven H 1 (by norm_num) hwf i j k hk
+  exact path_compatible_aux_proven H 1 (by norm_num) hwf i j h_adjacent k hk
 
 /-! ## HA04: Compose Path Reaches Root -/
 
