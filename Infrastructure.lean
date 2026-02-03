@@ -24,3 +24,5 @@ import Infrastructure.GameAxiomReplacements
 import Infrastructure.BridgeAxiomReplacements
 import Infrastructure.FairnessAxiomReplacements
 import Infrastructure.CohomologyAxiomReplacements
+import Infrastructure.CriticalPointsAxiomReplacements
+import Infrastructure.TreeAuthAxiomReplacements
