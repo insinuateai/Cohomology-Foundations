@@ -19,3 +19,6 @@ import Infrastructure.TreeGraphInfra
 import Infrastructure.TreeAuthCoreProofs
 import Infrastructure.ComponentCountingBasic
 import Infrastructure.ExtendedGraphInfra
+import Infrastructure.WalkDecomposition
+import Infrastructure.FairnessIndividualComplete
+import Infrastructure.TreeCompositionComplete

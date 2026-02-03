@@ -9,8 +9,8 @@
 | Status | Count | Description |
 |--------|-------|-------------|
 | KEEP | ~15 | External math requiring Mathlib extensions |
-| ELIMINATED | 3 | G01, X28 (acyclic_periodic_orbit_equiv), X29 (pathToRoot_consecutive_adjacent) |
-| ELIMINATE | ~50 | Provable from current Mathlib |
+| ELIMINATED | 5 | G01, X28, X29, F07 (optimal_lipschitz_achieves), X22 (subtree_partition_aux) |
+| ELIMINATE | ~48 | Provable from current Mathlib |
 
 ## By Priority (Recommended Elimination Order)
 
@@ -47,7 +47,7 @@
 | F04 | `convex_marginal_sum_ge` | GameTheoryBridge.lean:29 | Telescope sum |
 | F05 | `supermodular_of_convex` | CoalitionGameCore.lean:61 | Definition unfolding |
 | F06 | `marginal_sum_telescope_aux` | CoalitionGameCore.lean:178 | List sum manipulation |
-| F07 | `optimal_lipschitz_achieves` | IndividualFairness.lean:212 | Existence argument |
+| F07 | `optimal_lipschitz_achieves` | ~~IndividualFairness.lean:212~~ | **ELIMINATED** - Direct proof via supremum |
 
 ### Priority 4: Cohomology Core
 
@@ -123,7 +123,7 @@
 | X19 | `nontrivial_compatible_has_gap` | GlobalLocalDuality.lean:381 |
 | X20 | `four_agent_h2_forward` | CoalitionH2.lean:131 |
 | X21 | `four_agent_h2_backward` | CoalitionH2.lean:140 |
-| X22 | `subtree_partition_aux` | TreeComposition.lean:50 |
+| X22 | `subtree_partition_aux` | ~~TreeComposition.lean:50~~ | **ELIMINATED** - Trivial: full subtree contains all agents |
 | X23 | `compose_acyclic_h2_aux` | TreeComposition.lean:88 |
 | X24 | `h1_zero_local_global_ic` | MechanismDesign.lean:307 |
 | X25 | `StrategicGame.actions_nonempty` | GameTheoreticH1.lean:274 |

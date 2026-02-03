@@ -206,12 +206,49 @@ noncomputable def optimalLipschitz [NeZero n] (metric : SimilarityMetric n)
     else |treatment p.1 - treatment p.2| / metric.dist p.1 p.2
 
 /--
-AXIOM: The optimal Lipschitz constant achieves fairness.
-This requires showing that the supremum of ratios achieves fairness.
+THEOREM: The optimal Lipschitz constant achieves fairness.
+
+For any pair (i, j):
+- If d(i,j) = 0, then i = j by metric.zero_iff, so |T(i) - T(j)| = 0 ≤ L* × 0
+- If d(i,j) ≠ 0, the ratio |T(i) - T(j)| / d(i,j) ≤ L* (since L* is the supremum)
+  so |T(i) - T(j)| ≤ L* × d(i,j)
+
+Proof: Infrastructure/FairnessIndividualComplete.lean
 -/
-axiom optimal_lipschitz_achieves [NeZero n] (metric : SimilarityMetric n)
+theorem optimal_lipschitz_achieves [NeZero n] (metric : SimilarityMetric n)
     (treatment : Allocation n) :
-    isLipschitzFair metric (optimalLipschitz metric treatment) treatment
+    isLipschitzFair metric (optimalLipschitz metric treatment) treatment := by
+  unfold isLipschitzFair
+  intro i j
+  by_cases h : metric.dist i j = 0
+  · -- Case 1: d(i, j) = 0, so i = j
+    have heq : i = j := (metric.zero_iff i j).mp h
+    subst heq
+    simp only [sub_self, abs_zero, h, mul_zero, le_refl]
+  · -- Case 2: d(i, j) ≠ 0
+    -- The ratio |T(i) - T(j)| / d(i, j) ≤ optimalLipschitz
+    have hmem : (i, j) ∈ Finset.univ := Finset.mem_univ _
+    have hratio : (fun p : Fin n × Fin n => if metric.dist p.1 p.2 = 0 then 0
+                  else |treatment p.1 - treatment p.2| / metric.dist p.1 p.2) (i, j) =
+                  |treatment i - treatment j| / metric.dist i j := by
+      simp only [h, ↓reduceIte]
+    have hle : |treatment i - treatment j| / metric.dist i j ≤ optimalLipschitz metric treatment := by
+      unfold optimalLipschitz
+      calc |treatment i - treatment j| / metric.dist i j
+          = (fun p : Fin n × Fin n => if metric.dist p.1 p.2 = 0 then 0
+                  else |treatment p.1 - treatment p.2| / metric.dist p.1 p.2) (i, j) := hratio.symm
+        _ ≤ Finset.univ.sup' ⟨((0 : Fin n), (0 : Fin n)), Finset.mem_univ _⟩
+              (fun p : Fin n × Fin n => if metric.dist p.1 p.2 = 0 then 0
+                    else |treatment p.1 - treatment p.2| / metric.dist p.1 p.2) :=
+            Finset.le_sup' _ hmem
+    -- Multiply both sides by d(i, j) > 0
+    have hpos : metric.dist i j > 0 := by
+      apply lt_of_le_of_ne (metric.nonneg i j)
+      exact fun heq => h heq.symm
+    calc |treatment i - treatment j|
+        = |treatment i - treatment j| / metric.dist i j * metric.dist i j := by field_simp
+      _ ≤ optimalLipschitz metric treatment * metric.dist i j := by
+          apply mul_le_mul_of_nonneg_right hle (le_of_lt hpos)
 
 /--
 THEOREM: Any allocation is L-Lipschitz for large enough L.

@@ -45,11 +45,25 @@ structure Subtree (H : HierarchicalNetwork S) (i : Fin H.numAgents) where
   /-- Closed under children: if j is in subtree and k is child of j, then k is in subtree -/
   children_closed : ∀ j ∈ agents, ∀ k, k ∈ H.authority.children j → k ∈ agents
 
--- TEMP: axiomatized for speed, prove by 2026-02-07
--- Proof: pathToRoot contains j (first element) and ends at root
-axiom subtree_partition_aux {S : Type*} [Fintype S] [DecidableEq S]
+/-- THEOREM: Every agent is in the full subtree rooted at H.root.
+
+The full subtree containing all agents (List.finRange H.numAgents) is a valid
+subtree of the root, and every agent j is in it.
+
+Proof: Infrastructure/TreeCompositionComplete.lean
+-/
+theorem subtree_partition_aux {S : Type*} [Fintype S] [DecidableEq S]
     (H : HierarchicalNetwork S) (j : Fin H.numAgents) :
-    ∃ (sub : Subtree H H.root), j ∈ sub.agents
+    ∃ (sub : Subtree H H.root), j ∈ sub.agents := by
+  -- The full subtree contains all agents
+  use {
+    agents := List.finRange H.numAgents
+    root_mem := List.mem_finRange H.root
+    children_closed := by
+      intro k _ m _
+      exact List.mem_finRange m
+  }
+  exact List.mem_finRange j
 
 /-- Every agent is in exactly one subtree of the root -/
 theorem subtree_partition (H : HierarchicalNetwork S) :
