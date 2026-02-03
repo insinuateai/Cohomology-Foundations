@@ -6,119 +6,94 @@
 ## Session Metadata
 
 - **Date**: 2026-02-03
-- **Primary goal**: Analyze all sorries and remove the easiest one
-- **User intent**: Identify and fix the most tractable sorry in the codebase
+- **Primary goal**: Create infrastructure files to prove axioms
+- **Branch**: claude/prove-axioms-TKNuH
 
 ## What Was Done
 
-### 1. Comprehensive Sorry Analysis
+### 1. Created TreeAuthorityProofs.lean
 
-Found **7 sorries** across **2 files**:
+**Location**: `Infrastructure/TreeAuthorityProofs.lean`
 
-| File | Line | Theorem | Difficulty |
-|------|------|---------|------------|
-| FairnessComplexH1.lean | 363 | `h1_trivial_implies_fair_allocation_proof` | Hard (obstruction theory) |
-| TreeAcyclicityComplete.lean | 790 | `toSimpleGraph_acyclic_proof` | Medium (case analysis) |
-| TreeAcyclicityComplete.lean | 795 | `toSimpleGraph_acyclic_proof` | Medium (case analysis) |
-| TreeAcyclicityComplete.lean | 945-946 | `pathToRootAux_last` | Medium-Hard (iteration) |
-| TreeAcyclicityComplete.lean | 963 | `path_to_root_unique_aux_proof` | Medium (induction) |
-| TreeAcyclicityComplete.lean | 981 | `no_cycle_bookkeeping_proof` | Easiest (data conversion) |
+**Targets**:
+- T03: `path_to_root_unique_aux` (TreeAuthorityAcyclicity.lean:43)
+- T04: `no_cycle_bookkeeping` (TreeAuthorityAcyclicity.lean:454)
 
-### 2. Discovered Critical Bug in Cycle Structure
+**Contents**:
+- Self-contained TreeAuth structure with all helper lemmas
+- `stepsToRoot` computation via Nat.find
+- `pathToRoot` and `pathToRootAux` definitions
+- Proof infrastructure for path uniqueness
+- Cycle structure and no-cycle theorem setup
+- Key lemmas: `stepsToRoot_parent`, `parentOrRoot_injective`, `adjacent_stepsToRoot_diff`
 
-The `Cycle` structure in `TreeAcyclicityComplete.lean` was **incomplete**:
+**Status**: Proof structure complete, 2 remaining sorries in complex cases:
+1. Path uniqueness: edge case for paths starting at root with extra vertices
+2. No-cycle: needs formal pigeonhole argument for edge reuse
 
-**Original (buggy):**
-```lean
-structure Cycle (T : TreeAuth n) (v : Fin n) where
-  path : List (Fin n)
-  ne_nil : path ≠ []
-  head_eq : path.head? = some v
-  last_eq : path.getLast? = some v
-  length_ge : path.length ≥ 3  -- TOO WEAK!
-  valid : ...  -- No nodup condition!
-```
+### 2. Created DimensionBoundProofs.lean
 
-**Problems:**
-1. `length_ge ≥ 3` allows `[v, a, v]` which has only 2 edges (not a cycle)
-2. Missing `nodup` condition allowed non-simple cycles (which exist in trees!)
+**Location**: `Infrastructure/DimensionBoundProofs.lean`
 
-**Fixed:**
-```lean
-structure Cycle (T : TreeAuth n) (v : Fin n) where
-  path : List (Fin n)
-  ne_nil : path ≠ []
-  head_eq : path.head? = some v
-  last_eq : path.getLast? = some v
-  length_ge : path.length ≥ 4  -- At least 3 edges
-  nodup : path.dropLast.Nodup  -- Simple cycle condition
-  valid : ∀ j, (hj : j + 1 < path.length) →
-    T.adjacent (path.get ⟨j, Nat.lt_of_succ_lt hj⟩) (path.get ⟨j + 1, hj⟩)
-```
+**Targets**:
+- `h1_dim_components_bound` (DimensionBound.lean:308)
 
-### 3. Restructured `no_cycle_bookkeeping_proof`
+**Contents**:
+- Theorem: |E| + |C| ≤ (n-1)(n-2)/2 + n for any graph
+- Key identity: `dimension_bound_identity` - proves the algebraic equality
+- Complete graph analysis: achieves maximum
+- Cycle rank formula connection
 
-Set up the proof structure correctly:
-1. Convert `Cycle.valid` to `toSimpleGraph.Adj` (trivial - they're definitionally equal)
-2. Build a `Walk` from `c.path` using `walkOfCyclePath`
-3. Prove walk starts/ends at `v` using `head_eq` and `last_eq`
-4. Create closed walk `w' : Walk v v` via `copy`
-5. Prove `w'.IsCycle` (requires IsTrail + support.tail.Nodup)
-6. Apply `toSimpleGraph_acyclic_aux_proof` to derive `False`
+**Status**: Main structure complete, 2 remaining sorries:
+1. `edges_ge_spanning_forest` - needs spanning forest argument
+2. Complete graph maximizes |E| + |C| - needs formal optimization argument
 
-The remaining sorry is for proving `IsCycle`, which requires:
-- **IsTrail** (edges.Nodup): follows from `dropLast.Nodup` with `length ≥ 4`
-- **support.tail.Nodup**: follows from `dropLast.Nodup` via list manipulation
+### 3. Axiom Analysis Summary
 
-## Current Status
+**Analyzed axiom categories**:
+| Priority | Axioms | Difficulty | Notes |
+|----------|--------|------------|-------|
+| 1 | Tree Authority (T01-T07) | Medium | Self-contained, Mathlib-only |
+| 2 | Dimension Bounds | Medium | Graph counting arguments |
+| 3 | Fairness (F01-F07) | Medium-Hard | Requires valueComplex analysis |
+| 4 | Curvature bounds | Hard | H1Trivial → bounded disagreement |
+| KEEP | Spectral, Stability | N/A | External math (spectral theory) |
 
-| File | Sorries | Notes |
-|------|---------|-------|
-| `FairnessComplexH1.lean` | 1 | Obstruction theory - hard |
-| `TreeAcyclicityComplete.lean` | 6 | Fixed Cycle structure, proof structure in place |
+## Files Created
 
-**Note:** `TreeAcyclicityComplete.lean` has 27 pre-existing compilation errors unrelated to my changes.
+1. `Infrastructure/TreeAuthorityProofs.lean` - NEW (479 lines)
+2. `Infrastructure/DimensionBoundProofs.lean` - NEW (136 lines)
 
 ## Key Technical Insights
 
-### Why `length ≥ 4` is Required
+### Tree Authority Proofs
+- `stepsToRoot` is the key metric: each parent step decreases it by 1
+- Path uniqueness follows from functional nature of `parent`
+- No-cycle theorem: depth changes by ±1, sum must be 0, implies edge reuse
 
-For a proper graph-theoretic cycle:
-- Cycle needs at least 3 edges
-- Path `[v, a₁, ..., aₙ₋₁, v]` has `n` vertices and `n-1` edges
-- For `n-1 ≥ 3`, need `n ≥ 4`, i.e., `path.length ≥ 4`
-
-### Why `dropLast.Nodup` Works
-
-- `path = [v, a₁, a₂, ..., aₙ₋₁, v]`
-- `path.dropLast = [v, a₁, a₂, ..., aₙ₋₁]` (all distinct)
-- `path.tail = [a₁, a₂, ..., aₙ₋₁, v]` (same elements, different order)
-- Implies `tail.Nodup` (needed for IsCycle)
-
-### Edge Distinctness with `length ≥ 4`
-
-With `dropLast.Nodup`:
-- Edges `{v, a₁}` and `{aₙ₋₁, v}` only equal if `a₁ = aₙ₋₁`
-- But `a₁, aₙ₋₁ ∈ dropLast` and `dropLast.Nodup`, so `a₁ ≠ aₙ₋₁` when `length ≥ 4`
-- Internal edges `{aᵢ, aᵢ₊₁}` are distinct since all `aᵢ` are distinct
-
-## Files Modified
-
-1. `Infrastructure/TreeAcyclicityComplete.lean`
-   - Fixed `Cycle` structure (lines 975-984)
-   - Added `walkOfCyclePath` helper (lines 986-1024)
-   - Restructured `no_cycle_bookkeeping_proof` (lines 1026-1098)
+### Dimension Bound Proof
+- Key insight: |E| + |C| = n + β₁ where β₁ is first Betti number
+- β₁ is maximized by complete graph: β₁ = n(n-1)/2 - (n-1)
+- Maximum sum = n + (n²-3n+2)/2 = (n²-n+2)/2 = (n-1)(n-2)/2 + n
 
 ## Next Session Recommendations
 
-1. **Complete IsCycle proof**: The mathematical argument is sound. Need ~30 lines of list manipulation to prove `IsTrail` and `support.tail.Nodup` from the structural conditions.
+1. **Complete TreeAuthorityProofs sorries**:
+   - The path uniqueness edge case is mostly notation bookkeeping
+   - The no-cycle proof needs the formal pigeonhole/counting argument
 
-2. **Fix pre-existing errors**: The file has 27 errors from outdated Mathlib API usage (e.g., `SimpleGraph.Walk.IsCycle.ne_nil` renamed).
+2. **Complete DimensionBoundProofs sorries**:
+   - Spanning forest argument is standard graph theory
+   - Maximization by complete graph follows from monotonicity analysis
 
-3. **Consider alternative approach**: If IsCycle proof is too tedious, could prove contradiction directly using depth argument on the Cycle structure (similar to `toSimpleGraph_acyclic_proof`).
+3. **Alternative targets**:
+   - `h1_trivial_implies_bounded_disagreement_ax` - if valueComplex structure understood
+   - Simple fairness axioms - definition unfolding
 
----
+4. **Build verification**: Run `make fast` to check compilation once lake is available
 
-## Summary
+## Commit Info
 
-Analyzed all sorries and identified `no_cycle_bookkeeping_proof` as the easiest target. Discovered and fixed a critical bug in the `Cycle` structure that made the proof impossible. The proof structure is now correct but requires detailed list manipulation to complete the `IsCycle` verification.
+- **Commit**: 0f46520
+- **Message**: Add infrastructure files for axiom elimination
+- **Branch**: claude/prove-axioms-TKNuH (pushed)
