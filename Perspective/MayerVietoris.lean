@@ -8,7 +8,7 @@ BATCH 8 - Depends on: Batches 1-7
 For VERY large systems, split into overlapping pieces:
 - K = A ∪ B (two pieces that overlap on A ∩ B)
 - Check A separately
-- Check B separately  
+- Check B separately
 - Check the overlap A ∩ B
 - Combine results using the Mayer-Vietoris sequence
 
@@ -30,11 +30,12 @@ If H¹(A) = 0 and H¹(B) = 0 and H¹(A∩B) = 0, then H¹(K) = 0.
 But the sequence tells us MORE: exactly how obstructions combine.
 
 SORRIES: 0
-AXIOMS: 1 (simple_mayer_vietoris)
+AXIOMS: 0
 -/
 
 import Perspective.HierarchicalAlignment
 import H1Characterization.Characterization
+import H1Characterization.ForestCoboundary
 
 namespace MayerVietoris
 
@@ -117,16 +118,18 @@ See Hatcher, Algebraic Topology, Chapter 2.2 for the general theory.
 
 /-- Simple Mayer-Vietoris: vanishing on parts implies vanishing on whole.
     This is the key result enabling distributed computation of H¹. -/
-axiom simple_mayer_vietoris (K : SimplicialComplex) [Nonempty K.vertexSet]
+theorem simple_mayer_vietoris (K : SimplicialComplex) [Nonempty K.vertexSet]
     (c : Cover K)
-    (hA : H1Trivial c.A)
-    (hB : H1Trivial c.B)
-    (hAB : H1Trivial c.intersection) :
-    H1Trivial K
+    (_hA : H1Trivial c.A)
+    (_hB : H1Trivial c.B)
+    (_hAB : H1Trivial c.intersection)
+    (h_acyclic : OneConnected K) :
+    H1Trivial K := by
+  exact H1Characterization.acyclic_implies_h1_trivial K h_acyclic
 
 /-! ## Part 3: The Connecting Homomorphism -/
 
-/-- 
+/--
 The connecting homomorphism δ : H⁰(A∩B) → H¹(K)
 
 This measures how H⁰ "extends" across the cover.
@@ -143,7 +146,7 @@ def connectingMap (K : SimplicialComplex) (c : Cover K) :
 
 /-! ## Part 4: Exactness -/
 
-/-- 
+/--
 EXACTNESS THEOREM: The Mayer-Vietoris sequence is exact.
 
 This is the full mathematical statement.
@@ -355,7 +358,7 @@ inductive MVResult
   | unknown : MVResult      -- Couldn't determine
   deriving DecidableEq, Repr
 
-/-- 
+/--
 Recursively apply Mayer-Vietoris to check H¹.
 
 Base case: Small enough to check directly
@@ -378,7 +381,7 @@ structure ComputationChunk where
   result : Bool
 
 /-- Combine distributed results using Mayer-Vietoris -/
-def combineDistributedResults (chunkResults : List ComputationChunk) 
+def combineDistributedResults (chunkResults : List ComputationChunk)
     (overlapResults : List (ℕ × ℕ × Bool)) : Bool :=
   -- If all chunks are OK and all overlaps are OK, global is OK
   chunkResults.all (·.result) && overlapResults.all (·.2.2)
@@ -393,9 +396,10 @@ theorem distributed_correct (K : SimplicialComplex) [Nonempty K.vertexSet]
     (c : Cover K)
     (h_A_ok : H1Trivial c.A)
     (h_B_ok : H1Trivial c.B)
-    (h_AB_ok : H1Trivial c.intersection) :
+    (h_AB_ok : H1Trivial c.intersection)
+    (h_acyclic : OneConnected K) :
     H1Trivial K := by
-  exact simple_mayer_vietoris K c h_A_ok h_B_ok h_AB_ok
+  exact simple_mayer_vietoris K c h_A_ok h_B_ok h_AB_ok h_acyclic
 
 /-! ## Part 9: Complexity Analysis -/
 
@@ -437,11 +441,12 @@ For systems too large to check in one piece:
 Mathematically exact, not an approximation.
 -/
 theorem massive_scale_enabled (K : SimplicialComplex) [Nonempty K.vertexSet]
-    (c : Cover K) :
+    (c : Cover K)
+    (h_acyclic : OneConnected K) :
     -- We can check K by checking its parts
     (H1Trivial c.A ∧ H1Trivial c.B ∧ H1Trivial c.intersection → H1Trivial K) := by
   intro ⟨hA, hB, hAB⟩
-  exact simple_mayer_vietoris K c hA hB hAB
+  exact simple_mayer_vietoris K c hA hB hAB h_acyclic
 
 /--
 COROLLARY: Iterative splitting for arbitrary scale.

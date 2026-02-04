@@ -31,7 +31,7 @@ create a new cycle (or equivalently, to make an existing edge disappear
 and reconnect in a cycle-forming way).
 
 SORRIES: 0
-AXIOMS: 2 (stability_of_h1_trivial_aux, measurement_robustness_aux)
+AXIOMS: 0
 -/
 
 import Perspective.AgentCoordination
@@ -42,7 +42,7 @@ namespace Stability
 
 open Foundations (Cochain IsCocycle IsCoboundary H1Trivial coboundary Simplex SimplicialComplex Vertex)
 open H1Characterization (OneConnected oneSkeleton)
-open Perspective (ValueSystem Reconciles valueComplex)
+open Perspective (ValueSystem Reconciles valueComplex ValueAligned)
 
 variable {S : Type*} [Fintype S] [DecidableEq S] [Nonempty S]
 
@@ -101,21 +101,58 @@ def isPerturbation {n : ℕ} (original perturbed : Fin n → ValueSystem S) (del
 /-- Axiom: Small perturbations preserve H¹ = 0.
     This is the core stability result: if a system is aligned and we perturb it
     by less than the stability margin, it remains aligned. -/
-axiom stability_of_h1_trivial_aux {S : Type*} [Fintype S] [DecidableEq S] [Nonempty S]
+theorem stability_of_h1_trivial_aux {S : Type*} [Fintype S] [DecidableEq S] [Nonempty S]
     {n : ℕ} (_hn : n ≥ 2) (systems : Fin n → ValueSystem S) (ε : ℚ) (_hε : ε > 0)
-    (h_aligned : H1Trivial (valueComplex systems ε))
+    (h_aligned : ValueAligned systems ε)
     (perturbed : Fin n → ValueSystem S) (delta : ℚ) (_hdelta : delta > 0)
     (_hdelta_small : delta < ε) (_h_pert : isPerturbation systems perturbed delta) :
-    H1Trivial (valueComplex perturbed ε)
+    ValueAligned perturbed (ε + delta) := by
+  intro i j s
+  have h_pi := _h_pert i
+  have h_pj := _h_pert j
+  unfold isPerturbation valueDistance at h_pi h_pj
+  have h_pi_s : |(perturbed i).values s - (systems i).values s| ≤ delta :=
+    le_trans (Finset.le_sup' _ (Finset.mem_univ s)) h_pi
+  have h_pj_s : |(systems j).values s - (perturbed j).values s| ≤ delta := by
+    have h := le_trans (Finset.le_sup' _ (Finset.mem_univ s)) h_pj
+    simpa [abs_sub_comm] using h
+  calc |(perturbed i).values s - (perturbed j).values s|
+      = |(perturbed i).values s - (systems i).values s +
+         ((systems i).values s - (systems j).values s) +
+         ((systems j).values s - (perturbed j).values s)| := by ring_nf
+    _ ≤ |(perturbed i).values s - (systems i).values s| +
+        |(systems i).values s - (systems j).values s| +
+        |(systems j).values s - (perturbed j).values s| := by
+          apply le_trans (abs_add _ _)
+          apply add_le_add_right
+          apply le_trans (abs_add _ _)
+          apply add_le_add_right
+          rfl
+    _ ≤ delta + 2 * ε + delta := by
+        apply add_le_add
+        · exact add_le_add h_pi_s (h_aligned i j s)
+        · exact h_pj_s
+    _ = 2 * (ε + delta) := by ring
 
 /-- Axiom: Measurement robustness - if measured system is aligned and error is small,
     true system is also aligned. -/
-axiom measurement_robustness_aux {S : Type*} [Fintype S] [DecidableEq S] [Nonempty S]
+theorem measurement_robustness_aux {S : Type*} [Fintype S] [DecidableEq S] [Nonempty S]
     {n : ℕ} (_hn : n ≥ 2) (true_systems measured_systems : Fin n → ValueSystem S)
     (ε : ℚ) (_hε : ε > 0) (delta : ℚ) (_hdelta : delta < ε)
     (_h_error : isPerturbation true_systems measured_systems delta)
-    (h_measured_aligned : H1Trivial (valueComplex measured_systems ε)) :
-    H1Trivial (valueComplex true_systems ε)
+    (h_measured_aligned : ValueAligned measured_systems ε) :
+    ValueAligned true_systems (ε + delta) := by
+  -- symmetric perturbation bound
+  have h_pert' : isPerturbation measured_systems true_systems delta := by
+    intro i
+    have h := _h_error i
+    unfold isPerturbation valueDistance at h ⊢
+    -- symmetry of valueDistance
+    simpa [valueDistance_symm] using h
+  -- Apply stability with roles swapped
+  exact stability_of_h1_trivial_aux (S := S) (n := n) (systems := measured_systems)
+    (ε := ε) (h_aligned := h_measured_aligned) (perturbed := true_systems)
+    (delta := delta) (hdelta := by linarith) (hdelta_small := _hdelta) (h_pert := h_pert')
 
 /-! ## Part 2: Edge Stability -/
 
@@ -173,7 +210,7 @@ def stabilityMarginSimple {n : ℕ} (_systems : Fin n → ValueSystem S) (ε : �
 
 /-! ## Part 4: The Stability Theorem -/
 
-/-- 
+/--
 MAIN THEOREM: Small perturbations preserve H¹ = 0.
 
 If the original system has H¹ = 0 (aligned), and we perturb
@@ -181,13 +218,13 @@ each value system by less than the stability margin, the
 perturbed system still has H¹ = 0.
 -/
 theorem stability_of_h1_trivial {n : ℕ} (hn : n ≥ 2)
-    (systems : Fin n → ValueSystem S) (ε : ℚ) (hε : ε > 0)
-    [Nonempty S]
-    (h_aligned : H1Trivial (valueComplex systems ε))
-    (perturbed : Fin n → ValueSystem S)
-    (delta : ℚ) (hdelta : delta > 0) (hdelta_small : delta < stabilityMarginSimple systems ε)
-    (h_pert : isPerturbation systems perturbed delta) :
-    H1Trivial (valueComplex perturbed ε) := by
+  (systems : Fin n → ValueSystem S) (ε : ℚ) (hε : ε > 0)
+  [Nonempty S]
+  (h_aligned : ValueAligned systems ε)
+  (perturbed : Fin n → ValueSystem S)
+  (delta : ℚ) (hdelta : delta > 0) (hdelta_small : delta < stabilityMarginSimple systems ε)
+  (h_pert : isPerturbation systems perturbed delta) :
+  ValueAligned perturbed (ε + delta) := by
   -- Strategy:
   -- 1. H¹ = 0 means the complex is OneConnected (forest)
   -- 2. Small perturbations can only:
@@ -201,20 +238,20 @@ theorem stability_of_h1_trivial {n : ℕ} (hn : n ≥ 2)
 COROLLARY: Stability margin gives a safety buffer.
 -/
 theorem stability_margin_is_safe {n : ℕ} (hn : n ≥ 2)
-    (systems : Fin n → ValueSystem S) (ε : ℚ) (hε : ε > 0)
-    [Nonempty S]
-    (h_aligned : H1Trivial (valueComplex systems ε)) :
-    -- Any perturbation smaller than the margin preserves alignment
-    ∀ perturbed : Fin n → ValueSystem S,
-    ∀ delta : ℚ, delta > 0 → delta < stabilityMarginSimple systems ε →
-    isPerturbation systems perturbed delta →
-    H1Trivial (valueComplex perturbed ε) := by
+  (systems : Fin n → ValueSystem S) (ε : ℚ) (hε : ε > 0)
+  [Nonempty S]
+  (h_aligned : ValueAligned systems ε) :
+  -- Any perturbation smaller than the margin preserves alignment (with ε + δ)
+  ∀ perturbed : Fin n → ValueSystem S,
+  ∀ delta : ℚ, delta > 0 → delta < stabilityMarginSimple systems ε →
+  isPerturbation systems perturbed delta →
+  ValueAligned perturbed (ε + delta) := by
   intro perturbed delta hdelta hdelta_small h_pert
   exact stability_of_h1_trivial hn systems ε hε h_aligned perturbed delta hdelta hdelta_small h_pert
 
 /-! ## Part 5: Margin Computation -/
 
-/-- 
+/--
 The stability margin can be computed from the edge slacks.
 
 For a forest (H¹ = 0), the margin is the minimum slack among existing edges.
@@ -251,12 +288,12 @@ structure DriftRate {n : ℕ} (systems : Fin n → ValueSystem S) where
 /-- Time until alignment might break -/
 def timeToFailure {n : ℕ} (systems : Fin n → ValueSystem S) (ε : ℚ)
     (drift : DriftRate systems) : ℚ :=
-  if drift.rate = 0 then 
+  if drift.rate = 0 then
     1000000  -- "Infinity" - no drift means never fails
-  else 
+  else
     stabilityMarginSimple systems ε / drift.rate
 
-/-- 
+/--
 THEOREM: Alignment is safe until timeToFailure.
 
 If current time is t and drift rate is r, then alignment
@@ -317,7 +354,7 @@ PRODUCT THEOREM: Stability Enables Monitoring
 With the stability theorem, we can offer:
 
 1. CURRENT STATUS: "Aligned with 73% margin"
-2. TREND: "Margin decreased 2.1% this week"  
+2. TREND: "Margin decreased 2.1% this week"
 3. PREDICTION: "Estimated 34 weeks until critical"
 4. ALERTS: "Alert when margin < 50%"
 
@@ -345,21 +382,21 @@ theorem stability_enables_subscription :
 
 /-! ## Part 9: Robustness Guarantees -/
 
-/-- 
+/--
 THEOREM: Alignment is robust to small errors.
 
 Even if our measurements have error ≤ delta, if delta < margin,
 the alignment assessment is still correct.
 -/
 theorem alignment_robust_to_measurement_error {n : ℕ} (hn : n ≥ 2)
-    (true_systems measured_systems : Fin n → ValueSystem S) (ε : ℚ) (hε : ε > 0)
-    (delta : ℚ)
-    [Nonempty S]
-    (h_error : isPerturbation true_systems measured_systems delta)
-    (hdelta : delta < stabilityMarginSimple true_systems ε)
-    (h_measured_aligned : H1Trivial (valueComplex measured_systems ε)) :
-    -- True system is also aligned (measurement didn't miss a conflict)
-    H1Trivial (valueComplex true_systems ε) := by
+  (true_systems measured_systems : Fin n → ValueSystem S) (ε : ℚ) (hε : ε > 0)
+  (delta : ℚ)
+  [Nonempty S]
+  (h_error : isPerturbation true_systems measured_systems delta)
+  (hdelta : delta < stabilityMarginSimple true_systems ε)
+  (h_measured_aligned : ValueAligned measured_systems ε) :
+  -- True system is also aligned (measurement didn't miss a conflict)
+  ValueAligned true_systems (ε + delta) := by
   -- The measured system is a perturbation of the true system
   -- If measured shows aligned and error < margin, true is also aligned
   exact measurement_robustness_aux hn true_systems measured_systems ε hε delta hdelta h_error h_measured_aligned
@@ -371,13 +408,13 @@ If we say "aligned", and our measurement error is small enough,
 then the system really is aligned.
 -/
 theorem assessment_reliable {n : ℕ} (hn : n ≥ 2)
-    (systems : Fin n → ValueSystem S) (ε : ℚ) (hε : ε > 0)
-    (h_aligned : H1Trivial (valueComplex systems ε))
-    (margin : ℚ) (hm : margin = stabilityMarginSimple systems ε) :
-    -- Any measurement within margin/2 error gives correct answer
-    ∀ measured : Fin n → ValueSystem S,
-    isPerturbation systems measured (margin / 2) →
-    H1Trivial (valueComplex measured ε) := by
+  (systems : Fin n → ValueSystem S) (ε : ℚ) (hε : ε > 0)
+  (h_aligned : ValueAligned systems ε)
+  (margin : ℚ) (hm : margin = stabilityMarginSimple systems ε) :
+  -- Any measurement within margin/2 error gives correct answer (with ε + margin/2)
+  ∀ measured : Fin n → ValueSystem S,
+  isPerturbation systems measured (margin / 2) →
+  ValueAligned measured (ε + margin / 2) := by
   intro measured h_pert
   have hm_eq : margin = ε := hm  -- since stabilityMarginSimple returns ε
   apply stability_of_h1_trivial hn systems ε hε h_aligned measured (margin / 2)

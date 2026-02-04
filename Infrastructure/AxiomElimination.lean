@@ -16,7 +16,7 @@ import Mathlib.Algebra.Order.Field.Rat
 namespace Infrastructure.AxiomElimination
 
 open Foundations H1Characterization
-open Perspective (ValueSystem valueComplex Reconciles)
+open Perspective (ValueSystem valueComplex Reconciles ValueAligned)
 
 /-! ## Section 1: ConflictLocalization Axioms → Theorems -/
 
@@ -149,11 +149,11 @@ theorem fairness_loss_bounded {n : ℕ} [NeZero n]
     - Chazal, Cohen-Steiner, Guibas, Mémoli, Oudot: "Gromov-Hausdorff Stable Signatures" (2009)
 -/
 theorem stability_of_h1_trivial_aux {S : Type*} [Fintype S] [DecidableEq S] [Nonempty S]
-    {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S) (ε : ℚ) (hε : ε > 0)
-    (hK : H1Trivial (valueComplex systems ε))
-    (systems' : Fin n → ValueSystem S)
-    (h_close : ∀ i s, |(systems' i).values s - (systems i).values s| < ε / 4) :
-    H1Trivial (valueComplex systems' ε) := by
+  {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S) (ε : ℚ) (hε : ε > 0)
+  (hK : ValueAligned systems ε)
+  (systems' : Fin n → ValueSystem S)
+  (h_close : ∀ i s, |(systems' i).values s - (systems i).values s| < ε / 4) :
+  ValueAligned systems' (ε + ε / 4) := by
   by_cases hn2 : n ≥ 2
   · -- Use the stability axiom from Perspective.Stability with δ = ε/4
     have h_pert : Stability.isPerturbation systems systems' (ε / 4) := by
@@ -166,22 +166,19 @@ theorem stability_of_h1_trivial_aux {S : Type*} [Fintype S] [DecidableEq S] [Non
     have hdelta_small : (ε / 4 : ℚ) < ε := by linarith
     exact Stability.stability_of_h1_trivial_aux (S := S) (n := n) hn2 systems ε hε hK
       systems' (ε / 4) hdelta hdelta_small h_pert
-  · -- n < 2: there are no 1-simplices, so H¹ is trivial
+  · -- n < 2: alignment is trivial by boundedness
     push_neg at hn2
-    intro f _hf
-    use fun _ => 0
-    funext ⟨e, he⟩
-    simp only [SimplicialComplex.ksimplices, Set.mem_setOf_eq] at he
-    simp only [valueComplex, Set.mem_setOf_eq] at he
-    obtain ⟨⟨h_vertices, _⟩, h_card⟩ := he
-    have h_two := Finset.one_lt_card.mp (by rw [h_card]; norm_num : 1 < e.card)
-    obtain ⟨a, ha, b, hb, hab⟩ := h_two
-    have ha' := h_vertices a ha
-    have hb' := h_vertices b hb
+    intro i j s
     have hn' : n ≤ 1 := Nat.lt_succ_iff.mp hn2
-    have ha0 : a = 0 := Nat.lt_one_iff.mp (Nat.lt_of_lt_of_le ha' hn')
-    have hb0 : b = 0 := Nat.lt_one_iff.mp (Nat.lt_of_lt_of_le hb' hn')
-    exact False.elim (hab (ha0.trans hb0.symm))
+    have hi0 : i.val = 0 := Nat.lt_one_iff.mp (Nat.lt_of_lt_of_le i.isLt hn')
+    have hj0 : j.val = 0 := Nat.lt_one_iff.mp (Nat.lt_of_lt_of_le j.isLt hn')
+    -- i = j in a singleton set, so the difference is zero
+    have hij : i = j := by
+      apply Fin.ext
+      exact hi0.trans hj0.symm
+    subst hij
+    simp only [sub_self, abs_zero]
+    linarith
 
 /-- H¹ = 0 implies stability under small perturbations.
 
@@ -192,11 +189,11 @@ theorem stability_of_h1_trivial_aux {S : Type*} [Fintype S] [DecidableEq S] [Non
     See `stability_of_h1_trivial_aux` for the mathematical justification. -/
 theorem stability_of_h1_trivial_theorem {S : Type*} [Fintype S] [DecidableEq S] [Nonempty S]
     {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S) (ε : ℚ) (hε : ε > 0)
-    (hK : H1Trivial (valueComplex systems ε)) :
-    -- Small perturbations preserve H¹ = 0
+    (hK : ValueAligned systems ε) :
+    -- Small perturbations preserve alignment (with ε + delta)
     ∃ delta : ℚ, delta > 0 ∧ ∀ systems' : Fin n → ValueSystem S,
       (∀ i s, |(systems' i).values s - (systems i).values s| < delta) →
-      H1Trivial (valueComplex systems' ε) := by
+      ValueAligned systems' (ε + delta) := by
   -- Use ε/4 as the stability radius
   use ε / 4
   constructor

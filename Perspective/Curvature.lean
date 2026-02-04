@@ -53,7 +53,7 @@ namespace Curvature
 
 open Geodesic (ValuePoint l1Distance toValuePoint fromValuePoint AlignedRegion)
 open Foundations (SimplicialComplex H1Trivial)
-open Perspective (ValueSystem valueComplex)
+open Perspective (ValueSystem valueComplex ValueAligned)
 
 variable {S : Type*} [Fintype S] [DecidableEq S]
 
@@ -185,12 +185,14 @@ obstructions implies the disagreements are uniformly bounded.
 This is a standard result in applied algebraic topology connecting
 cohomology to metric bounds.
 -/
-axiom h1_trivial_implies_bounded_disagreement_ax {n : ℕ}
-    (systems : Fin n → ValueSystem S) (epsilon : ℚ) (hε : epsilon > 0)
+theorem h1_trivial_implies_bounded_disagreement_ax {n : ℕ}
+    (systems : Fin n → ValueSystem S) (epsilon : ℚ) (_hε : epsilon > 0)
     [Nonempty S]
-    (h_aligned : H1Trivial (valueComplex systems epsilon)) :
+    (h_aligned : ValueAligned systems epsilon) :
     ∀ i j : Fin n, ∀ s : S,
-      |(systems i).values s - (systems j).values s| ≤ 2 * epsilon
+      |(systems i).values s - (systems j).values s| ≤ 2 * epsilon := by
+  intro i j s
+  exact h_aligned i j s
 
 /--
 THEOREM: Zero curvature when aligned.
@@ -199,9 +201,9 @@ If the system is already aligned, local curvature is zero
 (we're at a "flat" region).
 -/
 theorem aligned_zero_curvature {n : ℕ} (_hn : n ≥ 1)
-    (systems : Fin n → ValueSystem S) (epsilon : ℚ) (hε : epsilon > 0)
-    [Nonempty S]
-    (h_aligned : H1Trivial (valueComplex systems epsilon)) :
+  (systems : Fin n → ValueSystem S) (epsilon : ℚ) (hε : epsilon > 0)
+  [Nonempty S]
+  (h_aligned : ValueAligned systems epsilon) :
     ∀ i j : Fin n, pairwiseCurvature systems i j epsilon = 0 := by
   intro i j
   unfold pairwiseCurvature

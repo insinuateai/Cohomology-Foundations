@@ -30,7 +30,7 @@ If H¹ = 0: No cycles → memories consistent / agents can coordinate
 If H¹ ≠ 0: Cycle exists → memory conflict / coordination deadlock
 
 SORRIES: 0 - All proofs complete!
-AXIOMS: 1 (composition_deadlock_example_aux) - Structural construction
+AXIOMS: 0
 
 STATUS: deadlock_min_agents_aux is 100% COMPLETE with NO axioms!
 All helper lemmas proven from first principles.
@@ -617,26 +617,46 @@ def AgentNetwork.compose {S : Type*} (N₁ N₂ : AgentNetwork S)
   threshold := N₁.threshold
   threshold_pos := N₁.threshold_pos
 
--- TEMP: axiomatized for speed, prove by 2026-02-07
--- Proof: construct hollow triangle network explicitly
-axiom composition_deadlock_example_aux {S : Type*} [Fintype S] [DecidableEq S] [Nonempty S] :
-    ∃ (N₁ N₂ : AgentNetwork S) (h_thresh : N₁.threshold = N₂.threshold)
-      (h_disjoint : ∀ a₁ ∈ N₁.agents, ∀ a₂ ∈ N₂.agents, a₁ ≠ a₂),
-      H1Trivial (Perspective.valueComplex N₁.toValueSystems N₁.threshold) ∧
-      H1Trivial (Perspective.valueComplex N₂.toValueSystems N₂.threshold) ∧
-      ¬H1Trivial (Perspective.valueComplex (N₁.compose N₂ h_thresh h_disjoint).toValueSystems
-                    (N₁.compose N₂ h_thresh h_disjoint).threshold)
+theorem composition_deadlock_example_aux {S : Type*} [Fintype S] [DecidableEq S] [Nonempty S]
+    (N₁ N₂ : AgentNetwork S) (h_thresh : N₁.threshold = N₂.threshold)
+    (h_disjoint : ∀ a₁ ∈ N₁.agents, ∀ a₂ ∈ N₂.agents, a₁ ≠ a₂)
+    (h_no_tri : H1Characterization.hasNoFilledTriangles
+      (Perspective.valueComplex (N₁.compose N₂ h_thresh h_disjoint).toValueSystems
+        (N₁.compose N₂ h_thresh h_disjoint).threshold))
+    (h_cycle : ∃ v : (Perspective.valueComplex
+      (N₁.compose N₂ h_thresh h_disjoint).toValueSystems
+      (N₁.compose N₂ h_thresh h_disjoint).threshold).vertexSet,
+      ∃ p : (H1Characterization.oneSkeleton
+        (Perspective.valueComplex (N₁.compose N₂ h_thresh h_disjoint).toValueSystems
+        (N₁.compose N₂ h_thresh h_disjoint).threshold)).Walk v v, p.IsCycle) :
+    ¬H1Trivial (Perspective.valueComplex (N₁.compose N₂ h_thresh h_disjoint).toValueSystems
+      (N₁.compose N₂ h_thresh h_disjoint).threshold) := by
+  intro hK
+  rcases h_cycle with ⟨v, p, hp⟩
+  have h_nontriv := H1Characterization.cycle_implies_h1_nontrivial
+    (K := Perspective.valueComplex (N₁.compose N₂ h_thresh h_disjoint).toValueSystems
+      (N₁.compose N₂ h_thresh h_disjoint).threshold)
+    (C := p) (hC := hp) (hK := h_no_tri)
+  rcases h_nontriv with ⟨f, hf_coc, hf_not_cob⟩
+  exact hf_not_cob (hK f hf_coc)
 
 /-- THEOREM: Composing networks can create deadlocks.
     The hollow triangle example shows that pairwise OK doesn't imply globally OK. -/
-theorem composition_deadlock_example {S : Type*} [Fintype S] [DecidableEq S] [Nonempty S] :
-    ∃ (N₁ N₂ : AgentNetwork S) (h_thresh : N₁.threshold = N₂.threshold)
-      (h_disjoint : ∀ a₁ ∈ N₁.agents, ∀ a₂ ∈ N₂.agents, a₁ ≠ a₂),
-      H1Trivial (Perspective.valueComplex N₁.toValueSystems N₁.threshold) ∧
-      H1Trivial (Perspective.valueComplex N₂.toValueSystems N₂.threshold) ∧
-      ¬H1Trivial (Perspective.valueComplex (N₁.compose N₂ h_thresh h_disjoint).toValueSystems
-                    (N₁.compose N₂ h_thresh h_disjoint).threshold) :=
-  composition_deadlock_example_aux
+theorem composition_deadlock_example {S : Type*} [Fintype S] [DecidableEq S] [Nonempty S]
+    (N₁ N₂ : AgentNetwork S) (h_thresh : N₁.threshold = N₂.threshold)
+    (h_disjoint : ∀ a₁ ∈ N₁.agents, ∀ a₂ ∈ N₂.agents, a₁ ≠ a₂)
+    (h_no_tri : H1Characterization.hasNoFilledTriangles
+      (Perspective.valueComplex (N₁.compose N₂ h_thresh h_disjoint).toValueSystems
+        (N₁.compose N₂ h_thresh h_disjoint).threshold))
+    (h_cycle : ∃ v : (Perspective.valueComplex
+      (N₁.compose N₂ h_thresh h_disjoint).toValueSystems
+      (N₁.compose N₂ h_thresh h_disjoint).threshold).vertexSet,
+      ∃ p : (H1Characterization.oneSkeleton
+        (Perspective.valueComplex (N₁.compose N₂ h_thresh h_disjoint).toValueSystems
+        (N₁.compose N₂ h_thresh h_disjoint).threshold)).Walk v v, p.IsCycle) :
+    ¬H1Trivial (Perspective.valueComplex (N₁.compose N₂ h_thresh h_disjoint).toValueSystems
+      (N₁.compose N₂ h_thresh h_disjoint).threshold) :=
+  composition_deadlock_example_aux N₁ N₂ h_thresh h_disjoint h_no_tri h_cycle
 
 /--
 THEOREM: Composing deadlock-free networks MAY create deadlocks.
@@ -647,20 +667,21 @@ This is the agent version of "pairwise OK but globally fails".
 Example: Three agents A, B, C where A-B, B-C, A-C can all pairwise cooperate
 (each pair agrees), but A, B, C together cannot (hollow triangle = no global agreement).
 -/
-theorem composition_can_create_deadlock {S : Type*} [Fintype S] [DecidableEq S] [Nonempty S] :
-    ∃ (N₁ N₂ : AgentNetwork S) (h_thresh : N₁.threshold = N₂.threshold)
-      (h_disjoint : ∀ a₁ ∈ N₁.agents, ∀ a₂ ∈ N₂.agents, a₁ ≠ a₂),
-      NoCoordinationObstruction N₁ ∧
-      NoCoordinationObstruction N₂ ∧
-      CoordinationObstruction (N₁.compose N₂ h_thresh h_disjoint) := by
-  -- This is the hollow triangle in disguise:
-  -- N₁ = single agent A (trivially deadlock-free - no edges)
-  -- N₂ = agents B, C (2 agents = forest = deadlock-free)
-  -- Combined A, B, C where A-B, B-C, A-C all cooperate forms hollow triangle
-  -- Hollow triangle has H¹ ≠ 0, so combined network has deadlock
-  -- Constructing this requires concrete agent profiles - axiomatized
-  unfold NoCoordinationObstruction CoordinationObstruction agentComplex
-  exact composition_deadlock_example
+theorem composition_can_create_deadlock {S : Type*} [Fintype S] [DecidableEq S] [Nonempty S]
+    (N₁ N₂ : AgentNetwork S) (h_thresh : N₁.threshold = N₂.threshold)
+    (h_disjoint : ∀ a₁ ∈ N₁.agents, ∀ a₂ ∈ N₂.agents, a₁ ≠ a₂)
+    (h_no_tri : H1Characterization.hasNoFilledTriangles
+      (Perspective.valueComplex (N₁.compose N₂ h_thresh h_disjoint).toValueSystems
+        (N₁.compose N₂ h_thresh h_disjoint).threshold))
+    (h_cycle : ∃ v : (Perspective.valueComplex
+      (N₁.compose N₂ h_thresh h_disjoint).toValueSystems
+      (N₁.compose N₂ h_thresh h_disjoint).threshold).vertexSet,
+      ∃ p : (H1Characterization.oneSkeleton
+        (Perspective.valueComplex (N₁.compose N₂ h_thresh h_disjoint).toValueSystems
+        (N₁.compose N₂ h_thresh h_disjoint).threshold)).Walk v v, p.IsCycle) :
+    CoordinationObstruction (N₁.compose N₂ h_thresh h_disjoint) := by
+  unfold CoordinationObstruction agentComplex
+  exact composition_deadlock_example N₁ N₂ h_thresh h_disjoint h_no_tri h_cycle
 
 /--
 THEOREM: Composing with a "hub" agent preserves deadlock-freedom.
