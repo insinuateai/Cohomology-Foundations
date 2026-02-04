@@ -244,7 +244,7 @@ axiom-count:
 		fi; \
 	done
 	@echo "  ────────────────────────"
-	@printf "  %-20s %3d\n" "TOTAL" "$$(grep -rc '^axiom ' . --include='*.lean' | grep -v '\.lake' | awk -F: '{sum+=$$2} END {print sum}')"
+	@printf "  %-20s %3d\n" "TOTAL" "$$(grep -rc '^axiom ' . --include='*.lean' --exclude-dir=.lake --exclude-dir=.git | awk -F: '{sum+=$$2} END {print sum}')"
 
 # Full axiom report to .claude/axiom-report.md
 axiom-report:

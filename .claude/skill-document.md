@@ -81,6 +81,7 @@
 ## Session Log
 
 <!-- Keep only 3 most recent entries. Older patterns captured in Pitfalls/Patterns above. -->
+- 2026-02-04: **Codespace hook timeout** - Added timeouts to session-status hook and excluded .lake/.git in axiom-count to prevent prompt hooks from hanging.
 - 2026-02-02: **R01-R03, X25-X26 marked KEEP** - Mathematically false (multi-cycle counterexamples) or structural (type allows empty). 13 axioms eliminated total (G01-G06, C03, C04, X03, X04, X28, X29, F07).
 - 2026-02-02: **12 sorries are the real blockers** - TreeAuthCoreProofs (3), CompleteComplexH1 (2), TreeAuthorityAcyclicity (3), TreeAuthDepthTheory (2), SimplicialGraphBridge (1), TreeAuthorityH1 (1). Fix these before new infrastructure files.
 - 2026-02-02: **Minimum-depth cycle argument** - Pattern: `Finset.min'` → `IsCycle.rotate` → `getVert_injOn'` → `takeUntil` → `endpoint_notMem_support_takeUntil`. Used for T02, T04, T05 proofs.
