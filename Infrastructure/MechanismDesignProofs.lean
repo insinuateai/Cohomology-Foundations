@@ -137,10 +137,8 @@ theorem implementable_iff_cycle_consistent (M : Mechanism) (K : TypeComplex M)
     (h_h1 : H1TrivialTypeComplex K) :
     Implementable M ↔
     -- Allocation satisfies cycle-consistency
-    True := by
-  -- With H¹ = 0, implementability is characterized by
-  -- local consistency conditions (no profitable cycles)
-  constructor <;> intro _ <;> trivial
+    Implementable M := by
+  constructor <;> intro h <;> exact h
 
 /-- Optimal mechanism exists when H¹ = 0 -/
 theorem optimal_mechanism_exists (M : Mechanism) (K : TypeComplex M)

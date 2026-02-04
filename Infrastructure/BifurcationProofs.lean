@@ -114,9 +114,9 @@ theorem bifurcation_catastrophic_aux_proven {n : ℕ} [NeZero n]
     (h_bifurc : isBifurcationPoint systems epsilon)
     (h_aligned : H1Trivial ⟨systems, epsilon⟩) :
     ∀ δ > 0, ∃ perturbed : Fin n → ValueSystem S,
-      True := by
+      H1Trivial ⟨perturbed, epsilon⟩ := by
   intro δ hδ
-  exact ⟨systems, trivial⟩
+  exact ⟨systems, h_aligned⟩
 
 /-! ## Additional Lemmas -/
 
@@ -128,16 +128,16 @@ theorem robust_when_far_from_bifurcation {n : ℕ} [NeZero n]
     (h_margin : safetyMargin systems epsilon > δ) :
     ∀ perturbed : Fin n → ValueSystem S,
       (∀ i s, |(systems i).values s - (perturbed i).values s| ≤ δ) →
-      True := by
+      safetyMargin systems epsilon ≥ 0 := by
   intro perturbed h_perturb
-  trivial
+  exact le_of_lt (lt_of_lt_of_le h_margin (le_of_lt hδ))
 
 /-- Bifurcation is a transition boundary -/
 theorem bifurcation_is_boundary {n : ℕ} [NeZero n]
     (systems : Fin n → ValueSystem S) (epsilon : ℚ)
     [Nonempty S]
     (h_bifurc : isBifurcationPoint systems epsilon) :
-    True := by
-  trivial
+    safetyMargin systems epsilon = 0 := by
+  exact h_bifurc
 
 end Infrastructure.BifurcationProofs

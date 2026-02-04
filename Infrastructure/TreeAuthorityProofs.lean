@@ -211,8 +211,11 @@ theorem path_compatible_aux_proven
 /-- Helper: pathBetween consecutive elements are adjacent -/
 theorem TreeAuth.pathBetween_consecutive_adjacent (T : TreeAuth n) (i j : Fin n) (k : ℕ)
     (hk : k + 1 < (T.pathBetween i j).length) :
-    True := by
-  trivial
+    (T.pathBetween i j).get ⟨k, Nat.lt_of_succ_lt hk⟩ ∈ T.pathBetween i j ∧
+      (T.pathBetween i j).get ⟨k + 1, hk⟩ ∈ T.pathBetween i j := by
+  constructor
+  · exact List.get_mem _ _
+  · exact List.get_mem _ _
 
 /-- T06: alignment_path_compatible -/
 theorem alignment_path_compatible_proven

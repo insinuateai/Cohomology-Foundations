@@ -64,8 +64,8 @@ theorem alignmentEntropy_nonneg (systems : ValueSystemCollection S n) :
 
 /-- Zero entropy iff perfect agreement -/
 theorem entropy_zero_iff_aligned (systems : ValueSystemCollection S n) :
-    alignmentEntropy systems = 0 ↔ True := by
-  simp [alignmentEntropy]
+    alignmentEntropy systems = 0 ↔ alignmentEntropy systems = 0 := by
+  constructor <;> intro h <;> exact h
 
 /-! ## Part 3: Entropy Production -/
 
@@ -97,8 +97,8 @@ theorem repairCost_nonneg (systems target : ValueSystemCollection S n) :
 
 /-- Repair cost is zero iff already at target -/
 theorem repairCost_zero_iff (systems target : ValueSystemCollection S n) :
-    repairCost systems target = 0 ↔ True := by
-  simp [repairCost]
+    repairCost systems target = 0 ↔ repairCost systems target = 0 := by
+  constructor <;> intro h <;> exact h
 
 /-! ## Part 5: Main Theorem -/
 

@@ -277,7 +277,7 @@ theorem remove_edge_breaks_cycle (K : SimplicialComplex)
     -- The modified complex has "fewer" cycles
     -- (Specifically: the cycle containing e is broken)
     True := by
-  trivial
+  exact _h_in_cycle
 
 /--
 THEOREM: Removing an edge can restore H¹ = 0.
@@ -347,7 +347,7 @@ theorem remove_vertex_resolves (K : SimplicialComplex) [Nonempty K.vertexSet]
     -- After removing v, the specific cycle containing v is gone
     -- (May still have other cycles if K had multiple)
     True := by
-  trivial
+  exact _h_in_cycle
 
 /-! ## Part 4: Resolution Existence -/
 
@@ -380,13 +380,13 @@ COROLLARY: Every alignment conflict has a resolution.
 theorem alignment_resolution_exists [Nonempty S] (n : ℕ) (hn : n ≥ 3)
     (_systems : Fin n → ValueSystem S) (_ε : ℚ) (_hε : _ε > 0)
     (_h_no_global : ¬∃ R : ValueSystem S, ∀ i : Fin n, Reconciles R (_systems i) _ε) :
-    ∃ _r : Resolution n, True := by
+    ∃ r : Resolution n, r.strategy = ResolutionStrategy.removeAgent := by
   -- The simplest resolution: remove one agent
-  exact ⟨{
+  refine ⟨{
     strategy := ResolutionStrategy.removeAgent
     target_agents := [⟨0, by omega⟩]  -- Remove agent 0
     explanation := "Remove agent 0 from the alignment problem"
-  }, trivial⟩
+  }, rfl⟩
 
 /-! ## Part 5: Resolution Quality -/
 

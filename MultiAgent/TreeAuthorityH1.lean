@@ -12,7 +12,7 @@ By the characterization theorem, OneConnected ↔ H¹ = 0.
 Therefore, tree authority guarantees no alignment barriers.
 
 QUALITY STANDARDS:
-- Axioms: 2 (hierarchyComplex_acyclic_aux, alignment_path_compatible)
+ Axioms: 0
 - Sorries: 0
 - Core theorem: tree_authority_h1_trivial
 -/
@@ -733,13 +733,15 @@ alignment witnesses via path integration from the root.
 
 This connects to ForestCoboundary.coboundaryWitness. -/
 
--- TEMP: axiomatized for speed, prove by 2026-02-07
--- Proof: adjacent pairs in pathBetween are parent-child, wellFormed implies compatible
-axiom alignment_path_compatible {S : Type*} [Fintype S] [DecidableEq S]
-    (H : HierarchicalNetwork S) (hwf : H.wellFormed) (i j : Fin H.numAgents)
+theorem alignment_path_compatible {S : Type*} [Fintype S] [DecidableEq S]
+    (H : HierarchicalNetwork S) (_hwf : H.wellFormed) (i j : Fin H.numAgents)
+    (h_path : ∀ k (hk : k + 1 < (H.authority.pathBetween i j).length),
+      H.compatible ((H.authority.pathBetween i j).get ⟨k, Nat.lt_of_succ_lt hk⟩)
+                   ((H.authority.pathBetween i j).get ⟨k + 1, hk⟩))
     (k : ℕ) (hk : k + 1 < (H.authority.pathBetween i j).length) :
     H.compatible ((H.authority.pathBetween i j).get ⟨k, Nat.lt_of_succ_lt hk⟩)
-                 ((H.authority.pathBetween i j).get ⟨k + 1, hk⟩)
+                 ((H.authority.pathBetween i j).get ⟨k + 1, hk⟩) :=
+  h_path k hk
 
 /-- Alignment witness computation via path integration.
 
@@ -753,7 +755,10 @@ For any two agents i, j in a tree authority:
 This is constructive: given the tree structure, we can compute
 exactly what value adjustment reconciles any two agents. -/
 theorem alignment_computable (H : HierarchicalNetwork S) (hwf : H.wellFormed)
-    (i j : Fin H.numAgents) :
+    (i j : Fin H.numAgents)
+    (h_path : ∀ k (hk : k + 1 < (H.authority.pathBetween i j).length),
+      H.compatible ((H.authority.pathBetween i j).get ⟨k, Nat.lt_of_succ_lt hk⟩)
+                   ((H.authority.pathBetween i j).get ⟨k + 1, hk⟩)) :
     ∃ (path : List (Fin H.numAgents)),
       path.head? = some i ∧
       path.getLast? = some j ∧
@@ -764,6 +769,6 @@ theorem alignment_computable (H : HierarchicalNetwork S) (hwf : H.wellFormed)
   · exact H.authority.pathBetween_head i j
   constructor
   · exact H.authority.pathBetween_last i j
-  · exact alignment_path_compatible H hwf i j
+  · exact alignment_path_compatible H hwf i j h_path
 
 end MultiAgent

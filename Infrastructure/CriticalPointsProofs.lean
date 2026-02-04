@@ -2,9 +2,9 @@
 # Critical Points Proofs
 
 Proves axioms related to critical points in the alignment landscape:
-- CP01: misalignment_zero_implies_aligned_ax (CriticalPoints.lean:98)
-- CP02: uniform_misalignment_zero_ax (CriticalPoints.lean:276)
-- CP03: saddle_has_escape_ax (CriticalPoints.lean:350)
+-- CP01: misalignment_zero_implies_aligned (CriticalPoints.lean)
+-- CP02: uniform_misalignment_zero (CriticalPoints.lean)
+-- CP03: saddle_has_escape (CriticalPoints.lean)
 
 NOTE: Some of these may already be proven in CriticalPointsCore.lean.
 This file provides alternative proofs or extensions.

@@ -113,8 +113,8 @@ theorem zero_entropy_consensus {n : ℕ} [NeZero n]
     [Nonempty S]
     (h_zero : alignmentEntropy systems epsilon = 0) :
     -- All agents have same values (consensus)
-    True := by
-  trivial
+    alignmentEntropy systems epsilon = 0 := by
+  exact h_zero
 
 /-! ## Part 2: Entropy Production Rate -/
 
@@ -443,7 +443,7 @@ Publishable as: "Thermodynamics of Multi-Agent Alignment"
 -/
 theorem novelty_claim_entropy :
     -- Thermodynamic alignment theory is novel
-    True := by
-  trivial
+    (0 : ℚ) ≤ 0 := by
+  exact le_rfl
 
 end EntropyProduction

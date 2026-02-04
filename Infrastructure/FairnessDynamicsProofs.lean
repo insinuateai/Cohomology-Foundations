@@ -94,10 +94,13 @@ theorem negative_lyapunov_stable_proven (dynamics : FairnessDynamics n)
 theorem stable_implies_convergence (dynamics : FairnessDynamics n)
     (h_stable : isStable dynamics)
     (h_strict : ∀ a, a ≠ dynamics.equilibrium → lyapunovDerivative dynamics a < 0) :
-    -- Weak convergence claim in the simplified model
-    ∀ a : Allocation n, ∃ k : ℕ, True := by
+    -- One-step Lyapunov decrease for any allocation
+    ∀ a : Allocation n,
+      lyapunovFunction dynamics (dynamics.step a) ≤ lyapunovFunction dynamics a := by
   intro a
-  exact ⟨0, trivial⟩
+  have h := h_stable a
+  unfold lyapunovDerivative at h
+  linarith
 
 /-! ## FD02: Optimal Lipschitz Achieves Fairness -/
 

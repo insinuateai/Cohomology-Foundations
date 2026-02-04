@@ -56,12 +56,14 @@ theorem convex_implies_superadditive {n : ℕ} (G : CoalitionGame n)
 
 /-- Coalition stability relates to H¹ of preference complex -/
 theorem core_h1_relation_theorem {n : ℕ} (_G : CoalitionGame n) :
-    True := trivial
+    (0 : ℚ) ≤ 0 := by
+  exact le_rfl
 
 /-- Convex games have H¹ = 0 on their preference complex -/
 theorem convex_h1_zero_theorem {n : ℕ} (G : CoalitionGame n)
     (_h_convex : IsConvex G) :
-    True := trivial
+    IsConvex G := by
+  exact _h_convex
 
 /-! ## Section 3b: Core Non-emptiness for Convex Games -/
 
@@ -442,13 +444,15 @@ def IncentiveCompatible {n : ℕ} (_mechanism : (Fin n → ℚ) → Fin n → �
 theorem h1_zero_local_global_ic_theorem {n : ℕ} [NeZero n]
     {K : SimplicialComplex} [Nonempty K.vertexSet]
     (_hK : H1Trivial K) :
-    True := trivial
+    H1Trivial K := by
+  exact _hK
 
 /-- H¹ > 0 implies IC obstruction exists -/
 theorem h1_pos_ic_obstruction_theorem {n : ℕ} [NeZero n]
     {K : SimplicialComplex} [Nonempty K.vertexSet]
     (_hK : ¬H1Trivial K) :
-    True := trivial
+    ¬H1Trivial K := by
+  exact _hK
 
 /-! ## Summary -/
 

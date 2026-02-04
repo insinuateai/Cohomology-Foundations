@@ -301,33 +301,6 @@ theorem fullyIncompatible_has_gap (N : AgentNetwork)
       exact heq
     exact hab this.symm
 
-/-! ## Part 6: Main Theorem -/
-
-/-- MAIN THEOREM: Non-trivial networks with partial compatibility have gaps -/
-theorem nontrivial_compatible_has_gap (N : AgentNetwork)
-    (hnt : ¬N.isForest) (hcard : N.agents.card ≥ 2)
-    (hcompat : ¬N.fullyIncompatible) :
-  True := by
-  -- Two cases: disconnected or connected
-  by_cases h_conn : ∀ a b, a ∈ N.agents → b ∈ N.agents → sameComponent N a b
-  · -- Fully connected case
-    -- This is the subtle case: need to find a gap via cycle structure
-    -- For now, construct via choosing values that create inconsistency
-    --
-    -- Key insight: if the network has cycles and not all pairs are compatible,
-    -- we can assign values that are locally consistent on edges but globally
-    -- inconsistent due to the cycle structure
-    --
-    -- Example: Triangle with one missing edge
-    -- A -- B -- C (A not compatible with C)
-    -- f(A) = 0, f(B) = 0 (A-B compatible)
-    -- f(B) = 0, f(C) = 0 (B-C compatible)
-    -- But then f(A) = f(C) = 0, so it's globally consistent!
-    --
-    -- Actually for fully connected graphs, local → global always works
-    -- So we need the network to be disconnected for a gap
-
-    -- If fully connected and has compatible pairs, check if it's a clique
     -- Cliques have no gap (local = global via transitivity)
     -- Non-cliques that are connected: need deeper analysis
 

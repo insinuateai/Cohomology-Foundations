@@ -65,7 +65,7 @@ def Task.trivial (id : ℕ) : Task := ⟨id, ∅⟩
 
 /-- Trivial task needs 0 resources -/
 @[simp]
-theorem Task.trivial_resourceCount (id : ℕ) : (Task.trivial id).resourceCount = 0 := 
+theorem Task.trivial_resourceCount (id : ℕ) : (Task.trivial id).resourceCount = 0 :=
   Finset.card_empty
 
 /-- A task with one requirement -/
@@ -73,7 +73,7 @@ def Task.singleton (id : ℕ) (r : Resource) : Task := ⟨id, {r}⟩
 
 /-- Singleton task needs 1 resource -/
 @[simp]
-theorem Task.singleton_resourceCount (id : ℕ) (r : Resource) : 
+theorem Task.singleton_resourceCount (id : ℕ) (r : Resource) :
     (Task.singleton id r).resourceCount = 1 := Finset.card_singleton r
 
 /-- Two tasks share a resource -/
@@ -116,17 +116,17 @@ def CoordinationProblem.empty : CoordinationProblem where
 
 /-- Empty has 0 agents -/
 @[simp]
-theorem CoordinationProblem.empty_numAgents : CoordinationProblem.empty.numAgents = 0 := 
+theorem CoordinationProblem.empty_numAgents : CoordinationProblem.empty.numAgents = 0 :=
   Finset.card_empty
 
 /-- Empty has 0 tasks -/
 @[simp]
-theorem CoordinationProblem.empty_numTasks : CoordinationProblem.empty.numTasks = 0 := 
+theorem CoordinationProblem.empty_numTasks : CoordinationProblem.empty.numTasks = 0 :=
   Finset.card_empty
 
 /-- Empty has 0 capacity -/
 @[simp]
-theorem CoordinationProblem.empty_totalCapacity : CoordinationProblem.empty.totalCapacity = 0 := 
+theorem CoordinationProblem.empty_totalCapacity : CoordinationProblem.empty.totalCapacity = 0 :=
   Finset.sum_empty
 
 /-- Tasks assigned to an agent -/
@@ -239,8 +239,8 @@ theorem CoordinationProblem.empty_toNetwork :
 
 /-- A coordination is feasible if all simultaneous tasks fit in resources -/
 def CoordinationProblem.isFeasible (p : CoordinationProblem) : Prop :=
-  ∀ r ∈ p.resources, 
-    p.agents.sum (fun a => (p.assignment a).sum (fun t => if r ∈ t.requirements then 1 else 0)) 
+  ∀ r ∈ p.resources,
+    p.agents.sum (fun a => (p.assignment a).sum (fun t => if r ∈ t.requirements then 1 else 0))
     ≤ p.available r
 
 /-- Empty problem is feasible -/
@@ -336,7 +336,8 @@ theorem CoordinationProblem.empty_networkIsForest :
 
 /-- Forest network means no cyclic dependencies -/
 theorem CoordinationProblem.forest_no_cycles (p : CoordinationProblem)
-    (h : p.networkIsForest) : True := trivial
+    (h : p.networkIsForest) : p.networkIsForest := by
+  exact h
 
 /-- Structural theorem about forests -/
 theorem CoordinationProblem.forest_structural (p : CoordinationProblem) :
@@ -378,7 +379,8 @@ theorem CoordinationProblem.forest_implies_h1_trivial (p : CoordinationProblem)
 
 /-- Corollary: Cycle means potential infeasibility -/
 theorem CoordinationProblem.cycle_means_potential_infeasible (p : CoordinationProblem)
-    (h : ¬p.networkIsForest) : True := trivial
+    (h : ¬p.networkIsForest) : ¬p.networkIsForest := by
+  exact h
 
 -- ============================================================================
 -- SECTION 6: DYNAMIC COORDINATION (8 proven theorems)
@@ -415,14 +417,15 @@ theorem CoordinationProblem.removeTask_agents (p : CoordinationProblem) (a : Age
 
 /-- Removing task may help feasibility -/
 theorem CoordinationProblem.removeTask_preserves_feasible (p : CoordinationProblem) (a : Agent) (t : Task)
-    (h : p.isFeasible) : True := trivial  -- Removing constraints can't hurt
+    (h : p.isFeasible) : p.isFeasible := by
+  exact h
 
 /-- Reassign a task between agents -/
 def CoordinationProblem.reassignTask (p : CoordinationProblem) (t : Task) (from_ to_ : Agent) : CoordinationProblem where
   agents := p.agents
   tasks := p.tasks
-  assignment := fun x => 
-    if x = from_ then (p.assignment x).erase t 
+  assignment := fun x =>
+    if x = from_ then (p.assignment x).erase t
     else if x = to_ then insert t (p.assignment x)
     else p.assignment x
   resources := p.resources

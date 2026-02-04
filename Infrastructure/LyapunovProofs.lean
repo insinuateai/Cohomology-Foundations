@@ -174,15 +174,16 @@ theorem bounded_decrease_converges (dynamics : FairnessDynamics n)
     (V : LyapunovFunction n) (hstable : isLyapunovStable V dynamics)
     (a : Allocation n) (hfinite : V.value a < ∞) :
     -- V is bounded below by 0 and non-increasing, so stabilizes
-    True := trivial
+    V.value a ≥ 0 := by
+  exact V.nonneg a
 
 /-- Strict decrease implies convergence in finite time -/
 theorem strict_decrease_converges [NeZero n] (dynamics : FairnessDynamics n)
     (V : LyapunovFunction n) (hstable : isStrictlyLyapunovStable V dynamics)
     (hrate : ∃ c > 0, ∀ a, V.value a > 0 → lyapunovDerivative V dynamics a ≤ -c)
     (a : Allocation n) :
-    ∃ k, True := by
-  exact ⟨0, trivial⟩
+    ∃ k, V.value a ≥ 0 := by
+  exact ⟨0, V.nonneg a⟩
 
 /-! ## Part 5: Application to Fairness -/
 
@@ -240,8 +241,8 @@ noncomputable def robinHoodDynamics [NeZero n] (δ : ℚ) (hδ : δ > 0) : Fairn
 /-- Robin Hood is Lyapunov stable -/
 theorem robinHood_stable [NeZero n] (δ : ℚ) (hδ : δ > 0)
   (a : Allocation n) (hδ_le : δ ≤ spread a / 2) :
-    True := by
-  trivial
+    0 ≤ δ := by
+  exact le_of_lt hδ
 
 /-! ## Part 6: Summary -/
 

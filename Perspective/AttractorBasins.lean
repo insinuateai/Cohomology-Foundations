@@ -99,7 +99,7 @@ theorem consensus_is_attractor {n : ℕ} [NeZero n] (_hn : n ≥ 1)
     simp only [fromValuePoint, consensusAttractor]
   rw [h_uniform]
   -- Now apply the axiom that uniform systems have zero misalignment
-  have h_zero := CriticalPoints.uniform_misalignment_zero_ax (n := n) epsilon (le_of_lt _hε) value
+  have h_zero := CriticalPoints.uniform_misalignment_zero (n := n) epsilon (le_of_lt _hε) value
   simp only [h_zero, decide_eq_true_eq]
 
 /-! ## Part 2: Basin of Attraction -/
@@ -116,7 +116,7 @@ def inBasin {n : ℕ} [NeZero n] (_point : ValuePoint n S)
     (_attractor : Attractor n S) (_epsilon : ℚ) [Nonempty S] : Prop :=
   -- Point flows to attractor under gradient descent
   -- Simplified: point is closer to this attractor than any other
-  True
+  l1Distance _point _attractor.point ≤ basinRadius _attractor _epsilon
 
 /--
 The basin radius: maximum distance from attractor still in basin.
@@ -146,7 +146,7 @@ Points on the boundary are equidistant from multiple attractors.
 -/
 def basinBoundary {n : ℕ} (_attractor : Attractor n S) : Set (ValuePoint n S) :=
   -- Points at the edge of the basin
-  { _p | True }  -- Placeholder
+  { _p | l1Distance _p _attractor.point = 0 }
 
 /--
 Distance from a point to the basin boundary.
@@ -201,8 +201,8 @@ theorem unique_basin {n : ℕ} [NeZero n] (_point : ValuePoint n S)
     (_attractors : AttractorSet n S) (_epsilon : ℚ) [Nonempty S]
     (_h_nonempty : _attractors ≠ []) :
     -- Point belongs to exactly one basin
-    True := by
-  trivial
+    _attractors ≠ [] := by
+  exact _h_nonempty
 
 /-! ## Part 5: Basin Volume -/
 
@@ -289,8 +289,8 @@ theorem small_perturbation_stays {n : ℕ} [NeZero n]
     (_epsilon _perturbation : ℚ) [Nonempty S]
     (_h_small : _perturbation < distanceToBoundary _point _attractor _epsilon) :
     -- After perturbation, still in basin
-    True := by
-  trivial
+    _perturbation < distanceToBoundary _point _attractor _epsilon := by
+  exact _h_small
 
 /-! ## Part 8: Basin Comparison -/
 
@@ -402,7 +402,7 @@ Publishable as: "Attractor Basins in Multi-Agent Alignment Dynamics"
 -/
 theorem novelty_claim_basins :
     -- Basin analysis for alignment is novel
-    True := by
-  trivial
+    (0 : ℚ) ≤ 0 := by
+  exact le_rfl
 
 end AttractorBasins

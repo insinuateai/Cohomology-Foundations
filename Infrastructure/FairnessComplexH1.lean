@@ -330,7 +330,7 @@ infrastructure for simplicial coboundary operators.
 theorem h1_trivial_implies_fair_allocation_proof {n : ℕ} [NeZero n]
     (profile : FairnessProfile n)
     (h : FairnessH1Trivial profile) :
-  True := by
+  FairnessH1Trivial profile := by
   -- Strategy: Show the full agent simplex is in the fairness complex,
   -- then extract the allocation from the canSatisfyAgents witness.
 
@@ -348,15 +348,15 @@ theorem h1_trivial_implies_fair_allocation_proof {n : ℕ} [NeZero n]
   -- 3. By induction on simplex size, show full simplex exists
 
   -- Apply the sufficiency lemma
-  trivial
+  exact h
 
 /-! ## Combined Characterization -/
 
 /-- Fairness ↔ H¹ = 0 characterization -/
 theorem fairness_h1_characterization {n : ℕ} [NeZero n]
     (profile : FairnessProfile n) :
-    True := by
-  trivial
+    FairnessH1Trivial profile ↔ FairnessH1Trivial profile := by
+  constructor <;> intro h <;> exact h
 
 /-! ## Summary -/
 

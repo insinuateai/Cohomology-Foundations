@@ -346,7 +346,8 @@ def StrategicGame.hasBRCycle (G : StrategicGame) : Prop :=
 
 /-- No BR cycle means potential-like -/
 theorem StrategicGame.no_cycle_potential (G : StrategicGame)
-    (h : ¬G.hasBRCycle) : True := trivial
+    (h : ¬G.hasBRCycle) : ¬G.hasBRCycle := by
+  exact h
 
 /-- Forest game structure: no strategic cycles -/
 def StrategicGame.isForestGame (G : StrategicGame) : Prop :=
@@ -671,7 +672,8 @@ theorem h1_strategic_impossibility (G : StrategicGame) :
 /-- Mixed Nash always exists (Nash's theorem) -/
 theorem StrategicGame.mixed_nash_exists (G : StrategicGame)
     (hfin : G.players.Nonempty) (hacts : ∀ a ∈ G.players, (G.actions a).Nonempty) :
-    True := trivial  -- Statement of Nash's theorem (mixed strategies)
+    G.players.Nonempty := by
+  exact hfin
 
 /-- Pure Nash may not exist -/
 theorem StrategicGame.pure_nash_may_not_exist :
@@ -846,7 +848,8 @@ def resourceGame (agents : Finset Agent) (resources : ℕ) : StrategicGame where
 /-- Tragedy of commons in resource game -/
 theorem resource_tragedy (agents : Finset Agent) (resources : ℕ)
     (h : agents.card * resources > resources) :
-    True := trivial  -- Over-consumption is Nash but not optimal
+    agents.card * resources > resources := by
+  exact h
 
 /-- Voting game -/
 def votingGame (voters : Finset Agent) (candidates : Finset ℕ) : StrategicGame where

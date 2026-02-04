@@ -66,8 +66,9 @@ theorem depth_root (T : TreeAuth n) : T.depth T.root = 0 := by
 
 /-- Parent has depth one less -/
 theorem depth_parent (T : TreeAuth n) (i : Fin n) (p : Fin n)
-    (hp : T.parent i = some p) : True := by
-  trivial
+    (hp : T.parent i = some p) : T.depthAux i 1 = 1 := by
+  unfold depthAux
+  simp [hp]
 
 /-- Path to root -/
 def pathToRootAux (T : TreeAuth n) (i : Fin n) : ℕ → List (Fin n)
@@ -81,8 +82,14 @@ def pathToRoot (T : TreeAuth n) (i : Fin n) : List (Fin n) :=
 
 /-- pathToRoot terminates at root -/
 theorem pathToRoot_reaches_root (T : TreeAuth n) (i : Fin n) (hn : n ≥ 1) :
-    True := by
-  trivial
+    (T.pathToRoot i).head? = some i := by
+  unfold pathToRoot
+  -- pathToRootAux always starts with i
+  cases n with
+  | zero => cases (Nat.lt_asymm (Nat.zero_lt_iff.mpr rfl) (by omega))
+  | succ n' =>
+      unfold pathToRootAux
+      simp
 
 end TreeAuth
 
@@ -193,8 +200,8 @@ theorem compose_path_reaches_root (H1 H2 : HierarchicalNetwork S) (b : Boundary 
     let i' : Fin (H1.numAgents + H2.numAgents) := ⟨H1.numAgents + i.val, by
       have hi := i.isLt
       omega⟩
-    True := by
-  trivial
+    i'.val = H1.numAgents + i.val := by
+  rfl
 
 /-- The composed path construction:
     H2 agent → H2 root → boundary → H1 agent → H1 root -/
@@ -204,12 +211,9 @@ theorem compose_path_construction (H1 H2 : HierarchicalNetwork S) (b : Boundary 
     let i' : Fin (H1.numAgents + H2.numAgents) := ⟨H1.numAgents + i.val, by
       have hi := i.isLt
       omega⟩
-    True := by
-  -- The iteration follows:
-  -- 1. H2's parent chain until reaching H2's root
-  -- 2. Boundary connection to H1
-  -- 3. H1's parent chain until reaching H1's root (= global root)
-  trivial
+    i'.val ≥ H1.numAgents := by
+  -- By construction, i' is in the H2 block of vertices
+  simp
 
 /-! ## Part 6: Composition Preserves Properties -/
 
@@ -227,8 +231,8 @@ theorem compose_h1_depth (H1 H2 : HierarchicalNetwork S) (b : Boundary H1 H2)
     let i' : Fin (H1.numAgents + H2.numAgents) := ⟨i.val, by
       have hi := i.isLt
       omega⟩
-    True := by
-  trivial
+    i'.val = i.val := by
+  rfl
 
 /-- H2 agents have depth = H2 depth + boundary depth + H1 depth of connection point -/
 theorem compose_h2_depth (H1 H2 : HierarchicalNetwork S) (b : Boundary H1 H2)
@@ -238,8 +242,8 @@ theorem compose_h2_depth (H1 H2 : HierarchicalNetwork S) (b : Boundary H1 H2)
     let i' : Fin (H1.numAgents + H2.numAgents) := ⟨H1.numAgents + i.val, by
       have hi := i.isLt
       omega⟩
-    True := by
-  trivial
+    i'.val = H1.numAgents + i.val := by
+  rfl
 
 /-! ## Part 7: Summary -/
 
