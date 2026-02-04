@@ -4,7 +4,13 @@
 cd /workspaces/Cohomology-Foundations
 
 # Use make targets if available (more accurate)
-SORRIES=$(timeout 3 grep -rE "^\s*sorry\b|:= sorry\b" --include="*.lean" --exclude-dir=.lake 2>/dev/null | grep -v "^Binary" | wc -l | tr -d ' ' || echo 0)
+SORRIES=$(timeout 3 sh -c 'grep -rE "^\s*sorry\b|:= sorry\b" --include="*.lean" --exclude-dir=.lake 2>/dev/null | grep -v "^Binary" | wc -l | tr -d " "')
+SORRY_STATUS=$?
+if [ "$SORRY_STATUS" -eq 124 ]; then
+  SORRIES="?"
+elif [ "$SORRY_STATUS" -ne 0 ] || [ -z "$SORRIES" ]; then
+  SORRIES=0
+fi
 AXIOMS=$(timeout 3 make axiom-count 2>/dev/null | grep "TOTAL" | awk '{print $2}' || echo "?")
 SKILL_LINES=$(wc -l < .claude/skill-document.md 2>/dev/null | tr -d ' ')
 
