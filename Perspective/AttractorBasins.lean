@@ -83,7 +83,7 @@ THEOREM: Consensus is always an attractor.
 When all agents agree, the system is at a stable fixed point.
 -/
 theorem consensus_is_attractor {n : ℕ} [NeZero n] (_hn : n ≥ 1)
-    (value : S → ℚ) (epsilon : ℚ) (_hε : epsilon > 0) [Nonempty S] :
+    (value : S → ℚ) (epsilon : ℚ) (hε : epsilon > 0) [Nonempty S] :
     let systems := fromValuePoint (consensusAttractor value (n := n))
     isAttractor systems epsilon = true := by
   -- Consensus has zero disagreement, so misalignment = 0
@@ -98,8 +98,8 @@ theorem consensus_is_attractor {n : ℕ} [NeZero n] (_hn : n ≥ 1)
     funext _i
     simp only [fromValuePoint, consensusAttractor]
   rw [h_uniform]
-  -- Now apply the axiom that uniform systems have zero misalignment
-  have h_zero := CriticalPoints.uniform_misalignment_zero_ax (n := n) epsilon value
+  -- Now apply the proven theorem that uniform systems have zero misalignment
+  have h_zero := CriticalPoints.uniform_misalignment_zero_ax (n := n) epsilon (le_of_lt hε) value
   simp only [h_zero, decide_eq_true_eq]
 
 /-! ## Part 2: Basin of Attraction -/

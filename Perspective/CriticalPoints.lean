@@ -36,8 +36,8 @@ This imports sophisticated topology into alignment theory.
 4. GLOBAL GUARANTEE: "This IS the global minimum - truly aligned"
 
 SORRIES: 0
-AXIOMS: 3 (misalignment_zero_implies_aligned_ax, uniform_misalignment_zero_ax,
-           saddle_has_escape_ax)
+AXIOMS: 2 (misalignment_zero_implies_aligned_ax, saddle_has_escape_ax)
+PROVEN: uniform_misalignment_zero_ax (was X04)
 -/
 
 import Perspective.Curvature
@@ -270,12 +270,53 @@ The supremum over an empty or all-zero set is 0.
 Thus the excess max(0, 0 - 2ε) = 0, and 0² = 0.
 Summing zero over all pairs gives total misalignment = 0.
 
-NOTE: This requires epsilon ≥ 0 for the max simplification. This constraint
-should be added to the definition or this remains an axiom.
+NOTE: This requires epsilon ≥ 0 for the max simplification.
+Proven below with the constraint.
 -/
-axiom uniform_misalignment_zero_ax {n : ℕ} (epsilon : ℚ) [Nonempty S]
+theorem uniform_misalignment_zero_ax {n : ℕ} (epsilon : ℚ) (hε : epsilon ≥ 0) [Nonempty S]
     (baseVal : S → ℚ) :
-    misalignment (fun _ : Fin n => (⟨baseVal⟩ : ValueSystem S)) epsilon = 0
+    misalignment (fun _ : Fin n => (⟨baseVal⟩ : ValueSystem S)) epsilon = 0 := by
+  unfold misalignment
+  apply Finset.sum_eq_zero
+  intro ij _
+  split_ifs with h_lt
+  · -- Case ij.1 < ij.2: show squared excess is 0
+    -- All systems have identical values baseVal, so differences are 0
+    -- First show maxDisagree = 0
+    have h_all_zero : ∀ s : S, |((⟨baseVal⟩ : ValueSystem S)).values s -
+        ((⟨baseVal⟩ : ValueSystem S)).values s| = 0 := by
+      intro s
+      simp only [sub_self, abs_zero]
+    -- sup' of all zeros is 0
+    have h_sup_le : Finset.univ.sup' ⟨Classical.arbitrary S, Finset.mem_univ _⟩
+        (fun s => |((⟨baseVal⟩ : ValueSystem S)).values s -
+                   ((⟨baseVal⟩ : ValueSystem S)).values s|) ≤ 0 := by
+      apply Finset.sup'_le
+      intro s _
+      rw [h_all_zero s]
+    have h_sup_nonneg : Finset.univ.sup' ⟨Classical.arbitrary S, Finset.mem_univ _⟩
+        (fun s => |((⟨baseVal⟩ : ValueSystem S)).values s -
+                   ((⟨baseVal⟩ : ValueSystem S)).values s|) ≥ 0 := by
+      let f := (fun s : S => |((⟨baseVal⟩ : ValueSystem S)).values s -
+                              ((⟨baseVal⟩ : ValueSystem S)).values s|)
+      have hle : f (Classical.arbitrary S) ≤
+          Finset.univ.sup' ⟨Classical.arbitrary S, Finset.mem_univ _⟩ f :=
+        Finset.le_sup' f (Finset.mem_univ _)
+      have h0 : f (Classical.arbitrary S) = 0 := h_all_zero _
+      calc (0 : ℚ) = f (Classical.arbitrary S) := h0.symm
+        _ ≤ Finset.univ.sup' _ f := hle
+    have h_sup_zero : Finset.univ.sup' ⟨Classical.arbitrary S, Finset.mem_univ _⟩
+        (fun s => |((⟨baseVal⟩ : ValueSystem S)).values s -
+                   ((⟨baseVal⟩ : ValueSystem S)).values s|) = 0 := by
+      linarith
+    -- excess = max 0 (0 - 2 * epsilon) = 0 when epsilon ≥ 0
+    simp only [h_sup_zero]
+    have h_excess : max 0 (0 - 2 * epsilon) = 0 := by
+      apply max_eq_left
+      linarith
+    simp only [h_excess, mul_zero]
+  · -- Case ij.1 ≥ ij.2: already 0
+    rfl
 
 /--
 THEOREM: Global minimum has zero misalignment.
@@ -295,7 +336,7 @@ theorem global_minimum_is_aligned {n : ℕ} (hn : n ≥ 1)
   -- Construct a uniform system with all identical values
   let uniformSys : Fin n → ValueSystem S := fun _ => ⟨fun _ => 0⟩
   have h_uniform_zero : misalignment uniformSys epsilon = 0 :=
-    uniform_misalignment_zero_ax (n := n) epsilon (fun _ : S => (0 : ℚ))
+    uniform_misalignment_zero_ax (n := n) epsilon (le_of_lt hε) (fun _ : S => (0 : ℚ))
   -- Global minimum property: misalignment(systems) ≤ misalignment(uniform)
   have h_le := h_global uniformSys
   -- uniform has misalignment 0
@@ -446,16 +487,16 @@ THEOREM: At least one global minimum exists.
 The misalignment function always has a global minimum.
 -/
 theorem global_minimum_exists {n : ℕ} (_hn : n ≥ 1)
-    (epsilon : ℚ) (_hε : epsilon > 0) [Nonempty S] :
+    (epsilon : ℚ) (hε : epsilon > 0) [Nonempty S] :
     ∃ (systems : Fin n → ValueSystem S), isGlobalMinimum systems epsilon := by
   -- Making all values equal gives misalignment = 0, which is optimal
   let uniformSys : Fin n → ValueSystem S := fun _ => ⟨fun _ => 0⟩
   use uniformSys
   -- Show uniformSys is a global minimum
   intro other
-  -- misalignment(uniformSys) = 0 by the axiom
+  -- misalignment(uniformSys) = 0 by the proven theorem
   have h_uniform_zero : misalignment uniformSys epsilon = 0 :=
-    uniform_misalignment_zero_ax epsilon (fun _ : S => (0 : ℚ))
+    uniform_misalignment_zero_ax epsilon (le_of_lt hε) (fun _ : S => (0 : ℚ))
   -- misalignment ≥ 0 always
   have h_other_nonneg := misalignment_nonneg other epsilon
   linarith
