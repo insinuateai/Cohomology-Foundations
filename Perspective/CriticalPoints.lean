@@ -36,11 +36,11 @@ This imports sophisticated topology into alignment theory.
 4. GLOBAL GUARANTEE: "This IS the global minimum - truly aligned"
 
 SORRIES: 0
-AXIOMS: 3 (misalignment_zero_implies_aligned_ax, uniform_misalignment_zero_ax,
-           saddle_has_escape_ax)
+AXIOMS: 1 (saddle_has_escape_ax)
 -/
 
 import Perspective.Curvature
+import Perspective.AlignmentEquivalence
 
 namespace CriticalPoints
 
@@ -82,7 +82,7 @@ theorem misalignment_nonneg {n : ℕ} (systems : Fin n → ValueSystem S)
   · linarith
 
 /--
-AXIOM: Zero misalignment implies H1Trivial.
+Zero misalignment implies H1Trivial.
 
 Mathematical justification:
 Zero misalignment means the sum of squared excesses is zero.
@@ -95,11 +95,85 @@ has trivial H¹ (by standard algebraic topology: the complex is contractible).
 
 This is a standard result connecting metric bounds to cohomological triviality.
 -/
-axiom misalignment_zero_implies_aligned_ax {n : ℕ} (_hn : n ≥ 1)
-    (systems : Fin n → ValueSystem S) (epsilon : ℚ) (_hε : epsilon > 0)
+/-
+Helper: Zero misalignment implies all pairwise max disagreements are ≤ 2ε.
+-/
+lemma misalignment_zero_implies_pairwise_bounded {n : ℕ}
+    (systems : Fin n → ValueSystem S) (epsilon : ℚ) [Nonempty S]
+    (h_zero : misalignment systems epsilon = 0) :
+    ∀ i j : Fin n, i < j →
+      Finset.univ.sup' ⟨Classical.arbitrary S, Finset.mem_univ _⟩
+        (fun s => |(systems i).values s - (systems j).values s|) ≤ 2 * epsilon := by
+  intro i j hij
+  unfold misalignment at h_zero
+  have h_nonneg : ∀ x ∈ Finset.univ, (0 : ℚ) ≤
+      (if (x : Fin n × Fin n).1 < x.2 then
+        let maxDisagree := Finset.univ.sup' ⟨Classical.arbitrary S, Finset.mem_univ _⟩
+          fun s => |(systems x.1).values s - (systems x.2).values s|
+        let excess := max 0 (maxDisagree - 2 * epsilon)
+        excess * excess
+      else 0) := by
+    intro x _
+    split_ifs
+    · exact mul_self_nonneg _
+    · linarith
+  have h_eq := Finset.sum_eq_zero_iff_of_nonneg h_nonneg
+  have h_all_zero := h_eq.mp h_zero
+  have h_ij_zero := h_all_zero (i, j) (Finset.mem_univ _)
+  simp only [hij, ↓reduceIte] at h_ij_zero
+  have h_excess_zero : max 0 (Finset.univ.sup' ⟨Classical.arbitrary S, Finset.mem_univ _⟩
+      (fun s => |(systems i).values s - (systems j).values s|) - 2 * epsilon) = 0 := by
+    have h_sq := mul_self_eq_zero.mp h_ij_zero
+    exact h_sq
+  have h_le_zero : Finset.univ.sup' ⟨Classical.arbitrary S, Finset.mem_univ _⟩
+      (fun s => |(systems i).values s - (systems j).values s|) - 2 * epsilon ≤ 0 := by
+    by_cases h : Finset.univ.sup' ⟨Classical.arbitrary S, Finset.mem_univ _⟩
+        (fun s => |(systems i).values s - (systems j).values s|) - 2 * epsilon ≤ 0
+    · exact h
+    · push_neg at h
+      have := max_eq_right_of_lt h
+      rw [this] at h_excess_zero
+      linarith
+  linarith
+
+/-- Zero misalignment implies H¹ is trivial. -/
+theorem misalignment_zero_implies_aligned_ax {n : ℕ} (hn : n ≥ 1)
+    (systems : Fin n → ValueSystem S) (epsilon : ℚ) (hε : epsilon > 0)
     [Nonempty S] :
     misalignment systems epsilon = 0 →
-    H1Trivial (valueComplex systems epsilon)
+    H1Trivial (valueComplex systems epsilon) := by
+  intro h_zero
+  have h_bounded := misalignment_zero_implies_pairwise_bounded systems epsilon h_zero
+  have h_complete : ∀ (i j : ℕ) (hi : i < n) (hj : j < n), i < j →
+      ∃ s : S, |(systems ⟨i, hi⟩).values s - (systems ⟨j, hj⟩).values s| ≤ 2 * epsilon := by
+    intro i j hi hj hij
+    obtain ⟨s⟩ := ‹Nonempty S›
+    use s
+    have h_sup := h_bounded ⟨i, hi⟩ ⟨j, hj⟩ (by simp only [Fin.mk_lt_mk]; exact hij)
+    have h_le_sup : |(systems ⟨i, hi⟩).values s - (systems ⟨j, hj⟩).values s| ≤
+        Finset.univ.sup' ⟨Classical.arbitrary S, Finset.mem_univ _⟩
+          (fun s' => |(systems ⟨i, hi⟩).values s' - (systems ⟨j, hj⟩).values s'|) :=
+      Finset.le_sup' (fun s' => |(systems ⟨i, hi⟩).values s' - (systems ⟨j, hj⟩).values s'|)
+        (Finset.mem_univ s)
+    linarith
+  by_cases hn2 : n ≥ 2
+  · exact Perspective.h1_trivial_of_complete_complex hn2 systems epsilon hε h_complete
+  · have hn1 : n = 1 := by omega
+    intro f _hf
+    use fun _ => 0
+    funext ⟨e, he⟩
+    simp only [SimplicialComplex.ksimplices, Set.mem_setOf_eq] at he
+    obtain ⟨h_in, h_card⟩ := he
+    simp only [valueComplex, Set.mem_setOf_eq] at h_in
+    have h_vertices := h_in.1
+    have h_two := Finset.one_lt_card.mp (by rw [h_card]; norm_num : 1 < e.card)
+    obtain ⟨a, ha, b, hb, hab⟩ := h_two
+    have ha' := h_vertices a ha
+    have hb' := h_vertices b hb
+    subst hn1
+    have ha0 : a = 0 := Nat.lt_one_iff.mp ha'
+    have hb0 : b = 0 := Nat.lt_one_iff.mp hb'
+    exact False.elim (hab (ha0.trans hb0.symm))
 
 /-- Misalignment is zero iff aligned -/
 theorem misalignment_zero_iff_aligned {n : ℕ} (hn : n ≥ 1)
@@ -247,8 +321,8 @@ A point is a local minimum if misalignment doesn't decrease nearby.
 def isLocalMinimum {n : ℕ} (systems : Fin n → ValueSystem S)
     (epsilon : ℚ) (delta : ℚ) [Nonempty S] : Prop :=
   ∀ (perturbed : Fin n → ValueSystem S),
-    (Finset.univ.sum fun i => 
-      Finset.univ.sum fun s => 
+    (Finset.univ.sum fun i =>
+      Finset.univ.sum fun s =>
         |(perturbed i).values s - (systems i).values s|) < delta →
     misalignment systems epsilon ≤ misalignment perturbed epsilon
 
@@ -261,7 +335,7 @@ def isGlobalMinimum {n : ℕ} (systems : Fin n → ValueSystem S)
     misalignment systems epsilon ≤ misalignment other epsilon
 
 /--
-AXIOM: A uniform system (all agents have identical values) has zero misalignment.
+THEOREM: A uniform system (all agents have identical values) has zero misalignment.
 
 Mathematical justification:
 When all agents have identical value functions (baseVal : S → ℚ), then for any
@@ -270,12 +344,41 @@ The supremum over an empty or all-zero set is 0.
 Thus the excess max(0, 0 - 2ε) = 0, and 0² = 0.
 Summing zero over all pairs gives total misalignment = 0.
 
-NOTE: This requires epsilon ≥ 0 for the max simplification. This constraint
-should be added to the definition or this remains an axiom.
+NOTE: This requires epsilon ≥ 0 for the max simplification.
 -/
-axiom uniform_misalignment_zero_ax {n : ℕ} (epsilon : ℚ) [Nonempty S]
+theorem uniform_misalignment_zero_ax {n : ℕ} (epsilon : ℚ) (hε : epsilon ≥ 0) [Nonempty S]
     (baseVal : S → ℚ) :
-    misalignment (fun _ : Fin n => (⟨baseVal⟩ : ValueSystem S)) epsilon = 0
+    misalignment (fun _ : Fin n => (⟨baseVal⟩ : ValueSystem S)) epsilon = 0 := by
+  unfold misalignment
+  apply Finset.sum_eq_zero
+  intro ij _
+  split_ifs with h_lt
+  · have h_diff_zero : ∀ s : S, |(⟨baseVal⟩ : ValueSystem S).values s -
+        (⟨baseVal⟩ : ValueSystem S).values s| = 0 := by
+      intro s
+      simp only [sub_self, abs_zero]
+    let f := fun s => |(⟨baseVal⟩ : ValueSystem S).values s -
+                       (⟨baseVal⟩ : ValueSystem S).values s|
+    have h_sup_zero : Finset.univ.sup' ⟨Classical.arbitrary S, Finset.mem_univ _⟩ f = 0 := by
+      apply le_antisymm
+      · apply Finset.sup'_le
+        intro s _
+        simp only [f]
+        rw [h_diff_zero s]
+      · have h_arb : Classical.arbitrary S ∈ Finset.univ := Finset.mem_univ _
+        have h_f_arb : f (Classical.arbitrary S) = 0 := by simp only [f, sub_self, abs_zero]
+        rw [← h_f_arb]
+        exact Finset.le_sup' f h_arb
+    simp only [f] at h_sup_zero
+    simp only [h_sup_zero]
+    have h_neg : -2 * epsilon ≤ 0 := by linarith
+    have h_max_zero : max 0 (0 - 2 * epsilon) = 0 := by
+      have : (0 : ℚ) - 2 * epsilon = -2 * epsilon := by ring
+      rw [this]
+      exact max_eq_left h_neg
+    rw [h_max_zero]
+    ring
+  · rfl
 
 /--
 THEOREM: Global minimum has zero misalignment.
@@ -295,7 +398,7 @@ theorem global_minimum_is_aligned {n : ℕ} (hn : n ≥ 1)
   -- Construct a uniform system with all identical values
   let uniformSys : Fin n → ValueSystem S := fun _ => ⟨fun _ => 0⟩
   have h_uniform_zero : misalignment uniformSys epsilon = 0 :=
-    uniform_misalignment_zero_ax (n := n) epsilon (fun _ : S => (0 : ℚ))
+    uniform_misalignment_zero_ax (n := n) epsilon (le_of_lt hε) (fun _ : S => (0 : ℚ))
   -- Global minimum property: misalignment(systems) ≤ misalignment(uniform)
   have h_le := h_global uniformSys
   -- uniform has misalignment 0
@@ -455,7 +558,7 @@ theorem global_minimum_exists {n : ℕ} (_hn : n ≥ 1)
   intro other
   -- misalignment(uniformSys) = 0 by the axiom
   have h_uniform_zero : misalignment uniformSys epsilon = 0 :=
-    uniform_misalignment_zero_ax epsilon (fun _ : S => (0 : ℚ))
+    uniform_misalignment_zero_ax epsilon (le_of_lt _hε) (fun _ : S => (0 : ℚ))
   -- misalignment ≥ 0 always
   have h_other_nonneg := misalignment_nonneg other epsilon
   linarith
@@ -515,7 +618,7 @@ noncomputable def generateCriticalPointReport {n : ℕ} (_hn : n ≥ 1)
   let idx := criticalPointIndex systems epsilon
   let escape := escapeDirection systems epsilon
   let trap := isCrit ∧ mis > 0 ∧ cpType = some .localMinimum
-  let warn := 
+  let warn :=
     if trap then some "WARNING: Local minimum trap detected! Use perturbation to escape."
     else if cpType = some .saddlePoint then some "At saddle point - follow escape direction"
     else if mis = 0 then some "At global minimum - fully aligned!"

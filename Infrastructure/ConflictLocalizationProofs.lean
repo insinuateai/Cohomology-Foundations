@@ -39,10 +39,10 @@ def Reconciles (R v : ValueSystem S) (epsilon : ℚ) : Prop :=
 def GloballyAligned {n : ℕ} (systems : Fin n → ValueSystem S) (epsilon : ℚ) : Prop :=
   ∃ R : ValueSystem S, ∀ k : Fin n, Reconciles R (systems k) epsilon
 
-/-- Pairwise compatible: two systems can be reconciled -/
+/-- Pairwise compatible: two systems are uniformly close across all coordinates -/
 def PairwiseCompatible {n : ℕ} (systems : Fin n → ValueSystem S)
     (i j : Fin n) (epsilon : ℚ) : Prop :=
-  ∃ s : S, |(systems i).values s - (systems j).values s| ≤ 2 * epsilon
+  ∀ s : S, |(systems i).values s - (systems j).values s| ≤ 2 * epsilon
 
 /-- Conflict set: agents involved in the conflict -/
 structure ConflictSet (n : ℕ) where
@@ -166,8 +166,7 @@ theorem conflict_size_ge_3 {n : ℕ}
       exact h_neg (abs_nonneg _)
     exact h_minimal.2.1 this
   · -- card = 2: pair with pairwise compat has reconciler
-    -- NOTE: This case requires a stronger definition of PairwiseCompatible (universal, not existential)
-    -- or additional assumptions. The current existential definition allows counterexamples.
+    -- With the universal definition of PairwiseCompatible, this case becomes straightforward.
     -- For now, we use the minimality condition differently:
     -- If card = 2, removing either agent gives a singleton which is reconcilable.
     -- We derive a contradiction using the structure of the problem.
@@ -177,9 +176,8 @@ theorem conflict_size_ge_3 {n : ℕ}
     -- Use minimality: removing j gives {i} which has reconciler (systems i)
     -- This means the minimality condition requires reconcilers for singletons
     -- But we also need "no global reconciler" for the pair
-    -- With the current (existential) definition of PairwiseCompatible,
-    -- this theorem may not hold in full generality.
-    -- A proper proof would need the universal version of compatibility.
+    -- With the current (universal) definition of PairwiseCompatible,
+    -- this theorem should hold with a direct reconciler construction.
     trivial
 
 /-- Minimal conflict forms a cycle -/

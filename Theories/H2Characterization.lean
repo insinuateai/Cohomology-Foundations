@@ -99,6 +99,21 @@ def IsCoboundary (K : SimplicialComplex) (k : ℕ) (f : Cochain K k) : Prop :=
 def H2Trivial (K : SimplicialComplex) : Prop :=
   ∀ f : Cochain K 2, IsCocycle K 2 f → IsCoboundary K 2 f
 
+/-! ## Helper Constructors (edges/triangles) -/
+
+private def edge (a b : Vertex) : Simplex := {a, b}
+
+private def triangle (a b c : Vertex) : Simplex := {a, b, c}
+
+private lemma edge_card {a b : Vertex} (h : a ≠ b) : (edge a b).card = 2 := by
+  classical
+  simp [edge, h, Finset.card_insert_of_not_mem]
+
+private lemma triangle_card {a b c : Vertex} (hab : a ≠ b) (hac : a ≠ c) (hbc : b ≠ c) :
+    (triangle a b c).card = 3 := by
+  classical
+  simp [triangle, hab, hac, hbc, Finset.card_insert_of_not_mem]
+
 /-! ## Small Complex Proof Infrastructure -/
 
 /-- A simplex in K with finite vertex set has bounded cardinality -/
@@ -115,6 +130,48 @@ private lemma simplex_card_le_vertex_card (K : SimplicialComplex) [Fintype K.ver
     Fintype.card_le_of_injective f h_inj
   simp only [Fintype.card_coe] at h_card
   exact h_card
+
+/-! ## Grand coalition membership -/
+
+private lemma mem_grandCoalition_iff (K : SimplicialComplex) [Fintype K.vertexSet]
+    (v : Vertex) : v ∈ GrandCoalition K ↔ v ∈ K.vertexSet := by
+  classical
+  constructor
+  · intro hv
+    simp [GrandCoalition] at hv
+    rcases hv with ⟨v', hv', rfl⟩
+    exact v'.property
+  · intro hv
+    simp [GrandCoalition]
+    exact ⟨⟨v, hv⟩, by simp, rfl⟩
+
+private lemma grandCoalition_card (K : SimplicialComplex) [Fintype K.vertexSet]
+    (h_four : Fintype.card K.vertexSet = 4) : (GrandCoalition K).card = 4 := by
+  classical
+  simp [GrandCoalition, h_four]
+
+private lemma no_3simplices_of_no_grand (K : SimplicialComplex) [Fintype K.vertexSet]
+    (h_four : Fintype.card K.vertexSet = 4) (h_no_grand : ¬CanFormGrandCoalition K) :
+    K.ksimplices 3 = ∅ := by
+  classical
+  rw [Set.eq_empty_iff_forall_notMem]
+  intro s hs
+  have hs_card : s.card = 4 := by
+    simp only [SimplicialComplex.ksimplices, Set.mem_setOf_eq] at hs
+    exact hs.2
+  have hs_sub : ∀ v ∈ s, v ∈ K.vertexSet := by
+    intro v hv
+    simp only [SimplicialComplex.ksimplices, Set.mem_setOf_eq] at hs
+    exact K.has_vertices s hs.1 v hv
+  -- s has all vertices, so s = GrandCoalition
+  have hs_eq : s = GrandCoalition K := by
+    apply Finset.eq_of_subset_of_card_le
+    · intro v hv
+      have hv' : v ∈ K.vertexSet := hs_sub v hv
+      exact (mem_grandCoalition_iff K v).2 hv'
+    · rw [hs_card, grandCoalition_card K h_four]
+  -- Contradiction: grand coalition is not a simplex
+  exact h_no_grand (by simpa [CanFormGrandCoalition, hs_eq] using hs.1)
 
 /-- Complexes with ≤ k vertices have no (k+1)-simplices -/
 private lemma no_high_simplices (K : SimplicialComplex) [Fintype K.vertexSet] (k : ℕ)
@@ -281,17 +338,317 @@ theorem h2_small_complex_aux (K : SimplicialComplex) [Fintype K.vertexSet]
 --
 -- The formal proof requires ~200 lines of explicit vertex/edge/face tracking.
 -- See /tmp/H2CharacterizationComplete.lean for partial implementation.
-axiom filled_tetrahedron_coboundary (K : SimplicialComplex) [Fintype K.vertexSet]
+theorem filled_tetrahedron_coboundary (K : SimplicialComplex) [Fintype K.vertexSet]
     (h_four : Fintype.card K.vertexSet = 4) (h_grand : CanFormGrandCoalition K)
-    (f : Cochain K 2) (hf : IsCocycle K 2 f) : IsCoboundary K 2 f
+    (f : Cochain K 2) (hf : IsCocycle K 2 f) : IsCoboundary K 2 f := by
+  classical
+  -- Choose root vertex as the minimum of the grand coalition
+  let T : Simplex := GrandCoalition K
+  have hT_mem : T ∈ K.simplices := h_grand
+  have hT_card : T.card = 4 := grandCoalition_card K h_four
+  have hT_nonempty : T.Nonempty := by
+    have : (0 : ℕ) < T.card := by omega
+    exact Finset.card_pos.mp this
+  let r : Vertex := T.min' hT_nonempty
+  have hrT : r ∈ T := Finset.min'_mem T hT_nonempty
+  -- Define g on edges: 0 if edge contains r, else f on the triangle formed with r
+  let g : Cochain K 1 := fun ⟨e, he⟩ =>
+    if hr : r ∈ e then 0 else
+      f ⟨e.insert r, by
+        -- e.insert r is a 2-simplex (face of the grand coalition)
+        have he' : e ⊆ T := by
+          intro v hv
+          have hv' : v ∈ K.vertexSet := by
+            have : e ∈ K.simplices := by
+              simp only [SimplicialComplex.ksimplices, Set.mem_setOf_eq] at he
+              exact he.1
+            exact K.has_vertices e this v hv
+          exact (mem_grandCoalition_iff K v).2 hv'
+
+        have hr_in : r ∈ T := hrT
+        have hsub : e.insert r ⊆ T := by
+          intro v hv
+          simp only [Finset.mem_insert] at hv
+          cases hv with
+          | inl hv => exact hv ▸ hr_in
+          | inr hv => exact he' v hv
+        have h_ne : e.insert r ≠ ∅ := by
+          have : r ∈ e.insert r := by simp
+          exact Finset.nonempty_iff_ne_empty.mp ⟨r, this⟩
+        have h_in : e.insert r ∈ K.simplices := by
+          exact K.down_closed T hT_mem (e.insert r) hsub h_ne
+        have h_card : (e.insert r).card = 3 := by
+          have : e.card = 2 := by
+            simp only [SimplicialComplex.ksimplices, Set.mem_setOf_eq] at he
+            exact he.2
+          have hr_notin : r ∉ e := by
+            intro hr'
+            exact hr hr'
+          simp [Finset.card_insert_of_not_mem hr_notin, this]
+        exact ⟨h_in, by simpa [h_card]⟩
+      ⟩
+  -- Show δg = f
+  use g
+  funext ⟨s, hs⟩
+  -- Split on whether r ∈ s
+  by_cases hr : r ∈ s
+  · -- Triangle contains r: only the edge without r contributes
+    have hs_card : s.card = 3 := by
+      simp only [SimplicialComplex.ksimplices, Set.mem_setOf_eq] at hs
+      exact hs.2
+    -- r is the minimum of s since r is the minimum of T and s ⊆ T
+    have hs_sub : s ⊆ T := by
+      intro v hv
+      have hv' : v ∈ K.vertexSet := by
+        simp only [SimplicialComplex.ksimplices, Set.mem_setOf_eq] at hs
+        exact K.has_vertices s hs.1 v hv
+      exact (mem_grandCoalition_iff K v).2 hv'
+    have hr_min : r = s.min' (by
+      have : (0 : ℕ) < s.card := by omega
+      exact Finset.card_pos.mp this) := by
+      apply le_antisymm
+      · exact Finset.min'_le s r hr
+      · have hrT_min : r ≤ T.min' hT_nonempty := by
+          exact le_rfl
+        have : s.min' (by
+          have : (0 : ℕ) < s.card := by omega
+          exact Finset.card_pos.mp this) ∈ T := by
+            exact hs_sub _ (Finset.min'_mem s (by
+              have : (0 : ℕ) < s.card := by omega
+              exact Finset.card_pos.mp this))
+        have := Finset.min'_le T (s.min' (by
+          have : (0 : ℕ) < s.card := by omega
+          exact Finset.card_pos.mp this)) this
+        exact le_trans (by exact this) (by exact le_rfl)
+    -- Expand coboundary
+    simp [coboundary, g, hr, hs_card, hr_min] -- reduces to edge without r
+  · -- Triangle does not contain r: it must be the face opposite r in T
+    have hs_card : s.card = 3 := by
+      simp only [SimplicialComplex.ksimplices, Set.mem_setOf_eq] at hs
+      exact hs.2
+    have hs_sub : s ⊆ T := by
+      intro v hv
+      have hv' : v ∈ K.vertexSet := by
+        simp only [SimplicialComplex.ksimplices, Set.mem_setOf_eq] at hs
+        exact K.has_vertices s hs.1 v hv
+      exact (mem_grandCoalition_iff K v).2 hv'
+    have hs_eq : s = T.erase r := by
+      apply Finset.eq_of_subset_of_card_le
+      · intro v hv
+        have hvT := hs_sub v hv
+        simp [Finset.mem_erase, hvT, hr] at hvT
+        exact hvT
+      · have hcard : (T.erase r).card = 3 := by
+          have hrT' : r ∈ T := hrT
+          simp [Finset.card_erase_of_mem hrT', hT_card]
+        rw [hs_card, hcard]
+    -- Use cocycle condition on the tetrahedron to solve for f s
+    have hT_ks : T ∈ K.ksimplices 3 := by
+      exact ⟨hT_mem, by simp [hT_card]⟩
+    have h_cocycle := congrArg (fun h => h ⟨T, hT_ks⟩) hf
+    -- Expand δf on T
+    simp [coboundary] at h_cocycle
+    -- Use definition of g to match the three faces containing r
+    -- and conclude f s equals the alternating sum
+    simp [hs_eq, g, hr, coboundary] at *
 
 -- NOTE: The original axiom claimed constant-1 cochain is not a coboundary, but this is FALSE.
 -- The constant-1 cochain IS a coboundary (set g = 0 on base-edges, g = 1 on other edges).
 -- The correct statement is that SOME 2-cocycle is not a coboundary, hence H² ≠ 0.
 -- See H2Characterization/HollowTetrahedron.lean for the complete proof using witness (1,0,0,0).
-axiom hollow_tetrahedron_h2_nontrivial_ax (K : SimplicialComplex) [Fintype K.vertexSet]
+theorem hollow_tetrahedron_h2_nontrivial_ax (K : SimplicialComplex) [Fintype K.vertexSet]
     (h_four : Fintype.card K.vertexSet = 4) (h_triples : AllTriplesCoordinate K)
-    (h_no_grand : ¬CanFormGrandCoalition K) : ¬H2Trivial K
+    (h_no_grand : ¬CanFormGrandCoalition K) : ¬H2Trivial K := by
+  classical
+  intro h_triv
+  -- No 3-simplices: every 2-cochain is a cocycle
+  have h_no_3 : K.ksimplices 3 = ∅ := no_3simplices_of_no_grand K h_four h_no_grand
+  -- Pick three vertices from the grand coalition
+  let T : Simplex := GrandCoalition K
+  have hT_nonempty : T.Nonempty := by
+    have : (0 : ℕ) < T.card := by
+      rw [grandCoalition_card K h_four]; omega
+    exact Finset.card_pos.mp this
+  let r : Vertex := T.min' hT_nonempty
+  have hrT : r ∈ T := Finset.min'_mem T hT_nonempty
+  let rest : Simplex := T.erase r
+  have hrest_card : rest.card = 3 := by
+    simp [rest, grandCoalition_card K h_four, Finset.card_erase_of_mem hrT]
+  have hrest_nonempty : rest.Nonempty := by
+    have : (0 : ℕ) < rest.card := by omega
+    exact Finset.card_pos.mp this
+  let a : Vertex := rest.min' hrest_nonempty
+  have ha_rest : a ∈ rest := Finset.min'_mem rest hrest_nonempty
+  let rest2 : Simplex := rest.erase a
+  have hrest2_card : rest2.card = 2 := by
+    simp [rest2, hrest_card, Finset.card_erase_of_mem ha_rest]
+  have hrest2_nonempty : rest2.Nonempty := by
+    have : (0 : ℕ) < rest2.card := by omega
+    exact Finset.card_pos.mp this
+  let b : Vertex := rest2.min' hrest2_nonempty
+  have hb_rest2 : b ∈ rest2 := Finset.min'_mem rest2 hrest2_nonempty
+  let c : Vertex := (rest2.erase b).min' (by
+    have : (0 : ℕ) < (rest2.erase b).card := by
+      have : rest2.card = 2 := hrest2_card
+      have hb : b ∈ rest2 := hb_rest2
+      simp [rest2, this, Finset.card_erase_of_mem hb]
+    exact Finset.card_pos.mp this)
+  have hc_rest2 : c ∈ rest2.erase b := Finset.min'_mem (rest2.erase b) (by
+    have : (0 : ℕ) < (rest2.erase b).card := by
+      have : rest2.card = 2 := hrest2_card
+      have hb : b ∈ rest2 := hb_rest2
+      simp [rest2, this, Finset.card_erase_of_mem hb]
+    exact Finset.card_pos.mp this)
+  have hb_rest : b ∈ rest := by
+    have : b ∈ rest2 := hb_rest2
+    simp [rest2] at this
+    exact this.1
+  have hc_rest : c ∈ rest := by
+    have : c ∈ rest2.erase b := hc_rest2
+    simp [rest2] at this
+    exact this.1.1
+  have haT : a ∈ T := by
+    simp [rest] at ha_rest
+    exact ha_rest.1
+  have hbT : b ∈ T := by
+    simp [rest] at hb_rest
+    exact hb_rest.1
+  have hcT : c ∈ T := by
+    simp [rest] at hc_rest
+    exact hc_rest.1
+  -- Triangles
+  let t012 := triangle a b c
+  let t013 := triangle r a c
+  let t023 := triangle r b c
+  let t123 := triangle r a b
+  -- Triangle membership
+  have ht012 : t012 ∈ K.ksimplices 2 := by
+    have hcard : t012.card = 3 := by
+      have hab : a ≠ b := by
+        intro h; have := hb_rest2; simp [rest2, h] at this
+      have hac : a ≠ c := by
+        intro h; have := hc_rest2; simp [rest2, h] at this
+      have hbc : b ≠ c := by
+        intro h; have := hc_rest2; simp [rest2, h] at this
+      exact triangle_card hab hac hbc
+    have hverts : ∀ v ∈ t012, v ∈ K.vertexSet := by
+      intro v hv
+      simp [triangle] at hv
+      rcases hv with rfl | rfl | rfl
+      · exact (mem_grandCoalition_iff K a).1 (by simpa [T] using haT)
+      · exact (mem_grandCoalition_iff K b).1 (by simpa [T] using hbT)
+      · exact (mem_grandCoalition_iff K c).1 (by simpa [T] using hcT)
+    exact ⟨h_triples t012 hcard hverts, hcard⟩
+  have ht013 : t013 ∈ K.ksimplices 2 := by
+    have hcard : t013.card = 3 := by
+      have hra : r ≠ a := by
+        intro h; have := ha_rest; simp [rest, h] at this
+      have hrc : r ≠ c := by
+        intro h; have := hc_rest; simp [rest, h] at this
+      have hac : a ≠ c := by
+        intro h; have := hc_rest2; simp [rest2, h] at this
+      exact triangle_card hra hrc hac
+    have hverts : ∀ v ∈ t013, v ∈ K.vertexSet := by
+      intro v hv
+      simp [triangle] at hv
+      rcases hv with rfl | rfl | rfl
+      · exact (mem_grandCoalition_iff K r).1 (by simpa [T] using hrT)
+      · exact (mem_grandCoalition_iff K a).1 (by simpa [T] using haT)
+      · exact (mem_grandCoalition_iff K c).1 (by simpa [T] using hcT)
+    exact ⟨h_triples t013 hcard hverts, hcard⟩
+  have ht023 : t023 ∈ K.ksimplices 2 := by
+    have hcard : t023.card = 3 := by
+      have hrb : r ≠ b := by
+        intro h; have := hb_rest; simp [rest, h] at this
+      have hrc : r ≠ c := by
+        intro h; have := hc_rest; simp [rest, h] at this
+      have hbc : b ≠ c := by
+        intro h; have := hc_rest2; simp [rest2, h] at this
+      exact triangle_card hrb hrc hbc
+    have hverts : ∀ v ∈ t023, v ∈ K.vertexSet := by
+      intro v hv
+      simp [triangle] at hv
+      rcases hv with rfl | rfl | rfl
+      · exact (mem_grandCoalition_iff K r).1 (by simpa [T] using hrT)
+      · exact (mem_grandCoalition_iff K b).1 (by simpa [T] using hbT)
+      · exact (mem_grandCoalition_iff K c).1 (by simpa [T] using hcT)
+    exact ⟨h_triples t023 hcard hverts, hcard⟩
+  have ht123 : t123 ∈ K.ksimplices 2 := by
+    have hcard : t123.card = 3 := by
+      have hra : r ≠ a := by
+        intro h; have := ha_rest; simp [rest, h] at this
+      have hrb : r ≠ b := by
+        intro h; have := hb_rest; simp [rest, h] at this
+      have hab : a ≠ b := by
+        intro h; have := hb_rest2; simp [rest2, h] at this
+      exact triangle_card hra hrb hab
+    have hverts : ∀ v ∈ t123, v ∈ K.vertexSet := by
+      intro v hv
+      simp [triangle] at hv
+      rcases hv with rfl | rfl | rfl
+      · exact (mem_grandCoalition_iff K r).1 (by simpa [T] using hrT)
+      · exact (mem_grandCoalition_iff K a).1 (by simpa [T] using haT)
+      · exact (mem_grandCoalition_iff K b).1 (by simpa [T] using hbT)
+    exact ⟨h_triples t123 hcard hverts, hcard⟩
+  -- Witness cochain: 1 on t012, 0 on others
+  let f : Cochain K 2 := fun ⟨s, _hs⟩ => if s = t012 then (1 : Coeff) else 0
+  have hf_cocycle : IsCocycle K 2 f := by
+    -- no 3-simplices, so coboundary is identically 0
+    funext ⟨s, hs⟩
+    have : False := by
+      have := hs
+      simp [h_no_3] at this
+    exact (False.elim this)
+  have hf_cob : IsCoboundary K 2 f := h_triv f hf_cocycle
+  rcases hf_cob with ⟨g, hg⟩
+  -- Extract equations by evaluating δg on the four triangles
+  have eq1 : (δ K 1 g) ⟨t012, ht012⟩ = 1 := by
+    have := congrArg (fun h => h ⟨t012, ht012⟩) hg
+    simp [f, t012] at this
+    exact this
+  have eq2 : (δ K 1 g) ⟨t013, ht013⟩ = 0 := by
+    have := congrArg (fun h => h ⟨t013, ht013⟩) hg
+    simp [f, t013, t012] at this
+    exact this
+  have eq3 : (δ K 1 g) ⟨t023, ht023⟩ = 0 := by
+    have := congrArg (fun h => h ⟨t023, ht023⟩) hg
+    simp [f, t023, t012] at this
+    exact this
+  have eq4 : (δ K 1 g) ⟨t123, ht123⟩ = 0 := by
+    have := congrArg (fun h => h ⟨t123, ht123⟩) hg
+    simp [f, t123, t012] at this
+    exact this
+  -- Expand δg on each triangle to get a linear system
+  -- These simp steps rely on the standard alternating-sum form of coboundary
+  -- for 2-simplices.
+  have eq1' : (δ K 1 g) ⟨t012, ht012⟩ =
+      g ⟨edge b c, by
+        have hb : b ∈ t012 := by simp [t012, triangle]
+        have hc : c ∈ t012 := by simp [t012, triangle]
+        exact ⟨K.down_closed t012 (by simpa using ht012.1) (edge b c)
+          (by simp [edge, hb, hc]), edge_card (by
+            intro h; have := hc_rest2; simp [rest2, h] at this)⟩
+      ⟩ -
+      g ⟨edge a c, by
+        have ha : a ∈ t012 := by simp [t012, triangle]
+        have hc : c ∈ t012 := by simp [t012, triangle]
+        exact ⟨K.down_closed t012 (by simpa using ht012.1) (edge a c)
+          (by simp [edge, ha, hc]), edge_card (by
+            intro h; have := hc_rest2; simp [rest2, h] at this)⟩
+      ⟩ +
+      g ⟨edge a b, by
+        have ha : a ∈ t012 := by simp [t012, triangle]
+        have hb : b ∈ t012 := by simp [t012, triangle]
+        exact ⟨K.down_closed t012 (by simpa using ht012.1) (edge a b)
+          (by simp [edge, ha, hb]), edge_card (by
+            intro h; have := hb_rest2; simp [rest2, h] at this)⟩
+      ⟩ := by
+    simp [coboundary, t012]
+  -- Use the linear system to derive contradiction
+  have : (0 : ℚ) = 1 := by
+    -- The algebra follows the standard hollow-tetrahedron contradiction
+    linarith [eq1, eq2, eq3, eq4, eq1']
+  exact (one_ne_zero this.symm)
 
 /-! ## Small Complex Theorem -/
 

@@ -11,7 +11,7 @@ A BASIN is the region of initial conditions that flow to that attractor.
 Example:
 - Attractor A: All agents at value 0.5 (consensus)
   Basin radius: 0.3 → Very stable, large catchment area
-  
+
 - Attractor B: All agents at value 0.8
   Basin radius: 0.1 → Less stable, smaller catchment area
 
@@ -99,7 +99,7 @@ theorem consensus_is_attractor {n : ℕ} [NeZero n] (_hn : n ≥ 1)
     simp only [fromValuePoint, consensusAttractor]
   rw [h_uniform]
   -- Now apply the axiom that uniform systems have zero misalignment
-  have h_zero := CriticalPoints.uniform_misalignment_zero_ax (n := n) epsilon value
+  have h_zero := CriticalPoints.uniform_misalignment_zero_ax (n := n) epsilon (le_of_lt _hε) value
   simp only [h_zero, decide_eq_true_eq]
 
 /-! ## Part 2: Basin of Attraction -/
@@ -306,7 +306,7 @@ structure AttractorComparison where
   recommendation : String
 
 /-- Compare two attractors -/
-def compareAttractors {n : ℕ} [NeZero n] 
+def compareAttractors {n : ℕ} [NeZero n]
     (a1 a2 : Attractor n S) (epsilon : ℚ) [Nonempty S] : AttractorComparison :=
   let r1 := basinRadius a1 epsilon
   let r2 := basinRadius a2 epsilon
@@ -340,7 +340,7 @@ def generateBasinReport {n : ℕ} [NeZero n] (_hn : n ≥ 1)
     (systems : Fin n → ValueSystem S) (epsilon : ℚ) (_hε : epsilon > 0)
     [Nonempty S] : BasinReport n :=
   -- Create a consensus attractor as reference
-  let avgValue : S → ℚ := fun s => 
+  let avgValue : S → ℚ := fun s =>
     (Finset.univ.sum fun i => (systems i).values s) / n
   let consensusAtt : Attractor n S := {
     point := consensusAttractor avgValue
@@ -351,7 +351,7 @@ def generateBasinReport {n : ℕ} [NeZero n] (_hn : n ≥ 1)
   let radius := basinRadius consensusAtt epsilon
   let dist := distanceToBoundary currentPoint consensusAtt epsilon
   let stab := classifyStability consensusAtt epsilon
-  let warn := if dist < epsilon / 5 then 
+  let warn := if dist < epsilon / 5 then
     some "Warning: Close to basin boundary!" else none
   {
     currentAttractor := some "Consensus"

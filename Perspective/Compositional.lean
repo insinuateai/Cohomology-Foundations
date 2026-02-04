@@ -48,6 +48,7 @@ AXIOMS: 3 (forest_single_edge_composition_axiom_aux, general_acyclic_composition
 -/
 
 import Perspective.OptimalRepair
+import Perspective.Curvature
 import H1Characterization.Characterization
 
 namespace Compositional
@@ -60,7 +61,7 @@ variable {S : Type*} [Fintype S] [DecidableEq S]
 
 /-! ## Part 1: Module Definition -/
 
-/-- 
+/--
 A module is a collection of agents with their value systems.
 -/
 structure AlignmentModule (S : Type*) where
@@ -112,7 +113,7 @@ Compose two modules into one larger module.
 
 The composed module has agents from both M₁ and M₂.
 -/
-def composeModules (M₁ M₂ : AlignmentModule S) (I : ModuleInterface M₁ M₂) : 
+def composeModules (M₁ M₂ : AlignmentModule S) (I : ModuleInterface M₁ M₂) :
     AlignmentModule S where
   numAgents := M₁.numAgents + M₂.numAgents
   systems := fun i =>
@@ -202,10 +203,10 @@ theorem composition_can_fail_example :
 
 /-! ## Part 5: Interface Acyclicity -/
 
-/-- 
+/--
 The interface graph: vertices are interface agents, edges are connections.
 -/
-def interfaceGraph (M₁ M₂ : AlignmentModule S) (I : ModuleInterface M₁ M₂) : 
+def interfaceGraph (M₁ M₂ : AlignmentModule S) (I : ModuleInterface M₁ M₂) :
     SimpleGraph (Fin M₁.numAgents ⊕ Fin M₂.numAgents) where
   Adj := fun x y => match x, y with
     | .inl a, .inr b => I.areConnected a b
@@ -350,14 +351,45 @@ theorem disjoint_modules_safe (M₁ M₂ : AlignmentModule S)
     1. Showing the missing edge creates a potential cycle
     2. Proving this cycle is non-trivial in H¹
     3. Using the definition of valueComplex -/
-axiom large_disagreement_breaks_alignment_aux (M₁ M₂ : AlignmentModule S)
+theorem large_disagreement_breaks_alignment_aux (M₁ M₂ : AlignmentModule S)
     (I : ModuleInterface M₁ M₂) [Nonempty S]
     (a : Fin M₁.numAgents) (b : Fin M₂.numAgents)
-    (h_connected : (a, b) ∈ I.connections)
+    (_h_connected : (a, b) ∈ I.connections)
     (s : S)
     (h_disagree : |(M₁.systems a).values s - (M₂.systems b).values s| >
                   2 * (composeModules M₁ M₂ I).epsilon) :
-    ¬(composeModules M₁ M₂ I).isAligned
+    ¬(composeModules M₁ M₂ I).isAligned := by
+  intro h_aligned
+  -- Use the bounded-disagreement consequence of H¹ = 0
+  have h_bounded := Curvature.h1_trivial_implies_bounded_disagreement_ax
+    (systems := (composeModules M₁ M₂ I).systems)
+    (epsilon := (composeModules M₁ M₂ I).epsilon)
+    (hε := (composeModules M₁ M₂ I).epsilon_pos)
+    (h_aligned := h_aligned)
+  -- Build the indices in the composed module corresponding to a and b
+  let i : Fin (M₁.numAgents + M₂.numAgents) :=
+    ⟨a.val, by omega⟩
+  let j : Fin (M₁.numAgents + M₂.numAgents) :=
+    ⟨M₁.numAgents + b.val, by omega⟩
+  have hi : i.val < M₁.numAgents := by simpa [i] using a.isLt
+  have hj : ¬j.val < M₁.numAgents := by
+    have : M₁.numAgents ≤ j.val := by
+      simp [j]
+    exact not_lt_of_ge this
+  -- Extract the bound for this pair
+  have h_bound := h_bounded i j s
+  -- Evaluate composed systems at i and j to relate to M₁ and M₂
+  have h_i_val : (composeModules M₁ M₂ I).systems i = M₁.systems a := by
+    simp [composeModules, i, hi]
+  have h_j_val : (composeModules M₁ M₂ I).systems j = M₂.systems b := by
+    have : j.val - M₁.numAgents = b.val := by
+      simp [j]
+    simp [composeModules, j, hj, this]
+  -- Contradiction with the large disagreement
+  have : |(M₁.systems a).values s - (M₂.systems b).values s| ≤
+      2 * (composeModules M₁ M₂ I).epsilon := by
+    simpa [h_i_val, h_j_val] using h_bound
+  linarith
 
 theorem large_disagreement_breaks_alignment (M₁ M₂ : AlignmentModule S)
     (I : ModuleInterface M₁ M₂) [Nonempty S]

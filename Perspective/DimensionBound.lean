@@ -44,6 +44,7 @@ import Perspective.MayerVietoris
 import H1Characterization.Characterization
 import Infrastructure.GraphTheoryUtils
 import Infrastructure.TreeGraphInfra
+import Infrastructure.DimensionBoundProofs
 
 namespace DimensionBound
 
@@ -55,7 +56,7 @@ variable {S : Type*} [Fintype S] [DecidableEq S]
 
 /-! ## Part 1: Cohomology Dimension -/
 
-/-- 
+/--
 The dimension of H¹ - counts independent conflicts.
 
 For a simplicial complex K:
@@ -71,7 +72,7 @@ def h1Dimension (K : SimplicialComplex) : ℕ :=
   -- (This is the cyclomatic complexity / circuit rank)
   0  -- Placeholder; actual computation below
 
-/-- 
+/--
 Compute h1Dimension via Euler characteristic.
 
 For a graph (1-dimensional complex):
@@ -79,8 +80,8 @@ For a graph (1-dimensional complex):
 
 where c = number of connected components.
 -/
-def h1DimensionCompute (K : SimplicialComplex) 
-    [Fintype K.vertexSet] 
+def h1DimensionCompute (K : SimplicialComplex)
+    [Fintype K.vertexSet]
     [DecidableEq K.vertexSet]
     [DecidableRel (oneSkeleton K).Adj] : ℕ :=
   let numEdges := (oneSkeleton K).edgeFinset.card
@@ -305,11 +306,14 @@ theorem simple_graph_edge_bound (V : Type*) [Fintype V] [DecidableEq V] (G : Sim
     β₁ = |E| + c - n ≤ n*(n-1)/2 + c - n
 
     The maximum is achieved when c = 1 (complete graph), giving (n-1)*(n-2)/2. -/
-axiom h1_dim_components_bound (K : SimplicialComplex)
+theorem h1_dim_components_bound (K : SimplicialComplex)
     [Fintype K.vertexSet] [DecidableEq K.vertexSet] [DecidableRel (oneSkeleton K).Adj]
     (h_edge : (oneSkeleton K).edgeFinset.card ≤ Fintype.card K.vertexSet * (Fintype.card K.vertexSet - 1) / 2) :
     (oneSkeleton K).edgeFinset.card + Fintype.card (oneSkeleton K).ConnectedComponent
-      ≤ (Fintype.card K.vertexSet - 1) * (Fintype.card K.vertexSet - 2) / 2 + Fintype.card K.vertexSet
+      ≤ (Fintype.card K.vertexSet - 1) * (Fintype.card K.vertexSet - 2) / 2 + Fintype.card K.vertexSet := by
+  simpa using
+    (Infrastructure.DimensionBoundProofs.h1_dim_components_bound_proven
+      (G := oneSkeleton K) (h_edge := h_edge))
 
 theorem h1_dim_bounded_by_max (K : SimplicialComplex)
     [Fintype K.vertexSet] [DecidableEq K.vertexSet]
@@ -338,7 +342,7 @@ severity = dim H¹ / max possible dim H¹
 
 Range: 0.0 (perfectly aligned) to 1.0 (maximally misaligned)
 -/
-def severityScore (K : SimplicialComplex) 
+def severityScore (K : SimplicialComplex)
     [Fintype K.vertexSet] [DecidableEq K.vertexSet]
     [DecidableRel (oneSkeleton K).Adj] : ℚ :=
   let n := Fintype.card K.vertexSet
@@ -469,7 +473,7 @@ theorem zero_effort_iff_aligned (K : SimplicialComplex)
 /-- Compare severity between two complexes -/
 def compareSeverity (K₁ K₂ : SimplicialComplex)
     [Fintype K₁.vertexSet] [DecidableEq K₁.vertexSet] [DecidableRel (oneSkeleton K₁).Adj]
-    [Fintype K₂.vertexSet] [DecidableEq K₂.vertexSet] [DecidableRel (oneSkeleton K₂).Adj] 
+    [Fintype K₂.vertexSet] [DecidableEq K₂.vertexSet] [DecidableRel (oneSkeleton K₂).Adj]
     : Ordering :=
   compare (severityScore K₁) (severityScore K₂)
 

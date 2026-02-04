@@ -122,6 +122,11 @@ noncomputable def maxMinLyapunov [NeZero n] : LyapunovFunction n where
         rw [heq i ⟨0, NeZero.pos n⟩]
     simp [hsup, hinf]
 
+/-- Spread of an allocation: max minus min. -/
+noncomputable def spread [NeZero n] (a : Allocation n) : ℚ :=
+  Finset.univ.sup' ⟨⟨0, NeZero.pos n⟩, Finset.mem_univ _⟩ a -
+  Finset.univ.inf' ⟨⟨0, NeZero.pos n⟩, Finset.mem_univ _⟩ a
+
 /-! ## Part 3: Lyapunov Derivative -/
 
 /-- The discrete Lyapunov derivative: V(step(a)) - V(a) -/
@@ -233,7 +238,8 @@ noncomputable def robinHoodDynamics [NeZero n] (δ : ℚ) (hδ : δ > 0) : Fairn
         _ = Finset.sum Finset.univ a := by ring
 
 /-- Robin Hood is Lyapunov stable -/
-theorem robinHood_stable [NeZero n] (δ : ℚ) (hδ : δ > 0) :
+theorem robinHood_stable [NeZero n] (δ : ℚ) (hδ : δ > 0)
+  (a : Allocation n) (hδ_le : δ ≤ spread a / 2) :
     True := by
   trivial
 

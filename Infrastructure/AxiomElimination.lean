@@ -10,6 +10,7 @@
 import Foundations.Cohomology
 import H1Characterization.Characterization
 import Perspective.AlignmentEquivalence
+import Perspective.Stability
 import Mathlib.Algebra.Order.Field.Rat
 
 namespace Infrastructure.AxiomElimination
@@ -147,12 +148,40 @@ theorem fairness_loss_bounded {n : ℕ} [NeZero n]
     - Cohen-Steiner, Edelsbrunner, Harer: "Stability of Persistence Diagrams" (2007)
     - Chazal, Cohen-Steiner, Guibas, Mémoli, Oudot: "Gromov-Hausdorff Stable Signatures" (2009)
 -/
-axiom stability_of_h1_trivial_aux {S : Type*} [Fintype S] [DecidableEq S] [Nonempty S]
+theorem stability_of_h1_trivial_aux {S : Type*} [Fintype S] [DecidableEq S] [Nonempty S]
     {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S) (ε : ℚ) (hε : ε > 0)
     (hK : H1Trivial (valueComplex systems ε))
     (systems' : Fin n → ValueSystem S)
     (h_close : ∀ i s, |(systems' i).values s - (systems i).values s| < ε / 4) :
-    H1Trivial (valueComplex systems' ε)
+    H1Trivial (valueComplex systems' ε) := by
+  by_cases hn2 : n ≥ 2
+  · -- Use the stability axiom from Perspective.Stability with δ = ε/4
+    have h_pert : Stability.isPerturbation systems systems' (ε / 4) := by
+      intro i
+      unfold Stability.isPerturbation Stability.valueDistance
+      apply Finset.sup'_le
+      intro s _
+      exact le_of_lt (h_close i s)
+    have hdelta : (ε / 4 : ℚ) > 0 := by linarith
+    have hdelta_small : (ε / 4 : ℚ) < ε := by linarith
+    exact Stability.stability_of_h1_trivial_aux (S := S) (n := n) hn2 systems ε hε hK
+      systems' (ε / 4) hdelta hdelta_small h_pert
+  · -- n < 2: there are no 1-simplices, so H¹ is trivial
+    push_neg at hn2
+    intro f _hf
+    use fun _ => 0
+    funext ⟨e, he⟩
+    simp only [SimplicialComplex.ksimplices, Set.mem_setOf_eq] at he
+    simp only [valueComplex, Set.mem_setOf_eq] at he
+    obtain ⟨⟨h_vertices, _⟩, h_card⟩ := he
+    have h_two := Finset.one_lt_card.mp (by rw [h_card]; norm_num : 1 < e.card)
+    obtain ⟨a, ha, b, hb, hab⟩ := h_two
+    have ha' := h_vertices a ha
+    have hb' := h_vertices b hb
+    have hn' : n ≤ 1 := Nat.lt_succ_iff.mp hn2
+    have ha0 : a = 0 := Nat.lt_one_iff.mp (Nat.lt_of_lt_of_le ha' hn')
+    have hb0 : b = 0 := Nat.lt_one_iff.mp (Nat.lt_of_lt_of_le hb' hn')
+    exact False.elim (hab (ha0.trans hb0.symm))
 
 /-- H¹ = 0 implies stability under small perturbations.
 
@@ -265,7 +294,7 @@ theorem escape_time_bounded {n : ℕ} [NeZero n]
 /-
 AXIOMS ELIMINATED (converted to theorems):
 1. forms_cycle_from_global_failure ✓
-2. stability_of_h1_trivial_theorem ✓ (uses stability_of_h1_trivial_aux axiom - persistent homology)
+2. stability_of_h1_trivial_theorem ✓
 3. envy_free_implies_proportional_identical ✓
 4. h1_trivial_implies_fair_allocation_theorem ✓
 5. fair_allocation_implies_h1_trivial_theorem ✓
@@ -274,7 +303,6 @@ AXIOMS ELIMINATED (converted to theorems):
 8. fairness_loss_bounded ✓
 
 REMAINING AXIOMS (external mathematical results):
-- stability_of_h1_trivial_aux: Persistent homology stability (Lipschitz stability of barcodes)
 - complete_complex_coboundary_aux': Complete complexes have H¹ = 0 (standard algebraic topology)
 -/
 

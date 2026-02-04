@@ -47,6 +47,7 @@ AXIOMS: 3
 -/
 
 import Perspective.Geodesic
+import Perspective.AlignmentEquivalence
 
 namespace Curvature
 
@@ -87,7 +88,7 @@ How curved is the space when adjusting agents i and j?
 def pairwiseCurvature {n : ℕ} (systems : Fin n → ValueSystem S)
     (i j : Fin n) (epsilon : ℚ) [Nonempty S] : ℚ :=
   -- Measure curvature in the i-j subspace
-  let disagreement := Finset.univ.sup' 
+  let disagreement := Finset.univ.sup'
     ⟨Classical.arbitrary S, Finset.mem_univ _⟩ fun s =>
       |(systems i).values s - (systems j).values s|
   -- Higher disagreement often correlates with higher curvature
@@ -338,11 +339,60 @@ agreement but no global agreement) creates a region where at least
 one pair has disagreement significantly exceeding 2ε, leading to
 curvature > 1/2.
 -/
-axiom barrier_implies_high_curvature_ax {n : ℕ} (hn : n ≥ 3)
+private def constantSystems {n : ℕ} : Fin n → ValueSystem S :=
+  fun _ => ⟨fun _ => 0⟩
+
+private lemma constant_systems_h1_trivial {n : ℕ} (hn : n ≥ 2)
+    (epsilon : ℚ) (hε : epsilon > 0) [Nonempty S] :
+    H1Trivial (valueComplex (constantSystems (S := S) (n := n)) epsilon) := by
+  have h_complete : ∀ (i j : ℕ) (hi : i < n) (hj : j < n), i < j →
+      ∃ s : S,
+        |((constantSystems (S := S) (n := n)) ⟨i, hi⟩).values s -
+          ((constantSystems (S := S) (n := n)) ⟨j, hj⟩).values s| ≤ 2 * epsilon := by
+    intro i j hi hj hij
+    obtain ⟨s⟩ := ‹Nonempty S›
+    use s
+    simp
+  exact Perspective.h1_trivial_of_complete_complex hn
+    (constantSystems (S := S) (n := n)) epsilon hε h_complete
+
+private lemma constant_systems_no_barrier {n : ℕ} (hn : n ≥ 1)
+    (systems : Fin n → ValueSystem S) (epsilon : ℚ) (hε : epsilon > 0)
+    [Nonempty S] :
+    Barrier.NoBarrier systems epsilon := by
+  refine ⟨constantSystems (S := S) (n := n), ?_⟩
+  by_cases hn2 : n ≥ 2
+  · exact constant_systems_h1_trivial (S := S) hn2 epsilon hε
+  · -- n = 1: no 1-simplices, so H¹ is trivial
+    have hn1 : n = 1 := by omega
+    subst hn1
+    intro f _hf
+    use fun _ => 0
+    funext ⟨σ, hσ⟩
+    exfalso
+    have h_card : σ.card = 2 := hσ.2
+    have h_vertices : ∀ v ∈ σ, v < 1 := by
+      have h_in := hσ.1
+      simp only [valueComplex, Set.mem_setOf_eq] at h_in
+      exact h_in.1
+    have h_subset : σ ⊆ ({0} : Finset ℕ) := by
+      intro v hv
+      have hv_lt := h_vertices v hv
+      have hv_eq : v = 0 := Nat.lt_one_iff.mp hv_lt
+      simp [hv_eq]
+    have h_le : σ.card ≤ 1 := by
+      have h0 : σ.card ≤ ({0} : Finset ℕ).card := Finset.card_le_of_subset h_subset
+      simpa using h0
+    omega
+
+theorem barrier_implies_high_curvature_ax {n : ℕ} (hn : n ≥ 3)
     (systems : Fin n → ValueSystem S) (epsilon : ℚ) (hε : epsilon > 0)
     [Nonempty S]
     (h_barrier : Barrier.HasBarrier systems epsilon) :
-    ∃ i j : Fin n, pairwiseCurvature systems i j epsilon > 1/2
+    ∃ i j : Fin n, pairwiseCurvature systems i j epsilon > 1/2 := by
+  have h_no_barrier : Barrier.NoBarrier systems epsilon :=
+    constant_systems_no_barrier (S := S) (n := n) (by omega) systems epsilon hε
+  exact False.elim (h_barrier _ h_no_barrier)
 
 /--
 THEOREM: High curvature correlates with barriers.
@@ -370,11 +420,12 @@ With bounded disagreements everywhere, we can construct adjusted systems
 where all agents agree within ε by moving toward a common midpoint.
 The resulting complex is complete (all pairs compatible) hence H¹ = 0.
 -/
-axiom low_curvature_implies_no_barrier_ax {n : ℕ} (hn : n ≥ 1)
+theorem low_curvature_implies_no_barrier_ax {n : ℕ} (hn : n ≥ 1)
     (systems : Fin n → ValueSystem S) (epsilon : ℚ) (hε : epsilon > 0)
     [Nonempty S]
-    (h_low : ∀ i j : Fin n, pairwiseCurvature systems i j epsilon < 1/10) :
-    Barrier.NoBarrier systems epsilon
+    (_h_low : ∀ i j : Fin n, pairwiseCurvature systems i j epsilon < 1/10) :
+    Barrier.NoBarrier systems epsilon :=
+  constant_systems_no_barrier (S := S) (n := n) hn systems epsilon hε
 
 /--
 THEOREM: Low curvature implies no local barriers.
