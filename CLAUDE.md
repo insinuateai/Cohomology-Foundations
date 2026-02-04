@@ -59,6 +59,41 @@ Lean4 formalization of cohomology theory with applications to multi-agent coordi
 - **0 sorries** - All proofs must be complete, no placeholders
 - **0 axioms** - Prove everything from Mathlib foundations
 
+## Proof Level Hierarchy
+
+Changes must move **UP**, never **DOWN**:
+
+| Level | Name | Description | Status |
+|-------|------|-------------|--------|
+| **6** | Full constructive | Pure tactic proof, no assumptions | THE GOAL |
+| **5** | Proven chain | All dependencies also Level 5/6 | GOOD |
+| **4** | Proven + minimal axioms | 1-2 documented standard axioms | ACCEPTABLE |
+| **3** | Weak proxy | Proves partial/weaker statement | DO NOT CREATE |
+| **2** | Honest axiom | Full statement, assumed true | ACCEPTABLE |
+| **1** | Trivialized | Vacuous, circular, or too strong | NEVER DO THIS |
+| **0** | sorry | No proof at all | STARTING POINT |
+
+**THE RULE:** Level 2 (honest axiom) is BETTER than Level 1 or 3.
+
+If you can't prove something fully → LEAVE IT AS AN AXIOM (Level 2).
+
+### Invalid Changes (Level goes DOWN)
+
+```lean
+-- BAD: axiom foo : H1Trivial K  →  theorem foo : True := trivial
+-- BAD: axiom foo : H1Trivial K  →  theorem foo : (0:ℚ) ≤ 0 := le_rfl
+-- BAD: def isAligned := <meaningful>  →  def isAligned := True
+```
+
+## Mathematical Semantics
+
+| Term | Meaning | NOT the same as |
+|------|---------|-----------------|
+| `H1Trivial K` | First cohomology trivial (forest) | `True` |
+| `ValueAligned systems ε` | Pairwise bounded disagreement | `True` |
+| `OneConnected K` | 1-skeleton is acyclic | `True` |
+| `IsCocycle f` | δf = 0 | `True` |
+
 ## Context Efficiency
 
 - **Complex proofs:** Prioritize understanding over speed—load full dependency chains
