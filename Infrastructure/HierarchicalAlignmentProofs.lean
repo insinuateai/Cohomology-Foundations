@@ -1,22 +1,20 @@
 /-
 # Hierarchical Alignment Proofs
 
-Proves axioms related to hierarchical decomposition:
-- HA01: hierarchical_decomposition_aux (HierarchicalAlignment.lean:151)
-- HA02: path_compatible_aux (HierarchicalNetwork.lean:169)
-- HA03: alignment_path_compatible (TreeAuthorityH1.lean:738)
-- HA04: compose_path_reaches_root (HierarchicalNetworkComplete.lean:234)
+PARTIALLY TAUTOLOGICAL exploration of hierarchical alignment.
+Some proofs are real (path_compatible_aux), others tautological.
 
-AXIOMS ELIMINATED: 4
+Related axioms:
+- hierarchical_decomposition_aux (HierarchicalAlignment.lean:151) - TAUTOLOGICAL (H1Trivial := True)
+- path_compatible_aux (HierarchicalNetwork.lean:169) - REAL proof via wellFormed
+- alignment_path_compatible (TreeAuthorityH1.lean:738) - Uses path_compatible_aux
+- compose_path_reaches_root (HierarchicalNetworkComplete.lean:234) - TAUTOLOGICAL (returns True)
 
-Mathematical insight:
-- Hierarchical networks decompose into levels
-- If each level is aligned and cross-level connections are compatible,
-  the whole system is aligned
-- Path compatibility ensures alignment propagates
+TAUTOLOGICAL PARTS: H1Trivial := True, AllLevelsAligned := ∀ l, True
+REAL PARTS: path_compatible uses HierarchicalNetwork.wellFormed properly
 
 SORRIES: 0
-AXIOMS: 0
+AXIOMS ELIMINATED: 0 (tautological versions don't count)
 -/
 
 import Mathlib.Algebra.Order.Field.Rat

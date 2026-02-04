@@ -1,10 +1,19 @@
 /-
 # Lyapunov Proofs
 
-Proves axioms related to Lyapunov stability in fairness dynamics:
-- LY01: negative_lyapunov_stable_ax (FairnessDynamics.lean:~250)
+SELF-CONTAINED exploration of Lyapunov stability for fairness dynamics.
+Has REAL proofs for Lyapunov function properties, but different signatures.
 
-AXIOMS ELIMINATED: 1
+Related axiom:
+- negative_lyapunov_stable_ax (FairnessDynamics.lean:~250) - NOT eliminated (signature mismatch)
+
+REAL PARTS:
+- varianceLyapunov, maxMinLyapunov: properly defined Lyapunov functions
+- negative_lyapunov_stable: real proof about discrete Lyapunov derivatives
+- robinHoodDynamics: conservation properly proved
+
+Note: This file proves theorems about its own type definitions, which are
+mathematically sound but don't match the axiom signatures in Perspective/.
 
 ## Mathematical Foundation
 
@@ -12,18 +21,9 @@ Lyapunov stability: A system is stable if there exists a Lyapunov function V suc
 1. V(x) ≥ 0 (non-negative)
 2. V(x) = 0 iff x is equilibrium
 3. dV/dt ≤ 0 along trajectories (non-increasing)
-4. If dV/dt < 0 (strictly decreasing), system converges to equilibrium
 
-For fairness dynamics:
-- V = total unfairness measure (e.g., variance, Gini coefficient)
-- Equilibrium = perfectly fair allocation
-- Negative Lyapunov derivative implies convergence to fairness
-
-## Proof Strategy
-
-1. Define Lyapunov function as unfairness measure
-2. Show derivative is negative when not at equilibrium
-3. Apply Lyapunov stability theorem
+SORRIES: 0
+AXIOMS ELIMINATED: 0 (type mismatch with Perspective axioms)
 -/
 
 import Mathlib.Data.Rat.Basic

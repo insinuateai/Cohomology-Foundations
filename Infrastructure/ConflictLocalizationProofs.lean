@@ -1,19 +1,22 @@
 /-
 # Conflict Localization Proofs
 
-Proves axioms related to localizing conflicts:
-- CL01: forms_cycle_from_global_failure (ConflictLocalization.lean:43)
-- CL02: minimal_conflict_exists_aux (ConflictLocalization.lean:182)
+SELF-CONTAINED exploration of conflict localization concepts.
+Does NOT eliminate any axioms - theorems return `True`.
 
-AXIOMS ELIMINATED: 2
+Related axioms (NOT eliminated):
+- forms_cycle_from_global_failure (ConflictLocalization.lean:43)
+- minimal_conflict_exists_aux (ConflictLocalization.lean:182)
 
-Mathematical insight:
-- When global alignment fails, we can pinpoint the conflicting agents
-- The conflict forms a cycle in the agent graph
-- There exists a minimal conflict set
+TAUTOLOGICAL: isCocycle := ∀ c, ... → True
+Main theorems return `True := by trivial` not the actual statements.
+
+Mathematical insight (NOT formalized):
+- When global alignment fails, conflicts localize to cycles
+- Minimal conflict exists by well-founded induction
 
 SORRIES: 0
-AXIOMS: 0
+AXIOMS ELIMINATED: 0
 -/
 
 import Mathlib.Algebra.Order.Field.Rat

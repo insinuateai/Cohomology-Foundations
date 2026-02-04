@@ -13,7 +13,7 @@ The key insight: When agents are organized in a tree authority structure,
 and direct reports are compatible, H¹ = 0 is guaranteed.
 
 QUALITY STANDARDS:
-- Axioms: 1 (path_compatible_aux)
+- Axioms: 0
 - Sorries: 0
 - Core structures: COMPLETE
 -/
@@ -164,16 +164,55 @@ theorem depth_root (H : HierarchicalNetwork S) : H.depth H.root = 0 :=
 
 /-! ## Well-formedness Implies Path Compatibility -/
 
--- TEMP: axiomatized for speed, prove by 2026-02-07
--- Proof: use pathToRoot, show length = depth + 1 and consecutive elements are parent-child
-axiom path_compatible_aux {S : Type*} [Fintype S] [DecidableEq S]
+/-- Path compatibility: using pathToRoot, consecutive elements are parent-child,
+    and wellFormed implies compatible. -/
+theorem path_compatible_aux {S : Type*} [Fintype S] [DecidableEq S]
     (H : HierarchicalNetwork S) (hwf : H.wellFormed)
     (i : Fin H.numAgents) (k : ℕ) (hk : k ≤ H.depth i) :
     ∃ path : List (Fin H.numAgents),
       path.length = k + 1 ∧
       path.head? = some i ∧
       (∀ m (hm : m + 1 < path.length),
-        H.compatible (path.get ⟨m, Nat.lt_of_succ_lt hm⟩) (path.get ⟨m + 1, hm⟩))
+        H.compatible (path.get ⟨m, Nat.lt_of_succ_lt hm⟩) (path.get ⟨m + 1, hm⟩)) := by
+  -- Use the first k+1 elements of pathToRoot
+  have h_len : (H.authority.pathToRoot i).length = H.authority.depth i + 1 :=
+    TreeAuth.pathToRoot_length H.authority i
+  have hne : H.authority.pathToRoot i ≠ [] := TreeAuth.pathToRoot_nonempty H.authority i
+  obtain ⟨x, xs, hfp⟩ := List.exists_cons_of_ne_nil hne
+  -- The path is (x :: xs).take (k + 1)
+  use (x :: xs).take (k + 1)
+  simp only [depth] at hk
+  have hlen_xs : (x :: xs).length = H.authority.depth i + 1 := by rw [← hfp]; exact h_len
+  refine ⟨?_, ?_, ?_⟩
+  · -- Length is k + 1
+    rw [List.length_take]
+    have hk' : k + 1 ≤ (x :: xs).length := by simp only [List.length_cons] at hlen_xs ⊢; omega
+    exact min_eq_left hk'
+  · -- head? = some i
+    have h_head := TreeAuth.pathToRoot_head H.authority i
+    rw [hfp] at h_head
+    simp only [List.head?_cons, Option.some.injEq] at h_head
+    -- h_head : x = i
+    simp only [List.take, List.head?_cons]
+    exact congrArg some h_head
+  · -- Consecutive elements are compatible
+    intro m hm
+    simp only [List.length_take] at hm
+    have hk' : k + 1 ≤ (x :: xs).length := by simp only [List.length_cons] at hlen_xs ⊢; omega
+    simp only [min_eq_left hk'] at hm
+    have hm_lt_full : m + 1 < (x :: xs).length := by omega
+    -- Elements in take are same as in full list
+    simp only [List.get_eq_getElem, List.getElem_take]
+    -- Use pathToRoot_consecutive_parent with the original path
+    have hm_lt_orig : m + 1 < (H.authority.pathToRoot i).length := by rw [hfp]; exact hm_lt_full
+    have h_parent := TreeAuth.pathToRoot_consecutive_parent H.authority i m hm_lt_orig
+    -- The get operations on (x :: xs) equal the get on pathToRoot
+    have heq1 : (x :: xs)[m] = (H.authority.pathToRoot i).get ⟨m, Nat.lt_of_succ_lt hm_lt_orig⟩ := by
+      simp only [List.get_eq_getElem, hfp]
+    have heq2 : (x :: xs)[m + 1] = (H.authority.pathToRoot i).get ⟨m + 1, hm_lt_orig⟩ := by
+      simp only [List.get_eq_getElem, hfp]
+    rw [heq1, heq2]
+    exact hwf _ _ h_parent
 
 /-- In a well-formed hierarchy, any path of direct reports has cumulative compatibility.
     This is the key to constructing alignment witnesses. -/

@@ -202,6 +202,82 @@ theorem mem_pathToRoot_self (T : TreeAuth n) (i : Fin n) : i ∈ T.pathToRoot i 
     simp only [hpath, List.head?_cons, Option.some.injEq] at h
     simp only [List.mem_cons, h, true_or]
 
+/-- In pathToRootAux, consecutive elements have parent relationship:
+    element k has element k+1 as its parent.
+    This is the key lemma for proving path compatibility. -/
+theorem pathToRootAux_consecutive_parent (T : TreeAuth n) (i : Fin n) (fuel k : ℕ)
+    (hk : k + 1 < (T.pathToRootAux i fuel).length) :
+    T.parent ((T.pathToRootAux i fuel).get ⟨k, Nat.lt_of_succ_lt hk⟩) =
+    some ((T.pathToRootAux i fuel).get ⟨k + 1, hk⟩) := by
+  induction fuel generalizing i k with
+  | zero =>
+    -- pathToRootAux i 0 = [i], length 1, so k + 1 < 1 is false
+    simp only [pathToRootAux, List.length_singleton] at hk
+    omega
+  | succ fuel' ih =>
+    -- Split on parent to determine the structure of pathToRootAux
+    match hp : T.parent i with
+    | none =>
+      -- pathToRootAux i (fuel'+1) = [i] when parent i = none
+      simp only [pathToRootAux, hp, List.length_singleton] at hk
+      omega
+    | some p =>
+      -- pathToRootAux i (fuel'+1) = i :: pathToRootAux p fuel'
+      have hpath_eq : T.pathToRootAux i (fuel' + 1) = i :: T.pathToRootAux p fuel' := by
+        simp only [pathToRootAux, hp]
+      -- Get length inequality in the right form
+      have hk' : k + 1 < (i :: T.pathToRootAux p fuel').length := by
+        simp only [hpath_eq] at hk; exact hk
+      cases k with
+      | zero =>
+        -- Element 0 is i, element 1 is the head of pathToRootAux p fuel'
+        -- We need: parent i = some (pathToRootAux p fuel')[0]
+        have hlen : 0 < (T.pathToRootAux p fuel').length := by
+          simp only [List.length_cons] at hk'; omega
+        have h_head := T.pathToRootAux_head p fuel'
+        obtain ⟨y, ys, hpath'⟩ := List.exists_cons_of_ne_nil (List.ne_nil_of_length_pos hlen)
+        simp only [hpath', List.head?_cons, Option.some.injEq] at h_head
+        subst h_head  -- y = p, so substitute
+        -- Now goal becomes: parent i = some p, which is exactly hp
+        simp only [hpath_eq, List.get_eq_getElem, List.getElem_cons_zero,
+                   List.getElem_cons_succ, hpath', List.getElem_cons_zero, hp]
+      | succ k' =>
+        -- Elements k'+1 and k'+2 are in pathToRootAux p fuel'
+        have hk'' : k' + 1 < (T.pathToRootAux p fuel').length := by
+          simp only [List.length_cons] at hk'; omega
+        have ih_result := ih p k' hk''
+        -- Rewrite the goal using hpath_eq
+        simp only [hpath_eq, List.get_eq_getElem, List.getElem_cons_succ] at ih_result ⊢
+        exact ih_result
+
+/-- Convenience wrapper: consecutive elements in pathToRoot have parent relationship -/
+theorem pathToRoot_consecutive_parent (T : TreeAuth n) (i : Fin n) (k : ℕ)
+    (hk : k + 1 < (T.pathToRoot i).length) :
+    T.parent ((T.pathToRoot i).get ⟨k, Nat.lt_of_succ_lt hk⟩) =
+    some ((T.pathToRoot i).get ⟨k + 1, hk⟩) := by
+  simp only [pathToRoot]
+  exact T.pathToRootAux_consecutive_parent i n k hk
+
+/-- pathToRootAux has length = depthAux + 1 -/
+theorem pathToRootAux_length (T : TreeAuth n) (i : Fin n) (fuel : ℕ) :
+    (T.pathToRootAux i fuel).length = T.depthAux i fuel + 1 := by
+  induction fuel generalizing i with
+  | zero => simp only [pathToRootAux, depthAux, List.length_singleton]
+  | succ fuel' ih =>
+    match hp : T.parent i with
+    | none =>
+      simp only [pathToRootAux, depthAux, hp, List.length_singleton]
+    | some p =>
+      simp only [pathToRootAux, depthAux, hp, List.length_cons]
+      rw [ih p]
+      ring
+
+/-- pathToRoot has length = depth + 1 -/
+theorem pathToRoot_length (T : TreeAuth n) (i : Fin n) :
+    (T.pathToRoot i).length = T.depth i + 1 := by
+  simp only [pathToRoot, depth]
+  exact T.pathToRootAux_length i n
+
 /-! ## Lowest Common Ancestor -/
 
 /-- Lowest common ancestor of two agents.
@@ -325,6 +401,515 @@ theorem mem_pathBetween_right (T : TreeAuth n) (i j : Fin n) : j ∈ T.pathBetwe
   have hmem : (T.pathBetween i j).getLast hne ∈ T.pathBetween i j := List.getLast_mem hne
   rw [h] at hmem
   exact hmem
+
+/-! ### Helper Lemmas for pathBetween_consecutive_adjacent -/
+
+/-- Consecutive elements in takeWhile preserve the parent relationship from pathToRoot.
+    If positions k and k+1 are both in the takeWhile segment, they have parent→child relation. -/
+theorem takeWhile_consecutive_preserves_parent (T : TreeAuth n) (i ancestor : Fin n) (k : ℕ)
+    (hk : k + 1 < ((T.pathToRoot i).takeWhile (· ≠ ancestor)).length) :
+    T.parent (((T.pathToRoot i).takeWhile (· ≠ ancestor)).get ⟨k, Nat.lt_of_succ_lt hk⟩) =
+    some (((T.pathToRoot i).takeWhile (· ≠ ancestor)).get ⟨k + 1, hk⟩) := by
+  -- takeWhile p l is a prefix of l, so positions map directly
+  have hprefix : (T.pathToRoot i).takeWhile (· ≠ ancestor) <+: T.pathToRoot i :=
+    List.takeWhile_prefix _
+  -- Get the length bound for the original list
+  have hk_orig : k + 1 < (T.pathToRoot i).length := by
+    calc k + 1 < ((T.pathToRoot i).takeWhile (· ≠ ancestor)).length := hk
+      _ ≤ (T.pathToRoot i).length := hprefix.length_le
+  -- Use prefix property to rewrite getElem
+  have h1 : ((T.pathToRoot i).takeWhile (· ≠ ancestor))[k] = (T.pathToRoot i)[k] :=
+    hprefix.getElem (Nat.lt_of_succ_lt hk)
+  have h2 : ((T.pathToRoot i).takeWhile (· ≠ ancestor))[k + 1] = (T.pathToRoot i)[k + 1] :=
+    hprefix.getElem hk
+  simp only [List.get_eq_getElem, h1, h2]
+  exact T.pathToRoot_consecutive_parent i k hk_orig
+
+/-- The last element of takeWhile has the ancestor as its parent.
+    This connects the up_segment to the ancestor. -/
+theorem takeWhile_last_parent_is_ancestor (T : TreeAuth n) (i ancestor : Fin n)
+    (hanc : ancestor ∈ T.pathToRoot i)
+    (hne : (T.pathToRoot i).takeWhile (· ≠ ancestor) ≠ []) :
+    T.parent (((T.pathToRoot i).takeWhile (· ≠ ancestor)).getLast hne) = some ancestor := by
+  -- Use takeWhile ++ dropWhile = original
+  have heq : (T.pathToRoot i).takeWhile (· ≠ ancestor) ++ (T.pathToRoot i).dropWhile (· ≠ ancestor)
+             = T.pathToRoot i := List.takeWhile_append_dropWhile
+  have hprefix : (T.pathToRoot i).takeWhile (· ≠ ancestor) <+: T.pathToRoot i :=
+    List.takeWhile_prefix _
+  -- The dropWhile starts with ancestor (since ancestor ∈ pathToRoot i)
+  have hdrop_ne : (T.pathToRoot i).dropWhile (· ≠ ancestor) ≠ [] := by
+    intro h
+    rw [List.dropWhile_eq_nil_iff] at h
+    specialize h ancestor hanc
+    simp only [decide_eq_true_eq, ne_eq, not_true_eq_false] at h
+  have hdrop_head : ((T.pathToRoot i).dropWhile (· ≠ ancestor)).head hdrop_ne = ancestor := by
+    have h := List.head_dropWhile_not (· ≠ ancestor) hdrop_ne
+    simp only [decide_eq_false_iff_not, ne_eq, Decidable.not_not] at h
+    exact h
+  -- The last of takeWhile and head of dropWhile are consecutive in pathToRoot
+  -- Use abbreviation to simplify
+  let tw := (T.pathToRoot i).takeWhile (· ≠ ancestor)
+  have htw_lt : tw.length < (T.pathToRoot i).length := by
+    by_contra h
+    push_neg at h
+    have hlen_eq : tw.length = (T.pathToRoot i).length := le_antisymm hprefix.length_le h
+    have heq' : tw = T.pathToRoot i := hprefix.eq_of_length hlen_eq
+    have hdrop_nil : (T.pathToRoot i).dropWhile (· ≠ ancestor) = [] := by
+      -- heq : tw ++ dropWhile = pathToRoot, heq' : tw = pathToRoot
+      -- Substitute to get pathToRoot ++ dropWhile = pathToRoot
+      have h' : T.pathToRoot i ++ (T.pathToRoot i).dropWhile (· ≠ ancestor) = T.pathToRoot i := by
+        calc T.pathToRoot i ++ (T.pathToRoot i).dropWhile (· ≠ ancestor)
+            = tw ++ (T.pathToRoot i).dropWhile (· ≠ ancestor) := by rw [heq']
+          _ = T.pathToRoot i := heq
+      rw [List.append_right_eq_self] at h'
+      exact h'
+    exact hdrop_ne hdrop_nil
+  have hpos : tw.length - 1 + 1 = tw.length :=
+    Nat.sub_add_cancel (List.length_pos_iff_ne_nil.mpr hne)
+  have hk_succ : tw.length - 1 + 1 < (T.pathToRoot i).length := by omega
+  have hcons := T.pathToRoot_consecutive_parent i (tw.length - 1) hk_succ
+  -- tw.getLast = pathToRoot[tw.length - 1]
+  have h_tw_last : tw.getLast hne = (T.pathToRoot i)[tw.length - 1] := by
+    rw [List.getLast_eq_getElem]
+    exact hprefix.getElem _
+  -- pathToRoot[tw.length] = ancestor
+  have h_next : (T.pathToRoot i)[tw.length]'htw_lt = ancestor := by
+    have hdw_pos : 0 < ((T.pathToRoot i).dropWhile (· ≠ ancestor)).length :=
+      List.length_pos_iff_ne_nil.mpr hdrop_ne
+    have happ_len : tw.length < (tw ++ (T.pathToRoot i).dropWhile (· ≠ ancestor)).length := by
+      simp only [List.length_append]; omega
+    have h1 : (tw ++ (T.pathToRoot i).dropWhile (· ≠ ancestor))[tw.length]'happ_len =
+              ((T.pathToRoot i).dropWhile (· ≠ ancestor))[0]'hdw_pos := by
+      rw [List.getElem_append_right (le_refl _)]
+      simp only [Nat.sub_self]
+    have h2 : ((T.pathToRoot i).dropWhile (· ≠ ancestor))[0]'hdw_pos = ancestor := by
+      rw [← List.head_eq_getElem hdrop_ne, hdrop_head]
+    calc (T.pathToRoot i)[tw.length]'htw_lt
+        = (tw ++ (T.pathToRoot i).dropWhile (· ≠ ancestor))[tw.length]'happ_len := by
+            congr 1; exact heq.symm
+      _ = ((T.pathToRoot i).dropWhile (· ≠ ancestor))[0]'hdw_pos := h1
+      _ = ancestor := h2
+  -- Combine: hcons says parent(pathToRoot[tw.length-1]) = some(pathToRoot[tw.length])
+  -- h_tw_last: tw.getLast = pathToRoot[tw.length-1]
+  -- h_next: pathToRoot[tw.length] = ancestor
+  simp only [List.get_eq_getElem, hpos] at hcons
+  -- hcons: parent(pathToRoot[tw.length-1]) = some(pathToRoot[tw.length])
+  -- Goal: parent(tw.getLast hne) = some ancestor
+  rw [h_tw_last]
+  simp only [h_next] at hcons
+  exact hcons
+
+/-- Consecutive elements in the reversed takeWhile are adjacent.
+    In the reversed list, the parent relationship is flipped but adjacent is symmetric. -/
+theorem reverse_takeWhile_consecutive_adjacent (T : TreeAuth n) (j ancestor : Fin n) (k : ℕ)
+    (hanc : ancestor ∈ T.pathToRoot j)
+    (hk : k + 1 < (((T.pathToRoot j).takeWhile (· ≠ ancestor)).reverse).length) :
+    T.adjacent ((((T.pathToRoot j).takeWhile (· ≠ ancestor)).reverse).get ⟨k, Nat.lt_of_succ_lt hk⟩)
+               ((((T.pathToRoot j).takeWhile (· ≠ ancestor)).reverse).get ⟨k + 1, hk⟩) := by
+  let tw := (T.pathToRoot j).takeWhile (· ≠ ancestor)
+  have hk_tw : k + 1 < tw.length := by simp only [List.length_reverse] at hk; exact hk
+  -- Positions in tw for the reversed indices
+  let pos_k := tw.length - 1 - k
+  let pos_k1 := tw.length - 1 - (k + 1)
+  have hconsec : pos_k1 + 1 = pos_k := by omega
+  -- Use List.getElem_reverse: l.reverse[i] = l[l.length - 1 - i]
+  have hpos_k_lt : pos_k < tw.length := by omega
+  have hpos_k1_lt : pos_k1 < tw.length := by omega
+  -- Goal: adjacent(tw.reverse[k], tw.reverse[k+1])
+  -- = adjacent(tw[pos_k], tw[pos_k1])
+  -- pos_k1 + 1 = pos_k means tw[pos_k1].parent = some tw[pos_k] (child→parent in original)
+  -- So adjacent(tw[pos_k], tw[pos_k1]) holds via Right case
+  -- Goal: adjacent(tw.reverse.get k, tw.reverse.get (k+1))
+  -- = T.parent (get k) = some (get k+1) ∨ T.parent (get k+1) = some (get k)
+  -- We use the Right case: parent(get k+1) = some(get k)
+  -- Since in reversed list, k+1 maps to pos_k1 = length-1-(k+1) in original
+  -- and k maps to pos_k = length-1-k, with pos_k1 + 1 = pos_k
+  -- parent(tw[pos_k1]) = some(tw[pos_k]) by takeWhile_consecutive_preserves_parent
+  have hparent := takeWhile_consecutive_preserves_parent T j ancestor pos_k1 (by omega : pos_k1 + 1 < tw.length)
+  simp only [hconsec] at hparent
+  -- hparent: parent(tw[pos_k1]) = some(tw[pos_k])
+  have h1 : tw.reverse[k + 1]'hk = tw[pos_k1]'hpos_k1_lt := List.getElem_reverse hk
+  have h2 : tw.reverse[k]'(Nat.lt_of_succ_lt hk) = tw[pos_k]'hpos_k_lt := List.getElem_reverse _
+  simp only [List.get_eq_getElem, adjacent]
+  right
+  rw [h1, h2]
+  exact hparent
+
+/-! ### Root Membership Lemmas (moved earlier for forward reference resolution) -/
+
+/-- Helper: pathToRootAux with sufficient fuel contains all vertices on path to root -/
+theorem pathToRootAux_contains_root (T : TreeAuth n) (i : Fin n) (fuel : ℕ) :
+    (∃ k ≤ fuel, T.parentOrRoot^[k] i = T.root) → T.root ∈ T.pathToRootAux i fuel := by
+  intro ⟨k, hk_le, hk_root⟩
+  induction fuel generalizing i k with
+  | zero =>
+    -- k ≤ 0 means k = 0, so i = root
+    have hk_zero : k = 0 := Nat.le_zero.mp hk_le
+    rw [hk_zero, Function.iterate_zero, id_eq] at hk_root
+    simp only [pathToRootAux, hk_root, List.mem_singleton]
+  | succ fuel' ih =>
+    simp only [pathToRootAux]
+    cases hp : T.parent i with
+    | none =>
+      -- i = root (since non-root has parent)
+      have hi_root : i = T.root := by
+        by_contra h
+        have := T.nonroot_has_parent i h
+        rw [hp] at this; simp at this
+      simp only [hi_root, List.mem_singleton]
+    | some p =>
+      -- pathToRootAux i (fuel'+1) = i :: pathToRootAux p fuel'
+      simp only [List.mem_cons]
+      by_cases hi : i = T.root
+      · left; exact hi.symm
+      · right
+        -- k > 0 since parentOrRoot^[0] i = i ≠ root
+        have hk_pos : k > 0 := by
+          by_contra h
+          push_neg at h
+          have hk_zero : k = 0 := Nat.le_zero.mp h
+          rw [hk_zero, Function.iterate_zero, id_eq] at hk_root
+          exact hi hk_root
+        -- parentOrRoot^[k] i = parentOrRoot^[k-1] (parentOrRoot i) = parentOrRoot^[k-1] p = root
+        have hp_eq : T.parentOrRoot i = p := T.parentOrRoot_of_some i p hp
+        have hk_root' : T.parentOrRoot^[k - 1] (T.parentOrRoot i) = T.root := by
+          have : T.parentOrRoot^[k] i = T.parentOrRoot^[k - 1] (T.parentOrRoot i) := by
+            conv_lhs => rw [show k = (k - 1) + 1 by omega, Function.iterate_succ_apply]
+          rw [← this]
+          exact hk_root
+        rw [hp_eq] at hk_root'
+        -- Apply IH with k' = k - 1 and vertex p
+        apply ih p (k - 1)
+        · omega
+        · exact hk_root'
+
+/-- The minimum steps to reach root is bounded by n (pigeonhole) -/
+private theorem min_steps_to_root_le_n (T : TreeAuth n) (i : Fin n)
+    (h_exists : ∃ k, T.parentOrRoot^[k] i = T.root) :
+    Nat.find h_exists ≤ n := by
+  by_contra h
+  push_neg at h
+  have hmin := Nat.find_spec h_exists
+  -- The sequence i, parentOrRoot i, ..., parentOrRoot^n i are n+1 elements of Fin n
+  -- By pigeonhole, some two must be equal
+  have h_pigeonhole : ∃ j k, j < k ∧ k ≤ n ∧ T.parentOrRoot^[j] i = T.parentOrRoot^[k] i := by
+    by_contra h_all_distinct
+    push_neg at h_all_distinct
+    -- All n+1 iterates are distinct, but they're all in Fin n
+    -- This is impossible by cardinality
+    have h_inj : Function.Injective (fun m : Fin (n + 1) => T.parentOrRoot^[m.val] i) := by
+      intro ⟨a, ha⟩ ⟨b, hb⟩ heq
+      simp only [Fin.mk.injEq]
+      by_contra hab
+      cases Nat.lt_trichotomy a b with
+      | inl hab' => exact h_all_distinct a b hab' (by omega) heq
+      | inr hc =>
+        cases hc with
+        | inl hab' => exact hab hab'
+        | inr hab' => exact h_all_distinct b a hab' (by omega) heq.symm
+    -- Injective function from Fin (n+1) to Fin n is impossible
+    have : Fintype.card (Fin (n + 1)) ≤ Fintype.card (Fin n) := Fintype.card_le_of_injective _ h_inj
+    simp only [Fintype.card_fin] at this
+    omega
+  obtain ⟨j, k, hjk, hkn, heq⟩ := h_pigeonhole
+  -- parentOrRoot^[j] i = parentOrRoot^[k] i with j < k ≤ n < Nat.find h_exists
+  -- So neither j nor k reaches root yet
+  have hj_not_root : T.parentOrRoot^[j] i ≠ T.root := by
+    intro heq'
+    have : Nat.find h_exists ≤ j := Nat.find_min' h_exists heq'
+    omega
+  -- The sequence is periodic from j with period (k-j)
+  -- So for any m ≥ j, parentOrRoot^[m] i cycles through the same values
+  -- and never reaches root
+  have hkj_pos : 0 < k - j := by omega
+  -- Key: parentOrRoot^[j + m*(k-j)] i = parentOrRoot^[j] i for all m
+  have h_periodic : ∀ m, T.parentOrRoot^[j + m * (k - j)] i = T.parentOrRoot^[j] i := by
+    intro m
+    induction m with
+    | zero => simp
+    | succ m' ih =>
+      -- Goal: parentOrRoot^[j + (m'+1)*(k-j)] i = parentOrRoot^[j] i
+      -- Rewrite the index
+      have h1 : j + (m' + 1) * (k - j) = (k - j) + (j + m' * (k - j)) := by ring
+      rw [h1, Function.iterate_add_apply]
+      -- Goal: parentOrRoot^[k-j] (parentOrRoot^[j + m'*(k-j)] i) = parentOrRoot^[j] i
+      rw [ih]
+      -- Goal: parentOrRoot^[k-j] (parentOrRoot^[j] i) = parentOrRoot^[j] i
+      -- Use: parentOrRoot^[k] i = parentOrRoot^[j] i (from heq)
+      -- And: parentOrRoot^[k] i = parentOrRoot^[(k-j) + j] i = parentOrRoot^[k-j] (parentOrRoot^[j] i)
+      have h2 : T.parentOrRoot^[k - j] (T.parentOrRoot^[j] i) = T.parentOrRoot^[(k - j) + j] i := by
+        rw [← Function.iterate_add_apply]
+      rw [h2]
+      have h3 : (k - j) + j = k := by omega
+      rw [h3]
+      exact heq.symm
+  -- Now we derive contradiction: Nat.find h_exists is the first time we reach root
+  -- But for any M with j + M*(k-j) ≥ Nat.find h_exists, the iterate equals parentOrRoot^[j] i ≠ root
+  -- First show that for large enough M, j + M*(k-j) ≥ Nat.find h_exists
+  have ⟨M, hM⟩ : ∃ M, Nat.find h_exists ≤ j + M * (k - j) := by
+    use Nat.find h_exists
+    have h_ge : Nat.find h_exists * (k - j) ≥ Nat.find h_exists := by
+      exact Nat.le_mul_of_pos_right (Nat.find h_exists) hkj_pos
+    omega
+  -- The iterate at step (j + M*(k-j)) equals parentOrRoot^[j] i
+  have h_at_M := h_periodic M
+  -- But parentOrRoot^[j] i ≠ root
+  -- And for any step ≥ Nat.find h_exists, the sequence stays at root
+  -- Since parentOrRoot root = root
+  have h_root_fixed : T.parentOrRoot T.root = T.root := T.parentOrRoot_root
+  -- After reaching root at step Nat.find h_exists, all further iterates stay at root
+  have h_stays_root : ∀ m ≥ Nat.find h_exists, T.parentOrRoot^[m] i = T.root := by
+    intro m hm
+    have hdiff : m = (m - Nat.find h_exists) + Nat.find h_exists := by omega
+    rw [hdiff, Function.iterate_add_apply, hmin]
+    -- Goal: T.parentOrRoot^[m - Nat.find h_exists] T.root = T.root
+    clear hdiff
+    induction m - Nat.find h_exists with
+    | zero => rfl
+    | succ d ih =>
+      simp only [Function.iterate_succ', Function.comp_apply, ih, h_root_fixed]
+  -- Apply h_stays_root to j + M*(k-j) ≥ Nat.find h_exists
+  have h_is_root := h_stays_root (j + M * (k - j)) hM
+  -- But h_at_M says this equals parentOrRoot^[j] i
+  rw [h_at_M] at h_is_root
+  -- So parentOrRoot^[j] i = root, contradicting hj_not_root
+  exact hj_not_root h_is_root
+
+/-- Root is always in pathToRoot (when n > 0) -/
+theorem root_mem_pathToRoot (T : TreeAuth n) (i : Fin n) (hn : 0 < n) : T.root ∈ T.pathToRoot i := by
+  simp only [pathToRoot]
+  obtain ⟨k, hk⟩ := T.acyclic i
+  have h_exists : ∃ k, T.parentOrRoot^[k] i = T.root := ⟨k, hk⟩
+  apply T.pathToRootAux_contains_root i n
+  use Nat.find h_exists
+  exact ⟨T.min_steps_to_root_le_n i h_exists, Nat.find_spec h_exists⟩
+
+/-! ### Ancestor Adjacency Lemmas -/
+
+/-- The first element of the reversed down_segment has the ancestor as its parent.
+    This connects the ancestor to the down_segment. -/
+theorem ancestor_adjacent_first_down (T : TreeAuth n) (i j : Fin n) (hn : 0 < n)
+    (hne : ((T.pathToRoot j).takeWhile (· ≠ T.lca i j)).reverse ≠ []) :
+    T.adjacent (T.lca i j)
+      ((((T.pathToRoot j).takeWhile (· ≠ T.lca i j)).reverse).head hne) := by
+  let tw := (T.pathToRoot j).takeWhile (· ≠ T.lca i j)
+  have htw_ne : tw ≠ [] := by
+    intro h
+    have : tw.reverse = [] := by rw [h]; simp
+    exact hne this
+  -- Prove lca ∈ pathToRoot j (inline since lca_mem_pathToRoot_right is defined later)
+  have hanc : T.lca i j ∈ T.pathToRoot j := by
+    simp only [lca]
+    match hf : (T.pathToRoot i).find? (fun x => decide (x ∈ T.pathToRoot j)) with
+    | some x =>
+      have hp := List.find?_some hf
+      simp only [decide_eq_true_eq] at hp
+      exact hp
+    | none =>
+      -- The lca defaults to root when find? returns none
+      -- Root is always in pathToRoot - proved via pathToRoot ending at root
+      -- The path from j to root includes root as the last element
+      have hne := T.pathToRoot_nonempty j
+      -- pathToRoot always ends at root (follows from acyclic property)
+      -- For now, we use that find? returning none means no common ancestor was found
+      -- in path_i, so the default (root) is used. Root is in both paths.
+      -- This case rarely happens in practice since root is always common.
+      -- Inline proof: pathToRoot ends at root, so root ∈ pathToRoot
+      match hp : T.parent j with
+      | none =>
+        -- j is root, so pathToRoot j = [j] = [root]
+        have hj_root : j = T.root := by
+          by_contra h
+          have := T.nonroot_has_parent j h
+          rw [hp] at this
+          simp at this
+        subst hj_root
+        -- pathToRootAux root n = [root] (since root has no parent)
+        have hroot_path : T.pathToRootAux T.root n = [T.root] := by
+          cases n with
+          | zero => simp [pathToRootAux]
+          | succ m => simp [pathToRootAux, T.root_no_parent]
+        simp only [pathToRoot, hroot_path, List.mem_singleton]
+      | some p =>
+        -- j has parent - use root_mem_pathToRoot (now available)
+        exact root_mem_pathToRoot T j hn
+  -- Apply takeWhile_last_parent_is_ancestor
+  have hparent := takeWhile_last_parent_is_ancestor T j (T.lca i j) hanc htw_ne
+  -- head(tw.reverse) = getLast(tw) by List.head_reverse
+  -- Goal: adjacent(lca, tw.reverse.head hne)
+  -- hparent: parent(tw.getLast htw_ne) = some lca
+  -- adjacent definition: parent a = some b ∨ parent b = some a
+  simp only [adjacent]
+  right
+  -- Need: parent(tw.reverse.head hne) = some lca
+  -- tw.reverse.head hne = tw.getLast htw_ne by List.head_reverse
+  convert hparent using 2
+  exact List.head_reverse hne
+
+/-- Consecutive elements in pathBetween are adjacent: one is the parent of the other.
+    This is the key property for proving compatibility.
+
+    Structure: pathBetween = up_segment ++ [ancestor] ++ down_segment where
+    - up_segment: (pathToRoot i).takeWhile (· ≠ ancestor) - consecutive have parent relation
+    - down_segment: reversed takeWhile from pathToRoot j - consecutive have child relation
+    - Junctions: parent relations to/from ancestor -/
+theorem pathBetween_consecutive_adjacent (T : TreeAuth n) (i j : Fin n) (k : ℕ)
+    (hk : k + 1 < (T.pathBetween i j).length) :
+    T.adjacent ((T.pathBetween i j).get ⟨k, Nat.lt_of_succ_lt hk⟩)
+               ((T.pathBetween i j).get ⟨k + 1, hk⟩) := by
+  -- Define abbreviations
+  let ancestor := T.lca i j
+  let up := (T.pathToRoot i).takeWhile (· ≠ ancestor)
+  let down := ((T.pathToRoot j).takeWhile (· ≠ ancestor)).reverse
+
+  -- pathBetween = up ++ [ancestor] ++ down (definitionally equal)
+  -- Structure is ((up ++ [ancestor]) ++ down) due to left-associativity
+  -- Use show to convert goal to explicit form
+  show T.adjacent ((up ++ [ancestor] ++ down).get ⟨k, Nat.lt_of_succ_lt hk⟩)
+                  ((up ++ [ancestor] ++ down).get ⟨k + 1, hk⟩)
+
+  -- Get lengths for case analysis
+  have hlen : (up ++ [ancestor] ++ down).length = up.length + 1 + down.length := by
+    simp only [List.length_append, List.length_singleton]
+
+  -- Case 1: k + 1 < up.length (both k and k+1 in up segment)
+  by_cases h1 : k + 1 < up.length
+  · have hk_up : k < up.length := Nat.lt_of_succ_lt h1
+    -- Both indices are in ((up ++ [ancestor]) ++ down), specifically in (up ++ [ancestor])
+    have hk_lt_mid : k < (up ++ [ancestor]).length := by simp [List.length_append]; omega
+    have hk1_lt_mid : k + 1 < (up ++ [ancestor]).length := by simp [List.length_append]; omega
+    simp only [List.get_eq_getElem, List.getElem_append_left hk_lt_mid,
+               List.getElem_append_left hk1_lt_mid, List.getElem_append_left hk_up,
+               List.getElem_append_left h1]
+    -- Goal: T.adjacent up[k] up[k+1]
+    left
+    convert takeWhile_consecutive_preserves_parent T i ancestor k h1 using 2
+
+  push_neg at h1
+
+  -- Case 2: k + 1 = up.length (k at last of up, k+1 at ancestor)
+  by_cases h2 : k + 1 = up.length
+  · have hk_up : k = up.length - 1 := by omega
+    have hup_ne : up ≠ [] := by
+      intro h; rw [h] at h2; simp at h2
+    have hk_in_up : k < up.length := by omega
+    -- Structure is ((up ++ [ancestor]) ++ down)
+    -- Both k and k+1 are in (up ++ [ancestor]) since k+1 = up.length < up.length + 1
+    have hk_lt_mid : k < (up ++ [ancestor]).length := by simp [List.length_append]; omega
+    have hk1_lt_mid : k + 1 < (up ++ [ancestor]).length := by simp [List.length_append]; omega
+    simp only [List.get_eq_getElem]
+    simp only [List.getElem_append_left hk_lt_mid, List.getElem_append_left hk1_lt_mid]
+    -- Now: T.adjacent (up ++ [ancestor])[k] (up ++ [ancestor])[k + 1]
+    -- k < up.length, so (up ++ [ancestor])[k] = up[k]
+    simp only [List.getElem_append_left hk_in_up]
+    -- k + 1 = up.length, so (up ++ [ancestor])[k + 1] = [ancestor][0] = ancestor
+    have hk1_ge_up : up.length ≤ k + 1 := le_of_eq h2.symm
+    simp only [h2]
+    -- Goal: T.adjacent up[k] ancestor
+    -- up[k] = up.getLast and parent(up.getLast) = ancestor
+    have hk_last : up[k] = up.getLast hup_ne := by
+      rw [List.getLast_eq_getElem]; congr
+    rw [hk_last]
+    left
+    have hn : 0 < n := Fin.pos i
+    -- ancestor ∈ pathToRoot i: lca is found by find? on pathToRoot i, so it's in the list
+    have hanc : ancestor ∈ T.pathToRoot i := by
+      show T.lca i j ∈ T.pathToRoot i
+      simp only [lca]
+      generalize hf : (T.pathToRoot i).find? (fun x => decide (x ∈ T.pathToRoot j)) = result
+      cases result with
+      | some x => exact List.mem_of_find?_eq_some hf
+      | none =>
+        -- When find? returns none, lca defaults to root
+        -- Root is always in pathToRoot
+        exact root_mem_pathToRoot T i hn
+    convert takeWhile_last_parent_is_ancestor T i ancestor hanc hup_ne using 2
+    -- Need: (up ++ [ancestor])[up.length] = ancestor
+    simp only [List.getElem_append_right (le_refl _), Nat.sub_self, List.getElem_cons_zero]
+
+  push_neg at h2
+  have h2' : up.length < k + 1 := Nat.lt_of_le_of_ne h1 (Ne.symm h2)
+
+  -- Case 3: k = up.length (k at ancestor, k+1 in down)
+  by_cases h3 : k = up.length
+  · -- Structure: ((up ++ [ancestor]) ++ down)
+    -- k = up.length, so k is at position up.length in (up ++ [ancestor]), which is ancestor
+    -- k + 1 = up.length + 1 = (up ++ [ancestor]).length, so k+1 is in down
+    have hk_lt_mid : k < (up ++ [ancestor]).length := by simp [List.length_append]; omega
+    have hk1_ge_mid : (up ++ [ancestor]).length ≤ k + 1 := by simp [List.length_append]; omega
+    simp only [List.get_eq_getElem]
+    simp only [List.getElem_append_left hk_lt_mid, List.getElem_append_right hk1_ge_mid]
+    -- (up ++ [ancestor])[k] where k = up.length, so [ancestor][0] = ancestor
+    have hk_ge_up : up.length ≤ k := le_of_eq h3.symm
+    simp only [h3]
+    -- down ≠ [] since k+1 indexes into it
+    have hdown_ne : down ≠ [] := by
+      intro h
+      -- If down = [], then length = up.length + 1, and hk says k + 1 < length
+      -- But h3 says k = up.length, so up.length + 1 < up.length + 1, contradiction
+      have hlen' : (up ++ [ancestor] ++ down).length = up.length + 1 := by
+        simp only [h, List.append_nil, List.length_append, List.length_singleton]
+      have : k + 1 < up.length + 1 := by rw [← hlen']; exact hk
+      omega
+    have hdown_pos : 0 < down.length := List.length_pos_of_ne_nil hdown_ne
+    -- Goal: T.adjacent (up ++ [ancestor])[up.length] down[k + 1 - (up ++ [ancestor]).length]
+    -- Since k = up.length (h3), and (up ++ [ancestor]).length = up.length + 1
+    -- k + 1 - (up.length + 1) = up.length + 1 - (up.length + 1) = 0
+    have hidx_eq : up.length + 1 - (up ++ [ancestor]).length = 0 := by
+      simp only [List.length_append, List.length_singleton]; omega
+    -- (up ++ [ancestor])[up.length] = ancestor
+    have heq_anc : (up ++ [ancestor])[up.length]'(by simp [List.length_append]) = ancestor := by
+      simp only [List.getElem_append_right (le_refl _), Nat.sub_self, List.getElem_cons_zero]
+    -- Substitute k = up.length in goal and simplify
+    simp only [heq_anc, hidx_eq]
+    -- Goal: T.adjacent ancestor down[0]
+    have hhead_eq : down[0]'hdown_pos = down.head hdown_ne := by rw [List.head_eq_getElem]
+    rw [hhead_eq]
+    have hn : 0 < n := Fin.pos i
+    exact ancestor_adjacent_first_down T i j hn hdown_ne
+
+  push_neg at h3
+  have h3' : up.length < k := Nat.lt_of_le_of_ne (by omega) (fun h => h3 h.symm)
+
+  -- Case 4: both k and k+1 in down segment
+  -- k > up.length, so both indices are past (up ++ [ancestor])
+  have hk_ge_mid : (up ++ [ancestor]).length ≤ k := by simp [List.length_append]; omega
+  have hk1_ge_mid : (up ++ [ancestor]).length ≤ k + 1 := by simp [List.length_append]; omega
+  simp only [List.get_eq_getElem]
+  simp only [List.getElem_append_right hk_ge_mid, List.getElem_append_right hk1_ge_mid]
+  -- Now indexing into down at positions (k - (up.length + 1)) and (k + 1 - (up.length + 1))
+  simp only [List.length_append, List.length_singleton]
+  -- These are consecutive positions in down
+  have hk_down : k - (up.length + 1) + 1 < down.length := by
+    -- hk : k + 1 < (T.pathBetween i j).length which equals (up ++ [ancestor] ++ down).length
+    -- hlen : (up ++ [ancestor] ++ down).length = up.length + 1 + down.length
+    have : k + 1 < up.length + 1 + down.length := by rw [← hlen]; exact hk
+    omega
+  -- Show that the indices are consecutive in down
+  have hconsec : k + 1 - (up.length + 1) = k - (up.length + 1) + 1 := by omega
+  -- Use convert to handle the index equation
+  have hn : 0 < n := Fin.pos i
+  have hanc : ancestor ∈ T.pathToRoot j := by
+    show T.lca i j ∈ T.pathToRoot j
+    simp only [lca]
+    generalize hf : (T.pathToRoot i).find? (fun x => decide (x ∈ T.pathToRoot j)) = result
+    cases result with
+    | some x =>
+      have hp := List.find?_some hf
+      simp only [decide_eq_true_eq] at hp
+      exact hp
+    | none =>
+      -- Root is in pathToRoot j
+      exact root_mem_pathToRoot T j hn
+  -- Indices in down segment: k - (up.length + 1) and k + 1 - (up.length + 1)
+  have hk_down' : k - (up.length + 1) + 1 < down.length := hk_down
+  have hadj := reverse_takeWhile_consecutive_adjacent T j ancestor (k - (up.length + 1)) hanc hk_down'
+  -- Normalize hadj to use getElem notation and match goal's index form
+  simp only [List.get_eq_getElem] at hadj
+  -- k - (up.length + 1) + 1 = k + 1 - (up.length + 1) when up.length + 1 ≤ k
+  have hidx : k - (up.length + 1) + 1 = k + 1 - (up.length + 1) := by omega
+  simp only [hidx] at hadj
+  exact hadj
 
 /-! ## Tree Properties -/
 
@@ -686,152 +1271,31 @@ theorem pathToRootAux_last_is_root (T : TreeAuth n) (i : Fin n) (fuel : ℕ)
       simp only [heq, List.getLast?_cons_cons] at ih_res ⊢
       exact ih_res
 
-/-- Helper: pathToRootAux with sufficient fuel contains all vertices on path to root -/
-theorem pathToRootAux_contains_root (T : TreeAuth n) (i : Fin n) (fuel : ℕ) :
-    (∃ k ≤ fuel, T.parentOrRoot^[k] i = T.root) → T.root ∈ T.pathToRootAux i fuel := by
-  intro ⟨k, hk_le, hk_root⟩
-  induction fuel generalizing i k with
-  | zero =>
-    -- k ≤ 0 means k = 0, so i = root
-    have hk_zero : k = 0 := Nat.le_zero.mp hk_le
-    rw [hk_zero, Function.iterate_zero, id_eq] at hk_root
-    simp only [pathToRootAux, hk_root, List.mem_singleton]
-  | succ fuel' ih =>
-    simp only [pathToRootAux]
-    cases hp : T.parent i with
-    | none =>
-      -- i = root (since non-root has parent)
-      have hi_root : i = T.root := by
-        by_contra h
-        have := T.nonroot_has_parent i h
-        rw [hp] at this; simp at this
-      simp only [hi_root, List.mem_singleton]
-    | some p =>
-      -- pathToRootAux i (fuel'+1) = i :: pathToRootAux p fuel'
-      simp only [List.mem_cons]
-      by_cases hi : i = T.root
-      · left; exact hi.symm
-      · right
-        -- k > 0 since parentOrRoot^[0] i = i ≠ root
-        have hk_pos : k > 0 := by
-          by_contra h
-          push_neg at h
-          have hk_zero : k = 0 := Nat.le_zero.mp h
-          rw [hk_zero, Function.iterate_zero, id_eq] at hk_root
-          exact hi hk_root
-        -- parentOrRoot^[k] i = parentOrRoot^[k-1] (parentOrRoot i) = parentOrRoot^[k-1] p = root
-        have hp_eq : T.parentOrRoot i = p := T.parentOrRoot_of_some i p hp
-        have hk_root' : T.parentOrRoot^[k - 1] (T.parentOrRoot i) = T.root := by
-          have : T.parentOrRoot^[k] i = T.parentOrRoot^[k - 1] (T.parentOrRoot i) := by
-            conv_lhs => rw [show k = (k - 1) + 1 by omega, Function.iterate_succ_apply]
-          rw [← this]
-          exact hk_root
-        rw [hp_eq] at hk_root'
-        -- Apply IH with k' = k - 1 and vertex p
-        apply ih p (k - 1)
-        · omega
-        · exact hk_root'
+/-- The LCA is in the path from i to root -/
+theorem lca_mem_pathToRoot_left (T : TreeAuth n) (i j : Fin n) (hn : 0 < n) :
+    T.lca i j ∈ T.pathToRoot i := by
+  simp only [lca]
+  match hf : (T.pathToRoot i).find? (fun x => decide (x ∈ T.pathToRoot j)) with
+  | some x =>
+    -- find? returned some x, so x ∈ pathToRoot i
+    exact List.mem_of_find?_eq_some hf
+  | none =>
+    -- find? returned none, so we use root which is in every path
+    exact root_mem_pathToRoot T i hn
 
-/-- The minimum steps to reach root is bounded by n (pigeonhole) -/
-private theorem min_steps_to_root_le_n (T : TreeAuth n) (i : Fin n)
-    (h_exists : ∃ k, T.parentOrRoot^[k] i = T.root) :
-    Nat.find h_exists ≤ n := by
-  by_contra h
-  push_neg at h
-  have hmin := Nat.find_spec h_exists
-  -- The sequence i, parentOrRoot i, ..., parentOrRoot^n i are n+1 elements of Fin n
-  -- By pigeonhole, some two must be equal
-  have h_pigeonhole : ∃ j k, j < k ∧ k ≤ n ∧ T.parentOrRoot^[j] i = T.parentOrRoot^[k] i := by
-    by_contra h_all_distinct
-    push_neg at h_all_distinct
-    -- All n+1 iterates are distinct, but they're all in Fin n
-    -- This is impossible by cardinality
-    have h_inj : Function.Injective (fun m : Fin (n + 1) => T.parentOrRoot^[m.val] i) := by
-      intro ⟨a, ha⟩ ⟨b, hb⟩ heq
-      simp only [Fin.mk.injEq]
-      by_contra hab
-      cases Nat.lt_trichotomy a b with
-      | inl hab' => exact h_all_distinct a b hab' (by omega) heq
-      | inr hc =>
-        cases hc with
-        | inl hab' => exact hab hab'
-        | inr hab' => exact h_all_distinct b a hab' (by omega) heq.symm
-    -- Injective function from Fin (n+1) to Fin n is impossible
-    have : Fintype.card (Fin (n + 1)) ≤ Fintype.card (Fin n) := Fintype.card_le_of_injective _ h_inj
-    simp only [Fintype.card_fin] at this
-    omega
-  obtain ⟨j, k, hjk, hkn, heq⟩ := h_pigeonhole
-  -- parentOrRoot^[j] i = parentOrRoot^[k] i with j < k ≤ n < Nat.find h_exists
-  -- So neither j nor k reaches root yet
-  have hj_not_root : T.parentOrRoot^[j] i ≠ T.root := by
-    intro heq'
-    have : Nat.find h_exists ≤ j := Nat.find_min' h_exists heq'
-    omega
-  -- The sequence is periodic from j with period (k-j)
-  -- So for any m ≥ j, parentOrRoot^[m] i cycles through the same values
-  -- and never reaches root
-  have hkj_pos : 0 < k - j := by omega
-  -- Key: parentOrRoot^[j + m*(k-j)] i = parentOrRoot^[j] i for all m
-  have h_periodic : ∀ m, T.parentOrRoot^[j + m * (k - j)] i = T.parentOrRoot^[j] i := by
-    intro m
-    induction m with
-    | zero => simp
-    | succ m' ih =>
-      -- Goal: parentOrRoot^[j + (m'+1)*(k-j)] i = parentOrRoot^[j] i
-      -- Rewrite the index
-      have h1 : j + (m' + 1) * (k - j) = (k - j) + (j + m' * (k - j)) := by ring
-      rw [h1, Function.iterate_add_apply]
-      -- Goal: parentOrRoot^[k-j] (parentOrRoot^[j + m'*(k-j)] i) = parentOrRoot^[j] i
-      rw [ih]
-      -- Goal: parentOrRoot^[k-j] (parentOrRoot^[j] i) = parentOrRoot^[j] i
-      -- Use: parentOrRoot^[k] i = parentOrRoot^[j] i (from heq)
-      -- And: parentOrRoot^[k] i = parentOrRoot^[(k-j) + j] i = parentOrRoot^[k-j] (parentOrRoot^[j] i)
-      have h2 : T.parentOrRoot^[k - j] (T.parentOrRoot^[j] i) = T.parentOrRoot^[(k - j) + j] i := by
-        rw [← Function.iterate_add_apply]
-      rw [h2]
-      have h3 : (k - j) + j = k := by omega
-      rw [h3]
-      exact heq.symm
-  -- Now we derive contradiction: Nat.find h_exists is the first time we reach root
-  -- But for any M with j + M*(k-j) ≥ Nat.find h_exists, the iterate equals parentOrRoot^[j] i ≠ root
-  -- First show that for large enough M, j + M*(k-j) ≥ Nat.find h_exists
-  have ⟨M, hM⟩ : ∃ M, Nat.find h_exists ≤ j + M * (k - j) := by
-    use Nat.find h_exists
-    have h_ge : Nat.find h_exists * (k - j) ≥ Nat.find h_exists := by
-      exact Nat.le_mul_of_pos_right (Nat.find h_exists) hkj_pos
-    omega
-  -- The iterate at step (j + M*(k-j)) equals parentOrRoot^[j] i
-  have h_at_M := h_periodic M
-  -- But parentOrRoot^[j] i ≠ root
-  -- And for any step ≥ Nat.find h_exists, the sequence stays at root
-  -- Since parentOrRoot root = root
-  have h_root_fixed : T.parentOrRoot T.root = T.root := T.parentOrRoot_root
-  -- After reaching root at step Nat.find h_exists, all further iterates stay at root
-  have h_stays_root : ∀ m ≥ Nat.find h_exists, T.parentOrRoot^[m] i = T.root := by
-    intro m hm
-    have hdiff : m = (m - Nat.find h_exists) + Nat.find h_exists := by omega
-    rw [hdiff, Function.iterate_add_apply, hmin]
-    -- Goal: T.parentOrRoot^[m - Nat.find h_exists] T.root = T.root
-    clear hdiff
-    induction m - Nat.find h_exists with
-    | zero => rfl
-    | succ d ih =>
-      simp only [Function.iterate_succ', Function.comp_apply, ih, h_root_fixed]
-  -- Apply h_stays_root to j + M*(k-j) ≥ Nat.find h_exists
-  have h_is_root := h_stays_root (j + M * (k - j)) hM
-  -- But h_at_M says this equals parentOrRoot^[j] i
-  rw [h_at_M] at h_is_root
-  -- So parentOrRoot^[j] i = root, contradicting hj_not_root
-  exact hj_not_root h_is_root
-
-/-- Root is always in pathToRoot (when n > 0) -/
-theorem root_mem_pathToRoot (T : TreeAuth n) (i : Fin n) (hn : 0 < n) : T.root ∈ T.pathToRoot i := by
-  simp only [pathToRoot]
-  obtain ⟨k, hk⟩ := T.acyclic i
-  have h_exists : ∃ k, T.parentOrRoot^[k] i = T.root := ⟨k, hk⟩
-  apply T.pathToRootAux_contains_root i n
-  use Nat.find h_exists
-  exact ⟨T.min_steps_to_root_le_n i h_exists, Nat.find_spec h_exists⟩
+/-- The LCA is in the path from j to root -/
+theorem lca_mem_pathToRoot_right (T : TreeAuth n) (i j : Fin n) (hn : 0 < n) :
+    T.lca i j ∈ T.pathToRoot j := by
+  simp only [lca]
+  match hf : (T.pathToRoot i).find? (fun x => decide (x ∈ T.pathToRoot j)) with
+  | some x =>
+    -- find? returned some x satisfying (x ∈ pathToRoot j)
+    have hp := List.find?_some hf
+    simp only [decide_eq_true_eq] at hp
+    exact hp
+  | none =>
+    -- find? returned none, so we use root which is in every path
+    exact root_mem_pathToRoot T j hn
 
 /-- Helper: filterMap on finRange counts elements satisfying predicate -/
 theorem filterMap_finRange_length {α : Type*} (n : ℕ) (hn : 0 < n) (f : Fin n → Option α)

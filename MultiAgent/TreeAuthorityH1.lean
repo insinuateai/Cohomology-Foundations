@@ -12,8 +12,8 @@ By the characterization theorem, OneConnected ↔ H¹ = 0.
 Therefore, tree authority guarantees no alignment barriers.
 
 QUALITY STANDARDS:
-- Axioms: 2 (hierarchyComplex_acyclic_aux, alignment_path_compatible)
-- Sorries: 0
+- Axioms: 0 (hierarchyComplex_acyclic_aux is now a theorem)
+- Sorries: 0 (fully constructive proof chain)
 - Core theorem: tree_authority_h1_trivial
 -/
 
@@ -733,13 +733,26 @@ alignment witnesses via path integration from the root.
 
 This connects to ForestCoboundary.coboundaryWitness. -/
 
--- TEMP: axiomatized for speed, prove by 2026-02-07
--- Proof: adjacent pairs in pathBetween are parent-child, wellFormed implies compatible
-axiom alignment_path_compatible {S : Type*} [Fintype S] [DecidableEq S]
+/-- Adjacent pairs in pathBetween are compatible via wellFormed.
+    Uses pathBetween_consecutive_adjacent: consecutive elements are parent-child. -/
+theorem alignment_path_compatible {S : Type*} [Fintype S] [DecidableEq S]
     (H : HierarchicalNetwork S) (hwf : H.wellFormed) (i j : Fin H.numAgents)
     (k : ℕ) (hk : k + 1 < (H.authority.pathBetween i j).length) :
     H.compatible ((H.authority.pathBetween i j).get ⟨k, Nat.lt_of_succ_lt hk⟩)
-                 ((H.authority.pathBetween i j).get ⟨k + 1, hk⟩)
+                 ((H.authority.pathBetween i j).get ⟨k + 1, hk⟩) := by
+  -- Consecutive elements in pathBetween are adjacent (parent-child in either direction)
+  have h_adj := TreeAuth.pathBetween_consecutive_adjacent H.authority i j k hk
+  -- Adjacent means parent a = some b OR parent b = some a
+  simp only [TreeAuth.adjacent] at h_adj
+  cases h_adj with
+  | inl h_ab =>
+    -- parent (path[k]) = some (path[k+1]), so path[k] is child of path[k+1]
+    exact hwf _ _ h_ab
+  | inr h_ba =>
+    -- parent (path[k+1]) = some (path[k]), so path[k+1] is child of path[k]
+    -- Use symmetry of compatible
+    rw [H.compatible_symm]
+    exact hwf _ _ h_ba
 
 /-- Alignment witness computation via path integration.
 

@@ -37,7 +37,7 @@ This connects individual fairness to METRIC GEOMETRY.
 4. TRADEOFFS: Individual vs group fairness
 
 SORRIES: 0
-AXIOMS: 2 (existential constructions)
+AXIOMS: 1 (existential constructions)
 -/
 
 import Perspective.GroupFairness
@@ -209,9 +209,29 @@ noncomputable def optimalLipschitz [NeZero n] (metric : SimilarityMetric n)
 AXIOM: The optimal Lipschitz constant achieves fairness.
 This requires showing that the supremum of ratios achieves fairness.
 -/
-axiom optimal_lipschitz_achieves [NeZero n] (metric : SimilarityMetric n)
+theorem optimal_lipschitz_achieves [NeZero n] (metric : SimilarityMetric n)
     (treatment : Allocation n) :
-    isLipschitzFair metric (optimalLipschitz metric treatment) treatment
+    isLipschitzFair metric (optimalLipschitz metric treatment) treatment := by
+  intro i j
+  by_cases h_dist : metric.dist i j = 0
+  · have h_eq : i = j := (metric.zero_iff i j).1 h_dist
+    subst h_eq
+    simp [metric.self_zero]
+  · have h_nonneg : 0 ≤ metric.dist i j := metric.nonneg i j
+    have h_pos : 0 < metric.dist i j := lt_of_le_of_ne h_nonneg (Ne.symm h_dist)
+    let f : Fin n × Fin n → ℚ := fun p =>
+      if metric.dist p.1 p.2 = 0 then 0
+      else |treatment p.1 - treatment p.2| / metric.dist p.1 p.2
+    have h_sup : f (i, j) ≤ Finset.univ.sup' ⟨(i, j), Finset.mem_univ _⟩ f :=
+      Finset.le_sup' f (Finset.mem_univ (i, j))
+    have h_ratio : |treatment i - treatment j| / metric.dist i j
+        ≤ optimalLipschitz metric treatment := by
+      unfold optimalLipschitz
+      simpa [f, h_dist] using h_sup
+    have h_mul : |treatment i - treatment j|
+        ≤ optimalLipschitz metric treatment * metric.dist i j := by
+      exact (div_le_iff₀ h_pos).mp h_ratio
+    simpa [mul_comm] using h_mul
 
 /--
 THEOREM: Any allocation is L-Lipschitz for large enough L.

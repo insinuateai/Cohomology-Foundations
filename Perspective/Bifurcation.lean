@@ -33,7 +33,8 @@ This is dynamical systems theory applied to AI alignment.
 4. ROBUSTNESS: "This configuration is far from any bifurcation"
 
 SORRIES: 0
-AXIOMS: 2 (safety_margin_aux, bifurcation_catastrophic_aux)
+AXIOMS: 0
+ELIMINATED: bifurcation_catastrophic_aux, safety_margin_aux
 -/
 
 import Perspective.CriticalPoints
@@ -163,15 +164,90 @@ def safetyMargin {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S)
   let dist := distanceToBifurcation systems epsilon
   if epsilon > 0 then dist / epsilon else 0
 
-/-- Auxiliary axiom for safety margin proof - the decidability computation.
-    This axiomatizes that if ε is sufficiently far from the critical epsilon (relative to δ·ε),
+/-- THEOREM (was axiom): Safety margin proof - the decidability computation.
+    If ε is sufficiently far from the critical epsilon (relative to δ·ε),
     and |ε' - ε| < δ·ε, then ε' is on the same side of critical epsilon as ε,
-    hence alignmentStatus(ε') = alignmentStatus(ε). -/
-axiom safety_margin_aux {S : Type*} [Fintype S] [DecidableEq S] {n : ℕ} [NeZero n] [Nonempty S]
-    (systems : Fin n → ValueSystem S) (epsilon ε' delta : ℚ) (_hε : epsilon > 0)
-    (_h_margin : |epsilon - criticalEpsilon systems| / epsilon > delta)
-    (_hε' : |ε' - epsilon| < delta * epsilon) :
-    alignmentStatus systems ε' = alignmentStatus systems epsilon
+    hence alignmentStatus(ε') = alignmentStatus(ε).
+
+    Proof:
+    - Case ε > εc: margin gives ε - εc > δ*ε, so ε' > ε - δ*ε > εc, hence aligned
+    - Case ε < εc: margin gives εc - ε > δ*ε, so ε' < ε + δ*ε < εc, hence not aligned
+
+    AXIOM ELIMINATED -/
+theorem safety_margin_aux {S : Type*} [Fintype S] [DecidableEq S] {n : ℕ} [NeZero n] [Nonempty S]
+    (systems : Fin n → ValueSystem S) (epsilon ε' delta : ℚ) (hε : epsilon > 0)
+    (h_margin : |epsilon - criticalEpsilon systems| / epsilon > delta)
+    (hε' : |ε' - epsilon| < delta * epsilon) :
+    alignmentStatus systems ε' = alignmentStatus systems epsilon := by
+  -- Define maxD and εc for clarity
+  set maxD := Finset.univ.sup' ⟨(0, 0), Finset.mem_univ _⟩ fun p =>
+    Finset.univ.sup' ⟨Classical.arbitrary S, Finset.mem_univ _⟩ fun s =>
+      |(systems p.1).values s - (systems p.2).values s|
+  have hεc_def : criticalEpsilon systems = maxD / 2 := rfl
+  -- alignmentStatus is a comparison of maxD with 2*epsilon
+  have h_status_ε : alignmentStatus systems epsilon = decide (maxD ≤ 2 * epsilon) := rfl
+  have h_status_ε' : alignmentStatus systems ε' = decide (maxD ≤ 2 * ε') := rfl
+  rw [h_status_ε, h_status_ε']
+  -- Let εc = criticalEpsilon systems = maxD / 2
+  -- Then maxD = 2 * εc
+  have h_maxD_eq : maxD = 2 * criticalEpsilon systems := by rw [hεc_def]; ring
+  -- Convert margin condition: |ε - εc| > delta * epsilon
+  have h_far : |epsilon - criticalEpsilon systems| > delta * epsilon := by
+    have hdiv := h_margin
+    have hpos : epsilon > 0 := hε
+    have h1 : delta * epsilon < |epsilon - criticalEpsilon systems| / epsilon * epsilon := by
+      apply mul_lt_mul_of_pos_right hdiv hpos
+    simp only [div_mul_cancel₀ _ (ne_of_gt hpos)] at h1
+    linarith
+  -- Convert perturbation bound: ε - delta*ε < ε' < ε + delta*ε
+  have hε'_lower : epsilon - delta * epsilon < ε' := by
+    have := abs_sub_lt_iff.mp hε'
+    linarith
+  have hε'_upper : ε' < epsilon + delta * epsilon := by
+    have := abs_sub_lt_iff.mp hε'
+    linarith
+  -- Case split on whether ε > εc or ε ≤ εc
+  by_cases h_above : epsilon > criticalEpsilon systems
+  · -- Case: ε > εc (aligned)
+    have h_margin_pos : epsilon - criticalEpsilon systems > delta * epsilon := by
+      rw [abs_of_pos (by linarith : epsilon - criticalEpsilon systems > 0)] at h_far
+      exact h_far
+    -- ε' > ε - delta*ε > εc, so ε' > εc
+    have hε'_above : ε' > criticalEpsilon systems := by linarith
+    -- ε > εc = maxD/2 means 2ε > maxD, so alignmentStatus(ε) = true
+    -- ε' > εc means 2ε' > maxD, so alignmentStatus(ε') = true
+    have h_ε_aligned : maxD ≤ 2 * epsilon := by rw [h_maxD_eq]; linarith
+    have h_ε'_aligned : maxD ≤ 2 * ε' := by rw [h_maxD_eq]; linarith
+    simp only [h_ε_aligned, decide_true, h_ε'_aligned]
+  · -- Case: ε ≤ εc
+    push_neg at h_above
+    by_cases h_eq : epsilon = criticalEpsilon systems
+    · -- ε = εc: margin |ε - εc| = 0, so 0/ε > delta, meaning delta < 0
+      -- But then delta * epsilon < 0, and |ε' - epsilon| ≥ 0 always
+      -- So we can't have |ε' - epsilon| < delta * epsilon, contradiction
+      have h_margin_zero : |epsilon - criticalEpsilon systems| = 0 := by
+        rw [h_eq]; simp
+      rw [h_margin_zero, zero_div] at h_margin
+      -- h_margin says 0 > delta, so delta < 0
+      have h_delta_neg : delta < 0 := h_margin
+      -- Then delta * epsilon < 0 since epsilon > 0
+      have h_bound_neg : delta * epsilon < 0 := mul_neg_of_neg_of_pos h_delta_neg hε
+      -- But |ε' - epsilon| ≥ 0 always
+      have h_abs_nonneg : |ε' - epsilon| ≥ 0 := abs_nonneg _
+      -- So can't have |ε' - epsilon| < delta * epsilon
+      linarith
+    · -- ε < εc (not aligned)
+      have h_below : epsilon < criticalEpsilon systems := lt_of_le_of_ne h_above h_eq
+      have h_margin_neg : criticalEpsilon systems - epsilon > delta * epsilon := by
+        rw [abs_of_neg (by linarith : epsilon - criticalEpsilon systems < 0), neg_sub] at h_far
+        exact h_far
+      -- ε' < ε + delta*ε < εc, so ε' < εc
+      have hε'_below : ε' < criticalEpsilon systems := by linarith
+      -- ε < εc = maxD/2 means 2ε < maxD, so alignmentStatus(ε) = false
+      -- ε' < εc means 2ε' < maxD, so alignmentStatus(ε') = false
+      have h_ε_not_aligned : ¬(maxD ≤ 2 * epsilon) := by rw [h_maxD_eq]; linarith
+      have h_ε'_not_aligned : ¬(maxD ≤ 2 * ε') := by rw [h_maxD_eq]; linarith
+      simp only [h_ε_not_aligned, decide_false, h_ε'_not_aligned]
 
 /--
 THEOREM: Large safety margin implies robustness.
@@ -233,15 +309,38 @@ def isCatastrophic {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S)
   let statusChange := alignmentStatus systems epsilon1 != alignmentStatus systems epsilon2
   statusChange && paramChange < 1/10
 
-/-- Auxiliary axiom for bifurcation catastrophe proof.
+/-- THEOREM (was axiom): Bifurcation catastrophe - status differs on opposite sides of εc.
     At the critical epsilon, εc + δ gives aligned status (true) while εc - δ gives
-    non-aligned status (false) for any δ > 0. This is a direct computation from the
-    definitions but formalization requires careful handling of decidable propositions. -/
-axiom bifurcation_catastrophic_aux {S : Type*} [Fintype S] [DecidableEq S]
+    non-aligned status (false) for any δ > 0.
+
+    Proof:
+    - maxDisagree = 2 * criticalEpsilon (by definition)
+    - alignmentStatus(ε) = decide(maxDisagree ≤ 2ε)
+    - At εc + δ: 2*(εc + δ) = maxDisagree + 2δ ≥ maxDisagree, so true
+    - At εc - δ: 2*(εc - δ) = maxDisagree - 2δ < maxDisagree, so false (when δ > 0)
+    - true ≠ false
+
+    AXIOM ELIMINATED -/
+theorem bifurcation_catastrophic_aux {S : Type*} [Fintype S] [DecidableEq S]
     {n : ℕ} [NeZero n] [Nonempty S] (systems : Fin n → ValueSystem S)
-    (delta : ℚ) (_hdelta : delta > 0) :
+    (delta : ℚ) (hdelta : delta > 0) :
     alignmentStatus systems (criticalEpsilon systems + delta) ≠
-    alignmentStatus systems (criticalEpsilon systems - delta)
+    alignmentStatus systems (criticalEpsilon systems - delta) := by
+  unfold alignmentStatus criticalEpsilon
+  simp only [ne_eq]
+  -- Let maxD = the max disagreement
+  set maxD := Finset.univ.sup' ⟨(0, 0), Finset.mem_univ _⟩ fun p =>
+    Finset.univ.sup' ⟨Classical.arbitrary S, Finset.mem_univ _⟩ fun s =>
+      |(systems p.1).values s - (systems p.2).values s| with hMaxD
+  -- Need to show: (maxD ≤ 2 * (maxD/2 + delta)) ≠ (maxD ≤ 2 * (maxD/2 - delta))
+  -- i.e., (maxD ≤ maxD + 2*delta) ≠ (maxD ≤ maxD - 2*delta)
+  -- i.e., true ≠ false (since delta > 0)
+  intro h
+  have h_plus : maxD ≤ 2 * (maxD / 2 + delta) := by ring_nf; linarith
+  have h_minus : ¬(maxD ≤ 2 * (maxD / 2 - delta)) := by ring_nf; linarith
+  -- h says decide(h_plus) = decide(h_minus), but h_plus is true and h_minus is false
+  simp only [h_plus, decide_true, h_minus, decide_false] at h
+  exact Bool.noConfusion h
 
 /--
 THEOREM: Bifurcations are catastrophic.

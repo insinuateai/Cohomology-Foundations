@@ -1,19 +1,25 @@
 /-
 # Fairness Allocation Proofs
 
-Proves axioms connecting fairness to H¹ triviality:
-- F01: h1_trivial_implies_fair_allocation (FairnessFoundations.lean:199)
-- F02: fair_allocation_implies_h1_trivial (FairnessFoundations.lean:210)
+SELF-CONTAINED exploration with mathematically correct proofs for
+its own type definitions (FairnessComplex, H1TrivialFairness).
 
-AXIOMS ELIMINATED: 2
+Related axioms (NOT eliminated - type mismatch):
+- h1_trivial_implies_fair_allocation (FairnessFoundations.lean:199)
+- fair_allocation_implies_h1_trivial (FairnessFoundations.lean:210)
 
-Mathematical insight:
-- H¹ = 0 means all local agreements can be extended globally
-- Fair allocation means resources can be distributed without envy
-- The connection: fair allocations exist iff no cohomological obstructions
+The proofs here are MATHEMATICALLY SOUND using the root vertex method:
+- h1_trivial_implies_fair_allocation_proven: coboundary witness gives allocation
+- fair_allocation_implies_h1_trivial_proven: allocation provides coboundary
+
+However, the types don't match the Perspective axioms:
+- This file: FairnessComplex, H1TrivialFairness, IsFairAllocation
+- Perspective: FairnessProfile, FairnessH1Trivial, isGloballyFair
+
+See FairnessAllocationRealProofs.lean for the correct import pattern.
 
 SORRIES: 0
-AXIOMS: 0
+AXIOMS ELIMINATED: 0 (type mismatch - see FairnessAllocationRealProofs.lean)
 -/
 
 import Mathlib.Algebra.Order.Field.Rat

@@ -1,18 +1,20 @@
 /-
 # Optimal Repair Proofs
 
-Proves axioms related to optimal repair strategies:
-- OR01: aligned_implies_H1_trivial (OptimalRepair.lean:156)
-- OR02: optimal_repair_exists_ax (OptimalRepair.lean:376)
+PARTIALLY TAUTOLOGICAL exploration of optimal repair.
+Has real proofs for repair existence, but tautological H1Trivial.
 
-AXIOMS ELIMINATED: 2
+Related axioms:
+- aligned_implies_H1_trivial (OptimalRepair.lean:156) - TAUTOLOGICAL (H1Trivial := True)
+- optimal_repair_exists_ax (OptimalRepair.lean:376) - REAL proof (explicit construction)
 
-Mathematical insight:
-- If systems are aligned (reconciler exists), then H¹ = 0
-- Optimal repair exists: there's always a minimal-cost way to achieve alignment
+TAUTOLOGICAL PART: H1Trivial := True, so aligned_implies_H1_trivial_proven proves True
+REAL PARTS: optimal_repair_exists_proven, aligned_zero_repair_cost, repair_monotone_epsilon
+
+To eliminate aligned_implies_H1_trivial, would need real Foundations.H1Trivial
 
 SORRIES: 0
-AXIOMS: 0
+AXIOMS ELIMINATED: 0 (real proofs don't match axiom signatures)
 -/
 
 import Mathlib.Algebra.Order.Field.Rat

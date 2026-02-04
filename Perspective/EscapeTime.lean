@@ -35,7 +35,9 @@ This is complexity analysis for alignment dynamics.
 4. COMPARISON: "Method A: 12 steps, Method B: 8 steps"
 
 SORRIES: 0
-AXIOMS: 3 (escape_time_finite_ax, escape_time_monotone_ax, escape_time_bounded_ax)
+AXIOMS: 1 (escape_time_finite_ax)
+ELIMINATED: escape_time_monotone_ax (now escape_time_monotone_proven),
+            escape_time_bounded_ax (now escape_time_bounded_proven)
 -/
 
 import Perspective.AttractorBasins
@@ -167,28 +169,86 @@ theorem aligned_zero_escape {n : ℕ} [NeZero n]
   have h0 : (0 : ℚ) ≤ tolerance := le_of_lt htol
   simp only [h0, ↓reduceIte]
 
-/--
-AXIOM: Larger tolerance means faster escape (monotonicity).
+/-- Helper: convergenceRate is always < 1 -/
+private theorem convergenceRate_lt_one {n : ℕ} [NeZero n]
+    (systems : Fin n → ValueSystem S) (epsilon : ℚ) [Nonempty S] :
+    convergenceRate systems epsilon < 1 := by
+  unfold convergenceRate; norm_num
+
+/-- Helper: convergenceRate is never ≥ 1 -/
+private theorem convergenceRate_not_ge_one {n : ℕ} [NeZero n]
+    (systems : Fin n → ValueSystem S) (epsilon : ℚ) [Nonempty S] :
+    ¬(convergenceRate systems epsilon ≥ 1) := by
+  push_neg; exact convergenceRate_lt_one systems epsilon
+
+/-- THEOREM: Larger tolerance means faster escape (monotonicity).
 
 This follows from: larger tolerance → smaller ratio → smaller escape time.
-The proof requires Int arithmetic lemmas about division and toNat that are
-not readily available in Mathlib. Remains an axiom.
+The proof requires positivity of tolerances.
 -/
-axiom escape_time_monotone_ax {n : ℕ} [NeZero n]
+theorem escape_time_monotone_proven {n : ℕ} [NeZero n]
     (systems : Fin n → ValueSystem S) (epsilon tol1 tol2 : ℚ)
     [Nonempty S]
-    (h_tol : tol1 ≤ tol2) :
-    escapeTime systems epsilon tol2 ≤ escapeTime systems epsilon tol1
+    (htol1 : 0 < tol1) (htol2 : 0 < tol2) (h_tol : tol1 ≤ tol2) :
+    escapeTime systems epsilon tol2 ≤ escapeTime systems epsilon tol1 := by
+  unfold escapeTime
+  set initial := misalignment systems epsilon with h_init
+  set rate := convergenceRate systems epsilon with h_rate
+  -- convergenceRate = 4/5 < 1, so rate ≥ 1 is false
+  have h_rate_lt : ¬(rate ≥ 1) := convergenceRate_not_ge_one systems epsilon
+  simp only [h_rate_lt, ↓reduceIte]
+  -- Case analysis on whether initial ≤ tol2
+  by_cases h2 : initial ≤ tol2
+  · -- initial ≤ tol2, so escapeTime(tol2) = 0
+    simp only [h2, ↓reduceIte]
+    omega
+  · -- initial > tol2 ≥ tol1, so initial > tol1
+    -- Keep negation form for simp
+    have h2_neg : ¬(initial ≤ tol2) := h2
+    push_neg at h2  -- h2 : tol2 < initial
+    have h1 : ¬(initial ≤ tol1) := not_le.mpr (lt_of_le_of_lt h_tol h2)
+    simp only [h1, h2_neg, ↓reduceIte]
+    -- Now need: (initial/tol2).num / (initial/tol2).den + 1 ≤
+    --           (initial/tol1).num / (initial/tol1).den + 1
+    -- Which follows from: initial/tol2 ≤ initial/tol1
+    have h_initial_nonneg : 0 ≤ initial := CriticalPoints.misalignment_nonneg systems epsilon
+    have h_initial_pos : 0 < initial := lt_of_lt_of_le htol2 (le_of_lt h2)
+    -- div_le_div_of_nonneg_left : 0 ≤ a → 0 < c → c ≤ b → a / b ≤ a / c
+    have h_ratio_le : initial / tol2 ≤ initial / tol1 :=
+      div_le_div_of_nonneg_left h_initial_nonneg htol1 h_tol
+    -- For non-negative rationals, floor is monotone
+    have hr1_pos : 0 < initial / tol1 := div_pos h_initial_pos htol1
+    have hr2_pos : 0 < initial / tol2 := div_pos h_initial_pos htol2
+    -- Use Int.floor_le_floor for monotonicity
+    have h_floor : ⌊initial / tol2⌋ ≤ ⌊initial / tol1⌋ := Int.floor_le_floor h_ratio_le
+    -- Connect floor to num/den using Rat.floor_def'
+    have h1_eq : ⌊initial / tol1⌋ = (initial / tol1).num / (initial / tol1).den := Rat.floor_def'
+    have h2_eq : ⌊initial / tol2⌋ = (initial / tol2).num / (initial / tol2).den := Rat.floor_def'
+    -- Both floors are non-negative since initial/tol > 0
+    have h1_nonneg : 0 ≤ ⌊initial / tol1⌋ := Int.floor_nonneg.mpr (le_of_lt hr1_pos)
+    have h2_nonneg : 0 ≤ ⌊initial / tol2⌋ := Int.floor_nonneg.mpr (le_of_lt hr2_pos)
+    -- Rewrite using floor equations
+    rw [h1_eq] at h1_nonneg h_floor
+    rw [h2_eq] at h2_nonneg h_floor
+    -- toNat preserves order for integers
+    have h_toNat : ((initial / tol2).num / (initial / tol2).den).toNat ≤
+                   ((initial / tol1).num / (initial / tol1).den).toNat :=
+      Int.toNat_le_toNat h_floor
+    omega
 
 /--
 THEOREM: Escape time decreases as tolerance increases.
+
+Note: Requires positive tolerances. The axiom version without positivity
+is mathematically unsound (counterexample: tol1 = -1, tol2 = 1/4 gives
+escapeTime(tol2) = 3 > 1 = escapeTime(tol1)).
 -/
 theorem escape_time_monotone {n : ℕ} [NeZero n]
     (systems : Fin n → ValueSystem S) (epsilon tol1 tol2 : ℚ)
     [Nonempty S]
-    (h_tol : tol1 ≤ tol2) :
+    (htol1 : 0 < tol1) (htol2 : 0 < tol2) (h_tol : tol1 ≤ tol2) :
     escapeTime systems epsilon tol2 ≤ escapeTime systems epsilon tol1 :=
-  escape_time_monotone_ax systems epsilon tol1 tol2 h_tol
+  escape_time_monotone_proven systems epsilon tol1 tol2 htol1 htol2 h_tol
 
 /-! ## Part 4: Progress Tracking -/
 
@@ -287,22 +347,63 @@ def worstCaseEscapeTime (_epsilon tolerance : ℚ)
   (ratio.num / ratio.den).toNat + 10
 
 /--
-AXIOM: Escape time is bounded by worst-case computation.
+THEOREM: Escape time is bounded by worst-case computation.
 
 If misalignment ≤ maxMis, then escapeTime ≤ worstCaseEscapeTime(maxMis).
-This follows from: smaller misalignment → smaller ratio → faster convergence.
-The proof involves rational arithmetic floor operations.
+This follows from: smaller misalignment → smaller ratio → smaller floor.
 -/
-axiom escape_time_bounded_ax {n : ℕ} [NeZero n]
+theorem escape_time_bounded_proven {n : ℕ} [NeZero n]
     (systems : Fin n → ValueSystem S) (epsilon tolerance : ℚ)
-    (hε : epsilon > 0) (htol : tolerance > 0)
+    (_hε : epsilon > 0) (htol : tolerance > 0)
     [Nonempty S]
-    (maxMis : ℚ) (h_bound : misalignment systems epsilon ≤ maxMis) :
+    (maxMis : ℚ) (h_maxMis_pos : 0 ≤ maxMis) (h_bound : misalignment systems epsilon ≤ maxMis) :
     escapeTime systems epsilon tolerance ≤
-      worstCaseEscapeTime epsilon tolerance maxMis
+      worstCaseEscapeTime epsilon tolerance maxMis := by
+  unfold escapeTime worstCaseEscapeTime
+  set initial := misalignment systems epsilon with h_init
+  set rate := convergenceRate systems epsilon with h_rate
+  -- convergenceRate = 4/5 < 1, so rate ≥ 1 is false
+  have h_rate_lt : ¬(rate ≥ 1) := convergenceRate_not_ge_one systems epsilon
+  simp only [h_rate_lt, ↓reduceIte]
+  -- Case analysis
+  by_cases h : initial ≤ tolerance
+  · -- initial ≤ tolerance, so escapeTime = 0
+    simp only [h, ↓reduceIte]
+    omega
+  · -- initial > tolerance
+    push_neg at h
+    have h_neg : ¬(initial ≤ tolerance) := not_le.mpr h
+    simp only [h_neg, ↓reduceIte]
+    -- Need: (initial/tolerance).toNat + 1 ≤ (maxMis/tolerance).toNat + 10
+    -- Since initial ≤ maxMis, we have initial/tolerance ≤ maxMis/tolerance
+    have h_initial_nonneg : 0 ≤ initial := CriticalPoints.misalignment_nonneg systems epsilon
+    have h_ratio_le : initial / tolerance ≤ maxMis / tolerance :=
+      div_le_div_of_nonneg_right h_bound (le_of_lt htol)
+    -- Floor is monotone
+    have h_floor : ⌊initial / tolerance⌋ ≤ ⌊maxMis / tolerance⌋ := Int.floor_le_floor h_ratio_le
+    -- Connect to num/den
+    have h1_eq : ⌊initial / tolerance⌋ = (initial / tolerance).num / (initial / tolerance).den :=
+      Rat.floor_def'
+    have h2_eq : ⌊maxMis / tolerance⌋ = (maxMis / tolerance).num / (maxMis / tolerance).den :=
+      Rat.floor_def'
+    -- Both floors are non-negative
+    have h_initial_pos : 0 < initial := lt_of_lt_of_le htol (le_of_lt h)
+    have hr1_pos : 0 < initial / tolerance := div_pos h_initial_pos htol
+    have hr2_nonneg : 0 ≤ maxMis / tolerance := div_nonneg h_maxMis_pos (le_of_lt htol)
+    have h1_nonneg : 0 ≤ ⌊initial / tolerance⌋ := Int.floor_nonneg.mpr (le_of_lt hr1_pos)
+    have h2_nonneg : 0 ≤ ⌊maxMis / tolerance⌋ := Int.floor_nonneg.mpr hr2_nonneg
+    rw [h1_eq] at h1_nonneg h_floor
+    rw [h2_eq] at h2_nonneg h_floor
+    -- toNat preserves order for integers
+    have h_toNat : ((initial / tolerance).num / (initial / tolerance).den).toNat ≤
+                   ((maxMis / tolerance).num / (maxMis / tolerance).den).toNat :=
+      Int.toNat_le_toNat h_floor
+    omega
 
 /--
 THEOREM: Escape time is bounded by worst case.
+
+Note: Requires 0 ≤ maxMis, which follows from h_bound and misalignment_nonneg.
 -/
 theorem escape_time_bounded {n : ℕ} [NeZero n]
     (systems : Fin n → ValueSystem S) (epsilon tolerance : ℚ)
@@ -310,8 +411,10 @@ theorem escape_time_bounded {n : ℕ} [NeZero n]
     [Nonempty S]
     (maxMis : ℚ) (h_bound : misalignment systems epsilon ≤ maxMis) :
     escapeTime systems epsilon tolerance ≤
-      worstCaseEscapeTime epsilon tolerance maxMis :=
-  escape_time_bounded_ax systems epsilon tolerance hε htol maxMis h_bound
+      worstCaseEscapeTime epsilon tolerance maxMis := by
+  have h_maxMis_pos : 0 ≤ maxMis :=
+    le_trans (CriticalPoints.misalignment_nonneg systems epsilon) h_bound
+  exact escape_time_bounded_proven systems epsilon tolerance hε htol maxMis h_maxMis_pos h_bound
 
 /-! ## Part 8: Early Stopping -/
 

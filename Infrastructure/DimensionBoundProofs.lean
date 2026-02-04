@@ -135,8 +135,6 @@ theorem h1_dim_components_bound_proven (G : SimpleGraph V) [DecidableRel G.Adj]
     (h_edge : G.edgeFinset.card ≤ Fintype.card V * (Fintype.card V - 1) / 2) :
     G.edgeFinset.card + Fintype.card G.ConnectedComponent
       ≤ (Fintype.card V - 1) * (Fintype.card V - 2) / 2 + Fintype.card V := by
-  trivial
-/-
   classical
   let n := Fintype.card V
   let e := G.edgeFinset.card
@@ -194,9 +192,7 @@ theorem h1_dim_components_bound_proven (G : SimpleGraph V) [DecidableRel G.Adj]
             -- The formal proof requires constructing representative vertices and
             -- counting non-edges between them. This needs additional infrastructure
             -- for enumerating connected components and their representatives.
-            omitted
+            sorry
       _ ≤ (n - 1) * (n - 2) / 2 + n := dimension_bound_identity n hn1
-
-        -/
 
 end Infrastructure.DimensionBoundProofs

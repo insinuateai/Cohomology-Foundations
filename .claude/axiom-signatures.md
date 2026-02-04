@@ -1,112 +1,104 @@
-# Axiom Signatures (Full Reference)
+# Axiom Signatures (Reference)
 
-> Load only when you need exact signature details. For quick status, see `axiom-status.md`.
-
----
-
-## ELIMINATED Axioms
-
-### G01: forest_single_edge_still_forest_aux
-```lean
--- ELIMINATED 2026-02-02 via Infrastructure/WalkDecomposition.lean
-theorem forest_single_edge_still_forest (G : SimpleGraph V) [DecidableRel G.Adj]
-    (hG : G.IsAcyclic) (u v : V) (h_neq : u ≠ v) (h_not_reach : ¬G.Reachable u v) :
-    (G ⊔ fromEdgeSet {s(u, v)}).IsAcyclic
-```
-
-### G02-G03: Euler Formula
-```lean
--- ELIMINATED via SimplicialGraphBridge.lean
-theorem acyclic_implies_euler (K : SimplicialComplex) (h : OneConnected K) : EulerForestCondition K
-theorem euler_implies_acyclic (K : SimplicialComplex) (h : EulerForestCondition K) : OneConnected K
-```
-
-### C03: complete_complex_coboundary_aux'
-```lean
--- ELIMINATED via CompleteComplexH1.lean (moved valueComplex to ValueComplex.lean)
-theorem complete_complex_coboundary_aux' {S' : Type*} [Fintype S'] [DecidableEq S']
-    {n : ℕ} (systems : Fin n → ValueSystem S') (ε : ℚ)
-    (f : Cochain (valueComplex systems ε) 1)
-    (hf : IsCocycle (valueComplex systems ε) 1 f)
-    (h_complete : ∀ (i j : ℕ) (hi : i < n) (hj : j < n), i < j →
-      ∃ s : S', |(systems ⟨i, hi⟩).values s - (systems ⟨j, hj⟩).values s| ≤ 2 * ε) :
-    IsCoboundary (valueComplex systems ε) 1 f
-```
-
-### X28: acyclic_periodic_orbit_equiv
-```lean
--- ELIMINATED via TreeAuthCoreProofs.lean
--- Original was UNPROVABLE (RHS false for root). Fixed by adding i ≠ T.root:
-theorem acyclic_periodic_orbit_equiv (T : TreeAuth n) :
-    (∀ i, ∃ k, T.parentOrRoot^[k] i = T.root) ↔
-    ∀ i, i ≠ T.root → ∀ k > 0, T.parentOrRoot^[k] i ≠ i
-```
+> Load only when you need exact signature details.
+> For quick status, see `axiom-status.md`.
+> Last updated: 2026-02-04
 
 ---
 
-## KEEP Axioms (With Reasons)
+## KEEP Axioms (Signatures)
 
-### R01-R03: Conflict Resolution (MATHEMATICALLY FALSE)
+### Conflict Resolution (Mathematically False)
 ```lean
--- R01: FALSE for multi-cycle complexes (counterexample: two disjoint hollow triangles)
+-- R01: FALSE for multi-cycle complexes
 axiom remove_edge_from_single_cycle_aux' (K : SimplicialComplex) (e : K.ksimplices 1)
     (h_in_cycle : e ∈ minimalCycleEdges K) : H1Trivial (K.removeEdge e)
 
--- R02: FALSE - filling one triangle doesn't kill cycles in other triangles
+-- R02: FALSE - filling one triangle doesn't kill other cycles
 axiom fill_triangle_h1_trivial_aux' (K : SimplicialComplex) (t : Finset K.vertexSet)
     (ht : t.card = 3) (h_boundary : boundaryInK K t) : H1Trivial (K.addSimplex t)
 
--- R03: FALSE - no single edge appears in both independent cycles
+-- R03: FALSE - no single edge in both independent cycles
 axiom resolution_edge_exists_maximal_aux (K : SimplicialComplex) : ∃ e, e ∈ minimalCycleEdges K
 ```
 
-### X25-X26: Strategic Games (STRUCTURAL)
+### Strategic Games (Structural)
 ```lean
--- X25: UNPROVABLE - StrategicGame type allows actions : Agent → Finset ℕ to be empty
+-- X25: UNPROVABLE - type allows empty action sets
 axiom StrategicGame.actions_nonempty (G : StrategicGame) (a : G.Agent) : (G.actions a).Nonempty
-
--- X26: MATHEMATICALLY FALSE in full game theory (coordination games can have Nash with >2 players)
-axiom StrategicGame.coordination_nash_player_bound (G : StrategicGame) ...
 ```
 
-### K01-K15: External Math (KEEP)
-- K01-K05: Spectral theory (requires eigenvalue machinery)
-- K06-K10: Stability/dynamics (Lyapunov, bifurcation)
-- K11-K15: H2 characterization (higher cohomology)
+### Spectral Theory (External Math)
+```lean
+axiom vertexDegreeAx (K : SimplicialComplex) (v : K.vertexSet) : ℕ
+axiom laplacianExists (K : SimplicialComplex) [Fintype K.vertexSet] : Laplacian K
+axiom laplacianEigenvalues (K : SimplicialComplex) [Fintype K.vertexSet] : ...
+axiom eigenvalues_nonneg (K : SimplicialComplex) [Fintype K.vertexSet] : ...
+axiom spectral_gap_bounded_aux (K : SimplicialComplex) [Fintype K.vertexSet] : ...
+```
+
+### Persistent Homology (External Math)
+```lean
+axiom stability_of_h1_trivial_aux {S : Type*} [Fintype S] [DecidableEq S] [Nonempty S]
+    {n : ℕ} (systems : Fin n → ValueSystem S) (ε δ : ℚ) (hε : ε > 0) (hδ : δ > 0)
+    (h : H1Trivial (valueComplex systems ε)) : H1Trivial (valueComplex systems (ε + δ))
+
+axiom measurement_robustness_aux {S : Type*} [Fintype S] [DecidableEq S] [Nonempty S]
+    {n : ℕ} (systems : Fin n → ValueSystem S) (ε : ℚ) (hε : ε > 0)
+    (h : H1Trivial (valueComplex systems ε)) : ∃ δ > 0, ...
+```
+
+### H² Theory (External Math)
+```lean
+axiom filled_tetrahedron_coboundary (K : SimplicialComplex) ... : IsCoboundary K 2 f
+axiom hollow_tetrahedron_h2_nontrivial_ax (K : SimplicialComplex) ... : ¬H2Trivial K
+```
 
 ---
 
-## PENDING Axioms (Signatures for Reference)
+## PENDING Axioms (Signatures)
 
-### T01: depth_parent_fuel_analysis
+### Escape Time
 ```lean
-axiom depth_parent_fuel_analysis (T : TreeAuth n) {i p : Fin n} (hp : T.parent i = some p) :
-    T.depth i = T.depth p + 1
+axiom escape_time_finite_ax {n : ℕ} [NeZero n]
+    (dynamics : FairnessDynamics n) (a : Allocation n)
+    (h_obstruction : ¬isEquilibrium a) : ∃ k, isEquilibrium (dynamics.step^[k] a)
+
+axiom escape_time_monotone_ax {n : ℕ} [NeZero n]
+    (dynamics : FairnessDynamics n) : ...
+
+axiom escape_time_bounded_ax {n : ℕ} [NeZero n]
+    (dynamics : FairnessDynamics n) : ...
 ```
-**Approach**: Unfold `Nat.find` definition, use `hp` to show parent chain is one shorter.
 
-### C01: forms_cycle_from_global_failure
+### Compositional
 ```lean
-axiom forms_cycle_from_global_failure {S : Type*} [Fintype S] [DecidableEq S] [Nonempty S]
-    {n : ℕ} (systems : Fin n → ValueSystem S) (ε : ℚ) (_hε : ε > 0) (i : Fin n) (j : Fin n)
-    (_h_no_global : ¬∃ R : ValueSystem S, ∀ k : Fin n, Reconciles R (systems k) ε) :
-    ∃ s : S, |(systems i).values s - (systems j).values s| ≤ 2 * ε
+axiom forest_single_edge_composition_axiom_aux (M₁ M₂ : AlignmentModule S) : ...
+axiom general_acyclic_composition_axiom_aux (M₁ M₂ : AlignmentModule S) : ...
+axiom large_disagreement_breaks_alignment_aux (M₁ M₂ : AlignmentModule S) : ...
 ```
-**WARNING**: Different signature in AxiomElimination.lean!
 
-### F01-F02: Fairness ↔ H¹
+---
+
+## HAS REPLACEMENT (Common Signatures)
+
+### Fairness
 ```lean
+-- Has replacement in FairnessAllocationProofs.lean
 axiom h1_trivial_implies_fair_allocation {S : Type*} [Fintype S] [DecidableEq S]
     {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S) (ε : ℚ) (hε : ε > 0)
     (h : H1Trivial (valueComplex systems ε)) :
     ∃ R : ValueSystem S, ∀ k : Fin n, Reconciles R (systems k) ε
-
-axiom fair_allocation_implies_h1_trivial {S : Type*} [Fintype S] [DecidableEq S]
-    {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S) (ε : ℚ) (hε : ε > 0)
-    (R : ValueSystem S) (h : ∀ k : Fin n, Reconciles R (systems k) ε) :
-    H1Trivial (valueComplex systems ε)
 ```
-**Blocked by**: CompleteComplexH1.lean sorries
+
+### Critical Points
+```lean
+-- Has replacement in CriticalPointsProofs.lean
+axiom saddle_has_escape_ax {n : ℕ} (hn : n ≥ 2)
+    (saddle : AlignmentLandscape n → Prop)
+    (h_saddle : saddle landscape) :
+    ∃ direction, EscapeDirection landscape saddle direction
+```
 
 ---
 

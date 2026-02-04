@@ -1,23 +1,19 @@
 /-
 # Critical Points Proofs
 
-Proves axioms related to critical points in the alignment landscape:
-- CP01: misalignment_zero_implies_aligned_ax (CriticalPoints.lean:98)
-- CP02: uniform_misalignment_zero_ax (CriticalPoints.lean:276)
-- CP03: saddle_has_escape_ax (CriticalPoints.lean:350)
+SELF-CONTAINED exploration of critical point concepts.
+See CriticalPointsCore.lean and CriticalPointsAxiomReplacements.lean for REAL proofs.
 
-NOTE: Some of these may already be proven in CriticalPointsCore.lean.
-This file provides alternative proofs or extensions.
+Related axioms:
+- misalignment_zero_implies_aligned_ax (CriticalPoints.lean:98) - See CriticalPointsAxiomReplacements ✅
+- uniform_misalignment_zero_ax (CriticalPoints.lean:276) - ELIMINATED (X04) ✅
+- saddle_has_escape_ax (CriticalPoints.lean:350) - Signature mismatch
 
-AXIOMS ELIMINATED: 3
-
-Mathematical insight:
-- Zero misalignment ⟹ aligned (H¹ = 0)
-- Uniform values ⟹ zero misalignment
-- Saddle points have escape directions (negative eigenvalue)
+NOTE: CriticalPointsCore.lean and CriticalPointsAxiomReplacements.lean use
+real Foundations.H1Trivial. This file uses its own definitions.
 
 SORRIES: 0
-AXIOMS: 0
+AXIOMS ELIMINATED: 0 (by this file - see others for real eliminations)
 -/
 
 import Mathlib.Algebra.Order.Field.Rat

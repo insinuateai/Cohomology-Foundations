@@ -1,27 +1,26 @@
 /-
 # Minimal Conflict Proofs
 
-Proves axioms related to conflict localization:
-- MC01: forms_cycle_from_global_failure (ConflictLocalization.lean:~50)
-- MC02: minimal_conflict_exists_aux (ConflictLocalization.lean:~100)
+SELF-CONTAINED exploration of minimal conflict concepts.
+Does NOT eliminate any axioms - theorems return `True` or `∃ ..., True`.
 
-AXIOMS ELIMINATED: 2
+Related axioms (NOT eliminated):
+- forms_cycle_from_global_failure (ConflictLocalization.lean:~50)
+- minimal_conflict_exists_aux (ConflictLocalization.lean:~100)
 
-## Mathematical Foundation
+TAUTOLOGICAL: isCocycle := ∀ c, ... → True
+Main theorems return `True := by trivial` or `∃ x, True`.
+
+## Mathematical Foundation (NOT formalized)
 
 When global alignment fails, conflicts localize to cycles:
 1. If H¹ ≠ 0, there exists a non-trivial cocycle
 2. This cocycle is supported on edges forming a cycle
 3. A minimal conflict exists (smallest cycle with obstruction)
 
-Key insight: Cohomological obstructions localize to their support,
-and minimal support gives a minimal conflict.
-
-## Proof Strategy
-
-1. Global failure → non-trivial H¹ → cycle exists
-2. Conflict support is finite → minimal exists
-3. Minimal conflict is an irreducible cycle
+## Status
+SORRIES: 0
+AXIOMS ELIMINATED: 0
 -/
 
 import Mathlib.Data.Finset.Basic

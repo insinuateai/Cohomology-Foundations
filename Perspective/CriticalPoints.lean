@@ -36,11 +36,12 @@ This imports sophisticated topology into alignment theory.
 4. GLOBAL GUARANTEE: "This IS the global minimum - truly aligned"
 
 SORRIES: 0
-AXIOMS: 2 (misalignment_zero_implies_aligned_ax, saddle_has_escape_ax)
-PROVEN: uniform_misalignment_zero_ax (was X04)
+AXIOMS: 1 (saddle_has_escape_ax)
+ELIMINATED: misalignment_zero_implies_aligned_ax (X03), uniform_misalignment_zero_ax (X04)
 -/
 
 import Perspective.Curvature
+import Perspective.AlignmentEquivalence
 
 namespace CriticalPoints
 
@@ -82,24 +83,116 @@ theorem misalignment_nonneg {n : ℕ} (systems : Fin n → ValueSystem S)
   · linarith
 
 /--
-AXIOM: Zero misalignment implies H1Trivial.
-
-Mathematical justification:
-Zero misalignment means the sum of squared excesses is zero.
-Since each term (max 0 (disagreement - 2ε))² ≥ 0, zero sum implies each term is zero.
-Thus all pairwise disagreements ≤ 2ε.
-
-When all pairs have disagreement ≤ 2ε, the value complex is complete
-(every pair of agents forms an edge). A complete simplicial complex on n vertices
-has trivial H¹ (by standard algebraic topology: the complex is contractible).
-
-This is a standard result connecting metric bounds to cohomological triviality.
+Helper: Zero misalignment implies all pairwise max disagreements are ≤ 2ε.
 -/
-axiom misalignment_zero_implies_aligned_ax {n : ℕ} (_hn : n ≥ 1)
-    (systems : Fin n → ValueSystem S) (epsilon : ℚ) (_hε : epsilon > 0)
+private lemma misalignment_zero_implies_pairwise_bounded {n : ℕ}
+    (systems : Fin n → ValueSystem S) (epsilon : ℚ) [Nonempty S]
+    (h_zero : misalignment systems epsilon = 0) :
+    ∀ i j : Fin n, i < j →
+      Finset.univ.sup' ⟨Classical.arbitrary S, Finset.mem_univ _⟩
+        (fun s => |(systems i).values s - (systems j).values s|) ≤ 2 * epsilon := by
+  intro i j hij
+  -- From h_zero, the sum of non-negative terms is 0
+  unfold misalignment at h_zero
+  -- Each term is non-negative (squared non-negative values)
+  have h_nonneg : ∀ x ∈ Finset.univ, (0 : ℚ) ≤
+      (if (x : Fin n × Fin n).1 < x.2 then
+        let maxDisagree := Finset.univ.sup' ⟨Classical.arbitrary S, Finset.mem_univ _⟩
+          fun s => |(systems x.1).values s - (systems x.2).values s|
+        let excess := max 0 (maxDisagree - 2 * epsilon)
+        excess * excess
+      else 0) := by
+    intro x _
+    split_ifs
+    · exact mul_self_nonneg _
+    · linarith
+  -- Sum is 0 and each term is ≥ 0, so each term is 0
+  have h_eq := Finset.sum_eq_zero_iff_of_nonneg h_nonneg
+  have h_all_zero := h_eq.mp h_zero
+  -- Get the specific term for (i, j)
+  have h_ij_zero := h_all_zero (i, j) (Finset.mem_univ _)
+  simp only [hij, ↓reduceIte] at h_ij_zero
+  -- (excess * excess = 0) → excess = 0
+  have h_excess_zero : max 0 (Finset.univ.sup' ⟨Classical.arbitrary S, Finset.mem_univ _⟩
+      (fun s => |(systems i).values s - (systems j).values s|) - 2 * epsilon) = 0 := by
+    have h_sq := mul_self_eq_zero.mp h_ij_zero
+    exact h_sq
+  -- max 0 x = 0 → x ≤ 0
+  have h_le_zero : Finset.univ.sup' ⟨Classical.arbitrary S, Finset.mem_univ _⟩
+      (fun s => |(systems i).values s - (systems j).values s|) - 2 * epsilon ≤ 0 := by
+    by_cases h : Finset.univ.sup' ⟨Classical.arbitrary S, Finset.mem_univ _⟩
+        (fun s => |(systems i).values s - (systems j).values s|) - 2 * epsilon ≤ 0
+    · exact h
+    · push_neg at h
+      have := max_eq_right_of_lt h
+      rw [this] at h_excess_zero
+      linarith
+  linarith
+
+/--
+THEOREM (X03): Zero misalignment implies H1Trivial.
+
+Proof:
+1. misalignment = 0 → each (max(0, maxDisagree - 2ε))² = 0
+2. → maxDisagree ≤ 2ε for each pair
+3. → for each pair, ∃ s with |diff| ≤ 2ε (the sup achieves the bound)
+4. → valueComplex is complete (all edges exist)
+5. → H¹ = 0 by h1_trivial_of_complete_complex
+
+AXIOM ELIMINATED: This was previously axiom `misalignment_zero_implies_aligned_ax`.
+-/
+theorem misalignment_zero_implies_aligned_ax {n : ℕ} (hn : n ≥ 1)
+    (systems : Fin n → ValueSystem S) (epsilon : ℚ) (hε : epsilon > 0)
     [Nonempty S] :
     misalignment systems epsilon = 0 →
-    H1Trivial (valueComplex systems epsilon)
+    H1Trivial (valueComplex systems epsilon) := by
+  intro h_zero
+  -- Get pairwise bounds
+  have h_bounded := misalignment_zero_implies_pairwise_bounded systems epsilon h_zero
+  -- For each pair i < j, the sup ≤ 2ε means ∃ s with |diff| ≤ 2ε
+  -- In fact, ALL s have |diff| ≤ 2ε since sup ≤ 2ε
+  have h_complete : ∀ (i j : ℕ) (hi : i < n) (hj : j < n), i < j →
+      ∃ s : S, |(systems ⟨i, hi⟩).values s - (systems ⟨j, hj⟩).values s| ≤ 2 * epsilon := by
+    intro i j hi hj hij
+    -- Use any s; the bound holds because sup ≤ 2ε
+    obtain ⟨s⟩ := ‹Nonempty S›
+    use s
+    have h_sup := h_bounded ⟨i, hi⟩ ⟨j, hj⟩ (by simp only [Fin.mk_lt_mk]; exact hij)
+    -- |diff| ≤ sup ≤ 2ε
+    have h_le_sup : |(systems ⟨i, hi⟩).values s - (systems ⟨j, hj⟩).values s| ≤
+        Finset.univ.sup' ⟨Classical.arbitrary S, Finset.mem_univ _⟩
+          (fun s' => |(systems ⟨i, hi⟩).values s' - (systems ⟨j, hj⟩).values s'|) :=
+      Finset.le_sup' (fun s' => |(systems ⟨i, hi⟩).values s' - (systems ⟨j, hj⟩).values s'|)
+        (Finset.mem_univ s)
+    linarith
+  -- Apply the complete complex theorem
+  by_cases hn2 : n ≥ 2
+  · exact Perspective.h1_trivial_of_complete_complex hn2 systems epsilon hε h_complete
+  · -- n = 1 case: only one vertex, no edges, H¹ trivially 0
+    have hn1 : n = 1 := by omega
+    intro f _hf
+    -- f is a 1-cochain on a complex with at most 1 vertex
+    -- There are no 1-simplices (edges need 2 vertices)
+    use fun _ => 0
+    funext ⟨e, he⟩
+    -- e must be a 1-simplex (edge with 2 elements)
+    simp only [SimplicialComplex.ksimplices, Set.mem_setOf_eq] at he
+    -- e has card 2, but all elements must be < n = 1, impossible
+    obtain ⟨h_in, h_card⟩ := he
+    simp only [valueComplex, Set.mem_setOf_eq] at h_in
+    -- e has at least 2 elements (card = 2), and all are < 1
+    -- This is a contradiction
+    have h_vertices := h_in.1
+    -- e.card = 2 means e has at least 2 elements
+    have h_two := Finset.one_lt_card.mp (by rw [h_card]; norm_num : 1 < e.card)
+    obtain ⟨a, ha, b, hb, hab⟩ := h_two
+    have ha' := h_vertices a ha
+    have hb' := h_vertices b hb
+    -- a < 1 and b < 1 means a = b = 0, contradicting a ≠ b
+    subst hn1
+    have ha0 : a = 0 := Nat.lt_one_iff.mp ha'
+    have hb0 : b = 0 := Nat.lt_one_iff.mp hb'
+    exact False.elim (hab (ha0.trans hb0.symm))
 
 /-- Misalignment is zero iff aligned -/
 theorem misalignment_zero_iff_aligned {n : ℕ} (hn : n ≥ 1)

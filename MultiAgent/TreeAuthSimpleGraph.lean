@@ -23,7 +23,7 @@ Acyclicity via depth function:
 Targets: Mathlib 4.27.0 / Lean 4.27.0
 
 SORRIES: 0
-AXIOMS: 1 (depth_parent_fuel_analysis)
+AXIOMS: 0 (depth_parent_fuel_analysis is now a theorem)
 
 Author: Tenured Cohomology Foundations
 Date: January 2026

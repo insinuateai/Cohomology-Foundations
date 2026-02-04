@@ -1,18 +1,20 @@
 /-
 # Mechanism Design Proofs
 
-Proves axioms relating mechanism design to cohomology:
-- MD01: h1_zero_local_global_ic (MechanismDesign.lean:307)
+SELF-CONTAINED exploration of mechanism design concepts.
+Does NOT eliminate any axioms - uses tautological definitions.
 
-AXIOMS ELIMINATED: 1
+Related axiom (NOT eliminated):
+- h1_zero_local_global_ic (MechanismDesign.lean:307)
 
-Mathematical insight:
-- Incentive compatibility (IC) is a local property (pairwise)
-- H¹ = 0 implies local IC extends to global IC
-- This connects mechanism design to algebraic topology
+TAUTOLOGICAL: All definitions are `True`, so proofs are trivial.
+To eliminate the axiom, would need:
+1. Import Perspective.MechanismDesign
+2. Use real H1Trivial from Foundations
+3. Prove with actual cohomology
 
 SORRIES: 0
-AXIOMS: 0
+AXIOMS ELIMINATED: 0
 -/
 
 import Mathlib.Algebra.Order.Field.Rat

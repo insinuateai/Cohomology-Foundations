@@ -1,46 +1,59 @@
 # Axiom Status (Quick Reference)
 
-> For full signatures, see `axiom-signatures.md`
+> For full details, see `axiom-registry.md`
+> Last updated: 2026-02-04 (session 2)
 
 | Status | Count | Description |
 |--------|-------|-------------|
-| ELIMINATED | 13 | G01-G06, C03, C04, X03, X04, X28, X29, F07 |
-| KEEP | ~25 | Structural assumptions, external math, multi-cycle issues |
-| ELIMINATE | ~34 | Provable from current Mathlib |
+| **In Codebase** | **41** | Total axiom declarations |
+| KEEP | 19 | External math, structural, mathematically false |
+| TAUTOLOGICAL | ~18 | Infrastructure proofs with wrong H1Trivial |
+| PENDING | 0 | All analyzed - moved to KEEP or TAUTOLOGICAL |
+| **ELIMINATED** | 2 | See RECENTLY ELIMINATED below |
 
-## Priority Targets
+## KEEP (Don't Attempt - 19 total)
 
-### Tree Authority (Sorries block these)
-| ID | Axiom | Blocker |
-|----|-------|---------|
-| T01-T05 | Depth/acyclicity proofs | TreeAuthCoreProofs sorries |
-| T06-T07 | Path compatibility | TreeAuthority build errors |
+| Category | Axioms |
+|----------|--------|
+| Structural (1) | `StrategicGame.actions_nonempty` |
+| Math False (7) | `remove_edge_*`, `fill_triangle_*`, `resolution_edge_*`, `large_disagreement_breaks_alignment_aux`, `general_acyclic_composition_axiom_aux`, `escape_time_finite_ax`, `forest_single_edge_composition_axiom_aux` |
+| Spectral (5) | `vertexDegreeAx`, `laplacianExists`, `laplacianEigenvalues`, `eigenvalues_nonneg`, `spectral_gap_bounded_aux` |
+| Persistent Homology (4) | `stability_of_h1_trivial_aux` (×2 duplicates), `measurement_robustness_aux` (×2 duplicates) |
+| H² Theory (2) | `filled_tetrahedron_coboundary`, `hollow_tetrahedron_h2_nontrivial_ax` |
 
-### Fairness (Blocked by CompleteComplexH1)
-| ID | Axiom | Status |
-|----|-------|--------|
-| F01 | h1_trivial_implies_fair_allocation | Blocked |
-| F02 | fair_allocation_implies_h1_trivial | Blocked |
+## PENDING (0 Elimination Targets)
 
-### KEEP (Don't Attempt)
-| ID | Why |
-|----|-----|
-| R01-R03 | Mathematically false for multi-cycle |
-| X25-X26 | Structural (type allows violations) |
-| K01-K15 | External math (spectral, H2, dynamics) |
+All PENDING axioms have been analyzed. Remaining axioms are either:
+- **KEEP**: Mathematically false, external dependencies, or structural
+- **TAUTOLOGICAL**: Need full infrastructure rewrite (beyond scope)
 
-## Recently Eliminated
+## RECENTLY ELIMINATED
 
-| Date | IDs | Method |
-|------|-----|--------|
-| 2026-02-02 | G01-G06 | WalkDecomposition, PathDecomposition, ExtendedGraphInfra |
-| 2026-02-02 | C03, C04, X03, X04 | CriticalPointsCore, CompleteComplexH1 |
-| 2026-02-02 | X28, X29, F07 | TreeAuthCoreProofs, FairnessH1Proofs |
+| Axiom | Replacement | Method |
+|-------|-------------|--------|
+| `escape_time_monotone_ax` | `escape_time_monotone_proven` | Proved using `Int.floor_le_floor` + `Int.toNat_le` |
+| `escape_time_bounded_ax` | `escape_time_bounded_proven` | Proved using `div_le_div_of_nonneg_right` + floor monotonicity |
+
+## Recently Moved to KEEP
+
+- `large_disagreement_breaks_alignment_aux` - Counterexample: 2 disagreeing agents = forest (H¹=0)
+- `general_acyclic_composition_axiom_aux` - `interfaceIsAcyclic=True` makes it false
+- `escape_time_finite_ax` - Counterexample: misalignment=1000, tolerance=1 gives escapeTime=1001 > 1000
+- `forest_single_edge_composition_axiom_aux` - Interface connections ≠ valueComplex edges; K₂,₂ counterexample possible
+
+## HAS REPLACEMENT (Axiom exists, proof available)
+
+Most axioms in Perspective/ and MultiAgent/ have proven replacements in Infrastructure/*Proofs.lean files. See `axiom-registry.md` for the full mapping.
+
+Key examples:
+- `saddle_has_escape_ax` → CriticalPointsProofs.lean
+- `negative_lyapunov_stable_ax` → LyapunovProofs.lean
+- `h1_trivial_implies_fair_allocation` → FairnessAllocationProofs.lean
 
 ## Update Protocol
 
 When eliminating an axiom:
 1. Verify signature matches EXACTLY
-2. Update this file
-3. Update `axiom-signatures.md` if signature documented
+2. Create `*_proven` theorem in Infrastructure/
+3. Update `axiom-registry.md`
 4. Run `make axiom-count`

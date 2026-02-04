@@ -1,22 +1,23 @@
 /-
 # Mayer-Vietoris Proofs
 
-Proves axioms related to Mayer-Vietoris sequence:
-- MV01: simple_mayer_vietoris (MayerVietoris.lean:120)
+SELF-CONTAINED exploration of Mayer-Vietoris concepts.
+Does NOT eliminate any axioms - uses tautological definitions.
 
-AXIOMS ELIMINATED: 1
+Related axiom (NOT eliminated):
+- simple_mayer_vietoris (MayerVietoris.lean:120)
 
-Mathematical insight:
-The Mayer-Vietoris sequence relates cohomology of a union to
-cohomology of pieces and their intersection:
-  H^n(A∪B) → H^n(A) ⊕ H^n(B) → H^n(A∩B) → H^(n+1)(A∪B)
+TAUTOLOGICAL: H1Trivial := True, hasConnectedIntersection := ∀ v w, True
+The proof sketch in comments is mathematically sound, but the formalization
+proves `True := by trivial` not the actual axiom.
 
-For H¹, this gives:
-  If H¹(A) = 0, H¹(B) = 0, and A∩B is connected,
-  then H¹(A∪B) = 0.
+To eliminate the axiom, would need:
+1. Import Foundations.Cohomology
+2. Use real H1Trivial (cocycles are coboundaries)
+3. Prove using actual exact sequence
 
 SORRIES: 0
-AXIOMS: 0
+AXIOMS ELIMINATED: 0
 -/
 
 import Mathlib.Data.Finset.Basic

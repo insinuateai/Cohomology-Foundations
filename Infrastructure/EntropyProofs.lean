@@ -1,18 +1,22 @@
 /-
 # Entropy Production Proofs
 
-Proves axioms related to entropy and alignment cost:
-- EP01: lower_production_lower_cost_aux (EntropyProduction.lean:222)
+SELF-CONTAINED exploration of entropy and alignment cost.
+Does NOT eliminate any axioms - uses its own type definitions.
 
-AXIOMS ELIMINATED: 1
+Related axiom (NOT eliminated):
+- lower_production_lower_cost_aux (EntropyProduction.lean:222)
+
+The proofs here use local definitions that don't match Perspective types.
+A real replacement would need to import Perspective.EntropyProduction and
+prove with the actual signatures.
 
 Mathematical insight:
 - Entropy production measures the "cost" of maintaining alignment
 - Lower entropy production → lower alignment cost
-- Aligned systems have minimal entropy production
 
 SORRIES: 0
-AXIOMS: 0
+AXIOMS ELIMINATED: 0
 -/
 
 import Mathlib.Algebra.Order.Field.Rat

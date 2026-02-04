@@ -43,7 +43,8 @@ Curvature measures how much geodesics deviate from straight lines.
 - Negative curvature: Saddle-like (geodesics diverge)
 
 SORRIES: 0
-AXIOMS: 3
+AXIOMS: 2
+ELIMINATED: low_curvature_implies_no_barrier_ax (X14)
 -/
 
 import Perspective.Geodesic
@@ -358,23 +359,57 @@ theorem high_curvature_near_barrier {n : ℕ} (hn : n ≥ 3)
   barrier_implies_high_curvature_ax hn systems epsilon hε h_barrier
 
 /--
-AXIOM: Low curvature implies no barrier.
+THEOREM (AXIOM ELIMINATED): Low curvature implies no barrier.
 
-Mathematical justification:
-If all pairwise curvatures are < 1/10, then for all pairs (i,j):
-- Either disagreement ≤ 2ε (curvature = 0), or
-- (disagreement - 2ε)/(4ε+1) < 1/10, so disagreement < 2ε + (4ε+1)/10
+Proof: NoBarrier means ∃ adjusted systems with H1Trivial. We construct
+adjusted systems that are all constant (equal to systems 0). Then all
+pairwise differences are 0 ≤ 2ε, so the complex is complete, hence H1Trivial.
 
-In either case, disagreements are uniformly bounded.
-With bounded disagreements everywhere, we can construct adjusted systems
-where all agents agree within ε by moving toward a common midpoint.
-The resulting complex is complete (all pairs compatible) hence H¹ = 0.
+Note: The low curvature hypothesis is actually not needed! NoBarrier is
+true for any systems because we can always construct constant adjusted systems.
 -/
-axiom low_curvature_implies_no_barrier_ax {n : ℕ} (hn : n ≥ 1)
+theorem low_curvature_implies_no_barrier_ax {n : ℕ} (hn : n ≥ 1)
     (systems : Fin n → ValueSystem S) (epsilon : ℚ) (hε : epsilon > 0)
     [Nonempty S]
-    (h_low : ∀ i j : Fin n, pairwiseCurvature systems i j epsilon < 1/10) :
-    Barrier.NoBarrier systems epsilon
+    (_h_low : ∀ i j : Fin n, pairwiseCurvature systems i j epsilon < 1/10) :
+    Barrier.NoBarrier systems epsilon := by
+  -- NoBarrier means ∃ adjusted, H1Trivial (valueComplex adjusted epsilon)
+  -- Choose adjusted = constant (all systems equal to systems 0)
+  unfold Barrier.NoBarrier
+  use fun _ => systems ⟨0, hn⟩
+  -- Now show H1Trivial (valueComplex (fun _ => systems 0) epsilon)
+  -- All pairwise differences are 0, so the complex is complete
+  by_cases hn2 : n ≥ 2
+  · -- n ≥ 2: use h1_trivial_of_complete_complex
+    apply Perspective.h1_trivial_of_complete_complex hn2 _ epsilon hε
+    intro i j hi hj _hij
+    -- The systems are all equal, so differences are 0
+    use Classical.arbitrary S
+    simp only [sub_self, abs_zero]
+    linarith
+  · -- n = 1: the complex has only 1 vertex, no edges, H1Trivial is vacuous
+    push_neg at hn2
+    have hn1 : n = 1 := by omega
+    intro f _hf
+    -- f is a 1-cochain; show it's a coboundary
+    use fun _ => 0  -- trivial 0-cochain
+    funext ⟨e, he⟩
+    -- e is claimed to be a 1-simplex (has 2 elements), but all elements must be < n = 1
+    simp only [SimplicialComplex.ksimplices, Set.mem_setOf_eq] at he
+    obtain ⟨h_in, h_card⟩ := he
+    -- e has card 2, meaning 2 distinct elements, all < 1
+    simp only [valueComplex, Set.mem_setOf_eq] at h_in
+    have h_lt := h_in.1
+    -- e.card = 2 means e has at least 2 elements
+    have h_two := Finset.one_lt_card.mp (by rw [h_card]; norm_num : 1 < e.card)
+    obtain ⟨a, ha, b, hb, hab⟩ := h_two
+    -- a, b ∈ e and a < n = 1, b < n = 1, so a = b = 0, contradicting a ≠ b
+    have ha' := h_lt a ha
+    have hb' := h_lt b hb
+    subst hn1
+    -- a < 1 and b < 1 means a = 0 and b = 0, but a ≠ b
+    simp only [Nat.lt_one_iff] at ha' hb'
+    exact absurd (ha'.trans hb'.symm) hab
 
 /--
 THEOREM: Low curvature implies no local barriers.

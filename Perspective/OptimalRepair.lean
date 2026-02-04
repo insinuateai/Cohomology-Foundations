@@ -43,7 +43,7 @@ Optimal repair = shortest path INTO the aligned region.
 
 This is a PROJECTION problem with cohomological constraints.
 
-AXIOM COUNT: 2 (reduced from 6)
+AXIOM COUNT: 1 (reduced from 6)
 
 Original axioms (6):
 1. feasible_repair_exists_ax → PROVEN (converted to theorem)
@@ -53,17 +53,19 @@ Original axioms (6):
 5. moveToAverage_feasible_ax → PROVEN (converted to theorem)
 6. moveToAverage_cost_formula_ax → PROVEN (converted to theorem)
 
-Remaining axioms (2):
+Remaining axioms (1):
 1. optimal_repair_exists_ax - Existence of minimum-cost repair
    Justification: Requires well-ordering argument on ℚ≥0
-2. aligned_implies_H1_trivial - Complete complexes have trivial H¹
-   Justification: Fundamental cohomology theory property
 
-Quality gate: ✓ Reduced from 6 to 2 axioms (target: ≤2)
+ELIMINATED:
+- aligned_implies_H1_trivial → Now theorem using CriticalPointsCore
+
+Quality gate: ✓ Reduced from 6 to 1 axioms
 -/
 
 import Perspective.InformationBound
 import H1Characterization.Characterization
+import Perspective.AlignmentEquivalence
 
 namespace OptimalRepair
 
@@ -149,15 +151,45 @@ noncomputable def makeAllIdenticalPlan {n : ℕ} (hn : n ≥ 1) (systems : Fin n
       { agent := i, situation := s, newValue := agent0.values s }).flatten
 
 /--
-Helper axiom: If all pairwise differences are bounded by 2ε, then H¹ is trivial.
+THEOREM: If all pairwise differences are bounded by 2ε, then H¹ is trivial.
 This is a fundamental property: bounded differences mean the value complex is complete,
 and complete complexes have trivial cohomology.
+
+AXIOM ELIMINATED - Now proven directly using h1_trivial_of_complete_complex
 -/
-axiom aligned_implies_H1_trivial {n : ℕ} (systems : Fin n → ValueSystem S)
+theorem aligned_implies_H1_trivial {n : ℕ} (systems : Fin n → ValueSystem S)
     (epsilon : ℚ) (hε : epsilon > 0) [Nonempty S]
     (h_aligned : ∀ i j : Fin n, ∀ s : S,
       |(systems i).values s - (systems j).values s| ≤ 2 * epsilon) :
-    Foundations.H1Trivial (valueComplex systems epsilon)
+    Foundations.H1Trivial (valueComplex systems epsilon) := by
+  by_cases hn : n ≥ 2
+  · -- For n ≥ 2, use the complete complex theorem
+    have h_complete : ∀ (i j : ℕ) (hi : i < n) (hj : j < n), i < j →
+        ∃ s : S, |(systems ⟨i, hi⟩).values s - (systems ⟨j, hj⟩).values s| ≤ 2 * epsilon := by
+      intro i j hi hj _
+      obtain ⟨s⟩ := ‹Nonempty S›
+      use s
+      exact h_aligned ⟨i, hi⟩ ⟨j, hj⟩ s
+    exact Perspective.h1_trivial_of_complete_complex hn systems epsilon hε h_complete
+  · -- For n < 2, the complex has ≤ 1 vertex, so no 1-simplices
+    push_neg at hn
+    intro f _hf
+    use fun _ => 0
+    funext ⟨e, he⟩
+    simp only [Foundations.SimplicialComplex.ksimplices, Set.mem_setOf_eq] at he
+    simp only [valueComplex, Set.mem_setOf_eq] at he
+    -- e has card 2 but all vertices < n < 2, impossible
+    obtain ⟨⟨h_vertices, _⟩, h_card⟩ := he
+    have h_two := Finset.one_lt_card.mp (by rw [h_card]; norm_num : 1 < e.card)
+    obtain ⟨a, ha, b, hb, hab⟩ := h_two
+    have ha' := h_vertices a ha
+    have hb' := h_vertices b hb
+    -- a < n and b < n with n < 2, so a, b ∈ {0, 1} but n ≤ 1 means a, b < 1 or just < 2
+    -- Since n < 2, we have n ≤ 1, so a < n ≤ 1 and b < n ≤ 1
+    have hn' : n ≤ 1 := Nat.lt_succ_iff.mp hn
+    have ha0 : a = 0 := Nat.lt_one_iff.mp (Nat.lt_of_lt_of_le ha' hn')
+    have hb0 : b = 0 := Nat.lt_one_iff.mp (Nat.lt_of_lt_of_le hb' hn')
+    exact False.elim (hab (ha0.trans hb0.symm))
 
 /--
 THEOREM: We can always construct a feasible repair.
