@@ -6,6 +6,12 @@ defaultTargets = ["Foundations", "H1Characterization", "Perspective"]
 [leanOptions]
 pp.unicode.fun = true
 autoImplicit = false
+# Speed optimizations - disable non-essential linters
+linter.unusedVariables = false
+linter.unusedSectionVars = false
+linter.unnecessarySeqFocus = false
+linter.unusedTactic = false
+linter.unreachableTactic = false
 
 [[require]]
 name = "mathlib"
@@ -38,3 +44,7 @@ name = "H2Characterization"
 
 [[lean_lib]]
 name = "Experimental"
+
+[[lean_lib]]
+name = "Tests"
+precompileModules = false  # Skip C/IR generation for faster test builds

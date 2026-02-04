@@ -8,7 +8,7 @@
   - acyclic_euler_eq: For acyclic graphs, |E| + c = |V|
   - euler_eq_implies_acyclic: If |E| + c = |V|, the graph is acyclic
 
-  SORRIES: 2 (in proofs requiring component-wise edge counting)
+  SORRIES: 0
   AXIOMS: 0
 -/
 
@@ -48,6 +48,39 @@ lemma card_edgeFinset_deleteEdges_singleton [DecidableEq V] (G : SimpleGraph V)
   rw [Finset.card_sdiff_of_subset h_sub]
   simp
 
+/-- Helper: converting walks when edge sets are equal -/
+private def walk_deleteEdges_eq {G : SimpleGraph V} {e₁ e₂ : Sym2 V} (heq : e₁ = e₂)
+    {a b : V} (p : (G.deleteEdges {e₁}).Walk a b) : (G.deleteEdges {e₂}).Walk a b :=
+  heq ▸ p
+
+/-- Helper: convert Reachable proof when graphs are equal -/
+private def reachable_cast {G1 G2 : SimpleGraph V} (heq : G1 = G2)
+    {a b : V} (h : G1.Reachable a b) : G2.Reachable a b := heq ▸ h
+
+/-- Helper: if a walk uses edge e, at least one of the takeUntil prefixes doesn't use e. -/
+private lemma takeUntil_first_endpoint_no_edge [DecidableEq V] (G : SimpleGraph V)
+    {a b u v : V} (p : G.Walk a b) (hp : s(u,v) ∈ p.edges)
+    (hu : u ∈ p.support) (hv : v ∈ p.support) (hne : u ≠ v) :
+    s(u,v) ∉ (p.takeUntil u hu).edges ∨ s(u,v) ∉ (p.takeUntil v hv).edges := by
+  -- Compare lengths: whichever vertex appears first has prefix without edge
+  by_cases h : (p.takeUntil u hu).length ≤ (p.takeUntil v hv).length
+  · left
+    intro h_in
+    have hv_in_prefix := Walk.snd_mem_support_of_mem_edges _ h_in
+    -- v in prefix to u means length(takeUntil v) < length(takeUntil u)
+    have h_lt := Walk.length_takeUntil_lt hv_in_prefix hne.symm
+    simp only [Walk.takeUntil_takeUntil] at h_lt
+    -- h_lt uses a different membership proof, but the walk is the same (proof irrelevance)
+    omega
+  · right
+    push_neg at h
+    intro h_in
+    have hu_in_prefix := Walk.fst_mem_support_of_mem_edges _ h_in
+    -- u in prefix to v means length(takeUntil u) < length(takeUntil v)
+    have h_lt := Walk.length_takeUntil_lt hu_in_prefix hne
+    simp only [Walk.takeUntil_takeUntil] at h_lt
+    omega
+
 /-- Deleting an edge increases component count by at most 1 (upper bound).
     This is the key lemma: G'.CC ≤ G.CC + 1.
     Proof: Only the G-component containing the edge can split, into at most 2 parts. -/
@@ -56,39 +89,19 @@ lemma card_connectedComponent_deleteEdges_add_one [DecidableEq V] (G : SimpleGra
     (e : Sym2 V) (he : e ∈ G.edgeFinset) :
     Fintype.card (G.deleteEdges {e}).ConnectedComponent ≤ Fintype.card G.ConnectedComponent + 1 := by
   classical
-  haveI : Fintype (G.deleteEdges {e}).ConnectedComponent := inferInstance
-  set G' := G.deleteEdges {e} with hG'
-  -- Extract endpoints
+  -- Extract endpoints of e
   rcases Sym2.mk_surjective e with ⟨⟨u, v⟩, huv⟩
   have he_set : e ∈ G.edgeSet := mem_edgeFinset.mp he
   rw [← huv] at he_set
   have hadj : G.Adj u v := he_set
-  -- u and v are in the same G-component
-  have h_same_G : G.connectedComponentMk u = G.connectedComponentMk v :=
-    ConnectedComponent.eq.mpr (Adj.reachable hadj)
-  -- The map f : G'.CC → G.CC sends each component to its containing G-component
-  let f : G'.ConnectedComponent → G.ConnectedComponent :=
-    fun c' => G.connectedComponentMk c'.exists_rep.choose
-  -- f is surjective
-  have hf_surj : Function.Surjective f := fun c => by
-    obtain ⟨w, hw⟩ := c.exists_rep
-    use G'.connectedComponentMk w
-    simp only [f]
-    have h1 := (G'.connectedComponentMk w).exists_rep.choose_spec
-    have h2 : G'.Reachable (G'.connectedComponentMk w).exists_rep.choose w :=
-      ConnectedComponent.eq.mp h1
-    have h3 : G.Reachable (G'.connectedComponentMk w).exists_rep.choose w :=
-      h2.mono (deleteEdges_le {e})
-    rw [← hw]
-    exact ConnectedComponent.eq.mpr h3
-  -- From surjectivity: card G.CC ≤ card G'.CC
-  have h_le : Fintype.card G.ConnectedComponent ≤ Fintype.card G'.ConnectedComponent :=
-    Fintype.card_le_of_surjective f hf_surj
-  -- Define injection ψ : G'.CC → G.CC ⊕ Unit
-  -- Maps G'.CC of v to inr (), all others to inl (f c')
-  -- This gives G'.CC ≤ G.CC + 1
+  have hne : u ≠ v := hadj.ne
+  -- Define G' and the key maps
+  set G' := G.deleteEdges {e} with hG'
+  -- Map from G'.CC to G.CC ⊕ Unit: sends v's component to inr (), others to inl
   let ψ : G'.ConnectedComponent → G.ConnectedComponent ⊕ Unit :=
-    fun c' => if c' = G'.connectedComponentMk v then Sum.inr () else Sum.inl (f c')
+    fun c' => if c' = G'.connectedComponentMk v then Sum.inr ()
+              else Sum.inl (G.connectedComponentMk c'.exists_rep.choose)
+  -- ψ is injective
   have hψ_inj : Function.Injective ψ := by
     intro c1 c2 heq
     simp only [ψ] at heq
@@ -97,137 +110,77 @@ lemma card_connectedComponent_deleteEdges_add_one [DecidableEq V] (G : SimpleGra
     · simp only [h1, h2, ↓reduceIte, reduceCtorEq] at heq
     · simp only [h1, h2, ↓reduceIte, reduceCtorEq] at heq
     · simp only [h1, h2, ↓reduceIte, Sum.inl.injEq] at heq
-      -- f c1 = f c2, need to show c1 = c2
-      simp only [f] at heq
-      have h_same_G_comp : G.connectedComponentMk c1.exists_rep.choose =
-          G.connectedComponentMk c2.exists_rep.choose := heq
+      -- c1 and c2 are in the same G-component, neither is v's G'-component
       have h_G_reach : G.Reachable c1.exists_rep.choose c2.exists_rep.choose :=
-        ConnectedComponent.eq.mp h_same_G_comp
-      -- Since c1 ≠ G'.connectedComponentMk v and c2 ≠ G'.connectedComponentMk v,
-      -- and they're in the same G-component, they must be G'-connected
-      -- (the only way they could be in different G'-components while same G-component
-      -- is if one is in v's G'-component)
-      -- First, check if the G-component is the one containing the edge
-      by_cases h_comp : G.connectedComponentMk c1.exists_rep.choose = G.connectedComponentMk u
-      · -- c1 and c2 are in u's (= v's) G-component
-        -- Since c1 ≠ G'.connectedComponentMk v and c2 ≠ G'.connectedComponentMk v,
-        -- they must both be G'-reachable from u (not from v)
-        have hc1_reach_u : G.Reachable c1.exists_rep.choose u := ConnectedComponent.eq.mp h_comp
-        have hc2_reach_u : G.Reachable c2.exists_rep.choose u := by
-          have : G.connectedComponentMk c2.exists_rep.choose = G.connectedComponentMk u := by
-            calc G.connectedComponentMk c2.exists_rep.choose
-                = G.connectedComponentMk c1.exists_rep.choose := h_same_G_comp.symm
-              _ = G.connectedComponentMk u := h_comp
-          exact ConnectedComponent.eq.mp this
-        -- If c1.exists_rep.choose is in v's G'-component, then c1 = G'.connectedComponentMk v
-        -- which contradicts h1. So c1.exists_rep.choose is G'-reachable from u
-        have hc1_G'_u : c1 = G'.connectedComponentMk u ∨ c1 = G'.connectedComponentMk v := by
-          -- In G', the component containing u splits into at most 2: u's side and v's side
-          -- c1.exists_rep.choose is in one of them
-          have hc1_spec := c1.exists_rep.choose_spec
-          -- c1 = G'.connectedComponentMk c1.exists_rep.choose
-          rw [← hc1_spec]
-          -- c1.exists_rep.choose is G-reachable from u
-          -- In G', it's either G'-reachable from u or from v
-          by_cases h_G'_u : G'.Reachable c1.exists_rep.choose u
-          · left; exact ConnectedComponent.eq.mpr h_G'_u
-          · -- Not G'-reachable from u means G'-reachable from v
-            -- (since they're in the same G-component and edge was removed)
-            right
-            -- c1.exists_rep.choose and u are G-connected but not G'-connected
-            -- The only way is if the edge e = s(u,v) is on all G-paths between them
-            -- Since e is removed, c1.exists_rep.choose must be on v's side
-            -- Therefore G'.Reachable c1.exists_rep.choose v
-            by_contra h_not_v
-            push_neg at h_not_v
-            have h_not_G'_v : ¬G'.Reachable c1.exists_rep.choose v := by
-              intro h; exact h_not_v (ConnectedComponent.eq.mpr h)
-            -- c1.exists_rep.choose is not G'-reachable from u or v
-            -- But it's G-reachable from u (and thus v)
-            -- This means all G-paths from c1.exists_rep.choose to u use edge e
-            -- And all G-paths from c1.exists_rep.choose to v use edge e
-            -- But that's impossible: if path to u uses e (going through v),
-            -- then path to v doesn't need to use e again
-            obtain ⟨p⟩ := hc1_reach_u
-            -- Check if this path uses e
-            by_cases hp : s(u, v) ∈ p.edges
-            · -- Path uses e = s(u,v)
-              -- Since the path uses e and goes from c1.rep to u,
-              -- it visits v at some point. The portion from c1.rep to v
-              -- (before crossing e) is a G'-path, so c1.rep is G'-connected to v.
-              have hv_in := Walk.snd_mem_support_of_mem_edges p hp
-              -- Get prefix walk from c1.rep to v
-              have h_reach_v : G.Reachable c1.exists_rep.choose v := by
-                exact ⟨p.takeUntil v (by simpa using hv_in)⟩
-              -- If this G-path to v doesn't use e, it's a G'-path
-              -- Otherwise we can find an alternate path
-              -- Key: c1.rep is G-reachable from v, so either G'-reachable to u or to v
-              -- Since h_G'_u says not G'-reachable to u, must be G'-reachable to v
-              -- But we assumed h_not_G'_v. Contradiction.
-              -- TODO: This needs rewriting - the path from c1.rep to v that doesn't use edge e gives G'-reachability
-              sorry
-            · -- Path doesn't use e - so it's valid in G'
-              -- TODO: This needs rewriting - convert p to G' walk properly
-              sorry
-        cases hc1_G'_u with
-        | inl h => -- c1 = G'.connectedComponentMk u
-          have hc2_G'_u : c2 = G'.connectedComponentMk u := by
-            -- Similar argument for c2
-            have hc2_spec := c2.exists_rep.choose_spec
-            rw [← hc2_spec]
-            by_cases h_G'_u' : G'.Reachable c2.exists_rep.choose u
-            · exact ConnectedComponent.eq.mpr h_G'_u'
-            · exfalso
-              -- c2 must be G'.connectedComponentMk v, contradicting h2
-              have : c2 = G'.connectedComponentMk v := by
-                rw [← hc2_spec]
-                by_contra h_not_v
-                push_neg at h_not_v
-                have h_not_G'_v : ¬G'.Reachable c2.exists_rep.choose v := by
-                  intro hreach; exact h_not_v (ConnectedComponent.eq.mpr hreach)
-                -- c2.rep is G-reachable from u (since same G-component), so G-reachable from v
-                -- If not G'-reachable from u or v, contradiction
-                -- TODO: needs rewriting for Mathlib 4.27.0 API
-                sorry
-              exact h2 this
-          exact h.trans hc2_G'_u.symm
-        | inr h => exact (h1 h).elim
-      · -- c1 and c2 are in a different G-component (not containing the edge)
-        -- So removing edge e doesn't affect their connectivity
-        -- They remain G'-connected
-        obtain ⟨p⟩ := h_G_reach
-        -- The path doesn't use edge e (since e connects u,v which are in a different component)
-        have hp_no_e : s(u, v) ∉ p.edges := by
-          intro h_in
-          -- If s(u,v) is in p.edges, then u or v is on the path
-          have hu_or_v := Walk.fst_mem_support_of_mem_edges p h_in
-          have hv_or_u := Walk.snd_mem_support_of_mem_edges p h_in
-          -- All vertices on p are in the same G-component as c1.exists_rep.choose
-          have h_same : G.connectedComponentMk (p.getVert 0) = G.connectedComponentMk c1.exists_rep.choose := by
-            have : p.getVert 0 = c1.exists_rep.choose := Walk.getVert_zero p
-            rw [this]
-          have h_all_same : ∀ w ∈ p.support, G.connectedComponentMk w = G.connectedComponentMk c1.exists_rep.choose := by
-            intro w hw
-            -- w is on the path from c1.rep to c2.rep, so G.Reachable c1.rep w
-            have hreach : G.Reachable c1.exists_rep.choose w := ⟨p.takeUntil w hw⟩
-            exact (ConnectedComponent.eq.mpr hreach).symm
-          -- So u is in the same G-component as c1.exists_rep.choose
-          have hu_same := h_all_same u hu_or_v
-          -- But c1.exists_rep.choose is not in u's G-component (by h_comp)
-          exact h_comp hu_same.symm
-        -- Build G'-path from G-path
-        -- The walk p doesn't use edge e, so it's a valid G'-walk
-        -- TODO: needs rewriting for Mathlib 4.27.0 Walk API
-        have h_G'_reach : G'.Reachable c1.exists_rep.choose c2.exists_rep.choose := by
-          sorry
+        ConnectedComponent.eq.mp heq
+      have hc1_not_v : ¬G'.Reachable c1.exists_rep.choose v := by
+        intro hreach
+        exact h1 (c1.exists_rep.choose_spec.symm.trans (ConnectedComponent.eq.mpr hreach))
+      have hc2_not_v : ¬G'.Reachable c2.exists_rep.choose v := by
+        intro hreach
+        exact h2 (c2.exists_rep.choose_spec.symm.trans (ConnectedComponent.eq.mpr hreach))
+      -- Get a G-path and convert to G'-path
+      obtain ⟨p⟩ := h_G_reach
+      by_cases hp : s(u, v) ∈ p.edges
+      · -- Path uses e, need to find alternate route via u
+        have hu_in := Walk.fst_mem_support_of_mem_edges p hp
+        have hv_in := Walk.snd_mem_support_of_mem_edges p hp
+        -- Use helper lemma: one of the takeUntils doesn't use e
+        rcases takeUntil_first_endpoint_no_edge G p hp hu_in hv_in hne with h_pu | h_pv
+        · -- Prefix to u doesn't use e
+          have h1' : G'.Reachable c1.exists_rep.choose u :=
+            ⟨walk_deleteEdges_eq huv ((p.takeUntil u hu_in).toDeleteEdge (s(u,v)) h_pu)⟩
+          -- Similarly get path from u to c2
+          let qu := p.dropUntil u hu_in
+          by_cases hqu : s(u, v) ∈ qu.edges
+          · -- Suffix uses e, so goes through v, but c2 not in v's component
+            have hv_qu := Walk.snd_mem_support_of_mem_edges qu hqu
+            let qv := qu.dropUntil v hv_qu
+            by_cases hqv : s(u, v) ∈ qv.edges
+            · -- Edge appears multiple times; use reverse walk approach
+              -- Consider the reverse walk from c2.rep to c1.rep
+              let p' := p.reverse
+              have hp' : s(u, v) ∈ p'.edges := Walk.edges_reverse p ▸ List.mem_reverse.mpr hp
+              have hu_in' : u ∈ p'.support := Walk.support_reverse p ▸ List.mem_reverse.mpr hu_in
+              have hv_in' : v ∈ p'.support := Walk.support_reverse p ▸ List.mem_reverse.mpr hv_in
+              rcases takeUntil_first_endpoint_no_edge G p' hp' hu_in' hv_in' hne with h_pu' | h_pv'
+              · -- Prefix to u doesn't use edge, G'-path from c2.rep to u
+                have h2' : G'.Reachable c2.exists_rep.choose u :=
+                  ⟨walk_deleteEdges_eq huv ((p'.takeUntil u hu_in').toDeleteEdge (s(u,v)) h_pu')⟩
+                have h_G'_reach : G'.Reachable c1.exists_rep.choose c2.exists_rep.choose :=
+                  h1'.trans h2'.symm
+                calc c1 = G'.connectedComponentMk c1.exists_rep.choose := c1.exists_rep.choose_spec.symm
+                  _ = G'.connectedComponentMk c2.exists_rep.choose := ConnectedComponent.eq.mpr h_G'_reach
+                  _ = c2 := c2.exists_rep.choose_spec
+              · -- Prefix to v doesn't use edge, G'-path from c2.rep to v
+                have h2' : G'.Reachable c2.exists_rep.choose v :=
+                  ⟨walk_deleteEdges_eq huv ((p'.takeUntil v hv_in').toDeleteEdge (s(u,v)) h_pv')⟩
+                exact absurd h2' hc2_not_v
+            · have h2' : (G.deleteEdges {e}).Reachable v c2.exists_rep.choose :=
+                ⟨walk_deleteEdges_eq huv (qv.toDeleteEdge (s(u,v)) hqv)⟩
+              exact absurd (reachable_cast hG'.symm h2').symm hc2_not_v
+          · have h2' : (G.deleteEdges {e}).Reachable u c2.exists_rep.choose :=
+              ⟨walk_deleteEdges_eq huv (qu.toDeleteEdge (s(u,v)) hqu)⟩
+            have h2'_G' : G'.Reachable u c2.exists_rep.choose := reachable_cast hG'.symm h2'
+            have h_G'_reach : G'.Reachable c1.exists_rep.choose c2.exists_rep.choose :=
+              h1'.trans h2'_G'
+            calc c1 = G'.connectedComponentMk c1.exists_rep.choose := c1.exists_rep.choose_spec.symm
+              _ = G'.connectedComponentMk c2.exists_rep.choose := ConnectedComponent.eq.mpr h_G'_reach
+              _ = c2 := c2.exists_rep.choose_spec
+        · -- Prefix to v doesn't use e, but c1 not in v's component - contradiction
+          have h1' : (G.deleteEdges {e}).Reachable c1.exists_rep.choose v :=
+            ⟨walk_deleteEdges_eq huv ((p.takeUntil v hv_in).toDeleteEdge (s(u,v)) h_pv)⟩
+          exact absurd (reachable_cast hG'.symm h1') hc1_not_v
+      · -- Path doesn't use e, convert directly
+        have h_G'_reach : G'.Reachable c1.exists_rep.choose c2.exists_rep.choose :=
+          ⟨walk_deleteEdges_eq huv (p.toDeleteEdge (s(u,v)) hp)⟩
         calc c1 = G'.connectedComponentMk c1.exists_rep.choose := c1.exists_rep.choose_spec.symm
           _ = G'.connectedComponentMk c2.exists_rep.choose := ConnectedComponent.eq.mpr h_G'_reach
           _ = c2 := c2.exists_rep.choose_spec
   have h_card_le : Fintype.card G'.ConnectedComponent ≤ Fintype.card (G.ConnectedComponent ⊕ Unit) :=
     Fintype.card_le_of_injective ψ hψ_inj
   simp only [Fintype.card_sum, Fintype.card_unit] at h_card_le
-  -- TODO: Fix type matching between G' and G.deleteEdges {e}
-  sorry
+  convert h_card_le
 /-- Deleting an edge can increase component count by at most 1 (lower bound version). -/
 lemma card_connectedComponent_deleteEdges_le [DecidableEq V] (G : SimpleGraph V)
     [DecidableRel G.Adj] [Fintype G.ConnectedComponent] (e : Sym2 V) :
@@ -381,9 +334,34 @@ theorem acyclic_euler_eq
         -- Bridge removal increases component count by exactly 1
         have h_comp := ExtendedGraphInfra.bridge_splits_component G ⟨e, he_set⟩ h_bridge
         unfold ExtendedGraphInfra.componentCount at h_comp
-        -- G' = G.deleteEdges {e}
-        -- TODO: Complete the induction step for Mathlib 4.27.0
-        sorry
+        -- Simplify: ↑⟨e, he_set⟩ = e
+        simp only [Subtype.coe_mk] at h_comp
+        -- h_comp : Fintype.card (G.deleteEdges {e}).ConnectedComponent = Fintype.card G.ConnectedComponent + 1
+        have h_acyc' : (G.deleteEdges {e}).IsAcyclic :=
+          ExtendedGraphInfra.deleteEdges_isAcyclic G {e} h_acyc
+        have h_card' : (G.deleteEdges {e}).edgeFinset.card = n - 1 := by
+          have := card_edgeFinset_deleteEdges_singleton G e he
+          omega
+        have h_lt : (G.deleteEdges {e}).edgeFinset.card < n := by omega
+        -- G' is not connected (bridge removal creates ≥ 2 components)
+        have h_not_conn' : ¬(G.deleteEdges {e}).Connected := by
+          intro hc
+          have h1 : Fintype.card (G.deleteEdges {e}).ConnectedComponent = 1 := by
+            rw [Fintype.card_eq_one_iff]
+            use (G.deleteEdges {e}).connectedComponentMk (Classical.arbitrary V)
+            intro c
+            obtain ⟨v, rfl⟩ := c.exists_rep
+            exact ConnectedComponent.eq.mpr (hc.preconnected v (Classical.arbitrary V))
+          have h2 : Fintype.card G.ConnectedComponent ≥ 1 := Fintype.card_pos
+          omega
+        -- Apply IH (strong induction: just need m < n, acyclic, and not connected)
+        have h_IH := ih (G.deleteEdges {e}).edgeFinset.card h_lt
+          (G.deleteEdges {e}) h_acyc' h_not_conn'
+        -- h_IH : (G.deleteEdges {e}).edgeFinset.card + Fintype.card (G.deleteEdges {e}).ConnectedComponent ≤ Fintype.card V
+        -- Rewrite using h_card' and h_comp, then conclude
+        rw [h_card'] at h_IH
+        rw [h_comp] at h_IH
+        omega
 
 /-- If |E| + c = |V|, the graph is acyclic
 
@@ -437,10 +415,111 @@ theorem euler_eq_implies_acyclic'
     have h_G_reach : G.Reachable c1.exists_rep.choose c2.exists_rep.choose :=
       ConnectedComponent.eq.mp hf_eq
     -- Need to convert G-reachability to G'-reachability
-    -- Since e is not a bridge, any path using e can be rerouted
-    -- TODO: needs rewriting for Mathlib 4.27.0 Walk induction API
+    -- Since e is not a bridge, any path using e can be rerouted via h_still_reach
     have h_G'_reach : G'.Reachable c1.exists_rep.choose c2.exists_rep.choose := by
-      sorry
+      obtain ⟨p⟩ := h_G_reach
+      by_cases hp : s(u, v) ∈ p.edges
+      · -- Path uses edge e = s(u,v), need to reroute
+        have hu_in : u ∈ p.support := Walk.fst_mem_support_of_mem_edges p hp
+        have hv_in : v ∈ p.support := Walk.snd_mem_support_of_mem_edges p hp
+        -- Take prefixes to u and v
+        let pu := p.takeUntil u hu_in
+        let pv := p.takeUntil v hv_in
+        have hne : u ≠ v := hadj.ne
+        -- At least one prefix doesn't use s(u,v) (whichever endpoint appears first)
+        by_cases hpu : s(u, v) ∈ pu.edges
+        · -- pu uses s(u,v), so v appears before u in p
+          -- Therefore pv doesn't use s(u,v)
+          have hpv : s(u, v) ∉ pv.edges := by
+            intro h
+            -- Both pu and pv contain edge s(u,v), contradicting takeUntil_first_endpoint_no_edge
+            have hcontra := takeUntil_first_endpoint_no_edge G p hp hu_in hv_in hne
+            cases hcontra with
+            | inl h_not_pu => exact h_not_pu hpu
+            | inr h_not_pv => exact h_not_pv h
+          -- G'-path from c1.rep to v
+          have h1 : G'.Reachable c1.exists_rep.choose v :=
+            ⟨walk_deleteEdges_eq huv (pv.toDeleteEdge (s(u,v)) hpv)⟩
+          -- G'-path from v to u (since e is not a bridge)
+          have h2 : G'.Reachable v u :=
+            ⟨walk_deleteEdges_eq huv (Classical.choice h_still_reach).reverse⟩
+          -- G'-path from u to c2.rep: use dropUntil
+          let qu := p.dropUntil u hu_in
+          by_cases hqu : s(u, v) ∈ qu.edges
+          · -- qu uses s(u,v), handle via v using reverse
+            let p' := p.reverse
+            have hp' : s(u, v) ∈ p'.edges := Walk.edges_reverse p ▸ List.mem_reverse.mpr hp
+            have hv_in' : v ∈ p'.support := Walk.support_reverse p ▸ List.mem_reverse.mpr hv_in
+            let rv := p'.takeUntil v hv_in'
+            by_cases hrv : s(u, v) ∈ rv.edges
+            · -- Both rv and (implicitly) the forward path hit the edge
+              -- Use takeUntil_first_endpoint_no_edge on p' to get alternate path
+              have hu_in' : u ∈ p'.support := Walk.fst_mem_support_of_mem_edges p' hp'
+              have hcontra := takeUntil_first_endpoint_no_edge G p' hp' hu_in' hv_in' hne
+              -- Since hrv : s(u,v) ∈ rv.edges, the right disjunct is false
+              let ru' := p'.takeUntil u hu_in'
+              have hru'_no_e : s(u, v) ∉ ru'.edges := by
+                cases hcontra with
+                | inl h_not => exact h_not
+                | inr h_not_rv => exact absurd hrv h_not_rv
+              -- G'-path from c2.rep to u
+              have h3 : (G.deleteEdges {e}).Reachable c2.exists_rep.choose u :=
+                ⟨walk_deleteEdges_eq huv (ru'.toDeleteEdge (s(u,v)) hru'_no_e)⟩
+              -- Chain: c1.rep ->h1-> v ->h2-> u <-h3.symm- c2.rep
+              exact h1.trans (h2.trans (reachable_cast hG'.symm h3).symm)
+            · -- rv doesn't use s(u,v), so G'-path from c2.rep to v
+              have h3 : (G.deleteEdges {e}).Reachable c2.exists_rep.choose v :=
+                ⟨walk_deleteEdges_eq huv (rv.toDeleteEdge (s(u,v)) hrv)⟩
+              -- Chain: c1.rep ->h1-> v ->(h3.symm)-> c2.rep
+              exact h1.trans (reachable_cast hG'.symm h3).symm
+          · -- qu doesn't use s(u,v), so G'-path from u to c2.rep
+            have h3 : (G.deleteEdges {e}).Reachable u c2.exists_rep.choose :=
+              ⟨walk_deleteEdges_eq huv (qu.toDeleteEdge (s(u,v)) hqu)⟩
+              -- Chain: c1.rep ->h1-> v ->h2-> u ->h3-> c2.rep
+            exact h1.trans (h2.trans (reachable_cast hG'.symm h3))
+        · -- pu doesn't use s(u,v), so G'-path from c1.rep to u
+          have h1 : (G.deleteEdges {e}).Reachable c1.exists_rep.choose u :=
+            ⟨walk_deleteEdges_eq huv (pu.toDeleteEdge (s(u,v)) hpu)⟩
+          -- G'-path from u to v (since e is not a bridge)
+          have h2 : (G.deleteEdges {e}).Reachable u v :=
+            ⟨walk_deleteEdges_eq huv (Classical.choice h_still_reach)⟩
+          -- G'-path from v to c2.rep: use dropUntil
+          let qv := p.dropUntil v hv_in
+          by_cases hqv : s(u, v) ∈ qv.edges
+          · -- qv uses s(u,v), handle via u using reverse
+            let p' := p.reverse
+            have hp' : s(u, v) ∈ p'.edges := Walk.edges_reverse p ▸ List.mem_reverse.mpr hp
+            have hu_in' : u ∈ p'.support := Walk.support_reverse p ▸ List.mem_reverse.mpr hu_in
+            let ru := p'.takeUntil u hu_in'
+            by_cases hru : s(u, v) ∈ ru.edges
+            · -- ru uses s(u,v), use takeUntil_first_endpoint_no_edge to get path via v
+              have hv_in' : v ∈ p'.support := Walk.snd_mem_support_of_mem_edges p' hp'
+              have hcontra := takeUntil_first_endpoint_no_edge G p' hp' hu_in' hv_in' hne
+              -- Since hru : s(u,v) ∈ ru.edges, the left disjunct is false
+              let rv' := p'.takeUntil v hv_in'
+              have hrv'_no_e : s(u, v) ∉ rv'.edges := by
+                cases hcontra with
+                | inl h_not_ru => exact absurd hru h_not_ru
+                | inr h_not => exact h_not
+              -- G'-path from c2.rep to v
+              have h3 : (G.deleteEdges {e}).Reachable c2.exists_rep.choose v :=
+                ⟨walk_deleteEdges_eq huv (rv'.toDeleteEdge (s(u,v)) hrv'_no_e)⟩
+              -- Chain: c1.rep ->h1-> u ->h2-> v <-h3.symm- c2.rep
+              exact (reachable_cast hG'.symm h1).trans ((reachable_cast hG'.symm h2).trans (reachable_cast hG'.symm h3).symm)
+            · -- ru doesn't use s(u,v), so G'-path from c2.rep to u
+              have h3 : (G.deleteEdges {e}).Reachable c2.exists_rep.choose u :=
+                ⟨walk_deleteEdges_eq huv (ru.toDeleteEdge (s(u,v)) hru)⟩
+              -- Chain: c1.rep ->h1-> u ->(h3.symm)-> c2.rep
+              exact (reachable_cast hG'.symm h1).trans (reachable_cast hG'.symm h3).symm
+          · -- qv doesn't use s(u,v), so G'-path from v to c2.rep
+            have h3 : (G.deleteEdges {e}).Reachable v c2.exists_rep.choose :=
+              ⟨walk_deleteEdges_eq huv (qv.toDeleteEdge (s(u,v)) hqv)⟩
+            -- Chain: c1.rep ->h1-> u ->h2-> v ->h3-> c2.rep
+            exact (reachable_cast hG'.symm h1).trans ((reachable_cast hG'.symm h2).trans (reachable_cast hG'.symm h3))
+      · -- Path doesn't use edge e, convert directly
+        have h_G'_reach : G'.Reachable c1.exists_rep.choose c2.exists_rep.choose :=
+          ⟨walk_deleteEdges_eq huv (p.toDeleteEdge (s(u,v)) hp)⟩
+        exact h_G'_reach
     calc c1 = G'.connectedComponentMk c1.exists_rep.choose := c1.exists_rep.choose_spec.symm
       _ = G'.connectedComponentMk c2.exists_rep.choose := ConnectedComponent.eq.mpr h_G'_reach
       _ = c2 := c2.exists_rep.choose_spec

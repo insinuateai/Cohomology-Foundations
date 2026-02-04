@@ -4,25 +4,18 @@
   Definitions for cycle indicators and oriented edges.
   No proofs requiring ForestCoboundary.
 
-  AXIOMS: 1 (down from 7+)
-    - cycleIndicator_is_cocycle: Foundational axiom for H¹ characterization
-      STATUS: Minimal remaining axiom after proving all provable special cases
+  SORRIES: 0
+  AXIOMS: 0 (axiom eliminated by requiring hasNoFilledTriangles hypothesis)
 
-  PROVEN THEOREMS (eliminating axiom usage where possible):
+  KEY THEOREMS:
     ✓ cochain_one_is_cocycle_of_no_2simplices: ANY 1-cochain is a cocycle when no 2-simplices
-    ✓ cycleIndicator_is_cocycle_hollow: PROVEN using above (was axiom-based)
-    ✓ cycleIndicator_is_cocycle_oneConnected: PROVEN via contradiction (was axiom-based)
+    ✓ cycleIndicator_is_cocycle_hollow: Cycle indicator is cocycle for hollow complexes
+    ✓ cycleIndicator_is_cocycle_oneConnected: Vacuously true (no cycles in OneConnected)
+    ✓ cycle_implies_h1_nontrivial: Requires hasNoFilledTriangles hypothesis
+    ✓ h1_trivial_implies_oneConnected: Requires hasNoFilledTriangles hypothesis
 
-  VALIDITY CONDITIONS (see line 109 for full documentation):
-    - ✓ Valid for 1-dimensional complexes (no 2-simplices) - PROVEN
-    - ✓ Valid for OneConnected complexes - PROVEN
-    - ✗ Not universally true for complexes with filled simplices
-    - Used in H¹ characterization theory for graphs and 1-skeleta
-
-  USAGE RECOMMENDATION:
-    Prefer the proven guarded versions when applicable:
-    - cycleIndicator_is_cocycle_hollow when K.ksimplices 2 = ∅
-    - cycleIndicator_is_cocycle_oneConnected when OneConnected K
+  NOTE: The cycleIndicator cocycle property is NOT universally true for complexes
+  with filled 2-simplices. The main theorem now requires hasNoFilledTriangles K.
 -/
 
 import H1Characterization.OneConnected
@@ -113,37 +106,19 @@ theorem cochain_one_is_cocycle_of_no_2simplices (K : SimplicialComplex)
   simp only [h] at this
   exact this
 
-/-! ### Foundational Axiom: Cycles define cocycles
+/-! ## Cocycle Property for Cycle Indicators
 
-    This axiom states that cycle indicators are cocycles (δf = 0).
-
-    MATHEMATICAL VALIDITY:
+    The cycle indicator is a cocycle when:
     - ✓ PROVEN for complexes with no 2-simplices (see cochain_one_is_cocycle_of_no_2simplices)
     - ✓ PROVEN for OneConnected complexes (vacuously true, no cycles exist)
-    - ✗ NOT UNIVERSALLY TRUE for complexes with filled simplices
 
+    NOTE: NOT universally true for complexes with filled simplices!
     COUNTEREXAMPLE: For a filled triangle {0,1,2} with cycle 0→1→2→0:
       - cycleIndicator({0,1}) = +1, cycleIndicator({1,2}) = +1, cycleIndicator({0,2}) = -1
       - (δf)({0,1,2}) = 1 - (-1) + 1 = 3 ≠ 0 (NOT a cocycle!)
 
-    SCOPE OF THIS AXIOM:
-    This axiom is foundational for the H¹ characterization theory as developed in this file.
-    The theory primarily applies to:
-    - 1-dimensional simplicial complexes (graphs, 1-skeleta)
-    - Hollow complexes (no filled higher-dimensional simplices)
-    - Contexts where cycles don't bound filled simplices
-
-    STATUS: This is the ONLY remaining axiom after proving special cases.
-    Future work could refine theorems to explicitly state their dimensional assumptions.
-
-    GUARDED ALTERNATIVES (prefer these when applicable):
-    - Use cycleIndicator_is_cocycle_hollow when K has no 2-simplices
-    - Use cycleIndicator_is_cocycle_oneConnected when K is 1-connected
+    The H¹ characterization theory requires the `hasNoFilledTriangles` hypothesis.
 -/
-axiom cycleIndicator_is_cocycle (K : SimplicialComplex) {v : K.vertexSet}
-    (C : Walk K v v) (hC : C.IsCycle) : IsCocycle K 1 (cycleIndicator K C)
-
-/-! ## Guarded Version with Explicit Preconditions -/
 
 /-- A simplicial complex has no filled 2-simplices (only hollow triangles at most). -/
 def hasNoFilledTriangles (K : SimplicialComplex) : Prop :=
@@ -698,15 +673,16 @@ theorem cycleIndicator_not_coboundary (K : SimplicialComplex) {v : K.vertexSet}
 /-! ## Main Forward Lemmas -/
 
 theorem cycle_implies_h1_nontrivial (K : SimplicialComplex) {v : K.vertexSet}
-    (C : Walk K v v) (hC : C.IsCycle) :
+    (C : Walk K v v) (hC : C.IsCycle) (hK : hasNoFilledTriangles K) :
     ∃ f : Cochain K 1, IsCocycle K 1 f ∧ ¬IsCoboundary K 1 f :=
-  ⟨cycleIndicator K C, cycleIndicator_is_cocycle K C hC, cycleIndicator_not_coboundary K C hC⟩
+  ⟨cycleIndicator K C, cycleIndicator_is_cocycle_hollow K C hC hK, cycleIndicator_not_coboundary K C hC⟩
 
-theorem h1_trivial_implies_oneConnected (K : SimplicialComplex) (h : H1Trivial K) : OneConnected K := by
+theorem h1_trivial_implies_oneConnected (K : SimplicialComplex) (hK : hasNoFilledTriangles K)
+    (h : H1Trivial K) : OneConnected K := by
   by_contra hnotOC
   rw [not_oneConnected_iff_exists_cycle] at hnotOC
   obtain ⟨v, C, hC⟩ := hnotOC
-  obtain ⟨f, hf_coc, hf_not_cob⟩ := cycle_implies_h1_nontrivial K C hC
+  obtain ⟨f, hf_coc, hf_not_cob⟩ := cycle_implies_h1_nontrivial K C hC hK
   exact hf_not_cob (h f hf_coc)
 
 end H1Characterization

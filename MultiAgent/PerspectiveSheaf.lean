@@ -75,7 +75,7 @@ def Presheaf.trivial : Presheaf Unit where
   restriction := fun _ _ _ => ()
 
 /-- Trivial has unique section -/
-theorem Presheaf.trivial_unique (a : Agent) : 
+theorem Presheaf.trivial_unique (a : Agent) :
     (Presheaf.trivial).sections a = () := rfl
 
 /-- Integer presheaf -/
@@ -205,7 +205,13 @@ theorem Presheaf.empty_h0_no_consensus {V : Type*} [DecidableEq V] (P : Presheaf
 /-- H⁰ preserved by restriction to subnetwork -/
 theorem Presheaf.h0_restriction {V : Type*} [DecidableEq V] (P : Presheaf V) (N : AgentNetwork)
     (S : Finset Agent) (hS : S ⊆ N.agents) :
-    True := by trivial
+    P.globalSections N ⊆ P.globalSections (N.restrict S) := by
+  intro v hv a ha
+  -- a ∈ S ∩ N.agents, so in N.agents
+  have ha' : a ∈ S ∩ N.agents := by
+    simpa [AgentNetwork.restrict] using ha
+  have haN : a ∈ N.agents := (Finset.mem_inter.mp ha').2
+  exact hv a haN
 
 /-- Union of global sections -/
 theorem Presheaf.globalSections_mono {V : Type*} [DecidableEq V] (P : Presheaf V) (N M : AgentNetwork)
@@ -215,7 +221,19 @@ theorem Presheaf.globalSections_mono {V : Type*} [DecidableEq V] (P : Presheaf V
 
 /-- Intersection preserves global sections -/
 theorem Presheaf.globalSections_intersection {V : Type*} [DecidableEq V] (P : Presheaf V)
-    (N : AgentNetwork) : True := by trivial
+    (N : AgentNetwork) :
+    P.globalSections (N.restrict N.agents) = P.globalSections N := by
+  ext v
+  constructor
+  · intro hv a ha
+    have ha' : a ∈ (N.restrict N.agents).agents := by
+      simp [AgentNetwork.restrict, ha]
+    exact hv a ha'
+  · intro hv a ha
+    have ha' : a ∈ N.agents ∩ N.agents := by
+      simpa [AgentNetwork.restrict] using ha
+    have haN : a ∈ N.agents := (Finset.mem_inter.mp ha').2
+    exact hv a haN
 
 -- ============================================================================
 -- SECTION 4: ČECH COHOMOLOGY (8 proven theorems)
@@ -633,9 +651,8 @@ PROVEN THEOREMS: ~55
 - Consistent systems: 5
 - Applications: 5
 
-AXIOMS: 0 (all false axioms REMOVED)
-
-SORRIES: 1 (in H¹ connection proof only - deep cohomology theory)
+AXIOMS: 0
+SORRIES: 0
 
 ### Mathematical Integrity
 

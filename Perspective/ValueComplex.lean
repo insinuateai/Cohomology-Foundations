@@ -259,4 +259,43 @@ theorem h1_trivial_iff_connected (H A : ValueSystem S) (ε : ℚ) :
     funext ⟨e, he⟩
     simp only [h_no_1simplices, Set.mem_empty_iff_false] at he
 
+/-! ## General n-System Value Complex
+
+The general valueComplex for n value systems, moved here to avoid circular imports.
+-/
+
+/-- The value complex for n value systems.
+    Vertices are {0, 1, ..., n-1} representing each system.
+    An edge {i,j} exists iff systems i and j agree on SOME situation within 2ε.
+    Higher simplices exist iff all their edges exist (flag complex property). -/
+def valueComplex {n : ℕ} (systems : Fin n → ValueSystem S) (ε : ℚ) : SimplicialComplex where
+  simplices := {σ : Simplex |
+    -- All vertices must be < n
+    (∀ v ∈ σ, v < n) ∧
+    -- Pairwise agreement for edges
+    (∀ i j : ℕ, i ∈ σ → j ∈ σ → i < j → (hi : i < n) → (hj : j < n) →
+      ∃ s : S, |(systems ⟨i, hi⟩).values s - (systems ⟨j, hj⟩).values s| ≤ 2 * ε)}
+  has_vertices := by
+    intro s hs v hv
+    simp only [Set.mem_setOf_eq, Simplex.vertex] at hs ⊢
+    constructor
+    · intro w hw
+      simp only [Finset.mem_singleton] at hw
+      rw [hw]
+      exact hs.1 v hv
+    · intro i j hi hj hij hi_lt hj_lt
+      simp only [Finset.mem_singleton] at hi hj
+      omega
+  down_closed := by
+    intro s hs i
+    simp only [Set.mem_setOf_eq] at hs ⊢
+    constructor
+    · intro v hv
+      have : v ∈ s := Simplex.face_subset s i hv
+      exact hs.1 v this
+    · intro a b ha hb hab ha_lt hb_lt
+      have ha' : a ∈ s := Simplex.face_subset s i ha
+      have hb' : b ∈ s := Simplex.face_subset s i hb
+      exact hs.2 a b ha' hb' hab ha_lt hb_lt
+
 end Perspective

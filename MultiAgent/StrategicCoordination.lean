@@ -431,34 +431,6 @@ theorem local_global_h1_or_illformed (P : ConstrainedCoordination) :
     push_neg at hwf
     exact hwf
 
-/-- H¹ ≠ 0 → ∃ local not global
-
-    When constraints form cycles (H¹ ≠ 0), there exist locally feasible
-    but globally infeasible situations.
-
-    MATHEMATICAL NOTE: The existence of such a gap depends on the specific
-    constraint structure. For this theorem to be provable constructively,
-    we need additional hypotheses:
-    - At least 2 distinct choices in P.choices
-    - At least one constraint with a non-trivial relation
-    - The constraint network has specific cyclic structure
-
-    The general statement requires analyzing the constraint relations and
-    the network topology. For networks with ≥3 agents and non-forest structure,
-    gaps CAN exist, but the construction depends on the constraint details.
-
-    Example: Three agents {a,b,c} with equality constraints a=b, b=c, c≠a
-    form a contradiction. Profile with a↦0, b↦0, c↦1 satisfies choices
-    but violates c≠a when all should be equal.
-
-    For this formalization, we axiomatize the result. A complete proof
-    requires constraint analysis and assumes suitable constraint relations exist.
-
-    Reference: Constraint satisfaction and topological obstructions -/
-axiom h1_local_global_gap (P : ConstrainedCoordination) :
-  ¬P.toNetwork.isForest → P.agents.card ≥ 3 →
-  ∃ profile, P.isLocallyFeasible profile ∧ ¬P.isGloballyFeasible profile
-
 /-- The gap is the hollow triangle (for well-formed constraints).
 
     If there's a gap between local and global feasibility, the network cannot be a forest.

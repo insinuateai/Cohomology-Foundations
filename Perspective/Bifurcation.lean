@@ -32,8 +32,8 @@ This is dynamical systems theory applied to AI alignment.
 3. PREDICTION: "At ε = 0.23, system will split into 2 components"
 4. ROBUSTNESS: "This configuration is far from any bifurcation"
 
-SORRIES: Target minimal
-AXIOMS: Some needed (bifurcation theory)
+SORRIES: 0
+AXIOMS: 2 (safety_margin_aux, bifurcation_catastrophic_aux)
 -/
 
 import Perspective.CriticalPoints
@@ -163,15 +163,58 @@ def safetyMargin {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S)
   let dist := distanceToBifurcation systems epsilon
   if epsilon > 0 then dist / epsilon else 0
 
-/-- Auxiliary axiom for safety margin proof - the decidability computation.
-    This axiomatizes that if ε is sufficiently far from the critical epsilon (relative to δ·ε),
-    and |ε' - ε| < δ·ε, then ε' is on the same side of critical epsilon as ε,
-    hence alignmentStatus(ε') = alignmentStatus(ε). -/
-axiom safety_margin_aux {S : Type*} [Fintype S] [DecidableEq S] {n : ℕ} [NeZero n] [Nonempty S]
-    (systems : Fin n → ValueSystem S) (epsilon ε' delta : ℚ) (_hε : epsilon > 0)
-    (_h_margin : |epsilon - criticalEpsilon systems| / epsilon > delta)
-    (_hε' : |ε' - epsilon| < delta * epsilon) :
-    alignmentStatus systems ε' = alignmentStatus systems epsilon
+/-- Safety margin lemma: perturbations that don't cross the critical epsilon
+    preserve the alignment status. -/
+theorem safety_margin_aux {S : Type*} [Fintype S] [DecidableEq S] {n : ℕ} [NeZero n] [Nonempty S]
+    (systems : Fin n → ValueSystem S) (epsilon ε' delta : ℚ) (hε : epsilon > 0)
+    (h_margin : |epsilon - criticalEpsilon systems| / epsilon > delta)
+    (hε' : |ε' - epsilon| < delta * epsilon) :
+    alignmentStatus systems ε' = alignmentStatus systems epsilon := by
+  -- Unfold definitions and name the maximum disagreement
+  unfold alignmentStatus criticalEpsilon
+  set maxD := Finset.univ.sup'
+    ⟨(0, 0), Finset.mem_univ _⟩
+    (fun p : Fin n × Fin n =>
+      Finset.univ.sup' ⟨Classical.arbitrary S, Finset.mem_univ _⟩ fun s =>
+        |(systems p.1).values s - (systems p.2).values s|) with hmaxD
+  -- Helpful abbreviation for the critical epsilon
+  have h_crit : criticalEpsilon systems = maxD / 2 := by
+    simp [criticalEpsilon, hmaxD]
+  -- From the margin condition: delta * epsilon < |epsilon - epsilon_c|
+  have h_margin' : delta * epsilon < |epsilon - maxD / 2| := by
+    have h' : delta < |epsilon - criticalEpsilon systems| / epsilon := by linarith
+    have h'' := (lt_div_iff hε).1 h'
+    simpa [h_crit] using h''
+  -- From the perturbation condition: epsilon' is within delta*epsilon of epsilon
+  have h_eps' : epsilon - delta * epsilon < ε' ∧ ε' < epsilon + delta * epsilon := by
+    have h_abs : |ε' - epsilon| < delta * epsilon := hε'
+    have h' := abs_lt.mp h_abs
+    constructor <;> linarith
+  -- Case split on which side of the critical epsilon we are on
+  by_cases h_ge : epsilon ≥ maxD / 2
+  · -- epsilon is above (or at) the critical value
+    have h_abs : |epsilon - maxD / 2| = epsilon - maxD / 2 := by
+      have : epsilon - maxD / 2 ≥ 0 := by linarith
+      exact abs_of_nonneg this
+    have h_gap : epsilon - maxD / 2 > delta * epsilon := by
+      linarith [h_margin', h_abs]
+    have h_eps'_gt : ε' > maxD / 2 := by
+      linarith [h_eps'.1, h_gap]
+    have h_true : maxD ≤ 2 * epsilon := by linarith
+    have h_true' : maxD ≤ 2 * ε' := by linarith
+    simp [hmaxD, h_true, h_true']
+  · -- epsilon is below the critical value
+    have h_lt : epsilon < maxD / 2 := by linarith
+    have h_abs : |epsilon - maxD / 2| = maxD / 2 - epsilon := by
+      have : epsilon - maxD / 2 ≤ 0 := by linarith
+      simpa [abs_of_nonpos this] using rfl
+    have h_gap : maxD / 2 - epsilon > delta * epsilon := by
+      linarith [h_margin', h_abs]
+    have h_eps'_lt : ε' < maxD / 2 := by
+      linarith [h_eps'.2, h_gap]
+    have h_false : ¬maxD ≤ 2 * epsilon := by linarith
+    have h_false' : ¬maxD ≤ 2 * ε' := by linarith
+    simp [hmaxD, h_false, h_false']
 
 /--
 THEOREM: Large safety margin implies robustness.
@@ -233,15 +276,31 @@ def isCatastrophic {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S)
   let statusChange := alignmentStatus systems epsilon1 != alignmentStatus systems epsilon2
   statusChange && paramChange < 1/10
 
-/-- Auxiliary axiom for bifurcation catastrophe proof.
-    At the critical epsilon, εc + δ gives aligned status (true) while εc - δ gives
-    non-aligned status (false) for any δ > 0. This is a direct computation from the
-    definitions but formalization requires careful handling of decidable propositions. -/
-axiom bifurcation_catastrophic_aux {S : Type*} [Fintype S] [DecidableEq S]
+/-- At the critical epsilon, moving above and below flips alignment status. -/
+theorem bifurcation_catastrophic_aux {S : Type*} [Fintype S] [DecidableEq S]
     {n : ℕ} [NeZero n] [Nonempty S] (systems : Fin n → ValueSystem S)
-    (delta : ℚ) (_hdelta : delta > 0) :
+    (delta : ℚ) (hdelta : delta > 0) :
     alignmentStatus systems (criticalEpsilon systems + delta) ≠
-    alignmentStatus systems (criticalEpsilon systems - delta)
+    alignmentStatus systems (criticalEpsilon systems - delta) := by
+  -- Unfold definitions and name the maximum disagreement
+  unfold alignmentStatus criticalEpsilon
+  set maxD := Finset.univ.sup'
+    ⟨(0, 0), Finset.mem_univ _⟩
+    (fun p : Fin n × Fin n =>
+      Finset.univ.sup' ⟨Classical.arbitrary S, Finset.mem_univ _⟩ fun s =>
+        |(systems p.1).values s - (systems p.2).values s|) with hmaxD
+  have h_crit : criticalEpsilon systems = maxD / 2 := by
+    simp [criticalEpsilon, hmaxD]
+  -- Above the critical value: aligned
+  have h_true : maxD ≤ 2 * (maxD / 2 + delta) := by linarith
+  -- Below the critical value: not aligned
+  have h_false : ¬maxD ≤ 2 * (maxD / 2 - delta) := by linarith
+  have h_align : alignmentStatus systems (maxD / 2 + delta) = true := by
+    simp [hmaxD, h_true]
+  have h_not_align : alignmentStatus systems (maxD / 2 - delta) = false := by
+    simp [hmaxD, h_false]
+  -- Conclude the statuses differ
+  simpa [h_crit] using ne_of_eq_of_ne h_align (by simpa [h_crit] using h_not_align)
 
 /--
 THEOREM: Bifurcations are catastrophic.
@@ -371,7 +430,7 @@ def generateBifurcationReport {n : ℕ} [NeZero n] (_hn : n ≥ 1)
   let margin := safetyMargin systems epsilon
   let aligned := alignmentStatus systems epsilon
   let sens := parameterSensitivity systems epsilon
-  let warn := 
+  let warn :=
     if margin < 1/20 then some "⚠️ CRITICAL: Within 5% of bifurcation point!"
     else if margin < 1/10 then some "⚠️ WARNING: Within 10% of bifurcation point"
     else if margin < 1/5 then some "Caution: Within 20% of bifurcation point"

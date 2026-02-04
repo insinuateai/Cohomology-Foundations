@@ -206,12 +206,45 @@ noncomputable def optimalLipschitz [NeZero n] (metric : SimilarityMetric n)
     else |treatment p.1 - treatment p.2| / metric.dist p.1 p.2
 
 /--
-AXIOM: The optimal Lipschitz constant achieves fairness.
-This requires showing that the supremum of ratios achieves fairness.
+THEOREM: The optimal Lipschitz constant achieves fairness.
+This follows from the supremum definition of `optimalLipschitz`.
 -/
-axiom optimal_lipschitz_achieves [NeZero n] (metric : SimilarityMetric n)
+theorem optimal_lipschitz_achieves [NeZero n] (metric : SimilarityMetric n)
     (treatment : Allocation n) :
-    isLipschitzFair metric (optimalLipschitz metric treatment) treatment
+    isLipschitzFair metric (optimalLipschitz metric treatment) treatment := by
+  intro i j
+  by_cases h_dist : metric.dist i j = 0
+  · -- Zero distance implies identical individuals
+    have h_eq : i = j := (metric.zero_iff i j).mp h_dist
+    subst h_eq
+    simp [optimalLipschitz, metric.self_zero]
+  · -- Positive distance: use the supremum bound
+    have h_dist_pos : metric.dist i j > 0 := by
+      have h_nonneg := metric.nonneg i j
+      rcases lt_or_eq_of_le h_nonneg with hlt | heq
+      · exact hlt
+      · exact (h_dist heq).elim
+    let f : Fin n × Fin n → ℚ := fun p =>
+      if metric.dist p.1 p.2 = 0 then 0
+      else |treatment p.1 - treatment p.2| / metric.dist p.1 p.2
+    have h_f_ij : f (i, j) = |treatment i - treatment j| / metric.dist i j := by
+      simp [f, h_dist]
+    have h_le_sup : f (i, j) ≤ Finset.univ.sup'
+        ⟨((0 : Fin n), (0 : Fin n)), Finset.mem_univ _⟩ f :=
+      Finset.le_sup' f (Finset.mem_univ (i, j))
+    have h_opt_eq : optimalLipschitz metric treatment =
+        Finset.univ.sup' ⟨((0 : Fin n), (0 : Fin n)), Finset.mem_univ _⟩ f := rfl
+    have h_div_le : |treatment i - treatment j| / metric.dist i j ≤
+        Finset.univ.sup' ⟨((0 : Fin n), (0 : Fin n)), Finset.mem_univ _⟩ f := by
+      simpa [h_f_ij] using h_le_sup
+    have h_mult := mul_le_mul_of_nonneg_right h_div_le (le_of_lt h_dist_pos)
+    -- Cancel the distance factor on the left
+    have h_cancel : (|treatment i - treatment j| / metric.dist i j) * metric.dist i j =
+        |treatment i - treatment j| := by
+      field_simp [h_dist_pos.ne']
+    -- Rewrite and conclude
+    rw [h_opt_eq] at h_mult
+    simpa [h_cancel, mul_comm] using h_mult
 
 /--
 THEOREM: Any allocation is L-Lipschitz for large enough L.

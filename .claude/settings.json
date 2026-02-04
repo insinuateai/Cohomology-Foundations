@@ -1,0 +1,10 @@
+{
+  "hooks": {
+    "user-prompt-submit": [
+      {
+        "matcher": ".*",
+        "command": "if [ ! -f /tmp/.claude-session-started ]; then touch /tmp/.claude-session-started; /workspaces/Cohomology-Foundations/.claude/hooks/session-status.sh; fi"
+      }
+    ]
+  }
+}

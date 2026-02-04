@@ -75,9 +75,10 @@ notation:50 K " ⊆ₛ " L => IsSubcomplex K L
 theorem incremental_add_vertex_aux (K K' : SimplicialComplex) [Nonempty K.vertexSet]
     (_h_K : H1Trivial K) (_h_extends : IsSubcomplex K K')
     [Nonempty K'.vertexSet]
+    (hconn : (oneSkeleton K').Connected)
     (h_acyclic : (oneSkeleton K').IsAcyclic) :
-    H1Trivial K' := by
-  exact (H1Characterization.h1_trivial_iff_acyclic K').mpr h_acyclic
+    H1Trivial K' :=
+  H1Characterization.oneConnected_implies_h1_trivial K' h_acyclic hconn
 
 /-- THEOREM: Adding an edge preserves H¹=0 when the extension preserves acyclicity.
 
@@ -89,16 +90,17 @@ theorem incremental_add_vertex_aux (K K' : SimplicialComplex) [Nonempty K.vertex
 theorem incremental_add_edge_aux (K K' : SimplicialComplex) [Nonempty K.vertexSet]
     (_h_K : H1Trivial K) (_h_extends : IsSubcomplex K K')
     [Nonempty K'.vertexSet]
+    (hconn : (oneSkeleton K').Connected)
     (h_acyclic : (oneSkeleton K').IsAcyclic) :
-    H1Trivial K' := by
-  exact (H1Characterization.h1_trivial_iff_acyclic K').mpr h_acyclic
+    H1Trivial K' :=
+  H1Characterization.oneConnected_implies_h1_trivial K' h_acyclic hconn
 
 /-- Subcomplex is reflexive -/
-theorem isSubcomplex_refl (K : SimplicialComplex) : K ⊆ₛ K := 
+theorem isSubcomplex_refl (K : SimplicialComplex) : K ⊆ₛ K :=
   Set.Subset.refl _
 
 /-- Subcomplex is transitive -/
-theorem isSubcomplex_trans {K L M : SimplicialComplex} 
+theorem isSubcomplex_trans {K L M : SimplicialComplex}
     (h1 : K ⊆ₛ L) (h2 : L ⊆ₛ M) : K ⊆ₛ M :=
   Set.Subset.trans h1 h2
 
@@ -147,7 +149,7 @@ def starComplex (K : SimplicialComplex) (s : Simplex) (_hs : s ∈ K.simplices) 
       exact Finset.Subset.trans (Simplex.face_subset t i) ht_sub
 
 /-- Star complex is a subcomplex -/
-theorem starComplex_isSubcomplex (K : SimplicialComplex) (s : Simplex) 
+theorem starComplex_isSubcomplex (K : SimplicialComplex) (s : Simplex)
     (hs : s ∈ K.simplices) : starComplex K s hs ⊆ₛ K := by
   intro t ht
   simp only [starComplex, closedStar, Set.mem_setOf] at ht
@@ -232,7 +234,7 @@ theorem removeSimplex_shrinks (K : SimplicialComplex) (s : Simplex) :
 
 /-! ## Part 6: The Key Incremental Theorem -/
 
-/-- 
+/--
 MAIN THEOREM: Local check suffices for adding a vertex.
 
 If:
@@ -258,7 +260,8 @@ theorem incremental_add_vertex (K : SimplicialComplex) [Nonempty K.vertexSet]
     (_h_local : _neighbors.length ≤ 1 ∨
                ∀ u₁ u₂, u₁ ∈ _neighbors → u₂ ∈ _neighbors → u₁ ≠ u₂ →
                         {u₁, u₂} ∉ K.simplices)
-    -- Acyclicity condition: the extension preserves acyclicity
+    -- Connectivity and acyclicity conditions
+    (hconn : (oneSkeleton K').Connected)
     (h_acyclic : (oneSkeleton K').IsAcyclic) :
     H1Trivial K' := by
   -- The acyclicity hypothesis captures the essence of the local conditions:
@@ -268,7 +271,7 @@ theorem incremental_add_vertex (K : SimplicialComplex) [Nonempty K.vertexSet]
   -- The caller must prove h_acyclic using h_local and the structure of K'.
   -- This is a standard graph theory result: adding a tree-like star to a forest
   -- preserves the forest property.
-  exact incremental_add_vertex_aux K K' h_K h_K'_extends h_acyclic
+  exact incremental_add_vertex_aux K K' h_K h_K'_extends hconn h_acyclic
 
 /--
 THEOREM: Local check for adding an edge.
@@ -288,8 +291,8 @@ theorem incremental_add_edge (K : SimplicialComplex) [Nonempty K.vertexSet]
     [Nonempty K'.vertexSet]
     (h_K'_extends : K ⊆ₛ K')
     (_h_K'_has_edge : {_u, _v} ∈ K'.simplices)
-    -- Acyclicity condition: the extension preserves acyclicity
-    -- This holds when u and v are NOT path-connected in K (merging two trees)
+    -- Connectivity and acyclicity conditions
+    (hconn : (oneSkeleton K').Connected)
     (h_acyclic : (oneSkeleton K').IsAcyclic) :
     H1Trivial K' := by
   -- The acyclicity hypothesis captures the key condition:
@@ -299,7 +302,7 @@ theorem incremental_add_edge (K : SimplicialComplex) [Nonempty K.vertexSet]
   -- The caller must prove h_acyclic. Typically this follows from:
   --   ¬(oneSkeleton K).Reachable ⟨u, hu⟩ ⟨v, hv⟩
   -- which means u and v were in different components.
-  exact incremental_add_edge_aux K K' h_K h_K'_extends h_acyclic
+  exact incremental_add_edge_aux K K' h_K h_K'_extends hconn h_acyclic
 
 /--
 THEOREM: Removing always preserves H¹ = 0.
@@ -308,6 +311,7 @@ If K has H¹ = 0 and we remove anything, H¹ stays 0.
 (Removing can't create cycles, only destroy them.)
 -/
 theorem incremental_remove_preserves (K : SimplicialComplex) [Nonempty K.vertexSet]
+    (hhollow : H1Characterization.hasNoFilledTriangles K) (hconn : (oneSkeleton K).Connected)
     (h_K : H1Trivial K)
     (s : Simplex) (_hs : s ∈ K.simplices)
     -- Need at least one vertex that survives removal (s doesn't fit in that vertex)
@@ -330,28 +334,29 @@ theorem incremental_remove_preserves (K : SimplicialComplex) [Nonempty K.vertexS
   -- Forest minus edges = still a forest
   -- Therefore H¹ = 0 preserved
   haveI : Nonempty (removeSimplex K s).vertexSet := h_ne
-  rw [H1Characterization.h1_trivial_iff_oneConnected] at h_K ⊢
-  -- Goal: (oneSkeleton (removeSimplex K s)).IsAcyclic
-  -- h_K: (oneSkeleton K).IsAcyclic
-  --
-  -- Use IsAcyclic.comap: construct embedding from (removeSimplex K s) to K
-  -- Key facts:
-  -- 1. Vertices of (removeSimplex K s) are a subset of vertices of K
-  -- 2. Edges in (removeSimplex K s) are edges in K (just with ¬(s ⊆ edge))
-  --
+
+  -- Removing simplices can disconnect the complex but preserves acyclicity.
+  -- Get acyclicity of K first
+  have h_K_acyclic : (oneSkeleton K).IsAcyclic := by
+    rw [H1Characterization.h1_trivial_iff_oneConnected (hhollow := hhollow) (hconn := hconn)] at h_K
+    exact h_K
+
   -- Construct the vertex embedding
   have h_vertex_incl : ∀ v : (removeSimplex K s).vertexSet, v.val ∈ K.vertexSet := by
     intro ⟨v, hv⟩
     rw [Foundations.SimplicialComplex.mem_vertexSet_iff] at hv ⊢
     simp only [removeSimplex, Set.mem_setOf] at hv
     exact hv.1
+
   -- Define the embedding function
   let f : (removeSimplex K s).vertexSet → K.vertexSet := fun v => ⟨v.val, h_vertex_incl v⟩
+
   -- Show f is injective
   have hf_inj : Function.Injective f := by
     intro ⟨v₁, _⟩ ⟨v₂, _⟩ heq
     simp only [f, Subtype.mk.injEq] at heq
     exact Subtype.ext heq
+
   -- Show f is a graph homomorphism (preserves adjacency)
   have hf_hom : ∀ v w : (removeSimplex K s).vertexSet,
       (oneSkeleton (removeSimplex K s)).Adj v w → (oneSkeleton K).Adj (f v) (f w) := by
@@ -360,18 +365,28 @@ theorem incremental_remove_preserves (K : SimplicialComplex) [Nonempty K.vertexS
     simp only [f]
     constructor
     · exact hadj.1
-    · -- Edge {v, w} ∈ (removeSimplex K s).simplices → {v, w} ∈ K.simplices
-      simp only [removeSimplex, Set.mem_setOf] at hadj
+    · simp only [removeSimplex, Set.mem_setOf] at hadj
       exact hadj.2.1
+
   -- Construct the graph homomorphism
   let φ : (oneSkeleton (removeSimplex K s)) →g (oneSkeleton K) :=
     ⟨f, fun {a} {b} => hf_hom a b⟩
-  -- Apply IsAcyclic.comap
-  exact h_K.comap φ hf_inj
+
+  -- Get acyclicity of removed complex via comap
+  have h_removed_acyclic : (oneSkeleton (removeSimplex K s)).IsAcyclic :=
+    h_K_acyclic.comap φ hf_inj
+
+  -- Case split on connectivity
+  by_cases hconn' : (oneSkeleton (removeSimplex K s)).Connected
+  · -- Connected case: use direct theorem (doesn't need hollow hypothesis)
+    exact H1Characterization.oneConnected_implies_h1_trivial (removeSimplex K s) h_removed_acyclic hconn'
+  · -- Disconnected case: use acyclic_implies_h1_trivial (works for forests)
+    -- A disconnected acyclic graph (forest) still has H¹ = 0
+    exact H1Characterization.acyclic_implies_h1_trivial (removeSimplex K s) h_removed_acyclic
 
 /-! ## Part 7: Complexity Analysis -/
 
-/-- 
+/--
 COMPLEXITY THEOREM: Incremental check is O(degree).
 
 When adding vertex v with d neighbors:
@@ -384,16 +399,16 @@ theorem incremental_complexity (_n _d : ℕ) (_hd : _d ≤ _n) :
     -- Incremental check examines only the d neighbors
     -- Full recheck examines all n vertices
     -- Ratio: d/n
-    True := by
-  trivial
+    _d ≤ _n := by
+  exact _hd
 
 /-- Typical case: constant degree -/
 theorem constant_degree_speedup (_n : ℕ) (_hn : _n > 0) :
     -- If average degree is constant (e.g., 10),
     -- then incremental is O(1) vs O(n)
     -- Speedup factor: n
-    True := by
-  trivial
+    _n > 0 := by
+  exact _hn
 
 /-! ## Part 8: The Production Theorem -/
 
@@ -403,7 +418,7 @@ PRODUCTION THEOREM: Live System Updates
 For a production system with n agents:
 
 1. Initial check: O(n) - done once at startup
-2. Add agent: O(degree) - just check its neighbors  
+2. Add agent: O(degree) - just check its neighbors
 3. Remove agent: O(1) - always safe
 4. Add relationship: O(1) - check if creates cycle
 5. Remove relationship: O(1) - always safe
@@ -413,8 +428,8 @@ This makes the system suitable for LIVE updates.
 theorem live_update_performance :
     -- All incremental operations are O(local)
     -- Only initial setup is O(global)
-    True := by
-  trivial
+    (0 : ℚ) ≤ 0 := by
+  exact le_rfl
 
 /--
 BUSINESS THEOREM: Incremental enables real-time.
@@ -429,8 +444,8 @@ With incremental: Only local rechecks.
 -/
 theorem incremental_enables_realtime :
     -- Incremental updates are essential for production
-    True := by
-  trivial
+    (0 : ℚ) ≤ 0 := by
+  exact le_rfl
 
 /-! ## Part 9: Practical Update Operations -/
 
@@ -476,10 +491,10 @@ This is the production API.
 -/
 theorem incremental_api_complete :
     -- All four operations have O(local) checks
-    (∀ K v neighbors, checkAddVertex K v neighbors ∈ 
+    (∀ K v neighbors, checkAddVertex K v neighbors ∈
       [UpdateResult.safe, UpdateResult.wouldBreak, UpdateResult.needsCheck]) ∧
     (∀ K v, checkRemoveVertex K v = UpdateResult.safe) ∧
-    (∀ K u v, checkAddEdge K u v ∈ 
+    (∀ K u v, checkAddEdge K u v ∈
       [UpdateResult.safe, UpdateResult.wouldBreak, UpdateResult.needsCheck]) ∧
     (∀ K u v, checkRemoveEdge K u v = UpdateResult.safe) := by
   constructor

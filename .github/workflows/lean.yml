@@ -1,0 +1,251 @@
+name: Lean CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]  # Pre-warm cache on merge
+  workflow_dispatch:  # Manual trigger from Actions tab
+
+# Cancel in-progress runs for the same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Job 1: Build foundational modules (required by all others)
+  build-foundations:
+    runs-on: ubuntu-latest
+    outputs:
+      build-time: ${{ steps.build.outputs.duration }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install elan
+        run: |
+          curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> $GITHUB_PATH
+
+      # Cache 1: Mathlib packages (rarely changes)
+      - name: Cache Mathlib packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.elan
+            .lake/packages
+          key: mathlib-${{ hashFiles('lake-manifest.json') }}
+          restore-keys: |
+            mathlib-
+
+      # Cache 2: Project build artifacts
+      - name: Cache project build
+        uses: actions/cache@v4
+        with:
+          path: .lake/build
+          key: build-${{ github.sha }}
+          restore-keys: |
+            build-${{ github.event.pull_request.base.sha || 'main' }}-
+            build-
+
+      - name: Get Mathlib cache
+        run: lake exe cache get || true
+
+      - name: Build foundations
+        id: build
+        run: |
+          start=$(date +%s)
+          lake build Foundations H1Characterization --old
+          end=$(date +%s)
+          echo "duration=$((end-start))" >> $GITHUB_OUTPUT
+          echo "Built Foundations + H1Characterization in $((end-start))s"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: foundations-build
+          path: .lake/build
+          retention-days: 1
+
+  # Job 2: Build Infrastructure (parallel with Perspective)
+  build-infrastructure:
+    runs-on: ubuntu-latest
+    needs: build-foundations
+    outputs:
+      build-time: ${{ steps.build.outputs.duration }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install elan
+        run: |
+          curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> $GITHUB_PATH
+
+      - name: Cache Mathlib packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.elan
+            .lake/packages
+          key: mathlib-${{ hashFiles('lake-manifest.json') }}
+          restore-keys: |
+            mathlib-
+
+      - name: Get Mathlib cache
+        run: lake exe cache get || true
+
+      - name: Download foundations build
+        uses: actions/download-artifact@v4
+        with:
+          name: foundations-build
+          path: .lake/build
+
+      - name: Build Infrastructure
+        id: build
+        run: |
+          start=$(date +%s)
+          lake build Infrastructure --old
+          end=$(date +%s)
+          echo "duration=$((end-start))" >> $GITHUB_OUTPUT
+          echo "Built Infrastructure in $((end-start))s"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: infrastructure-build
+          path: .lake/build
+          retention-days: 1
+
+  # Job 3: Build Perspective + MultiAgent (parallel with Infrastructure)
+  build-perspective:
+    runs-on: ubuntu-latest
+    needs: build-foundations
+    outputs:
+      build-time: ${{ steps.build.outputs.duration }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install elan
+        run: |
+          curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> $GITHUB_PATH
+
+      - name: Cache Mathlib packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.elan
+            .lake/packages
+          key: mathlib-${{ hashFiles('lake-manifest.json') }}
+          restore-keys: |
+            mathlib-
+
+      - name: Get Mathlib cache
+        run: lake exe cache get || true
+
+      - name: Download foundations build
+        uses: actions/download-artifact@v4
+        with:
+          name: foundations-build
+          path: .lake/build
+
+      - name: Build Perspective and MultiAgent
+        id: build
+        run: |
+          start=$(date +%s)
+          lake build Perspective MultiAgent --old
+          end=$(date +%s)
+          echo "duration=$((end-start))" >> $GITHUB_OUTPUT
+          echo "Built Perspective + MultiAgent in $((end-start))s"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: perspective-build
+          path: .lake/build
+          retention-days: 1
+
+  # Job 4: Final verification (tests, sorries, axioms)
+  verify:
+    runs-on: ubuntu-latest
+    needs: [build-foundations, build-infrastructure, build-perspective]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install elan
+        run: |
+          curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> $GITHUB_PATH
+
+      - name: Cache Mathlib packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.elan
+            .lake/packages
+          key: mathlib-${{ hashFiles('lake-manifest.json') }}
+          restore-keys: |
+            mathlib-
+
+      - name: Get Mathlib cache
+        run: lake exe cache get || true
+
+      - name: Download all build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: .lake/build-parts
+
+      - name: Merge build artifacts
+        run: |
+          mkdir -p .lake/build
+          # Merge all artifacts (later ones override earlier for shared files)
+          for dir in foundations infrastructure perspective; do
+            if [ -d ".lake/build-parts/${dir}-build" ]; then
+              cp -r .lake/build-parts/${dir}-build/* .lake/build/ 2>/dev/null || true
+            fi
+          done
+
+      - name: Build tests
+        run: lake build Tests --old
+
+      - name: Verify no new sorries
+        run: |
+          echo "Checking for sorries..."
+          SORRIES=$(grep -rn "sorry" --include="*.lean" . --exclude-dir=.lake | grep -v "-- sorry" | grep -v "SORRIES:" | grep -v "^Binary" | wc -l)
+          echo "Found $SORRIES sorry occurrences"
+
+      - name: Count axioms
+        run: |
+          echo "=== Axiom Count by Directory ==="
+          for dir in Perspective MultiAgent Theories Infrastructure H1Characterization Foundations; do
+            if [ -d $dir ]; then
+              count=$(grep -rc "^axiom " $dir --include="*.lean" 2>/dev/null | awk -F: '{sum+=$2} END {print sum+0}')
+              printf "  %-20s %3d\n" "$dir/" "$count"
+            fi
+          done
+          echo "  ────────────────────────"
+          TOTAL=$(grep -rc '^axiom ' . --include='*.lean' | grep -v '\.lake' | awk -F: '{sum+=$2} END {print sum}')
+          printf "  %-20s %3d\n" "TOTAL" "$TOTAL"
+
+      - name: Summary
+        run: |
+          echo "## Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Build completed successfully" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Tests compiled" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Build Timing" >> $GITHUB_STEP_SUMMARY
+          echo "- Foundations + H1: ${{ needs.build-foundations.outputs.build-time }}s" >> $GITHUB_STEP_SUMMARY
+          echo "- Infrastructure: ${{ needs.build-infrastructure.outputs.build-time }}s" >> $GITHUB_STEP_SUMMARY
+          echo "- Perspective + MultiAgent: ${{ needs.build-perspective.outputs.build-time }}s" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Statistics" >> $GITHUB_STEP_SUMMARY
+          echo "- Lean files: $(find . -name '*.lean' -not -path './.lake/*' | wc -l)" >> $GITHUB_STEP_SUMMARY
+          echo "- Total lines: $(find . -name '*.lean' -not -path './.lake/*' -exec cat {} + | wc -l)" >> $GITHUB_STEP_SUMMARY

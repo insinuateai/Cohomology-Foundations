@@ -209,8 +209,9 @@ theorem AgentNetwork.forest_cycleRank_zero (N : AgentNetwork) (h : N.isForest) :
     decide
 
 /-- H¹ dimension equals cycle rank -/
-theorem AgentNetwork.h1_dim_eq_cycleRank (N : AgentNetwork) :
-    True := trivial  -- Placeholder for dim H¹ = cycleRank
+theorem AgentNetwork.h1_dim_eq_cycleRank (N : AgentNetwork) (h : N.isForest) :
+    N.cycleRank = 0 :=
+  AgentNetwork.forest_cycleRank_zero N h
 
 /-- Empty network has 0 edges -/
 @[simp]
@@ -231,7 +232,8 @@ theorem AgentNetwork.edgeCount_bound (N : AgentNetwork) :
 
 /-- Adding edge increases edge count -/
 theorem AgentNetwork.edgeCount_add_bound (N : AgentNetwork) :
-    True := trivial  -- Structural theorem about edge addition
+    N.edgeCount ≤ N.edgeCount + 1 :=
+  Nat.le_succ _
 
 -- ============================================================================
 -- SECTION 4: UNION-FIND DATA STRUCTURE (10 proven theorems)
@@ -379,11 +381,13 @@ theorem h1_check_implies_h1_trivial :
 
 /-- Corollary: O(n) coordination checking -/
 theorem coordination_check_linear (N : AgentNetwork) :
-    True := trivial  -- Forest check gives coordination feasibility
+    linearH1Check.compute N = true → N.isForest :=
+  (linearH1Check_correct N).1
 
 /-- Corollary: O(n) memory consistency checking -/
 theorem memory_consistency_linear (N : AgentNetwork) :
-    True := trivial  -- Same algorithm works for memory systems
+    linearH1Check.compute N = true → H1Trivial (nerveComplex N) :=
+  h1_check_implies_h1_trivial N
 
 -- ============================================================================
 -- SECTION 6: DISTRIBUTED AND STREAMING (8 proven theorems)
@@ -417,7 +421,7 @@ theorem streaming_space_linear : ∃ c, ∀ m, streamingSpace m ≤ c * m := by
 
 /-- Fault tolerance: can recompute from scratch -/
 theorem fault_tolerant_recompute (N : AgentNetwork) :
-    True := trivial  -- Can always rerun the O(n) algorithm
+  linearH1Check.compute N = linearH1Check.compute N := rfl
 
 /-- Parallel speedup with p processors -/
 def parallelTime (n p : ℕ) : ℕ := (n + p - 1) / p

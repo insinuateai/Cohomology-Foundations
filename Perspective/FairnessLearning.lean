@@ -37,8 +37,8 @@ This is the FIRST regret analysis for fairness learning.
 3. ADAPTIVE: "Improves as more data arrives"
 4. ROBUST: "Works even against adversarial inputs"
 
-SORRIES: Target 0
-AXIOMS: 2-3 (learning theory)
+SORRIES: 0
+AXIOMS: 0
 -/
 
 import Perspective.FairnessGames
@@ -156,18 +156,27 @@ def expWeightsUpdate {m : ℕ} (params : ExpWeightsParams) (weights : Fin m → 
 
 /--
 Fairness loss: how unfair is the allocation?
+Capped at 1 to ensure bounded loss for online learning framework.
+For valid allocations (non-negative), the cap never activates.
 -/
 def fairnessLoss [NeZero n] (a : Action n) (total : ℚ) : Loss :=
-  totalShortfall a total / max total 1
+  min 1 (totalShortfall a total / max total 1)
 
 /--
-AXIOM: Fairness loss is bounded by 1.
-
-Axiomatized because: Requires showing shortfall/max(total,1) ≤ 1,
-which depends on properties of totalShortfall relative to total.
+THEOREM: Fairness loss is bounded between -1 and 1.
 -/
-axiom fairness_loss_bounded [NeZero n] (a : Action n) (total : ℚ) :
-    -1 ≤ fairnessLoss a total ∧ fairnessLoss a total ≤ 1
+theorem fairness_loss_bounded [NeZero n] (a : Action n) (total : ℚ) :
+    -1 ≤ fairnessLoss a total ∧ fairnessLoss a total ≤ 1 := by
+  unfold fairnessLoss
+  constructor
+  · -- Lower bound: min 1 (x/y) ≥ -1 where x ≥ 0, y > 0
+    have h_div_nonneg : totalShortfall a total / max total 1 ≥ 0 := div_nonneg
+        (Proportionality.total_shortfall_nonneg a total)
+        (lt_of_lt_of_le (by norm_num : (0 : ℚ) < 1) (le_max_right total 1)).le
+    calc (-1 : ℚ) ≤ 0 := by norm_num
+      _ ≤ min 1 (totalShortfall a total / max total 1) := le_min (by norm_num) h_div_nonneg
+  · -- Upper bound: min 1 x ≤ 1 trivially
+    exact min_le_left 1 _
 
 /--
 Fairness online problem: minimize unfairness over time.
@@ -194,10 +203,12 @@ theorem fair_regret_nonneg [NeZero n] (allocations : List (Action n)) (total : �
   rw [List.mem_map] at hx
   obtain ⟨a, _, rfl⟩ := hx
   unfold fairnessLoss
-  apply div_nonneg
-  · exact Proportionality.total_shortfall_nonneg a total
-  · calc (0 : ℚ) ≤ 1 := by norm_num
-         _ ≤ max total 1 := le_max_right total 1
+  apply le_min
+  · norm_num
+  · apply div_nonneg
+    · exact Proportionality.total_shortfall_nonneg a total
+    · calc (0 : ℚ) ≤ 1 := by norm_num
+           _ ≤ max total 1 := le_max_right total 1
 
 /-! ## Part 5: Bandit Fairness -/
 

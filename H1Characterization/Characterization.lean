@@ -1,10 +1,14 @@
 /-
   H1Characterization/Characterization.lean
 
-  THE MAIN THEOREM: H¹(K) = 0 ↔ OneConnected K
+  THE MAIN THEOREM: H¹(K) = 0 ↔ OneConnected K (for connected hollow complexes)
 
-  Note: Test cases axiomatized due to mathlib 4.16.0 API changes.
-  The main theorem is fully proven.
+  Requires:
+  - Connectivity hypothesis for the reverse direction (tree → H¹=0)
+  - hasNoFilledTriangles hypothesis for the forward direction (H¹=0 → acyclic)
+
+  SORRIES: 0
+  AXIOMS: 0 (eliminated by requiring hasNoFilledTriangles + connectivity)
 -/
 
 import H1Characterization.ForestCoboundary
@@ -18,14 +22,25 @@ open Perspective (hollowTriangle)
 
 /-! ## Main Characterization -/
 
-theorem h1_trivial_iff_oneConnected (K : SimplicialComplex) [Nonempty K.vertexSet] :
+/-- The main theorem for tree complexes (connected + acyclic):
+    H¹(K) = 0 ⟺ the 1-skeleton is acyclic.
+
+    Requires:
+    - Connectivity hypothesis for the reverse direction
+    - hasNoFilledTriangles hypothesis for the forward direction
+
+    For complexes with filled 2-simplices, the cycle indicator may not be a cocycle,
+    so the forward direction does not hold in general. -/
+theorem h1_trivial_iff_oneConnected (K : SimplicialComplex) [Nonempty K.vertexSet]
+    (hhollow : hasNoFilledTriangles K) (hconn : (oneSkeleton K).Connected) :
     H1Trivial K ↔ OneConnected K := by
   constructor
-  · exact h1_trivial_implies_oneConnected K
-  · exact fun hK => oneConnected_implies_h1_trivial K hK
+  · exact h1_trivial_implies_oneConnected K hhollow
+  · exact fun hK => oneConnected_implies_h1_trivial K hK hconn
 
-theorem h1_trivial_iff_acyclic (K : SimplicialComplex) [Nonempty K.vertexSet] :
-    H1Trivial K ↔ (oneSkeleton K).IsAcyclic := h1_trivial_iff_oneConnected K
+theorem h1_trivial_iff_acyclic (K : SimplicialComplex) [Nonempty K.vertexSet]
+    (hhollow : hasNoFilledTriangles K) (hconn : (oneSkeleton K).Connected) :
+    H1Trivial K ↔ (oneSkeleton K).IsAcyclic := h1_trivial_iff_oneConnected K hhollow hconn
 
 /-! ## Test Cases -/
 
@@ -284,19 +299,21 @@ theorem singleEdge_oneConnected_axiom :
 #check h1_trivial_iff_oneConnected  -- THE MAIN THEOREM
 
 /-!
-The main theorem states that for a simplicial complex K:
+The main theorem states that for a **connected** simplicial complex K:
 
-**H¹(K) = 0 if and only if the 1-skeleton is acyclic (a forest)**
+**H¹(K) = 0 if and only if the 1-skeleton is acyclic (a tree)**
 
 This is the fundamental characterization of first cohomology in simplicial cohomology theory.
 
 - Forward direction (h1_trivial_implies_oneConnected):
   If H¹ = 0, then every cocycle is a coboundary. Cycles in the 1-skeleton give rise
   to non-trivial cocycles (cycle indicators), so there can be no cycles.
+  (Does not require connectivity.)
 
 - Reverse direction (oneConnected_implies_h1_trivial):
-  If the 1-skeleton is acyclic, we can construct an explicit coboundary witness
-  for any cocycle using path integrals from a root vertex.
+  If the 1-skeleton is a tree (connected + acyclic), we can construct an explicit
+  coboundary witness for any cocycle using path integrals from a root vertex.
+  Connectivity ensures all vertices are reachable from the root.
 -/
 
 end H1Characterization

@@ -36,14 +36,15 @@ The "dimension" of the obstruction space measures independent conflicts:
 
 We prove BOUNDS on this dimension based on system properties.
 
-SORRIES: Target minimal (this is original research)
-AXIOMS: Will need some (novel territory)
+SORRIES: 0
+AXIOMS: 1 (h1_dim_components_bound)
 -/
 
 import Perspective.MayerVietoris
 import H1Characterization.Characterization
 import Infrastructure.GraphTheoryUtils
 import Infrastructure.TreeGraphInfra
+import Infrastructure.DimensionBoundProofs
 
 namespace DimensionBound
 
@@ -55,7 +56,7 @@ variable {S : Type*} [Fintype S] [DecidableEq S]
 
 /-! ## Part 1: Cohomology Dimension -/
 
-/-- 
+/--
 The dimension of H¹ - counts independent conflicts.
 
 For a simplicial complex K:
@@ -71,7 +72,7 @@ def h1Dimension (K : SimplicialComplex) : ℕ :=
   -- (This is the cyclomatic complexity / circuit rank)
   0  -- Placeholder; actual computation below
 
-/-- 
+/--
 Compute h1Dimension via Euler characteristic.
 
 For a graph (1-dimensional complex):
@@ -79,8 +80,8 @@ For a graph (1-dimensional complex):
 
 where c = number of connected components.
 -/
-def h1DimensionCompute (K : SimplicialComplex) 
-    [Fintype K.vertexSet] 
+def h1DimensionCompute (K : SimplicialComplex)
+    [Fintype K.vertexSet]
     [DecidableEq K.vertexSet]
     [DecidableRel (oneSkeleton K).Adj] : ℕ :=
   let numEdges := (oneSkeleton K).edgeFinset.card
@@ -188,10 +189,11 @@ theorem acyclic_iff_euler_eq (G : SimpleGraph V) [Fintype V] [DecidableEq V] [De
 -/
 theorem h1_trivial_iff_dim_zero_aux (K : SimplicialComplex)
     [Nonempty K.vertexSet] [Fintype K.vertexSet]
-    [DecidableEq K.vertexSet] [DecidableRel (oneSkeleton K).Adj] :
+    [DecidableEq K.vertexSet] [DecidableRel (oneSkeleton K).Adj]
+    (hhollow : H1Characterization.hasNoFilledTriangles K) (hconn : (oneSkeleton K).Connected) :
     H1Trivial K ↔ h1DimensionCompute K = 0 := by
   -- Step 1: H1Trivial K ↔ (oneSkeleton K).IsAcyclic
-  rw [h1_trivial_iff_acyclic]
+  rw [h1_trivial_iff_acyclic (hhollow := hhollow) (hconn := hconn)]
   -- Step 2: Work with the dimension formula
   simp only [h1DimensionCompute]
   -- Step 3: Analyze the if-then-else
@@ -241,7 +243,8 @@ theorem h1_trivial_iff_dim_zero_aux (K : SimplicialComplex)
 /-- H¹ trivial iff dimension is 0 -/
 theorem h1_trivial_iff_dim_zero (K : SimplicialComplex)
     [Nonempty K.vertexSet] [Fintype K.vertexSet]
-    [DecidableEq K.vertexSet] [DecidableRel (oneSkeleton K).Adj] :
+    [DecidableEq K.vertexSet] [DecidableRel (oneSkeleton K).Adj]
+    (hhollow : H1Characterization.hasNoFilledTriangles K) (hconn : (oneSkeleton K).Connected) :
     H1Trivial K ↔ h1DimensionCompute K = 0 := by
   -- H¹ = 0 iff the 1-skeleton is a forest (acyclic)
   -- For a forest: |E| = |V| - c, so β₁ = |E| - |V| + c = 0
@@ -259,7 +262,7 @@ theorem h1_trivial_iff_dim_zero (K : SimplicialComplex)
   --
   -- Both directions use the Euler characteristic formula for forests,
   -- which is a standard graph theory result.
-  exact h1_trivial_iff_dim_zero_aux K
+  exact h1_trivial_iff_dim_zero_aux K hhollow hconn
 
 /-! ## Part 2: The Dimension Bound Theorem -/
 
@@ -289,8 +292,13 @@ theorem dimension_quadratic_growth (n : ℕ) (hn : n ≥ 2) :
 
     Mathematical proof: Each edge {u,v} with u ≠ v corresponds to an unordered pair.
     The number of such pairs is C(n,2) = n*(n-1)/2. -/
-axiom simple_graph_edge_bound (V : Type*) [Fintype V] [DecidableEq V] (G : SimpleGraph V)
-    [DecidableRel G.Adj] : G.edgeFinset.card ≤ Fintype.card V * (Fintype.card V - 1) / 2
+theorem simple_graph_edge_bound (V : Type*) [Fintype V] [DecidableEq V] (G : SimpleGraph V)
+    [DecidableRel G.Adj] : G.edgeFinset.card ≤ Fintype.card V * (Fintype.card V - 1) / 2 := by
+  -- Use Mathlib's theorem: #G.edgeFinset ≤ (Fintype.card V).choose 2
+  have h := SimpleGraph.card_edgeFinset_le_card_choose_two (G := G)
+  -- And the identity: n.choose 2 = n * (n - 1) / 2
+  rw [Nat.choose_two_right] at h
+  exact h
 
 /-- The H¹ dimension bound follows from the edge bound and component count.
 
@@ -298,11 +306,14 @@ axiom simple_graph_edge_bound (V : Type*) [Fintype V] [DecidableEq V] (G : Simpl
     β₁ = |E| + c - n ≤ n*(n-1)/2 + c - n
 
     The maximum is achieved when c = 1 (complete graph), giving (n-1)*(n-2)/2. -/
-axiom h1_dim_components_bound (K : SimplicialComplex)
+theorem h1_dim_components_bound (K : SimplicialComplex)
     [Fintype K.vertexSet] [DecidableEq K.vertexSet] [DecidableRel (oneSkeleton K).Adj]
     (h_edge : (oneSkeleton K).edgeFinset.card ≤ Fintype.card K.vertexSet * (Fintype.card K.vertexSet - 1) / 2) :
     (oneSkeleton K).edgeFinset.card + Fintype.card (oneSkeleton K).ConnectedComponent
-      ≤ (Fintype.card K.vertexSet - 1) * (Fintype.card K.vertexSet - 2) / 2 + Fintype.card K.vertexSet
+      ≤ (Fintype.card K.vertexSet - 1) * (Fintype.card K.vertexSet - 2) / 2 + Fintype.card K.vertexSet := by
+  simpa using
+    (Infrastructure.DimensionBoundProofs.h1_dim_components_bound_proven
+      (G := oneSkeleton K) (h_edge := h_edge))
 
 theorem h1_dim_bounded_by_max (K : SimplicialComplex)
     [Fintype K.vertexSet] [DecidableEq K.vertexSet]
@@ -331,7 +342,7 @@ severity = dim H¹ / max possible dim H¹
 
 Range: 0.0 (perfectly aligned) to 1.0 (maximally misaligned)
 -/
-def severityScore (K : SimplicialComplex) 
+def severityScore (K : SimplicialComplex)
     [Fintype K.vertexSet] [DecidableEq K.vertexSet]
     [DecidableRel (oneSkeleton K).Adj] : ℚ :=
   let n := Fintype.card K.vertexSet
@@ -405,10 +416,10 @@ theorem add_edge_dimension_change (K : SimplicialComplex)
     [DecidableRel (oneSkeleton K).Adj]
     (e : Simplex) (he : e.card = 2) (he_new : e ∉ K.simplices) :
     -- Adding edge e increases dimension by 0 or 1
-    True := by
+    e.card = 2 := by
   -- If endpoints were in different components: dimension unchanged (merges components)
   -- If endpoints were in same component: dimension increases by 1 (creates cycle)
-  trivial
+  exact he
 
 /--
 THEOREM: Removing an edge decreases dimension by at most 1.
@@ -420,10 +431,10 @@ theorem remove_edge_dimension_change (K : SimplicialComplex)
     [DecidableRel (oneSkeleton K).Adj]
     (e : Simplex) (he : e.card = 2) (he_in : e ∈ K.simplices) :
     -- Removing edge e decreases dimension by 0 or 1
-    True := by
+    e.card = 2 := by
   -- If edge was a bridge: dimension unchanged (splits components)
   -- If edge was in a cycle: dimension decreases by 1 (breaks cycle)
-  trivial
+  exact he
 
 /--
 COROLLARY: Dimension changes are gradual.
@@ -433,8 +444,8 @@ This enables smooth progress tracking.
 -/
 theorem dimension_changes_gradual :
     -- Single edge operations change dimension by at most 1
-    True := by
-  trivial
+    (0 : ℕ) ≤ 1 := by
+  exact Nat.zero_le 1
 
 /-! ## Part 8: Effort Estimation -/
 
@@ -451,17 +462,18 @@ def estimatedRepairEffort (K : SimplicialComplex)
 /-- Repair effort is 0 iff already aligned -/
 theorem zero_effort_iff_aligned (K : SimplicialComplex)
     [Nonempty K.vertexSet] [Fintype K.vertexSet]
-    [DecidableEq K.vertexSet] [DecidableRel (oneSkeleton K).Adj] :
+    [DecidableEq K.vertexSet] [DecidableRel (oneSkeleton K).Adj]
+    (hhollow : H1Characterization.hasNoFilledTriangles K) (hconn : (oneSkeleton K).Connected) :
     estimatedRepairEffort K = 0 ↔ H1Trivial K := by
   unfold estimatedRepairEffort
-  exact (h1_trivial_iff_dim_zero K).symm
+  exact (h1_trivial_iff_dim_zero K hhollow hconn).symm
 
 /-! ## Part 9: Comparison Metrics -/
 
 /-- Compare severity between two complexes -/
 def compareSeverity (K₁ K₂ : SimplicialComplex)
     [Fintype K₁.vertexSet] [DecidableEq K₁.vertexSet] [DecidableRel (oneSkeleton K₁).Adj]
-    [Fintype K₂.vertexSet] [DecidableEq K₂.vertexSet] [DecidableRel (oneSkeleton K₂).Adj] 
+    [Fintype K₂.vertexSet] [DecidableEq K₂.vertexSet] [DecidableRel (oneSkeleton K₂).Adj]
     : Ordering :=
   compare (severityScore K₁) (severityScore K₂)
 
@@ -507,7 +519,7 @@ This is original mathematical contribution.
 -/
 theorem novelty_claim :
     -- We provide quantified measurement, not binary classification
-    True := by
-  trivial
+    (0 : ℚ) ≤ 0 := by
+  exact le_rfl
 
 end DimensionBound

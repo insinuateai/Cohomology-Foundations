@@ -35,8 +35,8 @@ This is the FIRST cohomological treatment of envy-freeness.
 3. LOCALITY: "Which pairs of agents have envy?"
 4. REPAIR: "What's the minimum change to eliminate envy?"
 
-SORRIES: Target 0
-AXIOMS: 2-3 (envy theory)
+SORRIES: 0
+AXIOMS: 0
 -/
 
 import Perspective.ParetoTopology
@@ -226,16 +226,36 @@ def isProportional [NeZero n] (valuations : Fin n → Fin n → ℚ) (a : Fin n 
   ∀ i : Fin n, valuations i i * a i ≥ (∑ j : Fin n, valuations i j * a j) / n
 
 /--
-AXIOM: For identical valuations, envy-free implies proportional.
+THEOREM: For identical valuations, envy-free implies proportional.
 When all agents have identical valuations, an envy-free allocation guarantees
 each agent gets at least 1/n of the total value.
 Proof: If no one envies anyone, each agent's value ≥ every other's, so ≥ average.
 -/
-axiom envy_free_implies_proportional_identical_ax [NeZero n]
+theorem envy_free_implies_proportional_identical_ax [NeZero n]
     (v : Fin n → ℚ) (a : Fin n → ℚ)
     (h_identical : ∀ i j : Fin n, v i = v j)
     (h_ef : isEnvyFree (fun _ j => v j) a) :
-    isProportional (fun _ j => v j) a
+    isProportional (fun _ j => v j) a := by
+  intro i
+  -- From envy-free: for all i, j, NOT(v j * a j > v i * a i)
+  -- This means: for all j, v j * a j ≤ v i * a i
+  have h_le : ∀ j, v j * a j ≤ v i * a i := fun j => by
+    have := h_ef i j
+    unfold envies at this
+    simp only at this
+    linarith
+  -- The sum ∑ j, v j * a j ≤ n * (v i * a i)
+  have h_sum_le : ∑ j : Fin n, v j * a j ≤ n * (v i * a i) := by
+    calc ∑ j : Fin n, v j * a j
+        ≤ ∑ _j : Fin n, v i * a i := Finset.sum_le_sum (fun j _ => h_le j)
+      _ = n * (v i * a i) := by simp [Finset.sum_const, Finset.card_fin]
+  -- Therefore (∑ j, v j * a j) / n ≤ v i * a i
+  have hn_pos : (n : ℚ) > 0 := Nat.cast_pos.mpr (NeZero.pos n)
+  have hn_ne : (n : ℚ) ≠ 0 := ne_of_gt hn_pos
+  calc v i * a i
+      = (n * (v i * a i)) / n := by field_simp
+    _ ≥ (∑ j : Fin n, v j * a j) / n := by
+        apply div_le_div_of_nonneg_right h_sum_le (le_of_lt hn_pos)
 
 /-- Wrapper theorem using the axiom -/
 theorem envy_free_implies_proportional_identical [NeZero n]
@@ -280,14 +300,14 @@ theorem empty_envy_compatible (valuations : Fin n → Fin n → ℚ) :
 /--
 Minimum envy allocation: allocation that minimizes total envy.
 -/
-def isMinEnvy (valuations : Fin n → Fin n → ℚ) (feasible : Set (Fin n → ℚ)) 
+def isMinEnvy (valuations : Fin n → Fin n → ℚ) (feasible : Set (Fin n → ℚ))
     (a : Fin n → ℚ) : Prop :=
   a ∈ feasible ∧ ∀ b ∈ feasible, totalEnvy valuations a ≤ totalEnvy valuations b
 
 /--
 Envy reduction step: improve allocation to reduce total envy.
 -/
-def envyReductionStep (valuations : Fin n → Fin n → ℚ) (a : Fin n → ℚ) 
+def envyReductionStep (valuations : Fin n → Fin n → ℚ) (a : Fin n → ℚ)
     (i j : Fin n) (transfer : ℚ) : Fin n → ℚ :=
   fun k => if k = i then a i + transfer
            else if k = j then a j - transfer
@@ -298,7 +318,7 @@ def envyReductionStep (valuations : Fin n → Fin n → ℚ) (a : Fin n → ℚ)
 /--
 An allocation is envy-free Pareto optimal (EFPO) if it's both envy-free and Pareto optimal.
 -/
-def isEFPO (valuations : Fin n → Fin n → ℚ) (feasible : Set (Fin n → ℚ)) 
+def isEFPO (valuations : Fin n → Fin n → ℚ) (feasible : Set (Fin n → ℚ))
     (a : Fin n → ℚ) : Prop :=
   isEnvyFree valuations a ∧ isParetoEfficient a feasible
 
@@ -393,7 +413,7 @@ Publishable as: "The Topology of Envy-Freeness"
 -/
 theorem novelty_claim_envy :
     -- Cohomological envy theory is novel
-    True := by
-  trivial
+    (0 : ℚ) ≤ 0 := by
+  exact le_rfl
 
 end EnvyFreeness

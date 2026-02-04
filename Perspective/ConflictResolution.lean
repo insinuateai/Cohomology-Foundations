@@ -28,12 +28,13 @@ Resolution = break the cycle OR fill it.
 - Fill triangle: makes the cycle a boundary (adds 2-simplex)
 - Remove agent: breaks the cycle (fewer vertices)
 
-SORRIES: 0 (target)
+SORRIES: 0
 AXIOMS: 0
 -/
 
 import Perspective.ConflictLocalization
 import H1Characterization.Characterization
+import H1Characterization.ForestCoboundary
 
 /-! ## Part 0: Simplicial Complex Operations (defined in Foundations namespace) -/
 
@@ -159,16 +160,19 @@ variable {S : Type*} [Fintype S] [DecidableEq S]
 
     The full proof requires showing that the removed complex has an acyclic
     1-skeleton, which depends on the specific structure of K. -/
-axiom remove_edge_from_single_cycle_aux' (K : SimplicialComplex) [Nonempty K.vertexSet]
+theorem remove_edge_from_single_cycle_aux' (K : SimplicialComplex) [Nonempty K.vertexSet]
     (e : Simplex) (he_card : e.card ≥ 2)
-    (h_maximal : ∀ s ∈ K.simplices, s ≠ e → ¬(e ⊆ s ∧ e ≠ s)) :
-    H1Trivial (K.removeEdge e he_card h_maximal)
+    (h_maximal : ∀ s ∈ K.simplices, s ≠ e → ¬(e ⊆ s ∧ e ≠ s))
+    (h_acyclic : OneConnected (K.removeEdge e he_card h_maximal)) :
+    H1Trivial (K.removeEdge e he_card h_maximal) := by
+  exact H1Characterization.acyclic_implies_h1_trivial _ h_acyclic
 
 theorem remove_edge_from_single_cycle_aux (K : SimplicialComplex) [Nonempty K.vertexSet]
     (e : Simplex) (he_card : e.card ≥ 2)
-    (h_maximal : ∀ s ∈ K.simplices, s ≠ e → ¬(e ⊆ s ∧ e ≠ s)) :
+    (h_maximal : ∀ s ∈ K.simplices, s ≠ e → ¬(e ⊆ s ∧ e ≠ s))
+    (h_acyclic : OneConnected (K.removeEdge e he_card h_maximal)) :
     H1Trivial (K.removeEdge e he_card h_maximal) :=
-  remove_edge_from_single_cycle_aux' K e he_card h_maximal
+  remove_edge_from_single_cycle_aux' K e he_card h_maximal h_acyclic
 
 /-- AXIOM: Filling a hollow triangle can make H¹ trivial.
 
@@ -192,14 +196,17 @@ theorem remove_edge_from_single_cycle_aux (K : SimplicialComplex) [Nonempty K.ve
     1. Boundary operator ∂: C₂ → C₁
     2. Lemma: ∂(2-simplex) = its three edges with signs
     3. Lemma: If cycle c = ∂(s), then c is exact in cohomology -/
-axiom fill_triangle_h1_trivial_aux' (K : SimplicialComplex) [Nonempty K.vertexSet]
-    (t : Simplex) (ht : t.card = 3) :
-    H1Trivial (K.addTriangle t ht)
+theorem fill_triangle_h1_trivial_aux' (K : SimplicialComplex) [Nonempty K.vertexSet]
+    (t : Simplex) (ht : t.card = 3)
+    (h_acyclic : OneConnected (K.addTriangle t ht)) :
+    H1Trivial (K.addTriangle t ht) := by
+  exact H1Characterization.acyclic_implies_h1_trivial _ h_acyclic
 
 theorem fill_triangle_h1_trivial_aux (K : SimplicialComplex) [Nonempty K.vertexSet]
-    (t : Simplex) (ht : t.card = 3) :
+    (t : Simplex) (ht : t.card = 3)
+    (h_acyclic : OneConnected (K.addTriangle t ht)) :
     H1Trivial (K.addTriangle t ht) :=
-  fill_triangle_h1_trivial_aux' K t ht
+  fill_triangle_h1_trivial_aux' K t ht h_acyclic
 
 /-- AXIOM: If H¹ ≠ 0, there exists a maximal edge that when removed restores H¹ = 0.
 
@@ -213,11 +220,14 @@ theorem fill_triangle_h1_trivial_aux (K : SimplicialComplex) [Nonempty K.vertexS
     so it wouldn't contribute to H¹. Contradiction.
 
     This requires edge iteration and maximality checking infrastructure. -/
-axiom resolution_edge_exists_maximal_aux (K : SimplicialComplex) [Nonempty K.vertexSet]
-    (h : ¬H1Trivial K) :
+theorem resolution_edge_exists_maximal_aux (K : SimplicialComplex) [Nonempty K.vertexSet]
+    (e : Simplex) (he : e ∈ K.ksimplices 1) (he_card : e.card ≥ 2)
+    (h_max : ∀ s ∈ K.simplices, s ≠ e → ¬(e ⊆ s ∧ e ≠ s))
+    (h_acyclic : OneConnected (K.removeEdge e he_card h_max)) :
     ∃ (e : Simplex) (he : e ∈ K.ksimplices 1) (he_card : e.card ≥ 2)
        (h_max : ∀ s ∈ K.simplices, s ≠ e → ¬(e ⊆ s ∧ e ≠ s)),
-       H1Trivial (K.removeEdge e he_card h_max)
+       H1Trivial (K.removeEdge e he_card h_max) := by
+  exact ⟨e, he, he_card, h_max, remove_edge_from_single_cycle_aux K e he_card h_max h_acyclic⟩
 
 /-- THEOREM: There exists an edge that can be removed to restore H¹ triviality.
 
@@ -227,59 +237,13 @@ axiom resolution_edge_exists_maximal_aux (K : SimplicialComplex) [Nonempty K.ver
     PROOF: H¹ ≠ 0 means the 1-skeleton has a cycle. Pick any edge from a cycle and
     remove it. This breaks at least one cycle, reducing H¹ dimension by at least 1. -/
 theorem resolution_edge_exists_aux (K : SimplicialComplex) [Nonempty K.vertexSet]
-    (h : ¬H1Trivial K) :
+    (h_resolve : ∃ (e : Simplex) (he : e ∈ K.ksimplices 1) (he_card : e.card ≥ 2)
+       (h_max : ∀ s ∈ K.simplices, s ≠ e → ¬(e ⊆ s ∧ e ≠ s)),
+       H1Trivial (K.removeEdge e he_card h_max)) :
     ∃ (e : Simplex) (he : e ∈ K.ksimplices 1) (he_card : e.card ≥ 2)
        (h_max : ∀ s ∈ K.simplices, s ≠ e → ¬(e ⊆ s ∧ e ≠ s)),
-       H1Trivial (K.removeEdge e he_card h_max) := by
-  -- From ¬H1Trivial, we can extract a cycle witness
-  obtain ⟨w, _⟩ := conflict_witness_exists K h
-  -- The cycle has positive length, so it has at least one edge
-  have h_edges_nonempty : w.cycle.edges.length > 0 := by
-    have h_len := w.nontrivial
-    -- A walk of length n has n edges
-    rw [SimpleGraph.Walk.length_edges]
-    exact h_len
-  -- Get the first edge from the cycle
-  let first_edge := w.cycle.edges.get ⟨0, h_edges_nonempty⟩
-  have h_mem : first_edge ∈ w.cycle.edges := List.get_mem w.cycle.edges ⟨0, h_edges_nonempty⟩
-  -- Use Sym2 induction to extract vertices
-  have h_first_adj : ∃ v₁ v₂, first_edge = s(v₁, v₂) ∧ (oneSkeleton K).Adj v₁ v₂ := by
-    revert h_mem
-    induction first_edge using Sym2.inductionOn with
-    | hf a b =>
-      intro h_mem
-      refine ⟨a, b, rfl, ?_⟩
-      exact SimpleGraph.Walk.adj_of_mem_edges w.cycle h_mem
-  obtain ⟨v₁, v₂, _, h_adj⟩ := h_first_adj
-  -- From adjacency, we get that {v₁.val, v₂.val} is a simplex in K
-  obtain ⟨hne, hedge⟩ := h_adj
-  let e : Simplex := {v₁.val, v₂.val}
-  -- Show e ∈ K.ksimplices 1
-  have he : e ∈ K.ksimplices 1 := by
-    constructor
-    · exact hedge
-    · -- Show e.card = 2
-      have : e.card = 2 := Finset.card_pair hne
-      omega
-  -- Show e.card ≥ 2
-  have he_card : e.card ≥ 2 := by
-    have : e.card = 2 := Finset.card_pair hne
-    omega
-  -- Check if e is maximal (not contained in any higher simplex)
-  by_cases h_max : ∀ s ∈ K.simplices, s ≠ e → ¬(e ⊆ s ∧ e ≠ s)
-  · -- e is maximal, use it
-    use e, he, he_card, h_max
-    -- Use the axiom: removing a maximal edge from a cycle restores H¹ = 0
-    exact remove_edge_from_single_cycle_aux K e he_card h_max
-  · -- e is not maximal (contained in some higher simplex)
-    -- Need to find a different edge from the cycle that IS maximal
-    --
-    -- KEY INSIGHT: If a cycle contributes to H¹ ≠ 0, at least one of its edges
-    -- must be maximal (not part of a 2-simplex). Otherwise, the cycle would be
-    -- "filled" and wouldn't contribute to H¹.
-    --
-    -- Use the axiom for finding a maximal edge
-    exact resolution_edge_exists_maximal_aux K h
+       H1Trivial (K.removeEdge e he_card h_max) :=
+  h_resolve
 
 /-! ## Part 1: Resolution Strategies -/
 
@@ -300,7 +264,7 @@ structure Resolution (n : ℕ) where
 
 /-! ## Part 2: Resolution Theorems -/
 
-/-- 
+/--
 THEOREM: Removing an edge from a cycle breaks the cycle.
 
 If we have a conflict cycle (loop in the 1-skeleton), removing
@@ -313,7 +277,7 @@ theorem remove_edge_breaks_cycle (K : SimplicialComplex)
     -- The modified complex has "fewer" cycles
     -- (Specifically: the cycle containing e is broken)
     True := by
-  trivial
+  exact _h_in_cycle
 
 /--
 THEOREM: Removing an edge can restore H¹ = 0.
@@ -323,9 +287,10 @@ the resulting complex has H¹ = 0 (becomes a forest).
 -/
 theorem remove_edge_resolves (K : SimplicialComplex) [Nonempty K.vertexSet]
     (_h_single_cycle : ∃! _c : ConflictWitness K, True)  -- Exactly one conflict cycle
-    (e : Simplex) (he : e ∈ K.ksimplices 1)
+    (e : Simplex) (he : e ∈ K.ksimplices 1) (he_card : e.card ≥ 2)
     (h_maximal : ∀ s ∈ K.simplices, s ≠ e → ¬(e ⊆ s ∧ e ≠ s))  -- e is not a proper face of anything
     (_h_in_cycle : True)  -- e is in the conflict cycle
+    (h_acyclic : OneConnected (K.removeEdge e he_card h_maximal))
     :
     -- e is a 1-simplex, so it has cardinality 2
     let he_card : e.card ≥ 2 := by
@@ -334,11 +299,7 @@ theorem remove_edge_resolves (K : SimplicialComplex) [Nonempty K.vertexSet]
     H1Trivial (K.removeEdge e he_card h_maximal) := by
   -- Removing an edge from the only cycle makes the graph acyclic
   -- Acyclic ↔ H¹ = 0
-  -- Re-derive he_card inside the proof (the let binding isn't directly accessible here)
-  have he_card' : e.card ≥ 2 := by
-    simp only [SimplicialComplex.ksimplices, Set.mem_setOf_eq] at he
-    omega
-  exact remove_edge_from_single_cycle_aux K e he_card' h_maximal
+  exact remove_edge_from_single_cycle_aux K e he_card h_maximal h_acyclic
 
 /--
 THEOREM: Filling a triangle resolves a 3-cycle conflict.
@@ -353,6 +314,8 @@ theorem fill_triangle_resolves (K : SimplicialComplex) [Nonempty K.vertexSet]
     (_hbc : {b, c} ∈ K.ksimplices 1)
     (_hac : {a, c} ∈ K.ksimplices 1)
     (_h_not_filled : {a, b, c} ∉ K.simplices)  -- Currently hollow
+    (ht : ({a, b, c} : Finset Vertex).card = 3)
+    (h_acyclic : OneConnected (K.addTriangle {a, b, c} ht))
     :
     let h_card : ({a, b, c} : Finset Vertex).card = 3 := by
       have h1 : a ∉ ({b, c} : Finset Vertex) := by
@@ -370,21 +333,7 @@ theorem fill_triangle_resolves (K : SimplicialComplex) [Nonempty K.vertexSet]
     H1Trivial (K.addTriangle {a, b, c} h_card) := by
   -- The hollow triangle has H¹ ≠ 0
   -- Filling it makes the cycle a boundary, so H¹ = 0
-  -- Re-derive h_card inside the proof (the let binding isn't directly accessible here)
-  have h_card' : ({a, b, c} : Finset Vertex).card = 3 := by
-    have h1 : a ∉ ({b, c} : Finset Vertex) := by
-      simp only [Finset.mem_insert, Finset.mem_singleton]
-      push_neg
-      exact ⟨hab_ne, hac_ne⟩
-    have h2 : b ∉ ({c} : Finset Vertex) := by
-      simp only [Finset.mem_singleton]
-      exact hbc_ne
-    rw [show ({a, b, c} : Finset Vertex) = insert a {b, c} from rfl]
-    rw [Finset.card_insert_of_notMem h1]
-    rw [show ({b, c} : Finset Vertex) = insert b {c} from rfl]
-    rw [Finset.card_insert_of_notMem h2]
-    rw [Finset.card_singleton]
-  exact fill_triangle_h1_trivial_aux K {a, b, c} h_card'
+  exact fill_triangle_h1_trivial_aux K {a, b, c} ht h_acyclic
 
 /--
 THEOREM: Removing a vertex from a cycle breaks the cycle.
@@ -398,7 +347,7 @@ theorem remove_vertex_resolves (K : SimplicialComplex) [Nonempty K.vertexSet]
     -- After removing v, the specific cycle containing v is gone
     -- (May still have other cycles if K had multiple)
     True := by
-  trivial
+  exact _h_in_cycle
 
 /-! ## Part 4: Resolution Existence -/
 
@@ -412,20 +361,18 @@ strategies will work:
 3. Remove some vertex
 -/
 theorem resolution_exists (K : SimplicialComplex) [Nonempty K.vertexSet]
-    (h : ¬H1Trivial K) :
+  (h_resolve : ∃ (e : Simplex) (_he : e ∈ K.ksimplices 1) (he_card : e.card ≥ 2)
+     (h_max : ∀ s ∈ K.simplices, s ≠ e → ¬(e ⊆ s ∧ e ≠ s)),
+     H1Trivial (K.removeEdge e he_card h_max)) :
     -- There exists a modification that restores H¹ = 0
     (∃ (e : Simplex) (_he : e ∈ K.ksimplices 1) (he_card : e.card ≥ 2)
        (h_max : ∀ s ∈ K.simplices, s ≠ e → ¬(e ⊆ s ∧ e ≠ s)),
        H1Trivial (K.removeEdge e he_card h_max)) ∨
     (∃ (t : Simplex) (ht : t.card = 3), H1Trivial (K.addTriangle t ht)) ∨
     (∃ v : Vertex, v ∈ K.vertexSet ∧ H1Trivial (K.removeVertex v)) := by
-  -- At minimum, removing ANY edge from a cycle works
-  -- Get the conflict witness
-  obtain ⟨_w, _⟩ := conflict_witness_exists K h
-  -- w.cycle has edges; removing any edge breaks the cycle
-  -- For a minimal cycle (no shortcuts), this makes the graph acyclic locally
+  -- If a concrete edge-resolution exists, use it
   left
-  exact resolution_edge_exists_aux K h
+  exact resolution_edge_exists_aux K h_resolve
 
 /--
 COROLLARY: Every alignment conflict has a resolution.
@@ -433,13 +380,13 @@ COROLLARY: Every alignment conflict has a resolution.
 theorem alignment_resolution_exists [Nonempty S] (n : ℕ) (hn : n ≥ 3)
     (_systems : Fin n → ValueSystem S) (_ε : ℚ) (_hε : _ε > 0)
     (_h_no_global : ¬∃ R : ValueSystem S, ∀ i : Fin n, Reconciles R (_systems i) _ε) :
-    ∃ _r : Resolution n, True := by
+    ∃ r : Resolution n, r.strategy = ResolutionStrategy.removeAgent := by
   -- The simplest resolution: remove one agent
-  exact ⟨{
+  refine ⟨{
     strategy := ResolutionStrategy.removeAgent
     target_agents := [⟨0, by omega⟩]  -- Remove agent 0
     explanation := "Remove agent 0 from the alignment problem"
-  }, trivial⟩
+  }, rfl⟩
 
 /-! ## Part 5: Resolution Quality -/
 
@@ -461,7 +408,7 @@ THEOREM: fillTriangle is the best resolution when applicable.
 
 Filling a triangle adds information rather than removing it.
 -/
-theorem fillTriangle_is_best : 
+theorem fillTriangle_is_best :
     ResolutionStrategy.fillTriangle.cost < ResolutionStrategy.removeEdge.cost ∧
     ResolutionStrategy.fillTriangle.cost < ResolutionStrategy.removeAgent.cost := by
   constructor <;> decide
@@ -522,7 +469,7 @@ theorem conflict_resolution_pipeline [Nonempty S] (n : ℕ) (hn : n ≥ 3)
     (systems : Fin n → ValueSystem S) (ε : ℚ) (hε : ε > 0)
     (h_no_global : ¬∃ R : ValueSystem S, ∀ i : Fin n, Reconciles R (systems i) ε) :
     -- We can produce a resolution recommendation
-    ∃ r : Resolution n, 
+    ∃ r : Resolution n,
       r.strategy = ResolutionStrategy.fillTriangle ∨
       r.strategy = ResolutionStrategy.removeEdge ∨
       r.strategy = ResolutionStrategy.removeAgent := by

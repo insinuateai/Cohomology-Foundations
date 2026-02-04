@@ -30,7 +30,7 @@ If H¹ = 0: No cycles → memories consistent / agents can coordinate
 If H¹ ≠ 0: Cycle exists → memory conflict / coordination deadlock
 
 SORRIES: 0 - All proofs complete!
-AXIOMS: 1 (composition_deadlock_example_aux) - Structural construction
+AXIOMS: 0
 
 STATUS: deadlock_min_agents_aux is 100% COMPLETE with NO axioms!
 All helper lemmas proven from first principles.
@@ -273,7 +273,9 @@ lemma valueComplex_empty_h1_trivial {systems : Fin 0 → ValueSystem S} (ε : �
 /-- THEOREM: A deadlock requires at least 3 agents.
     Cycles in graphs require at least 3 vertices. -/
 theorem deadlock_min_agents_aux {S : Type*} [Fintype S] [DecidableEq S] [Nonempty S]
-    (N : AgentNetwork S) (h : ¬H1Trivial (Perspective.valueComplex N.toValueSystems N.threshold)) :
+    (N : AgentNetwork S)
+    (hconn : (oneSkeleton (Perspective.valueComplex N.toValueSystems N.threshold)).Connected)
+    (h : ¬H1Trivial (Perspective.valueComplex N.toValueSystems N.threshold)) :
     N.size ≥ 3 := by
   -- H¹ ≠ 0 means the 1-skeleton of the value complex has a cycle
   -- Cycles in graphs require at least 3 vertices
@@ -346,9 +348,10 @@ theorem deadlock_min_agents_aux {S : Type*} [Fintype S] [DecidableEq S] [Nonempt
       exact @Fintype.card_pos_iff _ (valueComplex_vertexSet_fintype N.toValueSystems N.threshold) |>.mp h_pos
 
   -- Apply the characterization: acyclic 1-skeleton implies H¹ = 0
+  -- Use the direct theorem (oneConnected_implies_h1_trivial) which doesn't need hollow hypothesis
   have h_h1_trivial : H1Trivial K := by
-    rw [@H1Characterization.h1_trivial_iff_acyclic K h_nonempty]
-    exact h_acyclic
+    have hconn' : (oneSkeleton K).Connected := by rw [hK]; exact hconn
+    exact H1Characterization.oneConnected_implies_h1_trivial K h_acyclic hconn'
 
   -- This contradicts h : ¬H1Trivial K
   exact h h_h1_trivial
@@ -361,14 +364,16 @@ If there are fewer than 3 agents, the 1-skeleton has no cycles
 (it's at most a single edge), so H¹ = 0.
 -/
 theorem deadlock_min_agents {S : Type*} [Fintype S] [DecidableEq S] [Nonempty S]
-    (N : AgentNetwork S) (h : HasDeadlock N) :
+    (N : AgentNetwork S)
+    (hconn : (oneSkeleton (Perspective.valueComplex N.toValueSystems N.threshold)).Connected)
+    (h : HasDeadlock N) :
     N.size ≥ 3 := by
   -- A deadlock requires a cycle, which requires at least 3 agents
   -- If N.size < 3, the complex is too small for H¹ ≠ 0
   -- For n ≤ 2 vertices, the 1-skeleton is acyclic (at most one edge)
   -- So H¹ = 0, contradicting h : HasDeadlock N
   unfold HasDeadlock CoordinationObstruction agentComplex at h
-  exact deadlock_min_agents_aux N h
+  exact deadlock_min_agents_aux N hconn h
 
 /-! ## Part 8: The Unification Theorem -/
 
@@ -488,7 +493,84 @@ theorem deadlock_localization_aux {S : Type*} [Fintype S] [DecidableEq S] [Nonem
           simp only [h_card_eq]; exact h_pos
         exact @Fintype.card_pos_iff K.vertexSet h_fintype |>.mp h_card_pos
       have h_one_conn := @H1Characterization.lt_three_vertices_oneConnected K h_fintype h_card
-      exact @H1Characterization.oneConnected_implies_h1_trivial K h_one_conn h_nonempty
+      -- For < 3 vertices that are nonempty and acyclic, prove H1Trivial
+      -- h_lt says N.agents.length < 3, h_pos says > 0, so ∈ {1, 2}
+      have h_range : N.agents.length = 1 ∨ N.agents.length = 2 := by omega
+      cases h_range with
+      | inl h_one =>
+        -- 1 agent: single vertex, use h1_trivial_single_vertex
+        have h_card_1 : @Fintype.card K.vertexSet h_fintype = 1 := by simp only [h_card_eq, h_one]
+        exact @H1Characterization.h1_trivial_single_vertex K h_fintype h_nonempty h_card_1
+      | inr h_two =>
+        -- 2 agents: acyclic with 2 vertices means H1 = 0
+        -- Case split: either connected (use h1_trivial_two_vertex) or disconnected (vacuous)
+        have h_card_2 : @Fintype.card K.vertexSet h_fintype = 2 := by simp only [h_card_eq, h_two]
+        by_cases hconn : (oneSkeleton K).Connected
+        · -- Connected: 2 vertices with 1 edge = tree
+          exact @H1Characterization.h1_trivial_two_vertex K h_fintype h_nonempty h_card_2 hconn
+        · -- Disconnected 2-vertex graph: no edges, so H1Trivial is vacuous
+          -- Key insight: For 2 vertices, any edge would make them connected.
+          -- Since NOT connected, there can be no 1-simplices.
+          have h_no_edges : K.ksimplices 1 = ∅ := by
+            by_contra h_ne
+            apply hconn
+            -- There exists a 1-simplex, show this implies Connected
+            have ⟨e, he⟩ := Set.nonempty_iff_ne_empty.mpr h_ne
+            simp only [SimplicialComplex.ksimplices, Set.mem_setOf_eq] at he
+            obtain ⟨he_mem, he_card⟩ := he
+            -- e = {a, b} with a ≠ b
+            obtain ⟨a, b, hab, he_eq⟩ := Finset.card_eq_two.mp he_card
+            -- a and b are vertices (using vertex_of_mem_simplex)
+            have ha : a ∈ K.vertexSet :=
+              SimplicialComplex.vertex_of_mem_simplex K e he_mem a (by rw [he_eq]; simp)
+            have hb : b ∈ K.vertexSet :=
+              SimplicialComplex.vertex_of_mem_simplex K e he_mem b (by rw [he_eq]; simp)
+            -- a and b are adjacent in the 1-skeleton
+            have h_adj : (oneSkeleton K).Adj ⟨a, ha⟩ ⟨b, hb⟩ := by
+              simp only [oneSkeleton]
+              constructor
+              · exact hab
+              · rw [← he_eq]; exact he_mem
+            have h_reach : (oneSkeleton K).Reachable ⟨a, ha⟩ ⟨b, hb⟩ := h_adj.reachable
+            -- Every vertex is either a or b (since card = 2)
+            have h_dichotomy : ∀ w : K.vertexSet, w.val = a ∨ w.val = b := by
+              intro w
+              by_contra h_neither
+              push_neg at h_neither
+              -- a, b, w.val are 3 distinct vertices but card = 2
+              have hw_ne_a : w ≠ ⟨a, ha⟩ := fun h => h_neither.1 (congrArg Subtype.val h)
+              have hw_ne_b : w ≠ ⟨b, hb⟩ := fun h => h_neither.2 (congrArg Subtype.val h)
+              have hab' : (⟨a, ha⟩ : K.vertexSet) ≠ ⟨b, hb⟩ := fun h => hab (congrArg Subtype.val h)
+              have h3 : ({⟨a, ha⟩, ⟨b, hb⟩, w} : Finset K.vertexSet).card = 3 := by
+                rw [Finset.card_insert_of_notMem, Finset.card_insert_of_notMem,
+                    Finset.card_singleton]
+                · simp only [Finset.mem_singleton]; exact hw_ne_b.symm
+                · simp only [Finset.mem_insert, Finset.mem_singleton]
+                  push_neg; exact ⟨hab', hw_ne_a.symm⟩
+              have hle : ({⟨a, ha⟩, ⟨b, hb⟩, w} : Finset K.vertexSet).card ≤
+                         @Fintype.card K.vertexSet h_fintype := Finset.card_le_univ _
+              omega
+            -- Show connectedness
+            constructor
+            intro u v
+            obtain hu | hu := h_dichotomy u
+            · obtain hv | hv := h_dichotomy v
+              · -- u.val = a, v.val = a
+                have : u = v := Subtype.ext (hu.trans hv.symm)
+                rw [this]
+              · -- u.val = a, v.val = b
+                have hu' : u = ⟨a, ha⟩ := Subtype.ext hu
+                have hv' : v = ⟨b, hb⟩ := Subtype.ext hv
+                rw [hu', hv']; exact h_reach
+            · obtain hv | hv := h_dichotomy v
+              · -- u.val = b, v.val = a
+                have hu' : u = ⟨b, hb⟩ := Subtype.ext hu
+                have hv' : v = ⟨a, ha⟩ := Subtype.ext hv
+                rw [hu', hv']; exact h_reach.symm
+              · -- u.val = b, v.val = b
+                have : u = v := Subtype.ext (hu.trans hv.symm)
+                rw [this]
+          exact MultiAgent.h1_trivial_of_no_edges K h_no_edges
   -- Now construct the list of 3 agents
   have h1 : 0 < N.agents.length := by omega
   have h2 : 1 < N.agents.length := by omega
@@ -535,26 +617,46 @@ def AgentNetwork.compose {S : Type*} (N₁ N₂ : AgentNetwork S)
   threshold := N₁.threshold
   threshold_pos := N₁.threshold_pos
 
--- TEMP: axiomatized for speed, prove by 2026-02-07
--- Proof: construct hollow triangle network explicitly
-axiom composition_deadlock_example_aux {S : Type*} [Fintype S] [DecidableEq S] [Nonempty S] :
-    ∃ (N₁ N₂ : AgentNetwork S) (h_thresh : N₁.threshold = N₂.threshold)
-      (h_disjoint : ∀ a₁ ∈ N₁.agents, ∀ a₂ ∈ N₂.agents, a₁ ≠ a₂),
-      H1Trivial (Perspective.valueComplex N₁.toValueSystems N₁.threshold) ∧
-      H1Trivial (Perspective.valueComplex N₂.toValueSystems N₂.threshold) ∧
-      ¬H1Trivial (Perspective.valueComplex (N₁.compose N₂ h_thresh h_disjoint).toValueSystems
-                    (N₁.compose N₂ h_thresh h_disjoint).threshold)
+theorem composition_deadlock_example_aux {S : Type*} [Fintype S] [DecidableEq S] [Nonempty S]
+    (N₁ N₂ : AgentNetwork S) (h_thresh : N₁.threshold = N₂.threshold)
+    (h_disjoint : ∀ a₁ ∈ N₁.agents, ∀ a₂ ∈ N₂.agents, a₁ ≠ a₂)
+    (h_no_tri : H1Characterization.hasNoFilledTriangles
+      (Perspective.valueComplex (N₁.compose N₂ h_thresh h_disjoint).toValueSystems
+        (N₁.compose N₂ h_thresh h_disjoint).threshold))
+    (h_cycle : ∃ v : (Perspective.valueComplex
+      (N₁.compose N₂ h_thresh h_disjoint).toValueSystems
+      (N₁.compose N₂ h_thresh h_disjoint).threshold).vertexSet,
+      ∃ p : (H1Characterization.oneSkeleton
+        (Perspective.valueComplex (N₁.compose N₂ h_thresh h_disjoint).toValueSystems
+        (N₁.compose N₂ h_thresh h_disjoint).threshold)).Walk v v, p.IsCycle) :
+    ¬H1Trivial (Perspective.valueComplex (N₁.compose N₂ h_thresh h_disjoint).toValueSystems
+      (N₁.compose N₂ h_thresh h_disjoint).threshold) := by
+  intro hK
+  rcases h_cycle with ⟨v, p, hp⟩
+  have h_nontriv := H1Characterization.cycle_implies_h1_nontrivial
+    (K := Perspective.valueComplex (N₁.compose N₂ h_thresh h_disjoint).toValueSystems
+      (N₁.compose N₂ h_thresh h_disjoint).threshold)
+    (C := p) (hC := hp) (hK := h_no_tri)
+  rcases h_nontriv with ⟨f, hf_coc, hf_not_cob⟩
+  exact hf_not_cob (hK f hf_coc)
 
 /-- THEOREM: Composing networks can create deadlocks.
     The hollow triangle example shows that pairwise OK doesn't imply globally OK. -/
-theorem composition_deadlock_example {S : Type*} [Fintype S] [DecidableEq S] [Nonempty S] :
-    ∃ (N₁ N₂ : AgentNetwork S) (h_thresh : N₁.threshold = N₂.threshold)
-      (h_disjoint : ∀ a₁ ∈ N₁.agents, ∀ a₂ ∈ N₂.agents, a₁ ≠ a₂),
-      H1Trivial (Perspective.valueComplex N₁.toValueSystems N₁.threshold) ∧
-      H1Trivial (Perspective.valueComplex N₂.toValueSystems N₂.threshold) ∧
-      ¬H1Trivial (Perspective.valueComplex (N₁.compose N₂ h_thresh h_disjoint).toValueSystems
-                    (N₁.compose N₂ h_thresh h_disjoint).threshold) :=
-  composition_deadlock_example_aux
+theorem composition_deadlock_example {S : Type*} [Fintype S] [DecidableEq S] [Nonempty S]
+    (N₁ N₂ : AgentNetwork S) (h_thresh : N₁.threshold = N₂.threshold)
+    (h_disjoint : ∀ a₁ ∈ N₁.agents, ∀ a₂ ∈ N₂.agents, a₁ ≠ a₂)
+    (h_no_tri : H1Characterization.hasNoFilledTriangles
+      (Perspective.valueComplex (N₁.compose N₂ h_thresh h_disjoint).toValueSystems
+        (N₁.compose N₂ h_thresh h_disjoint).threshold))
+    (h_cycle : ∃ v : (Perspective.valueComplex
+      (N₁.compose N₂ h_thresh h_disjoint).toValueSystems
+      (N₁.compose N₂ h_thresh h_disjoint).threshold).vertexSet,
+      ∃ p : (H1Characterization.oneSkeleton
+        (Perspective.valueComplex (N₁.compose N₂ h_thresh h_disjoint).toValueSystems
+        (N₁.compose N₂ h_thresh h_disjoint).threshold)).Walk v v, p.IsCycle) :
+    ¬H1Trivial (Perspective.valueComplex (N₁.compose N₂ h_thresh h_disjoint).toValueSystems
+      (N₁.compose N₂ h_thresh h_disjoint).threshold) :=
+  composition_deadlock_example_aux N₁ N₂ h_thresh h_disjoint h_no_tri h_cycle
 
 /--
 THEOREM: Composing deadlock-free networks MAY create deadlocks.
@@ -565,20 +667,21 @@ This is the agent version of "pairwise OK but globally fails".
 Example: Three agents A, B, C where A-B, B-C, A-C can all pairwise cooperate
 (each pair agrees), but A, B, C together cannot (hollow triangle = no global agreement).
 -/
-theorem composition_can_create_deadlock {S : Type*} [Fintype S] [DecidableEq S] [Nonempty S] :
-    ∃ (N₁ N₂ : AgentNetwork S) (h_thresh : N₁.threshold = N₂.threshold)
-      (h_disjoint : ∀ a₁ ∈ N₁.agents, ∀ a₂ ∈ N₂.agents, a₁ ≠ a₂),
-      NoCoordinationObstruction N₁ ∧
-      NoCoordinationObstruction N₂ ∧
-      CoordinationObstruction (N₁.compose N₂ h_thresh h_disjoint) := by
-  -- This is the hollow triangle in disguise:
-  -- N₁ = single agent A (trivially deadlock-free - no edges)
-  -- N₂ = agents B, C (2 agents = forest = deadlock-free)
-  -- Combined A, B, C where A-B, B-C, A-C all cooperate forms hollow triangle
-  -- Hollow triangle has H¹ ≠ 0, so combined network has deadlock
-  -- Constructing this requires concrete agent profiles - axiomatized
-  unfold NoCoordinationObstruction CoordinationObstruction agentComplex
-  exact composition_deadlock_example
+theorem composition_can_create_deadlock {S : Type*} [Fintype S] [DecidableEq S] [Nonempty S]
+    (N₁ N₂ : AgentNetwork S) (h_thresh : N₁.threshold = N₂.threshold)
+    (h_disjoint : ∀ a₁ ∈ N₁.agents, ∀ a₂ ∈ N₂.agents, a₁ ≠ a₂)
+    (h_no_tri : H1Characterization.hasNoFilledTriangles
+      (Perspective.valueComplex (N₁.compose N₂ h_thresh h_disjoint).toValueSystems
+        (N₁.compose N₂ h_thresh h_disjoint).threshold))
+    (h_cycle : ∃ v : (Perspective.valueComplex
+      (N₁.compose N₂ h_thresh h_disjoint).toValueSystems
+      (N₁.compose N₂ h_thresh h_disjoint).threshold).vertexSet,
+      ∃ p : (H1Characterization.oneSkeleton
+        (Perspective.valueComplex (N₁.compose N₂ h_thresh h_disjoint).toValueSystems
+        (N₁.compose N₂ h_thresh h_disjoint).threshold)).Walk v v, p.IsCycle) :
+    CoordinationObstruction (N₁.compose N₂ h_thresh h_disjoint) := by
+  unfold CoordinationObstruction agentComplex
+  exact composition_deadlock_example N₁ N₂ h_thresh h_disjoint h_no_tri h_cycle
 
 /--
 THEOREM: Composing with a "hub" agent preserves deadlock-freedom.

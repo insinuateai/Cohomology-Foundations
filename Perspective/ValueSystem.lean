@@ -24,6 +24,11 @@ def Agree (V₁ V₂ : ValueSystem S) (ε : ℚ) : Prop :=
 def AgreementSet (V₁ V₂ : ValueSystem S) (ε : ℚ) : Finset S :=
   Finset.univ.filter (fun s => decide (LocallyAgree V₁ V₂ s ε))
 
+/-- Global alignment: all pairs agree within tolerance on all situations. -/
+def ValueAligned {n : ℕ} (systems : Fin n → ValueSystem S) (ε : ℚ) : Prop :=
+  ∀ i j : Fin n, ∀ s : S,
+    |(systems i).values s - (systems j).values s| ≤ 2 * ε
+
 lemma locallyAgree_symm (V₁ V₂ : ValueSystem S) (s : S) (ε : ℚ) :
     LocallyAgree V₁ V₂ s ε ↔ LocallyAgree V₂ V₁ s ε := by
   unfold LocallyAgree

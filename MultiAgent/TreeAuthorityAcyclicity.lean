@@ -35,17 +35,75 @@ import Mathlib.Data.List.Basic
 import Mathlib.Logic.Function.Iterate
 import Mathlib.Data.Nat.Basic
 import Mathlib.Tactic
+import Mathlib.Combinatorics.SimpleGraph.Basic
+import Mathlib.Combinatorics.SimpleGraph.Connectivity.WalkCounting
+import Mathlib.Combinatorics.SimpleGraph.Paths
+import Infrastructure.TreeAuthCoreProofs
 
 namespace TreeAuthorityAcyclicity
 
--- TEMP: axiomatized for speed, prove by 2026-02-07
--- Proof: induction on path structure matching pathToRoot construction
-axiom path_to_root_unique_aux {n : ℕ} (T : TreeAuth n) (i : Fin n) (p : List (Fin n)) :
+-- Proof: induction on path structure matching pathToRoot (root appears only at end).
+theorem path_to_root_unique_aux {n : ℕ} (T : TreeAuth n) (i : Fin n) (p : List (Fin n)) :
     p.head? = some i →
     p.getLast? = some T.root →
     (∀ j k, j + 1 < p.length → p.get? j = some k →
       T.parent k = p.get? (j + 1) ∨ k = T.root) →
-    p = T.pathToRoot i
+    (∀ j, j + 1 < p.length → p.get? j = some T.root → False) →
+    p = T.pathToRoot i := by
+  intro h_head h_last h_chain h_root_only_last
+  induction p generalizing i with
+  | nil => cases h_head
+  | cons x xs ih =>
+    have hx : x = i := by simpa using h_head
+    subst hx
+    cases xs with
+    | nil =>
+      -- p = [i], so i = root from last
+      have hi_root : i = T.root := by
+        simpa using h_last
+      subst hi_root
+      have hn : 0 < n := Fin.pos i
+      simp [pathToRoot, pathToRoot_root T n hn]
+    | cons y ys =>
+      -- i is not root if there is a successor
+      have hlen : 0 + 1 < (i :: y :: ys).length := by simp
+      have hi_ne_root : i ≠ T.root := by
+        intro hroot
+        have : (i :: y :: ys).get? 0 = some T.root := by simpa [hroot]
+        exact h_root_only_last 0 hlen this
+      have hchain0 := h_chain 0 i hlen (by simp)
+      have hparent : T.parent i = some y := by
+        rcases hchain0 with hparent | hroot
+        · simpa using hparent
+        · exact (hi_ne_root hroot).elim
+      -- Tail satisfies the same conditions
+      have h_head_tail : (y :: ys).head? = some y := by simp
+      have h_last_tail : (y :: ys).getLast? = some T.root := by
+        simpa using h_last
+      have h_chain_tail : ∀ j k, j + 1 < (y :: ys).length → (y :: ys).get? j = some k →
+          T.parent k = (y :: ys).get? (j + 1) ∨ k = T.root := by
+        intro j k hj hk
+        have hj' : j + 1 + 1 < (i :: y :: ys).length := by
+          simp at hj ⊢
+          omega
+        have hk' : (i :: y :: ys).get? (j + 1) = some k := by
+          simpa using hk
+        have h := h_chain (j + 1) k hj' hk'
+        simpa using h
+      have h_root_only_last_tail : ∀ j, j + 1 < (y :: ys).length → (y :: ys).get? j = some T.root → False := by
+        intro j hj hroot
+        have hj' : j + 1 + 1 < (i :: y :: ys).length := by
+          simp at hj ⊢
+          omega
+        have hroot' : (i :: y :: ys).get? (j + 1) = some T.root := by
+          simpa using hroot
+        exact h_root_only_last (j + 1) hj' hroot'
+      have hxs : (y :: ys) = T.pathToRoot y :=
+        ih y h_head_tail h_last_tail h_chain_tail h_root_only_last_tail
+      -- Assemble using pathToRoot_parent_cons
+      have hpath : T.pathToRoot i = i :: T.pathToRoot y :=
+        pathToRoot_parent_cons T i y hparent
+      simpa [hxs, hpath]
 
 /-! ## Section 1: Tree Authority Structure -/
 
@@ -91,6 +149,17 @@ theorem adjacent_ne (T : TreeAuth n) (i j : Fin n) (h : T.adjacent i j) : i ≠ 
   cases h with
   | inl h => exact T.parent_ne_self i h
   | inr h => exact T.parent_ne_self i h
+
+/-! ## SimpleGraph construction -/
+
+/-- The tree as an undirected graph -/
+def toSimpleGraph (T : TreeAuth n) : SimpleGraph (Fin n) where
+  Adj := T.adjacent
+  symm := fun _ _ h => (T.adjacent_symm _ _).mp h
+  loopless := fun i h => T.adjacent_ne i i h rfl
+
+theorem toSimpleGraph_adj (T : TreeAuth n) {i j : Fin n} :
+    T.toSimpleGraph.Adj i j ↔ T.adjacent i j := Iff.rfl
 
 /-! ## Section 2: Depth Function -/
 
@@ -415,6 +484,71 @@ theorem pathToRoot_root (T : TreeAuth n) (fuel : ℕ) (hfuel : fuel > 0) :
   | zero => omega
   | succ f => simp only [pathToRootAux, T.root_no_parent]
 
+/-! ## Path to root stabilization -/
+
+theorem pathToRootAux_stabilizes (T : TreeAuth n) (i : Fin n) (fuel1 fuel2 : ℕ)
+    (h1 : fuel1 ≥ T.stepsToRoot i) (h2 : fuel2 ≥ T.stepsToRoot i) :
+    T.pathToRootAux i fuel1 = T.pathToRootAux i fuel2 := by
+  induction fuel1 generalizing i fuel2 with
+  | zero =>
+    have hs : T.stepsToRoot i = 0 := Nat.eq_zero_of_le_zero h1
+    have hi_root : i = T.root := by
+      have := T.stepsToRoot_spec i
+      rw [hs, Function.iterate_zero, id_eq] at this
+      exact this
+    cases fuel2 with
+    | zero => rfl
+    | succ f2 => simp only [pathToRootAux, hi_root, T.root_no_parent]
+  | succ f1 ih =>
+    cases hs : T.stepsToRoot i with
+    | zero =>
+      have hi_root : i = T.root := by
+        have := T.stepsToRoot_spec i
+        rw [hs, Function.iterate_zero, id_eq] at this
+        exact this
+      cases fuel2 with
+      | zero => simp only [pathToRootAux, hi_root, T.root_no_parent]
+      | succ f2 => simp only [pathToRootAux, hi_root, T.root_no_parent]
+    | succ s =>
+      have hi_ne_root : i ≠ T.root := by
+        intro heq
+        rw [heq, stepsToRoot_root T] at hs
+        cases hs
+      have hpar := T.nonroot_has_parent i hi_ne_root
+      rw [Option.isSome_iff_exists] at hpar
+      obtain ⟨p, hp⟩ := hpar
+      have hsteps_p : T.stepsToRoot p = s := by
+        have := stepsToRoot_parent T i p hp
+        omega
+      cases fuel2 with
+      | zero => omega
+      | succ f2 =>
+        simp only [pathToRootAux, hp]
+        congr 1
+        exact ih p f2 (by omega) (by omega)
+
+/-! ## Path to root parent-cons lemma -/
+
+theorem pathToRoot_parent_cons (T : TreeAuth n) (u p : Fin n) (hp : T.parent u = some p) :
+    T.pathToRoot u = u :: T.pathToRoot p := by
+  have hn : 0 < n := Fin.pos u
+  simp only [pathToRoot]
+  -- Unfold pathToRootAux u n
+  have hunfold : T.pathToRootAux u n = u :: T.pathToRootAux (T.parent u).getD T.root (n - 1) := by
+    match n with
+    | 0 => omega
+    | m + 1 =>
+      simp only [pathToRootAux, hp, Nat.add_sub_cancel]
+  rw [hunfold]
+  -- replace parentOrRoot with p
+  simp only [hp, Option.getD_some]
+  -- stabilize tail fuel
+  have hsteps_p : T.stepsToRoot p < n := stepsToRoot_lt_n T p hn
+  have hle1 : n - 1 ≥ T.stepsToRoot p := by omega
+  have hle2 : n ≥ T.stepsToRoot p := by omega
+  have hstab := pathToRootAux_stabilizes T p (n - 1) n hle1 hle2
+  simp [hstab]
+
 /-! ## Section 4: Unique Paths in Trees -/
 
 /-- Key lemma: In a tree, the path from any vertex to root is unique.
@@ -425,8 +559,8 @@ theorem path_to_root_unique (T : TreeAuth n) (i : Fin n) :
       p.getLast? = some T.root →
       (∀ j k, j + 1 < p.length → p.get? j = some k →
         T.parent k = p.get? (j + 1) ∨ k = T.root) →
+      (∀ j, j + 1 < p.length → p.get? j = some T.root → False) →
       p = T.pathToRoot i :=
-  -- TEMP: axiomatized for speed, prove by 2026-02-07
   path_to_root_unique_aux T i p
 
 /-! ## Section 5: Walk Structure -/
@@ -440,18 +574,131 @@ structure Walk (T : TreeAuth n) (start finish : Fin n) where
   adjacent_consecutive : ∀ i, i + 1 < vertices.length →
     ∃ a b, vertices.get? i = some a ∧ vertices.get? (i + 1) = some b ∧ T.adjacent a b
 
-/-- A cycle is a walk from v to v with length ≥ 3 and no repeated edges -/
+/-! ## SimpleGraph walk from a vertex list -/
+
+/-- Build a Walk from a list of vertices with adjacency -/
+def walkOfCyclePath (T : TreeAuth n) (path : List (Fin n)) (hne : path ≠ [])
+    (hadj : ∀ j, (hj : j + 1 < path.length) →
+      T.toSimpleGraph.Adj (path.get ⟨j, Nat.lt_of_succ_lt hj⟩) (path.get ⟨j + 1, hj⟩)) :
+    T.toSimpleGraph.Walk (path.head hne) (path.getLast hne) :=
+  match path, hne with
+  | [_], _ => .nil
+  | a :: b :: rest, _ =>
+    let h1 : 0 + 1 < (a :: b :: rest).length := by simp
+    have hadj0 : T.toSimpleGraph.Adj a b := hadj 0 h1
+    have hne' : (b :: rest) ≠ [] := List.cons_ne_nil _ _
+    have hadj' : ∀ j, (hj : j + 1 < (b :: rest).length) →
+        T.toSimpleGraph.Adj ((b :: rest).get ⟨j, Nat.lt_of_succ_lt hj⟩)
+          ((b :: rest).get ⟨j + 1, hj⟩) := by
+      intro j hj
+      have h2 : (j + 1) + 1 < (a :: b :: rest).length := by simp at hj ⊢; omega
+      exact hadj (j + 1) h2
+    .cons hadj0 (walkOfCyclePath T (b :: rest) hne' hadj')
+termination_by path.length
+
+/-- The support of walkOfCyclePath matches the input path -/
+theorem walkOfCyclePath_support (T : TreeAuth n) (path : List (Fin n)) (hne : path ≠ [])
+    (hadj : ∀ j, (hj : j + 1 < path.length) →
+      T.toSimpleGraph.Adj (path.get ⟨j, Nat.lt_of_succ_lt hj⟩) (path.get ⟨j + 1, hj⟩)) :
+    (walkOfCyclePath T path hne hadj).support = path := by
+  match path, hne with
+  | [x], _ => simp [walkOfCyclePath, SimpleGraph.Walk.support_nil]
+  | a :: b :: rest, _ =>
+    simp only [walkOfCyclePath, SimpleGraph.Walk.support_cons]
+    have hne' : (b :: rest) ≠ [] := List.cons_ne_nil _ _
+    have hadj' : ∀ j, (hj : j + 1 < (b :: rest).length) →
+        T.toSimpleGraph.Adj ((b :: rest).get ⟨j, Nat.lt_of_succ_lt hj⟩)
+          ((b :: rest).get ⟨j + 1, hj⟩) := by
+      intro j hj
+      have h2 : (j + 1) + 1 < (a :: b :: rest).length := by simp at hj ⊢; omega
+      exact hadj (j + 1) h2
+    have ih := walkOfCyclePath_support T (b :: rest) hne' hadj'
+    exact congrArg (a :: ·) ih
+termination_by path.length
+
+/-- A cycle is a walk from v to v with length ≥ 3, no repeated edges, and no repeated
+    vertices in the tail (SimpleGraph.IsCycle condition). -/
 structure Cycle (T : TreeAuth n) (v : Fin n) extends Walk T v v where
   length_ge_3 : vertices.length ≥ 3
-  -- No edge traversed twice (in either direction)
-  edges_nodup : ∀ i j, i < j → i + 1 < vertices.length → j + 1 < vertices.length →
-    ∀ a b c d, vertices.get? i = some a → vertices.get? (i + 1) = some b →
-      vertices.get? j = some c → vertices.get? (j + 1) = some d →
-      ¬({a, b} = {c, d} : Prop)
+  tail_nodup : vertices.tail.Nodup
+  valid : ∀ j, (hj : j + 1 < vertices.length) →
+    T.toSimpleGraph.Adj (vertices.get ⟨j, Nat.lt_of_succ_lt hj⟩)
+      (vertices.get ⟨j + 1, hj⟩)
+  edges_nodup : (walkOfCyclePath T vertices (List.ne_nil_of_length_pos nonempty) valid).edges.Nodup
 
--- TEMP: axiomatized for speed, prove by 2026-02-07
--- Proof: cycle needs each edge twice (up and down), but edges_nodup prevents this
-axiom no_cycle_bookkeeping (T : TreeAuth n) (v : Fin n) (c : Cycle T v) : False
+/-! ## T04: no_cycle_bookkeeping (proven) -/
+
+private def cycleWalk (T : TreeAuth n) {v : Fin n} (c : Cycle T v) :
+    T.toSimpleGraph.Walk v v := by
+  let hne : c.vertices ≠ [] := List.ne_nil_of_length_pos c.nonempty
+  let w := walkOfCyclePath T c.vertices hne c.valid
+  have hstart : c.vertices.head hne = v := by
+    have h := c.start_eq
+    rw [List.head?_eq_some_head hne] at h
+    exact Option.some_injective _ h
+  have hend : c.vertices.getLast hne = v := by
+    have h := c.finish_eq
+    rw [List.getLast?_eq_some_getLast hne] at h
+    exact Option.some_injective _ h
+  exact w.copy hstart hend
+
+private lemma cycle_isCycle (T : TreeAuth n) {v : Fin n} (c : Cycle T v) :
+    (cycleWalk T c).IsCycle := by
+  -- Build the base walk from the path
+  let hne : c.vertices ≠ [] := List.ne_nil_of_length_pos c.nonempty
+  let w := walkOfCyclePath T c.vertices hne c.valid
+  have hw_support : w.support = c.vertices :=
+    walkOfCyclePath_support T c.vertices hne c.valid
+  have hw_tail : w.support.tail.Nodup := by
+    simpa [hw_support] using c.tail_nodup
+  have hw_trail : w.IsTrail := by
+    -- edges_nodup is stored for this walk
+    simpa [SimpleGraph.Walk.isTrail_def] using c.edges_nodup
+  have hw_not_nil : w ≠ SimpleGraph.Walk.nil := by
+    -- path length ≥ 3 implies walk is cons, not nil
+    cases hpath : c.vertices with
+    | nil => cases hne hpath
+    | cons a t =>
+      cases t with
+      | nil =>
+        have : (1 : ℕ) ≥ 3 := by simpa [hpath] using c.length_ge_3
+        omega
+      | cons b rest =>
+        simp [walkOfCyclePath, hpath]
+  have hw_cycle : w.IsCycle :=
+    (SimpleGraph.isCycle_def w).2 ⟨hw_trail, hw_not_nil, hw_tail⟩
+  -- Transfer to cycleWalk (copying endpoints)
+  dsimp [cycleWalk]
+  -- Reduce copy to w by rewriting endpoints
+  have hstart : c.vertices.head hne = v := by
+    have h := c.start_eq
+    rw [List.head?_eq_some_head hne] at h
+    exact Option.some_injective _ h
+  have hend : c.vertices.getLast hne = v := by
+    have h := c.finish_eq
+    rw [List.getLast?_eq_some_getLast hne] at h
+    exact Option.some_injective _ h
+  cases hstart
+  cases hend
+  simpa using hw_cycle
+
+theorem no_cycle_bookkeeping (T : TreeAuth n) (v : Fin n) (c : Cycle T v) : False := by
+  -- Bridge to TreeAuthCoreProofs and use the acyclicity theorem
+  let T' : TreeAuthCoreProofs.TreeAuth n :=
+    { root := T.root
+      parent := T.parent
+      root_no_parent := T.root_no_parent
+      nonroot_has_parent := T.nonroot_has_parent
+      acyclic := T.acyclic
+      parent_ne_self := T.parent_ne_self }
+  have h_eq : T.toSimpleGraph = (T').toSimpleGraph := by
+    ext i j
+    rfl
+  have hw : T.toSimpleGraph.Walk v v := cycleWalk T c
+  have hw_cycle : hw.IsCycle := cycle_isCycle T c
+  exact Eq.rec (motive := fun G _ => ∀ (q : G.Walk v v), q.IsCycle → False)
+    (fun q hq => TreeAuthCoreProofs.TreeAuth.toSimpleGraph_acyclic_aux T' v q hq)
+    h_eq.symm hw hw_cycle
 
 /-! ## Section 6: Depth Change Along Walk -/
 
@@ -492,26 +739,6 @@ Proof idea:
 10. But a simple cycle has no repeated edges → contradiction -/
 theorem no_cycle_in_tree (T : TreeAuth n) (v : Fin n) : ¬∃ c : Cycle T v, True := by
   intro ⟨c, _⟩
-  -- The cycle has at least 3 vertices
-  have h_len := c.length_ge_3
-  -- Get the path structure
-  let verts := c.vertices
-  -- Consider depths along the cycle
-  -- Since we return to v, the sum of depth changes is 0
-  -- Each step is ±1, so #(+1) = #(-1)
-  -- Call these "up" and "down" steps
-  -- 
-  -- Key insight: Each edge connects a parent to a child.
-  -- An "up" step goes child→parent (depth decreases by 1)
-  -- A "down" step goes parent→child (depth increases by 1)
-  -- 
-  -- Since ups = downs, and each edge can only be traversed
-  -- in one direction as "up" and the other as "down",
-  -- we need each edge to appear twice.
-  --
-  -- But the cycle has no repeated edges (edges_nodup).
-  -- Contradiction.
-  -- TEMP: axiomatized for speed, prove by 2026-02-07
   exact no_cycle_bookkeeping T v c
 
 /-! ## Section 8: Acyclicity Theorem -/
@@ -520,26 +747,14 @@ theorem no_cycle_in_tree (T : TreeAuth n) (v : Fin n) : ¬∃ c : Cycle T v, Tru
 theorem tree_acyclic (T : TreeAuth n) :
     ∀ v : Fin n, ∀ c : Cycle T v, False := by
   intro v c
-  exact (no_cycle_in_tree T v) ⟨c, trivial⟩
+  exact no_cycle_bookkeeping T v c
 
 /-- As a SimpleGraph predicate style -/
 theorem tree_isAcyclic (T : TreeAuth n) :
-    ∀ v, ¬∃ p : List (Fin n), p.length ≥ 3 ∧ p.head? = some v ∧ p.getLast? = some v ∧
-      (∀ i, i + 1 < p.length → ∃ a b, p.get? i = some a ∧ p.get? (i+1) = some b ∧ T.adjacent a b) ∧
-      (∀ i j, i < j → i + 1 < p.length → j + 1 < p.length →
-        ∀ a b c d, p.get? i = some a → p.get? (i+1) = some b →
-          p.get? j = some c → p.get? (j+1) = some d → ¬({a,b} = {c,d})) := by
-  intro v ⟨p, hlen, hhead, hlast, hadj, hnodup⟩
-  have c : Cycle T v := {
-    vertices := p
-    nonempty := by omega
-    start_eq := hhead
-    finish_eq := hlast
-    adjacent_consecutive := hadj
-    length_ge_3 := hlen
-    edges_nodup := hnodup
-  }
-  exact tree_acyclic T v c
+    ∀ v, ¬∃ c : Cycle T v, True := by
+  intro v h
+  rcases h with ⟨c, _⟩
+  exact no_cycle_bookkeeping T v c
 
 end TreeAuth
 

@@ -31,17 +31,17 @@ Checking this formula is O(n):
 4. Compare: O(1)
 
 SORRIES: 0
-AXIOMS: 2 (acyclic_implies_euler, euler_implies_acyclic)
+AXIOMS: 0
 
-The axioms connect the Euler forest formula (|E| ≤ |V| - c) to OneConnected.
-They require a bijection between SimplicialComplex 1-simplices and SimpleGraph edges
-that is not yet established in the codebase. The mathematical justification is provided
-in the axiom documentation.
+The Euler formula proofs use SimplicialGraphBridge.lean which establishes the bijection
+between SimplicialComplex 1-simplices and SimpleGraph edges, enabling use of the
+proven ForestEulerFormula theorems.
 -/
 
 import H1Characterization.Characterization
 import H1Characterization.OneConnected
 import H1Characterization.OneSkeleton
+import Infrastructure.SimplicialGraphBridge
 import Mathlib.Combinatorics.SimpleGraph.Acyclic
 import Mathlib.Combinatorics.SimpleGraph.Connectivity.Connected
 import Mathlib.Combinatorics.SimpleGraph.Connectivity.WalkCounting
@@ -118,33 +118,39 @@ bijection requires additional infrastructure not yet present in the codebase.
   - Total edges: E = (n₁-1) + (n₂-1) + ... + (nₒ-1) = V - c
 - Therefore |E| = |V| - c, which implies |E| ≤ |V| - c ✓
 
-**Formalization gap:** Requires bijection between K.ksimplices 1 and (oneSkeleton K).edgeFinset
+**Proof:** Uses SimplicialGraphBridge.acyclic_implies_euler_proven which establishes the
+bijection between 1-simplices and edges, then applies ForestEulerFormula.
 -/
-axiom acyclic_implies_euler (K : SimplicialComplex)
+theorem acyclic_implies_euler (K : SimplicialComplex)
     [Fintype K.vertexSet] [Fintype (K.ksimplices 1)]
     [DecidableEq K.vertexSet] [DecidableRel (oneSkeleton K).Adj]
-    (h : OneConnected K) : EulerForestCondition K
+    [Fintype (oneSkeleton K).edgeSet] [Fintype (oneSkeleton K).ConnectedComponent]
+    [Nonempty K.vertexSet]
+    (h : OneConnected K) : EulerForestCondition K := by
+  unfold EulerForestCondition edgeCount vertexCount componentCount
+  -- Handle Fintype instance mismatch by converting to Nat.card
+  simp only [Fintype.card_eq_nat_card]
+  have := Infrastructure.SimplicialGraphBridge.acyclic_implies_euler_proven h
+  simp only [Fintype.card_eq_nat_card] at this
+  exact this
 
 /-- Euler condition |E| ≤ |V| - c implies acyclic (forest).
 
-**Mathematical proof sketch (contrapositive):**
-- Suppose the graph has a cycle
-- Then there exists an edge that, when removed, keeps the graph connected
-- This means |E| > (minimum edges for connectivity) = |V| - c
-- Contrapositive: |E| ≤ |V| - c → no cycles → IsAcyclic ✓
-
-**Alternative proof:**
-- |E| ≤ |V| - c means each component has at most n_i - 1 edges
-- A connected graph on n vertices with exactly n - 1 edges is a tree (Mathlib: isTree_iff_connected_and_card)
-- Trees are acyclic, so the graph is acyclic ✓
-
-**Formalization gap:** Requires bijection between K.ksimplices 1 and (oneSkeleton K).edgeFinset
+**Proof:** Uses SimplicialGraphBridge.euler_implies_acyclic_proven which establishes the
+bijection between 1-simplices and edges, then applies ForestEulerFormula.
 -/
-axiom euler_implies_acyclic (K : SimplicialComplex)
+theorem euler_implies_acyclic (K : SimplicialComplex)
     [Fintype K.vertexSet] [Fintype (K.ksimplices 1)]
     [DecidableEq K.vertexSet] [DecidableRel (oneSkeleton K).Adj]
+    [Fintype (oneSkeleton K).edgeSet] [Fintype (oneSkeleton K).ConnectedComponent]
     [Nonempty K.vertexSet]
-    (h : EulerForestCondition K) : OneConnected K
+    (h : EulerForestCondition K) : OneConnected K := by
+  unfold EulerForestCondition edgeCount vertexCount componentCount at h
+  -- Handle Fintype instance mismatch by converting to Nat.card
+  simp only [Fintype.card_eq_nat_card] at h
+  apply Infrastructure.SimplicialGraphBridge.euler_implies_acyclic_proven
+  simp only [Fintype.card_eq_nat_card]
+  exact h
 
 /-- THE KEY EQUIVALENCE: Euler condition ↔ OneConnected -/
 theorem euler_iff_oneConnected (K : SimplicialComplex)
@@ -175,13 +181,14 @@ noncomputable instance oneConnected_decidable' (K : SimplicialComplex)
   rw [← euler_iff_oneConnected]
   infer_instance
 
-/-- H¹ = 0 is decidable for finite complexes -/
+/-- H¹ = 0 is decidable for finite connected hollow complexes -/
 noncomputable instance h1Trivial_decidable' (K : SimplicialComplex)
     [Fintype K.vertexSet] [Fintype (K.ksimplices 1)]
     [DecidableEq K.vertexSet] [DecidableRel (oneSkeleton K).Adj]
-    [Nonempty K.vertexSet] :
+    [Nonempty K.vertexSet]
+    (hhollow : hasNoFilledTriangles K) (hconn : (oneSkeleton K).Connected) :
     Decidable (H1Trivial K) := by
-  rw [h1_trivial_iff_oneConnected]
+  rw [h1_trivial_iff_oneConnected (hhollow := hhollow) (hconn := hconn)]
   infer_instance
 
 /-! ## Part 4: Complexity Analysis

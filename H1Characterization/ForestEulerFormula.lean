@@ -18,6 +18,13 @@ Together these establish: **G is acyclic ⟺ |E| + c = |V|**
 
 This is a fundamental result connecting graph topology (cycles) to
 combinatorics (counting formula).
+
+## Status
+
+**SORRIES: 0 | AXIOMS: 0** (2026-02-01)
+
+Uses proven lemmas from `Infrastructure.TreeGraphInfra` for edge deletion
+and component counting.
 -/
 
 import Mathlib.Combinatorics.SimpleGraph.Basic
@@ -27,6 +34,7 @@ import Mathlib.Combinatorics.SimpleGraph.Acyclic
 import Mathlib.Combinatorics.SimpleGraph.DeleteEdges
 import Mathlib.Data.Fintype.Basic
 import Mathlib.Data.Finset.Card
+import Infrastructure.TreeGraphInfra
 
 namespace SimpleGraph
 
@@ -36,32 +44,41 @@ variable {V : Type*} [Fintype V] [DecidableEq V]
 
 section Helpers
 
-/-! ## TEMP Axioms - Prove by 2026-02-07 -/
+/-! ## Proven Lemmas from Infrastructure -/
 
-/-- Technical lemma for component injection in deleteEdge_components_bound.
-    Shows that if two G'-components map to the same G-component via f,
-    and neither is the v-component, then they must be equal. -/
-axiom component_injection_technical {V : Type*} [DecidableEq V]
-    (G : SimpleGraph V) (v : V)
-    {G' : SimpleGraph V}
-    (c1 c2 : G'.ConnectedComponent)
-    (h1 : c1 ≠ G'.connectedComponentMk v)
-    (h2 : c2 ≠ G'.connectedComponentMk v)
-    {f : G'.ConnectedComponent → G.ConnectedComponent}
-    (heq : f c1 = f c2) : c1 = c2
+-- The following axioms have been ELIMINATED by using proven lemmas from Infrastructure.TreeGraphInfra:
+-- - component_injection_technical: proven in card_connectedComponent_deleteEdges_add_one
+-- - path_reroute_around_edge: proven using takeUntil_first_endpoint_no_edge pattern
 
-/-- Reroute a path around a deleted edge using an alternate connection.
-    When a path uses edge (u,v) but u and v are still G'-reachable,
-    we can construct a G'-path between the endpoints. -/
-axiom path_reroute_around_edge {V : Type*} [DecidableEq V]
-    (G : SimpleGraph V) (u v : V)
-    {G' : SimpleGraph V}
-    {w1 w2 : V}
-    (c1 c2 : G.ConnectedComponent)
-    (p : G.Walk w1 w2)
-    (h_still_reach : G'.Reachable u v)
-    (h_uses : s(u, v) ∈ p.edges) :
-    G'.Reachable w1 w2
+/-- Helper: converting walks when edge sets are equal -/
+private def walk_deleteEdges_eq {G : SimpleGraph V} {e₁ e₂ : Sym2 V} (heq : e₁ = e₂)
+    {a b : V} (p : (G.deleteEdges {e₁}).Walk a b) : (G.deleteEdges {e₂}).Walk a b :=
+  heq ▸ p
+
+/-- Helper: convert Reachable proof when graphs are equal -/
+private def reachable_cast {G1 G2 : SimpleGraph V} (heq : G1 = G2)
+    {a b : V} (h : G1.Reachable a b) : G2.Reachable a b := heq ▸ h
+
+/-- Helper: if a walk uses edge e, at least one of the takeUntil prefixes doesn't use e. -/
+private lemma takeUntil_first_endpoint_no_edge (G : SimpleGraph V)
+    {a b u v : V} (p : G.Walk a b) (hp : s(u,v) ∈ p.edges)
+    (hu : u ∈ p.support) (hv : v ∈ p.support) (hne : u ≠ v) :
+    s(u,v) ∉ (p.takeUntil u hu).edges ∨ s(u,v) ∉ (p.takeUntil v hv).edges := by
+  -- Compare lengths: whichever vertex appears first has prefix without edge
+  by_cases h : (p.takeUntil u hu).length ≤ (p.takeUntil v hv).length
+  · left
+    intro h_in
+    have hv_in_prefix := Walk.snd_mem_support_of_mem_edges _ h_in
+    have h_lt := Walk.length_takeUntil_lt hv_in_prefix hne.symm
+    simp only [Walk.takeUntil_takeUntil] at h_lt
+    omega
+  · right
+    push_neg at h
+    intro h_in
+    have hu_in_prefix := Walk.fst_mem_support_of_mem_edges _ h_in
+    have h_lt := Walk.length_takeUntil_lt hu_in_prefix hne
+    simp only [Walk.takeUntil_takeUntil] at h_lt
+    omega
 
 /-- A graph has a cycle if and only if it is not acyclic -/
 theorem has_cycle_iff_not_acyclic {V : Type*} (G : SimpleGraph V) :
@@ -120,7 +137,9 @@ private theorem edgeSet_empty_of_card_zero {V : Type*} [DecidableEq V]
 This is a standard result: when we delete an edge e = {u,v}:
 - If u and v remain connected (e is not a bridge), components stay the same
 - If u and v become disconnected (e is a bridge), the component containing e splits into 2
-In either case, component count increases by at most 1. -/
+In either case, component count increases by at most 1.
+
+PROVEN: Uses Infrastructure.card_connectedComponent_deleteEdges_add_one -/
 private theorem deleteEdge_components_bound
     (G : SimpleGraph V) [DecidableRel G.Adj] [Fintype G.edgeSet]
     [Fintype G.ConnectedComponent] (e : Sym2 V) (he : e ∈ G.edgeSet)
@@ -129,30 +148,14 @@ private theorem deleteEdge_components_bound
     Fintype.card (G.deleteEdges {e}).ConnectedComponent ≤
         Fintype.card G.ConnectedComponent + 1 := by
   classical
-  -- Define injection ψ : G'.CC → G.CC ⊕ Unit
-  -- This gives |G'.CC| ≤ |G.CC| + 1
-  set G' := G.deleteEdges {e} with hG'
-  rcases Sym2.mk_surjective e with ⟨⟨u, v⟩, huv⟩
-  let f : G'.ConnectedComponent → G.ConnectedComponent :=
-    fun c' => G.connectedComponentMk c'.exists_rep.choose
-  let ψ : G'.ConnectedComponent → G.ConnectedComponent ⊕ Unit :=
-    fun c' => if c' = G'.connectedComponentMk v then Sum.inr () else Sum.inl (f c')
-  have hψ_inj : Function.Injective ψ := by
-    intro c1 c2 heq
-    simp only [ψ] at heq
-    by_cases h1 : c1 = G'.connectedComponentMk v <;> by_cases h2 : c2 = G'.connectedComponentMk v
-    · exact h1.trans h2.symm
-    · simp only [h1, h2, ↓reduceIte, reduceCtorEq] at heq
-    · simp only [h1, h2, ↓reduceIte, reduceCtorEq] at heq
-    · -- f c1 = f c2, and neither is the v-component
-      simp only [h1, h2, ↓reduceIte, Sum.inl.injEq] at heq
-      -- This case requires showing c1 and c2 are G'-connected
-      -- TEMP: axiomatized for speed, prove by 2026-02-07
-      exact component_injection_technical G v c1 c2 h1 h2 heq
-  have h_card_le : Fintype.card G'.ConnectedComponent ≤ Fintype.card (G.ConnectedComponent ⊕ Unit) :=
-    Fintype.card_le_of_injective ψ hψ_inj
-  simp only [Fintype.card_sum, Fintype.card_unit, hG'] at h_card_le
-  sorry  -- TODO: Fix Fintype instance mismatch
+  -- Convert edgeSet membership to edgeFinset membership
+  have he_finset : e ∈ G.edgeFinset := mem_edgeFinset.mpr he
+  -- Use the proven lemma from Infrastructure
+  -- Handle Fintype instance mismatch: cardinalities are equal for any two Fintype instances
+  have h := Infrastructure.card_connectedComponent_deleteEdges_add_one G e he_finset
+  -- All Fintype instances on the same type give the same cardinality
+  simp only [Fintype.card_eq_nat_card] at h ⊢
+  exact h
 
 end Helpers
 
@@ -452,10 +455,91 @@ theorem euler_eq_implies_acyclic
         by_cases h_uses : s(u, v) ∈ p.edges
         · -- The path uses the edge - reroute through alternate path
           -- Since s(u,v) is not a bridge, u and v are still G'-reachable
-          -- The path visits u and v. We can route around the deleted edge
-          -- using h_still_reach (which says u and v are still G'-connected)
-          -- TODO: Prove path rerouting around non-bridge edge
-          sorry
+          have hu_in : u ∈ p.support := Walk.fst_mem_support_of_mem_edges p h_uses
+          have hv_in : v ∈ p.support := Walk.snd_mem_support_of_mem_edges p h_uses
+          have hne : u ≠ v := hadj.ne
+          -- Take prefixes to u and v
+          let pu := p.takeUntil u hu_in
+          let pv := p.takeUntil v hv_in
+          -- At least one prefix doesn't use s(u,v) (whichever endpoint appears first)
+          by_cases hpu : s(u, v) ∈ pu.edges
+          · -- pu uses s(u,v), so v appears before u in p; therefore pv doesn't use s(u,v)
+            have hpv : s(u, v) ∉ pv.edges := by
+              intro h
+              have hcontra := takeUntil_first_endpoint_no_edge G p h_uses hu_in hv_in hne
+              cases hcontra with
+              | inl h_not_pu => exact h_not_pu hpu
+              | inr h_not_pv => exact h_not_pv h
+            -- G'-path from w1 to v
+            have h1 : G'.Reachable w1 v :=
+              ⟨walk_deleteEdges_eq rfl (pv.toDeleteEdge (s(u,v)) hpv)⟩
+            -- G'-path from v to u (since s(u,v) is not a bridge)
+            have h2 : G'.Reachable v u :=
+              ⟨(Classical.choice h_still_reach).reverse⟩
+            -- G'-path from u to w2: use dropUntil
+            let qu := p.dropUntil u hu_in
+            by_cases hqu : s(u, v) ∈ qu.edges
+            · -- qu uses s(u,v), handle via reverse walk
+              let p' := p.reverse
+              have hp' : s(u, v) ∈ p'.edges := Walk.edges_reverse p ▸ List.mem_reverse.mpr h_uses
+              have hv_in' : v ∈ p'.support := Walk.support_reverse p ▸ List.mem_reverse.mpr hv_in
+              let rv := p'.takeUntil v hv_in'
+              by_cases hrv : s(u, v) ∈ rv.edges
+              · -- Use takeUntil_first_endpoint_no_edge on p' to get alternate path
+                have hu_in' : u ∈ p'.support := Walk.fst_mem_support_of_mem_edges p' hp'
+                have hcontra := takeUntil_first_endpoint_no_edge G p' hp' hu_in' hv_in' hne
+                let ru' := p'.takeUntil u hu_in'
+                have hru'_no_e : s(u, v) ∉ ru'.edges := by
+                  cases hcontra with
+                  | inl h_not => exact h_not
+                  | inr h_not_rv => exact absurd hrv h_not_rv
+                -- G'-path from w2 to u
+                have h3 : G'.Reachable w2 u :=
+                  ⟨walk_deleteEdges_eq rfl (ru'.toDeleteEdge (s(u,v)) hru'_no_e)⟩
+                exact h1.trans (h2.trans h3.symm)
+              · -- rv doesn't use s(u,v), so G'-path from w2 to v
+                have h3 : G'.Reachable w2 v :=
+                  ⟨walk_deleteEdges_eq rfl (rv.toDeleteEdge (s(u,v)) hrv)⟩
+                exact h1.trans h3.symm
+            · -- qu doesn't use s(u,v), so G'-path from u to w2
+              have h3 : G'.Reachable u w2 :=
+                ⟨walk_deleteEdges_eq rfl (qu.toDeleteEdge (s(u,v)) hqu)⟩
+              exact h1.trans (h2.trans h3)
+          · -- pu doesn't use s(u,v), so G'-path from w1 to u
+            have h1 : G'.Reachable w1 u :=
+              ⟨walk_deleteEdges_eq rfl (pu.toDeleteEdge (s(u,v)) hpu)⟩
+            -- G'-path from u to v (since s(u,v) is not a bridge)
+            have h2 : G'.Reachable u v :=
+              ⟨Classical.choice h_still_reach⟩
+            -- G'-path from v to w2: use dropUntil
+            let qv := p.dropUntil v hv_in
+            by_cases hqv : s(u, v) ∈ qv.edges
+            · -- qv uses s(u,v), handle via reverse walk
+              let p' := p.reverse
+              have hp' : s(u, v) ∈ p'.edges := Walk.edges_reverse p ▸ List.mem_reverse.mpr h_uses
+              have hu_in' : u ∈ p'.support := Walk.support_reverse p ▸ List.mem_reverse.mpr hu_in
+              let ru := p'.takeUntil u hu_in'
+              by_cases hru : s(u, v) ∈ ru.edges
+              · -- Use takeUntil_first_endpoint_no_edge on p' to get path via v
+                have hv_in' : v ∈ p'.support := Walk.snd_mem_support_of_mem_edges p' hp'
+                have hcontra := takeUntil_first_endpoint_no_edge G p' hp' hu_in' hv_in' hne
+                let rv' := p'.takeUntil v hv_in'
+                have hrv'_no_e : s(u, v) ∉ rv'.edges := by
+                  cases hcontra with
+                  | inl h_not_ru => exact absurd hru h_not_ru
+                  | inr h_not => exact h_not
+                -- G'-path from w2 to v
+                have h3 : G'.Reachable w2 v :=
+                  ⟨walk_deleteEdges_eq rfl (rv'.toDeleteEdge (s(u,v)) hrv'_no_e)⟩
+                exact h1.trans (h2.trans h3.symm)
+              · -- ru doesn't use s(u,v), so G'-path from w2 to u
+                have h3 : G'.Reachable w2 u :=
+                  ⟨walk_deleteEdges_eq rfl (ru.toDeleteEdge (s(u,v)) hru)⟩
+                exact h1.trans h3.symm
+            · -- qv doesn't use s(u,v), so G'-path from v to w2
+              have h3 : G'.Reachable v w2 :=
+                ⟨walk_deleteEdges_eq rfl (qv.toDeleteEdge (s(u,v)) hqv)⟩
+              exact h1.trans (h2.trans h3)
         · -- The path doesn't use the edge, so it's valid in G'
           exact path_to_G' p h_uses
       rw [← h1, ← h2]
