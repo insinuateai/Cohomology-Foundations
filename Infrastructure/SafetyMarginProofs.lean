@@ -187,7 +187,8 @@ theorem bifurcation_catastrophic_aux (paramSystems : ParameterizedSystems S n)
     (h_not_aligned : ¬isAligned (paramSystems p_after) ε)
     (h_close : |p_before - p_after| < 1) :
     -- Small parameter change causes qualitative change (aligned → not aligned)
-    True := trivial
+    isAligned (paramSystems p_before) ε ∧ ¬isAligned (paramSystems p_after) ε := by
+  exact ⟨h_aligned, h_not_aligned⟩
 
 /-! ## Part 5: Catastrophic Bifurcation Example -/
 
@@ -215,10 +216,9 @@ theorem interpolation_distance (v1 v2 : ValueSystem S) (t : ℚ) (ht : 0 ≤ t �
 theorem interpolation_bifurcation (v1 v2 : ValueSystem S) (ε : ℚ)
     (hε : ε > 0) (hdist : valueDistance v1 v2 > 2 * ε) :
     ∃ t_bif, 0 < t_bif ∧ t_bif < 1 ∧
-      -- Before t_bif: aligned; after: not aligned
-      True := by
+      valueDistance v1 (linearInterpolation v1 v2 t_bif) = 2 * ε := by
   use ε / (valueDistance v1 v2 / 2)
-  refine ⟨?_, ?_, trivial⟩
+  refine ⟨?_, ?_, ?_⟩
   · -- 0 < t_bif
     apply div_pos hε
     linarith [valueDistance_nonneg v1 v2]
@@ -226,6 +226,23 @@ theorem interpolation_bifurcation (v1 v2 : ValueSystem S) (ε : ℚ)
     rw [div_lt_one]
     · linarith
     · linarith [valueDistance_nonneg v1 v2]
+  · -- distance at bifurcation
+    have ht_nonneg : 0 ≤ ε / (valueDistance v1 v2 / 2) := by
+      exact le_of_lt (div_pos hε (by linarith [valueDistance_nonneg v1 v2]))
+    have ht_le_one : ε / (valueDistance v1 v2 / 2) ≤ 1 := by
+      have := (div_lt_one (a := ε) (b := valueDistance v1 v2 / 2)).1
+      have hpos : 0 < valueDistance v1 v2 / 2 := by linarith [valueDistance_nonneg v1 v2]
+      exact (le_of_lt (by
+        have h := this hpos
+        linarith))
+    have hdist_eq := interpolation_distance (v1 := v1) (v2 := v2)
+      (t := ε / (valueDistance v1 v2 / 2)) ⟨ht_nonneg, ht_le_one⟩
+    -- simplify
+    calc
+      valueDistance v1 (linearInterpolation v1 v2 (ε / (valueDistance v1 v2 / 2)))
+          = (ε / (valueDistance v1 v2 / 2)) * valueDistance v1 v2 := hdist_eq
+      _ = 2 * ε := by
+          field_simp
 
 /-! ## Part 6: Summary -/
 

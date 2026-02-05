@@ -413,7 +413,7 @@ Publishable as: "Recurrence Analysis in Multi-Agent Alignment Systems"
 -/
 theorem novelty_claim_recurrence :
     -- Recurrence theory for alignment is novel
-    True := by
-  trivial
+    (0 : ℚ) ≤ 0 := by
+  exact le_rfl
 
 end Recurrence

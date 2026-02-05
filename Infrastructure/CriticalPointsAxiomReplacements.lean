@@ -4,7 +4,7 @@
 Provides drop-in replacements for axioms in CriticalPoints.lean.
 
 AXIOM ELIMINATED:
-- X03: misalignment_zero_implies_aligned_ax (Perspective/CriticalPoints.lean:98)
+- X03: misalignment_zero_implies_aligned (Perspective/CriticalPoints.lean)
 
 The theorem `misalignment_zero_implies_aligned_proven` in CriticalPointsCore.lean
 provides the complete proof with exact signature match.
@@ -24,11 +24,11 @@ open CriticalPoints (misalignment)
 
 variable {S : Type*} [Fintype S] [DecidableEq S]
 
-/-! ## X03: misalignment_zero_implies_aligned_ax
+/-! ## X03: misalignment_zero_implies_aligned
 
 The original axiom:
 ```
-axiom misalignment_zero_implies_aligned_ax {n : ℕ} (_hn : n ≥ 1)
+axiom misalignment_zero_implies_aligned {n : ℕ} (_hn : n ≥ 1)
     (systems : Fin n → ValueSystem S) (epsilon : ℚ) (_hε : epsilon > 0)
     [Nonempty S] :
     misalignment systems epsilon = 0 →

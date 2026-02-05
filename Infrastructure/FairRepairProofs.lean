@@ -195,8 +195,8 @@ theorem optimalRepairCost_of_fair (original : Allocation n) (target : FairnessTa
 /-- Repair cost is bounded by distance to any fair point -/
 theorem repair_cost_bounded (original : Allocation n) (target : FairnessTarget n)
     (fair : Allocation n) (hfair : target.satisfies fair) :
-    True := by
-  trivial
+    0 ≤ repairCostL1 original fair := by
+  exact repairCostL1_nonneg original fair
 
 /-! ## Part 6: Summary -/
 

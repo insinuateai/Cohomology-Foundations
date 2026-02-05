@@ -85,11 +85,11 @@ def ConsensusInstance.consensusPossible (c : ConsensusInstance V) : Prop :=
   ∃ v : V, ∀ a ∈ c.agents, c.isAcceptable a v
 
 /-- Consensus value (if it exists) -/
-noncomputable def ConsensusInstance.consensusValue (c : ConsensusInstance V) 
+noncomputable def ConsensusInstance.consensusValue (c : ConsensusInstance V)
     (h : c.consensusPossible) : V := Classical.choose h
 
 /-- Consensus value is acceptable to all -/
-theorem ConsensusInstance.consensusValue_acceptable (c : ConsensusInstance V) 
+theorem ConsensusInstance.consensusValue_acceptable (c : ConsensusInstance V)
     (h : c.consensusPossible) (a : Agent) (ha : a ∈ c.agents) :
     c.isAcceptable a (c.consensusValue h) := Classical.choose_spec h a ha
 
@@ -115,7 +115,7 @@ theorem ConsensusInstance.not_consensusPossible_iff (c : ConsensusInstance V) :
   simp only [consensusPossible, not_exists, not_forall, exists_prop]
 
 /-- Empty agent set means consensus trivially possible -/
-theorem ConsensusInstance.empty_agents_consensusPossible (c : ConsensusInstance V) 
+theorem ConsensusInstance.empty_agents_consensusPossible (c : ConsensusInstance V)
     [Nonempty V] (h : c.agents = ∅) : c.consensusPossible := by
   use Classical.arbitrary V
   intro a ha
@@ -216,8 +216,8 @@ theorem ConsensusInstance.singleton_networkIsForest (a : Agent) (pref : V) (acc 
 
 /-- Full consensus gives complete graph compatibility -/
 theorem ConsensusInstance.consensus_complete_compat (c : ConsensusInstance V) (v : V)
-    (h : ∀ a ∈ c.agents, v ∈ c.acceptable a) (a b : Agent) 
-    (ha : a ∈ c.agents) (hb : b ∈ c.agents) (hne : a ≠ b) : 
+    (h : ∀ a ∈ c.agents, v ∈ c.acceptable a) (a b : Agent)
+    (ha : a ∈ c.agents) (hb : b ∈ c.agents) (hne : a ≠ b) :
     c.toNetwork.compatible a b := by
   constructor
   · exact hne
@@ -242,7 +242,7 @@ def ConsensusInstance.isBlockingCoalition (c : ConsensusInstance V) (S : Finset 
 /-- Full set is blocking iff no consensus -/
 theorem ConsensusInstance.full_blocking_iff (c : ConsensusInstance V) :
     c.isBlockingCoalition c.agents ↔ ¬c.consensusPossible := by
-  simp only [isBlockingCoalition, Finset.Subset.refl, true_and, consensusPossible, 
+  simp only [isBlockingCoalition, Finset.Subset.refl, true_and, consensusPossible,
              not_exists, not_forall, exists_prop]
 
 /-- Minimal blocking coalition -/
@@ -269,7 +269,7 @@ theorem ConsensusInstance.obstructionDim_pos (c : ConsensusInstance V)
 
 /-- Superset of blocking is blocking -/
 theorem ConsensusInstance.blocking_superset (c : ConsensusInstance V) (S T : Finset Agent)
-    (hST : S ⊆ T) (hT : T ⊆ c.agents) (hS : c.isBlockingCoalition S) : 
+    (hST : S ⊆ T) (hT : T ⊆ c.agents) (hS : c.isBlockingCoalition S) :
     c.isBlockingCoalition T := by
   constructor
   · exact hT
@@ -328,19 +328,37 @@ theorem ConsensusInstance.forest_structure (c : ConsensusInstance V) :
 
     Reference: Čech cohomology and consensus protocols -/
 theorem consensus_iff_h1_trivial (c : ConsensusInstance V) :
-  True := trivial
+  c.consensusPossible ↔ ¬c.isBlockingCoalition c.agents := by
+  have h := (ConsensusInstance.full_blocking_iff c)
+  constructor
+  · intro hc hblock
+    exact (h.mp hblock) hc
+  · intro hnot
+    by_contra hc
+    exact hnot (h.mpr hc)
 
 /-- No consensus means H¹ ≠ 0 -/
 theorem no_consensus_h1_nontrivial (c : ConsensusInstance V) :
-  ¬c.consensusPossible → True := fun _ => trivial
+  ¬c.consensusPossible → ∀ v : V, ∃ a ∈ c.agents, ¬c.isAcceptable a v := by
+  intro hno
+  exact (ConsensusInstance.not_consensusPossible_iff c).1 hno
 
 /-- Protocol cannot overcome topology -/
 theorem ConsensusInstance.topology_fundamental (c : ConsensusInstance V) :
-    ¬c.consensusPossible → True := fun _ => trivial
+    ¬c.consensusPossible → c.isBlockingCoalition c.agents := by
+  intro hno
+  exact (ConsensusInstance.full_blocking_iff c).2 hno
 
 /-- Arrow's theorem connection -/
 theorem ConsensusInstance.arrow_connection (c : ConsensusInstance V) :
-    True := trivial  -- Certain preference cycles make consensus impossible
+    (∃ a ∈ c.agents, c.acceptable a = ∅) → ¬c.consensusPossible := by
+  intro ⟨a, ha, hacc⟩ hcons
+  have hblock : c.isBlockingCoalition {a} :=
+    (ConsensusInstance.singleton_blocking_iff c a ha).2 hacc
+  have hblock_full : c.isBlockingCoalition c.agents :=
+    ConsensusInstance.blocking_superset c {a} c.agents
+      (Finset.singleton_subset_iff.mpr ha) (Finset.Subset.refl _) hblock
+  exact (ConsensusInstance.full_blocking_iff c).1 hblock_full hcons
 
 -- ============================================================================
 -- SECTION 6: APPROXIMATE CONSENSUS (6 proven theorems)

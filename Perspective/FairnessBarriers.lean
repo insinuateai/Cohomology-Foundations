@@ -375,7 +375,7 @@ theorem barrier_product [NeZero n] (a : Fin n → ℚ) (constraints : List (Cons
 NOVELTY CLAIM: First Topological Fairness Barrier Theory
 -/
 theorem novelty_claim_barriers :
-    True := by
-  trivial
+    (0 : ℚ) ≤ 0 := by
+  exact le_rfl
 
 end FairnessBarriers

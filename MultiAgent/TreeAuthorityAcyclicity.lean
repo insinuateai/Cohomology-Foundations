@@ -739,26 +739,6 @@ Proof idea:
 10. But a simple cycle has no repeated edges → contradiction -/
 theorem no_cycle_in_tree (T : TreeAuth n) (v : Fin n) : ¬∃ c : Cycle T v, True := by
   intro ⟨c, _⟩
-  -- The cycle has at least 3 vertices
-  have h_len := c.length_ge_3
-  -- Get the path structure
-  let verts := c.vertices
-  -- Consider depths along the cycle
-  -- Since we return to v, the sum of depth changes is 0
-  -- Each step is ±1, so #(+1) = #(-1)
-  -- Call these "up" and "down" steps
-  --
-  -- Key insight: Each edge connects a parent to a child.
-  -- An "up" step goes child→parent (depth decreases by 1)
-  -- A "down" step goes parent→child (depth increases by 1)
-  --
-  -- Since ups = downs, and each edge can only be traversed
-  -- in one direction as "up" and the other as "down",
-  -- we need each edge to appear twice.
-  --
-  -- But the cycle has no repeated edges (edges_nodup).
-  -- Contradiction.
-  -- TEMP: axiomatized for speed, prove by 2026-02-07
   exact no_cycle_bookkeeping T v c
 
 /-! ## Section 8: Acyclicity Theorem -/
@@ -767,13 +747,14 @@ theorem no_cycle_in_tree (T : TreeAuth n) (v : Fin n) : ¬∃ c : Cycle T v, Tru
 theorem tree_acyclic (T : TreeAuth n) :
     ∀ v : Fin n, ∀ c : Cycle T v, False := by
   intro v c
-  exact (no_cycle_in_tree T v) ⟨c, trivial⟩
+  exact no_cycle_bookkeeping T v c
 
 /-- As a SimpleGraph predicate style -/
 theorem tree_isAcyclic (T : TreeAuth n) :
     ∀ v, ¬∃ c : Cycle T v, True := by
   intro v h
-  exact (no_cycle_in_tree T v) h
+  rcases h with ⟨c, _⟩
+  exact no_cycle_bookkeeping T v c
 
 end TreeAuth
 

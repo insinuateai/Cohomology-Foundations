@@ -36,6 +36,7 @@ import Mathlib.Data.Fin.Basic
 import Mathlib.Logic.Function.Iterate
 import Mathlib.Tactic
 import Infrastructure.TreeAuthCoreProofs
+import Infrastructure.ExtendedGraphInfra
 
 namespace TreeAuthSimpleGraph
 
@@ -479,6 +480,22 @@ theorem toSimpleGraph_acyclic (T : TreeAuth n) : T.toSimpleGraph.IsAcyclic := by
 /-- The graph is a tree -/
 theorem toSimpleGraph_isTree (T : TreeAuth n) (hn : 0 < n) : T.toSimpleGraph.IsTree :=
   ⟨toSimpleGraph_connected T hn, toSimpleGraph_acyclic T⟩
+
+open ExtendedGraphInfra
+
+/-- Deep theorem: a TreeAuth graph has |E| + 1 = |V|. -/
+theorem toSimpleGraph_edgeCount (T : TreeAuth n) (hn : 0 < n) :
+    edgeCount T.toSimpleGraph + 1 = vertexCount (V := Fin n) := by
+  classical
+  have htree : T.toSimpleGraph.IsTree := toSimpleGraph_isTree T hn
+  simpa using (tree_edgeCount (G := T.toSimpleGraph) htree)
+
+/-- Euler characteristic for TreeAuth graphs: |E| + 1 = |V| (components = 1). -/
+theorem toSimpleGraph_euler (T : TreeAuth n) (hn : 0 < n) :
+    edgeCount T.toSimpleGraph + componentCount T.toSimpleGraph = vertexCount (V := Fin n) := by
+  classical
+  have htree : T.toSimpleGraph.IsTree := toSimpleGraph_isTree T hn
+  simpa using (tree_euler (G := T.toSimpleGraph) htree)
 
 end TreeAuth
 

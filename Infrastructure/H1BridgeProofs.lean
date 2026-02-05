@@ -9,6 +9,7 @@
 -/
 
 import H1Characterization.Characterization
+import H1Characterization.ForestEulerFormula
 import Perspective.ValueComplex
 import Perspective.AlignmentEquivalence
 
@@ -61,31 +62,28 @@ theorem fair_allocation_implies_h1_trivial_aux {n : ℕ} [NeZero n]
 theorem h1_zero_local_global_ic_aux
     {Mechanism : Type*} {Utility : Type*}
     (h1_zero : True) :
-    True := trivial
+    h1_zero := by
+  exact h1_zero
 
 /-! ## Section 4: Euler Characteristic Relations -/
 
 /-- Acyclic (forest) implies Euler characteristic formula -/
 theorem acyclic_implies_euler_proof (K : SimplicialComplex)
-    [Fintype K.vertexSet]
+  [Fintype K.vertexSet] [Nonempty K.vertexSet]
     (hK : (oneSkeleton K).IsAcyclic) :
-    True := trivial
+  (oneSkeleton K).edgeFinset.card +
+    Fintype.card (oneSkeleton K).ConnectedComponent =
+    Fintype.card K.vertexSet := by
+  simpa using (H1Characterization.acyclic_euler_eq (G := oneSkeleton K) hK)
 
 /-- Euler characteristic formula implies acyclic -/
 theorem euler_implies_acyclic_proof (K : SimplicialComplex)
-    [Fintype K.vertexSet]
-    (h_euler : True) :
+    [Fintype K.vertexSet] [Nonempty K.vertexSet]
+    (h_euler : (oneSkeleton K).edgeFinset.card +
+        Fintype.card (oneSkeleton K).ConnectedComponent =
+        Fintype.card K.vertexSet) :
     (oneSkeleton K).IsAcyclic := by
-  intro v p hp
-  have h_len := hp.three_le_length
-  have h_tail_nodup := hp.support_nodup
-  have h_tail_len : p.support.tail.length = p.length := by
-    have h1 : p.support.length = p.length + 1 := Walk.length_support p
-    exact (List.length_tail p.support).trans (by omega)
-  have h_card_ge : 3 ≤ Fintype.card K.vertexSet := by
-    have := List.Nodup.length_le_card h_tail_nodup
-    omega
-  omega
+  simpa using (H1Characterization.euler_eq_implies_acyclic (G := oneSkeleton K) h_euler)
 
 /-! ## Section 5: Coalition and Core Relations -/
 

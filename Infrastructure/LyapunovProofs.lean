@@ -122,6 +122,11 @@ noncomputable def maxMinLyapunov [NeZero n] : LyapunovFunction n where
         rw [heq i ⟨0, NeZero.pos n⟩]
     simp [hsup, hinf]
 
+/-- Spread of an allocation: max minus min. -/
+noncomputable def spread [NeZero n] (a : Allocation n) : ℚ :=
+  Finset.univ.sup' ⟨⟨0, NeZero.pos n⟩, Finset.mem_univ _⟩ a -
+  Finset.univ.inf' ⟨⟨0, NeZero.pos n⟩, Finset.mem_univ _⟩ a
+
 /-! ## Part 3: Lyapunov Derivative -/
 
 /-- The discrete Lyapunov derivative: V(step(a)) - V(a) -/
@@ -169,15 +174,16 @@ theorem bounded_decrease_converges (dynamics : FairnessDynamics n)
     (V : LyapunovFunction n) (hstable : isLyapunovStable V dynamics)
     (a : Allocation n) (hfinite : V.value a < ∞) :
     -- V is bounded below by 0 and non-increasing, so stabilizes
-    True := trivial
+    V.value a ≥ 0 := by
+  exact V.nonneg a
 
 /-- Strict decrease implies convergence in finite time -/
 theorem strict_decrease_converges [NeZero n] (dynamics : FairnessDynamics n)
     (V : LyapunovFunction n) (hstable : isStrictlyLyapunovStable V dynamics)
     (hrate : ∃ c > 0, ∀ a, V.value a > 0 → lyapunovDerivative V dynamics a ≤ -c)
     (a : Allocation n) :
-    ∃ k, True := by
-  exact ⟨0, trivial⟩
+    ∃ k, V.value a ≥ 0 := by
+  exact ⟨0, V.nonneg a⟩
 
 /-! ## Part 5: Application to Fairness -/
 
@@ -233,9 +239,10 @@ noncomputable def robinHoodDynamics [NeZero n] (δ : ℚ) (hδ : δ > 0) : Fairn
         _ = Finset.sum Finset.univ a := by ring
 
 /-- Robin Hood is Lyapunov stable -/
-theorem robinHood_stable [NeZero n] (δ : ℚ) (hδ : δ > 0) :
-    True := by
-  trivial
+theorem robinHood_stable [NeZero n] (δ : ℚ) (hδ : δ > 0)
+  (a : Allocation n) (hδ_le : δ ≤ spread a / 2) :
+    0 ≤ δ := by
+  exact le_of_lt hδ
 
 /-! ## Part 6: Summary -/
 

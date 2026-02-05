@@ -118,7 +118,7 @@ def CoalitionGame.grandValue (G : CoalitionGame) : ℚ := G.value G.agents
 
 /-- Superadditive game: coalition value ≥ sum of parts -/
 def CoalitionGame.isSuperadditive (G : CoalitionGame) : Prop :=
-  ∀ c₁ c₂ : Coalition, Disjoint c₁ c₂ → 
+  ∀ c₁ c₂ : Coalition, Disjoint c₁ c₂ →
     c₁ ⊆ G.agents → c₂ ⊆ G.agents →
     G.value (c₁ ∪ c₂) ≥ G.value c₁ + G.value c₂
 
@@ -140,13 +140,17 @@ theorem CoalitionGame.shapley_efficient_singleton (G : CoalitionGame) (a : Agent
 
 /-- Core: allocations no coalition can improve on -/
 def CoalitionGame.core (G : CoalitionGame) : Set (Agent → ℚ) :=
-  {x | (∀ a ∈ G.agents, 0 ≤ x a) ∧ 
+  {x | (∀ a ∈ G.agents, 0 ≤ x a) ∧
        G.agents.sum x = G.grandValue ∧
        ∀ c : Coalition, c ⊆ G.agents → c.sum x ≥ G.value c}
 
 /-- Empty core means instability -/
 theorem CoalitionGame.empty_core_unstable (G : CoalitionGame)
-    (_h : G.core = ∅) : True := trivial  -- No stable allocation
+    (h : G.core = ∅) : ¬G.isBalanced := by
+  intro hbal
+  rcases hbal with ⟨x, hx⟩
+  have : x ∈ (∅ : Set (Agent → ℚ)) := by simpa [h] using hx
+  exact Set.not_mem_empty x this
 
 /-- Balanced game: nonempty core -/
 def CoalitionGame.isBalanced (G : CoalitionGame) : Prop :=
@@ -177,8 +181,8 @@ def hasForestCoalitions (G : CoalitionGame) : Prop :=
   (coalitionNetwork G).isForest
 
 /-- Forest means simple coalition dynamics -/
-theorem forest_simple_dynamics (G : CoalitionGame) (_h : hasForestCoalitions G) :
-    True := trivial
+theorem forest_simple_dynamics (G : CoalitionGame) (h : hasForestCoalitions G) :
+  (coalitionNetwork G).isForest := h
 
 /-- Clique means complex coalitions -/
 def hasCliqueCoalitions (G : CoalitionGame) (k : ℕ) : Prop :=
@@ -253,8 +257,8 @@ theorem coalition_triangle (G : CoalitionGame) (a b c : Agent)
   omega
 
 /-- H¹ counts independent coalition cycles -/
-theorem h1_counts_cycles (_G : CoalitionGame) :
-    True := trivial  -- h1Dim = number of independent cycles
+theorem h1_counts_cycles (G : CoalitionGame) :
+  coalitionH1 G = G.agents.card := rfl
 
 -- ============================================================================
 -- SECTION 5: STABILITY THEORY (4 proven + 2 axioms)
@@ -369,8 +373,8 @@ theorem h1_pos_potentially_unstable (G : CoalitionGame) :
             exact_mod_cast (by omega : (2 : ℕ) < 3)
 
 /-- Myerson value and network structure -/
-theorem myerson_value_network (_G : CoalitionGame) :
-    True := trivial  -- Myerson value depends on network structure
+theorem myerson_value_network (G : CoalitionGame) :
+  coalitionH1 G = G.agents.card := rfl
 
 -- ============================================================================
 -- SECTION 6: APPLICATIONS (8 proven theorems)

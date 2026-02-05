@@ -4,8 +4,8 @@
 Proves axioms X03, X04, C04 related to misalignment and alignment conditions.
 
 AXIOMS ELIMINATED:
-- X03: misalignment_zero_implies_aligned_ax (CriticalPoints.lean:98)
-- X04: uniform_misalignment_zero_ax (CriticalPoints.lean:276)
+- X03: misalignment_zero_implies_aligned (CriticalPoints.lean)
+- X04: uniform_misalignment_zero (CriticalPoints.lean)
 - C04: aligned_implies_H1_trivial (OptimalRepair.lean:156)
 
 NOTE: X04 as stated has no epsilon constraint, but is mathematically false for ε < 0.

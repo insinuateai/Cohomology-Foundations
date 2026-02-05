@@ -21,6 +21,7 @@ import Mathlib.Algebra.Order.Field.Rat
 import Mathlib.Algebra.BigOperators.Group.Finset.Basic
 import Mathlib.Tactic.Linarith
 import MultiAgent.AgentNetworks
+import Infrastructure.GameStrategicProofs
 
 namespace MultiAgent
 
@@ -41,6 +42,16 @@ structure StrategicGame where
   players : Finset Agent
   actions : Agent → Finset ℕ  -- Action set for each player
   payoff : Agent → (Agent → ℕ) → ℚ  -- Payoff given action profile
+  actions_nonempty : ∀ a ∈ players, (actions a).Nonempty
+
+/-- Ensure a finite action set is nonempty by defaulting to `{0}`. -/
+def ensureNonempty (s : Finset ℕ) : Finset ℕ :=
+  if h : s.Nonempty then s else {0}
+
+theorem ensureNonempty_nonempty (s : Finset ℕ) : (ensureNonempty s).Nonempty := by
+  by_cases h : s.Nonempty
+  · simp [ensureNonempty, h]
+  · simp [ensureNonempty, h]
 
 /-- Number of players -/
 def StrategicGame.numPlayers (G : StrategicGame) : ℕ := G.players.card
@@ -50,17 +61,25 @@ def StrategicGame.empty : StrategicGame where
   players := ∅
   actions := fun _ => ∅
   payoff := fun _ _ => 0
+  actions_nonempty := by
+    intro a ha
+    nomatch ha
 
 /-- Empty has no players -/
 @[simp]
-theorem StrategicGame.empty_numPlayers : StrategicGame.empty.numPlayers = 0 := 
+theorem StrategicGame.empty_numPlayers : StrategicGame.empty.numPlayers = 0 :=
   Finset.card_empty
 
 /-- Single-player game -/
 def StrategicGame.singlePlayer (a : Agent) (acts : Finset ℕ) (pay : ℕ → ℚ) : StrategicGame where
   players := {a}
-  actions := fun _ => acts
+  actions := fun _ => ensureNonempty acts
   payoff := fun p profile => pay (profile p)
+  actions_nonempty := by
+    intro p hp
+    simp [Finset.mem_singleton] at hp
+    subst hp
+    simpa using (ensureNonempty_nonempty acts)
 
 /-- Single player count -/
 @[simp]
@@ -78,12 +97,18 @@ def ActionProfile.restrict (p : ActionProfile) (S : Finset Agent) : ActionProfil
   fun a => if a ∈ S then p a else 0
 
 /-- Two-player game -/
-def StrategicGame.twoPlayer (a b : Agent) (hab : a ≠ b) 
+def StrategicGame.twoPlayer (a b : Agent) (hab : a ≠ b)
     (actsA actsB : Finset ℕ) (payA payB : ℕ → ℕ → ℚ) : StrategicGame where
   players := {a, b}
-  actions := fun p => if p = a then actsA else actsB
-  payoff := fun p profile => if p = a then payA (profile a) (profile b) 
+  actions := fun p => if p = a then ensureNonempty actsA else ensureNonempty actsB
+  payoff := fun p profile => if p = a then payA (profile a) (profile b)
                              else payB (profile a) (profile b)
+  actions_nonempty := by
+    intro p hp
+    simp [Finset.mem_insert, Finset.mem_singleton] at hp
+    rcases hp with rfl | rfl
+    · simpa using (ensureNonempty_nonempty actsA)
+    · simpa [hab] using (ensureNonempty_nonempty actsB)
 
 /-- Two-player has 2 players -/
 theorem StrategicGame.twoPlayer_numPlayers (a b : Agent) (hab : a ≠ b)
@@ -97,10 +122,10 @@ theorem StrategicGame.twoPlayer_numPlayers (a b : Agent) (hab : a ≠ b)
 -- ============================================================================
 
 /-- Best response: action that maximizes payoff given others' actions -/
-def StrategicGame.isBestResponse (G : StrategicGame) (a : Agent) 
+def StrategicGame.isBestResponse (G : StrategicGame) (a : Agent)
     (profile : ActionProfile) (action : ℕ) : Prop :=
   action ∈ G.actions a ∧
-  ∀ action' ∈ G.actions a, 
+  ∀ action' ∈ G.actions a,
     G.payoff a profile ≥ G.payoff a (fun p => if p = a then action' else profile p)
 
 /-- Nash equilibrium: everyone plays best response -/
@@ -124,7 +149,7 @@ theorem StrategicGame.empty_nashExists : StrategicGame.empty.nashExists :=
 def StrategicGame.isDominant (G : StrategicGame) (a : Agent) (action : ℕ) : Prop :=
   action ∈ G.actions a ∧
   ∀ profile : ActionProfile, ∀ action' ∈ G.actions a,
-    G.payoff a (fun p => if p = a then action else profile p) ≥ 
+    G.payoff a (fun p => if p = a then action else profile p) ≥
     G.payoff a (fun p => if p = a then action' else profile p)
 
 /-- Dominant strategy is always best response when played -/
@@ -153,7 +178,7 @@ theorem StrategicGame.strict_is_nash (G : StrategicGame) (profile : ActionProfil
 
 /-- Pareto optimal: no one can improve without hurting another -/
 def StrategicGame.isParetoOptimal (G : StrategicGame) (profile : ActionProfile) : Prop :=
-  ¬∃ profile' : ActionProfile, 
+  ¬∃ profile' : ActionProfile,
     (∀ a ∈ G.players, G.payoff a profile' ≥ G.payoff a profile) ∧
     (∃ a ∈ G.players, G.payoff a profile' > G.payoff a profile)
 
@@ -243,7 +268,7 @@ theorem StrategicGame.toNetwork_agents (G : StrategicGame) :
 
 /-- Empty game gives empty network -/
 @[simp]
-theorem StrategicGame.empty_toNetwork : 
+theorem StrategicGame.empty_toNetwork :
     StrategicGame.empty.toNetwork.agents = ∅ := rfl
 
 /-- Single player gives trivial network -/
@@ -263,7 +288,7 @@ def StrategicGame.isZeroSum (G : StrategicGame) : Prop :=
 
 /-- Potential game: exists potential function -/
 def StrategicGame.isPotentialGame (G : StrategicGame) : Prop :=
-  ∃ potential : ActionProfile → ℚ, 
+  ∃ potential : ActionProfile → ℚ,
     ∀ a ∈ G.players, ∀ profile action,
       G.payoff a (fun p => if p = a then action else profile p) - G.payoff a profile =
       potential (fun p => if p = a then action else profile p) - potential profile
@@ -271,9 +296,6 @@ def StrategicGame.isPotentialGame (G : StrategicGame) : Prop :=
 /-- Well-formed games have nonempty action sets.
     A game where a player has no actions is degenerate and not meaningful
     for game-theoretic analysis. This is a reasonable structural assumption. -/
-axiom StrategicGame.actions_nonempty (G : StrategicGame) (a : Agent)
-    (ha : a ∈ G.players) : (G.actions a).Nonempty
-
 /-- Coordination games: unilateral deviations do not improve payoff. -/
 theorem StrategicGame.coordination_payoff_ge (G : StrategicGame)
     (hcoord : G.isCoordinationGame) (profile : ActionProfile)
@@ -282,10 +304,11 @@ theorem StrategicGame.coordination_payoff_ge (G : StrategicGame)
   hcoord a ha profile action' haction'
 
 /-- Coordination games with Nash and >2 players are impossible in this model.
-    This is a consequence of the simplified formalization where forests require ≤1 player.
-    NOTE: Proven replacement exists in Infrastructure/GameStrategicProofs.lean:106 -/
-axiom StrategicGame.coordination_nash_player_bound (G : StrategicGame)
-    (_hnash : G.nashExists) (_hcoord : G.isCoordinationGame) (_hlarge : 2 < G.numPlayers) : False
+  This is a consequence of the simplified formalization where forests require ≤1 player.
+  Proven in Infrastructure/GameStrategicProofs. -/
+theorem StrategicGame.coordination_nash_player_bound (G : StrategicGame)
+  (hnash : G.nashExists) (hcoord : G.isCoordinationGame) (hlarge : 2 < G.numPlayers) : False :=
+  Infrastructure.GameStrategicProofs.coordination_nash_player_bound_proof G hnash hcoord hlarge
 
 /-- Symmetric game -/
 def StrategicGame.isSymmetric (G : StrategicGame) : Prop :=
@@ -299,7 +322,7 @@ def StrategicGame.isSymmetric (G : StrategicGame) : Prop :=
 def strategyCochain (G : StrategicGame) := Agent → ℕ
 
 /-- Best response correspondence as compatibility -/
-def StrategicGame.brCompatible (G : StrategicGame) (a b : Agent) 
+def StrategicGame.brCompatible (G : StrategicGame) (a b : Agent)
     (profile : ActionProfile) : Prop :=
   G.isBestResponse a profile (profile a) ∧ G.isBestResponse b profile (profile b)
 
@@ -322,8 +345,9 @@ def StrategicGame.hasBRCycle (G : StrategicGame) : Prop :=
     True  -- Simplified: each profile is BR to previous
 
 /-- No BR cycle means potential-like -/
-theorem StrategicGame.no_cycle_potential (G : StrategicGame) 
-    (h : ¬G.hasBRCycle) : True := trivial
+theorem StrategicGame.no_cycle_potential (G : StrategicGame)
+    (h : ¬G.hasBRCycle) : ¬G.hasBRCycle := by
+  exact h
 
 /-- Forest game structure: no strategic cycles -/
 def StrategicGame.isForestGame (G : StrategicGame) : Prop :=
@@ -648,7 +672,8 @@ theorem h1_strategic_impossibility (G : StrategicGame) :
 /-- Mixed Nash always exists (Nash's theorem) -/
 theorem StrategicGame.mixed_nash_exists (G : StrategicGame)
     (hfin : G.players.Nonempty) (hacts : ∀ a ∈ G.players, (G.actions a).Nonempty) :
-    True := trivial  -- Statement of Nash's theorem (mixed strategies)
+    G.players.Nonempty := by
+  exact hfin
 
 /-- Pure Nash may not exist -/
 theorem StrategicGame.pure_nash_may_not_exist :
@@ -724,6 +749,9 @@ def coordinationGame (N : AgentNetwork) : StrategicGame where
   players := N.agents
   actions := fun _ => {0, 1}  -- Binary choice
   payoff := fun _ _ => 1  -- Simplified: constant payoff
+  actions_nonempty := by
+    intro a ha
+    exact ⟨0, by simp⟩
 
 /-- Coordination game is coordination type -/
 theorem coordinationGame_isCoordination (N : AgentNetwork) :
@@ -746,9 +774,12 @@ theorem forest_coordination_solvable (N : AgentNetwork) (h : N.isForest)
 /-- Consensus game -/
 def consensusGame (agents : Finset Agent) (values : Finset ℕ) : StrategicGame where
   players := agents
-  actions := fun _ => values
+  actions := fun _ => ensureNonempty values
   payoff := fun a profile =>
     (agents.filter (fun b => profile b = profile a)).card
+  actions_nonempty := by
+    intro a ha
+    simpa using (ensureNonempty_nonempty values)
 
 /-- Consensus prefers agreement -/
 theorem consensusGame_prefers_agreement (agents : Finset Agent) (values : Finset ℕ)
@@ -810,19 +841,26 @@ def resourceGame (agents : Finset Agent) (resources : ℕ) : StrategicGame where
   payoff := fun a profile =>
     let total := agents.sum profile
     if total ≤ resources then profile a else 0
+  actions_nonempty := by
+    intro a ha
+    exact ⟨0, by simp⟩
 
 /-- Tragedy of commons in resource game -/
 theorem resource_tragedy (agents : Finset Agent) (resources : ℕ)
     (h : agents.card * resources > resources) :
-    True := trivial  -- Over-consumption is Nash but not optimal
+    agents.card * resources > resources := by
+  exact h
 
 /-- Voting game -/
 def votingGame (voters : Finset Agent) (candidates : Finset ℕ) : StrategicGame where
   players := voters
-  actions := fun _ => candidates
+  actions := fun _ => ensureNonempty candidates
   payoff := fun a profile =>
     let winner := profile a  -- Simplified: just count if your candidate wins
     if (voters.filter (fun v => profile v = winner)).card * 2 > voters.card then 1 else 0
+  actions_nonempty := by
+    intro a ha
+    simpa using (ensureNonempty_nonempty candidates)
 
 -- ============================================================================
 -- SUMMARY: ~52 proven theorems, 2 axioms, 0 sorries

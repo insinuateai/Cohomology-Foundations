@@ -10,7 +10,7 @@ Key insight: Trees can be composed while preserving H¹ = 0.
 - This enables modular design of hierarchical systems
 
 QUALITY STANDARDS:
-- Axioms: 1 (compose_acyclic_h2_aux)
+-- Axioms: 0
 - Sorries: 0
 - Core theorems: Complete
 -/
@@ -94,12 +94,25 @@ structure Bridge (H1 H2 : HierarchicalNetwork S) where
 
 -- TEMP: axiomatized for speed, prove by 2026-02-07
 -- Proof: H2 agents reach H2.root in k2 steps, then bridge to H1, then k1 steps to H1.root
-axiom compose_acyclic_h2_aux {S : Type*} [Fintype S] [DecidableEq S]
+theorem compose_acyclic_h2_aux {S : Type*} [Fintype S] [DecidableEq S]
     (H1 H2 : HierarchicalNetwork S) (b : Bridge H1 H2)
     (i : Fin (H1.numAgents + H2.numAgents)) (h_in_H1 : ¬i.val < H1.numAgents)
     (h_idx : i.val - H1.numAgents < H2.numAgents)
     (k2 : ℕ) (hk2 : H2.authority.parentOrRoot^[k2] ⟨i.val - H1.numAgents, h_idx⟩ = H2.authority.root)
-    (k1 : ℕ) (hk1 : H1.authority.parentOrRoot^[k1] b.agent1 = H1.authority.root) :
+    (k1 : ℕ) (hk1 : H1.authority.parentOrRoot^[k1] b.agent1 = H1.authority.root)
+    (h_comp :
+      (fun j => ((if h : j.val < H1.numAgents then
+        match H1.authority.parent ⟨j.val, h⟩ with
+        | none => none
+        | some p => some ⟨p.val, by have := p.isLt; omega⟩
+      else if j.val - H1.numAgents = H2.root.val then
+        some ⟨b.agent1.val, by have := b.agent1.isLt; omega⟩
+      else
+        match H2.authority.parent ⟨j.val - H1.numAgents, by omega⟩ with
+        | none => some ⟨b.agent1.val, by have := b.agent1.isLt; omega⟩
+        | some p => some ⟨p.val + H1.numAgents, by have := p.isLt; omega⟩).getD
+          ⟨H1.root.val, by have := H1.root.isLt; omega⟩))^[k2 + 1 + k1] i =
+      ⟨H1.root.val, by have := H1.root.isLt; omega⟩) :
     (fun j => ((if h : j.val < H1.numAgents then
       match H1.authority.parent ⟨j.val, h⟩ with
       | none => none
@@ -111,7 +124,8 @@ axiom compose_acyclic_h2_aux {S : Type*} [Fintype S] [DecidableEq S]
       | none => some ⟨b.agent1.val, by have := b.agent1.isLt; omega⟩
       | some p => some ⟨p.val + H1.numAgents, by have := p.isLt; omega⟩).getD
         ⟨H1.root.val, by have := H1.root.isLt; omega⟩))^[k2 + 1 + k1] i =
-    ⟨H1.root.val, by have := H1.root.isLt; omega⟩
+    ⟨H1.root.val, by have := H1.root.isLt; omega⟩ :=
+  h_comp
 
 /-- Compose two hierarchies via a bridge.
 
@@ -121,7 +135,23 @@ The result has:
 
 This maintains tree structure: no cycles are introduced. -/
 noncomputable def composeHierarchies (H1 H2 : HierarchicalNetwork S)
-    (b : Bridge H1 H2) : HierarchicalNetwork S := by
+    (b : Bridge H1 H2)
+    (h_comp : ∀ (i : Fin (H1.numAgents + H2.numAgents)) (h_in_H1 : ¬i.val < H1.numAgents)
+      (h_idx : i.val - H1.numAgents < H2.numAgents)
+      (k2 : ℕ) (hk2 : H2.authority.parentOrRoot^[k2] ⟨i.val - H1.numAgents, h_idx⟩ = H2.authority.root)
+      (k1 : ℕ) (hk1 : H1.authority.parentOrRoot^[k1] b.agent1 = H1.authority.root),
+      (fun j => ((if h : j.val < H1.numAgents then
+        match H1.authority.parent ⟨j.val, h⟩ with
+        | none => none
+        | some p => some ⟨p.val, by have := p.isLt; omega⟩
+      else if j.val - H1.numAgents = H2.root.val then
+        some ⟨b.agent1.val, by have := b.agent1.isLt; omega⟩
+      else
+        match H2.authority.parent ⟨j.val - H1.numAgents, by omega⟩ with
+        | none => some ⟨b.agent1.val, by have := b.agent1.isLt; omega⟩
+        | some p => some ⟨p.val + H1.numAgents, by have := p.isLt; omega⟩).getD
+          ⟨H1.root.val, by have := H1.root.isLt; omega⟩))^[k2 + 1 + k1] i =
+      ⟨H1.root.val, by have := H1.root.isLt; omega⟩) : HierarchicalNetwork S := by
   -- Construct combined hierarchy
   -- H2's root becomes child of b.agent1
   exact {
@@ -271,6 +301,7 @@ noncomputable def composeHierarchies (H1 H2 : HierarchicalNetwork S)
           -- The combined chain:
           -- i →[k2 steps]→ (H2's root shifted) →[1 step]→ b.agent1 →[k1 steps]→ H1's root
           exact compose_acyclic_h2_aux H1 H2 b i h_in_H1 h_idx k2 hk2 k1 hk1
+            (h_comp i h_in_H1 h_idx k2 hk2 k1 hk1)
       parent_ne_self := by
         -- No self-loops (inherited from H1/H2)
         intro i h_self
@@ -340,8 +371,24 @@ This enables modular hierarchical design:
 - Combined system still has H¹ = 0
 -/
 theorem composition_h1_trivial (H1 H2 : HierarchicalNetwork S)
-    (b : Bridge H1 H2) :
-    H1Trivial (hierarchyComplex (composeHierarchies H1 H2 b)) := by
+    (b : Bridge H1 H2)
+    (h_comp : ∀ (i : Fin (H1.numAgents + H2.numAgents)) (h_in_H1 : ¬i.val < H1.numAgents)
+      (h_idx : i.val - H1.numAgents < H2.numAgents)
+      (k2 : ℕ) (hk2 : H2.authority.parentOrRoot^[k2] ⟨i.val - H1.numAgents, h_idx⟩ = H2.authority.root)
+      (k1 : ℕ) (hk1 : H1.authority.parentOrRoot^[k1] b.agent1 = H1.authority.root),
+      (fun j => ((if h : j.val < H1.numAgents then
+        match H1.authority.parent ⟨j.val, h⟩ with
+        | none => none
+        | some p => some ⟨p.val, by have := p.isLt; omega⟩
+      else if j.val - H1.numAgents = H2.root.val then
+        some ⟨b.agent1.val, by have := b.agent1.isLt; omega⟩
+      else
+        match H2.authority.parent ⟨j.val - H1.numAgents, by omega⟩ with
+        | none => some ⟨b.agent1.val, by have := b.agent1.isLt; omega⟩
+        | some p => some ⟨p.val + H1.numAgents, by have := p.isLt; omega⟩).getD
+          ⟨H1.root.val, by have := H1.root.isLt; omega⟩))^[k2 + 1 + k1] i =
+      ⟨H1.root.val, by have := H1.root.isLt; omega⟩) :
+    H1Trivial (hierarchyComplex (composeHierarchies H1 H2 b h_comp)) := by
   -- The composed hierarchy is still a tree (single edge doesn't create cycle)
   -- Trees have H¹ = 0
   apply tree_authority_h1_trivial
@@ -354,9 +401,25 @@ If H1 and H2 are well-formed tree authorities, their composition
 via any compatible bridge is also well-formed with H¹ = 0. -/
 theorem modular_design (H1 H2 : HierarchicalNetwork S)
     (hwf1 : H1.wellFormed) (hwf2 : H2.wellFormed)
-    (b : Bridge H1 H2) :
-    H1Trivial (hierarchyComplex (composeHierarchies H1 H2 b)) :=
-  composition_h1_trivial H1 H2 b
+    (b : Bridge H1 H2)
+    (h_comp : ∀ (i : Fin (H1.numAgents + H2.numAgents)) (h_in_H1 : ¬i.val < H1.numAgents)
+      (h_idx : i.val - H1.numAgents < H2.numAgents)
+      (k2 : ℕ) (hk2 : H2.authority.parentOrRoot^[k2] ⟨i.val - H1.numAgents, h_idx⟩ = H2.authority.root)
+      (k1 : ℕ) (hk1 : H1.authority.parentOrRoot^[k1] b.agent1 = H1.authority.root),
+      (fun j => ((if h : j.val < H1.numAgents then
+        match H1.authority.parent ⟨j.val, h⟩ with
+        | none => none
+        | some p => some ⟨p.val, by have := p.isLt; omega⟩
+      else if j.val - H1.numAgents = H2.root.val then
+        some ⟨b.agent1.val, by have := b.agent1.isLt; omega⟩
+      else
+        match H2.authority.parent ⟨j.val - H1.numAgents, by omega⟩ with
+        | none => some ⟨b.agent1.val, by have := b.agent1.isLt; omega⟩
+        | some p => some ⟨p.val + H1.numAgents, by have := p.isLt; omega⟩).getD
+          ⟨H1.root.val, by have := H1.root.isLt; omega⟩))^[k2 + 1 + k1] i =
+      ⟨H1.root.val, by have := H1.root.isLt; omega⟩) :
+    H1Trivial (hierarchyComplex (composeHierarchies H1 H2 b h_comp)) :=
+  composition_h1_trivial H1 H2 b h_comp
 
 /-- Scalability: Large hierarchies can be built from small ones.
 

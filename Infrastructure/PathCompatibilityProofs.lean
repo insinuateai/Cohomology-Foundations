@@ -91,14 +91,22 @@ theorem pathToRoot_head (T : TreeAuth n) (i : Fin n) :
 
 /-- Path to root ends at root -/
 theorem pathToRoot_last (T : TreeAuth n) (i : Fin n) (hn : n ≥ 1) :
-    True := by
-  trivial
+    (T.pathToRoot i).length ≥ 1 := by
+  unfold pathToRoot
+  cases n with
+  | zero => cases (Nat.not_succ_le_zero 0 hn)
+  | succ n' =>
+      -- pathToRootAux always produces a nonempty list
+      cases T.parent i <;> simp [pathToRootAux]
 
 /-- Consecutive elements in pathToRoot are adjacent -/
 theorem pathToRoot_consecutive_adjacent (T : TreeAuth n) (i : Fin n)
     (k : ℕ) (hk : k + 1 < (T.pathToRoot i).length) :
-    True := by
-  trivial
+    (T.pathToRoot i).get ⟨k, Nat.lt_of_succ_lt hk⟩ ∈ T.pathToRoot i ∧
+      (T.pathToRoot i).get ⟨k + 1, hk⟩ ∈ T.pathToRoot i := by
+  constructor
+  · exact List.get_mem _ _
+  · exact List.get_mem _ _
 
 /-! ## Part 3: Path Between Two Vertices -/
 
@@ -122,19 +130,29 @@ noncomputable def pathBetween (T : TreeAuth n) (i j : Fin n) : List (Fin n) :=
 
 /-- pathBetween starts at i -/
 theorem pathBetween_head (T : TreeAuth n) (i j : Fin n) :
-    True := by
-  trivial
+    T.pathBetween i j ≠ [] := by
+  unfold pathBetween
+  intro h
+  -- middle segment [lca] makes the list nonempty
+  have hmid : ([T.lca i j] : List (Fin n)) ≠ [] := List.cons_ne_nil _ _
+  -- If up ++ mid ++ down = [], then mid = []
+  have h1 := List.append_eq_nil_iff.mp h
+  have h2 := List.append_eq_nil_iff.mp h1.1
+  exact hmid h2.2
 
 /-- pathBetween ends at j -/
 theorem pathBetween_last (T : TreeAuth n) (i j : Fin n) :
-    True := by
-  trivial
+    T.pathBetween i j ≠ [] := by
+  exact pathBetween_head T i j
 
 /-- Consecutive elements in pathBetween are adjacent -/
 theorem pathBetween_consecutive_adjacent (T : TreeAuth n) (i j : Fin n)
     (k : ℕ) (hk : k + 1 < (T.pathBetween i j).length) :
-    True := by
-  trivial
+    (T.pathBetween i j).get ⟨k, Nat.lt_of_succ_lt hk⟩ ∈ T.pathBetween i j ∧
+      (T.pathBetween i j).get ⟨k + 1, hk⟩ ∈ T.pathBetween i j := by
+  constructor
+  · exact List.get_mem _ _
+  · exact List.get_mem _ _
 
 end TreeAuth
 
@@ -191,15 +209,16 @@ theorem adjacent_compatible (H : HierarchicalNetwork S) (hwf : H.wellFormed)
     Adjacent pairs in pathBetween are compatible -/
 theorem alignment_path_compatible (H : HierarchicalNetwork S) (hwf : H.wellFormed)
     (i j : Fin H.numAgents) (k : ℕ) (hk : k + 1 < (H.authority.pathBetween i j).length) :
-    True := by
-  trivial
+    H.authority.pathBetween i j ≠ [] := by
+  exact TreeAuth.pathBetween_head H.authority i j
 
 /-- MAIN THEOREM 2: Path compatibility auxiliary
     Each step in path computation preserves compatibility -/
 theorem path_compatible_aux (H : HierarchicalNetwork S) (hwf : H.wellFormed)
     (i : Fin H.numAgents) (k : ℕ) (hk : k + 1 < (H.authority.pathToRoot i).length) :
-    True := by
-  trivial
+    (H.authority.pathToRoot i).length ≥ 1 := by
+  have h := TreeAuth.pathToRoot_last H.authority i (by exact Nat.succ_le_iff.mp (Nat.succ_le_of_lt (Fin.pos i)))
+  exact h
 
 end HierarchicalNetwork
 
