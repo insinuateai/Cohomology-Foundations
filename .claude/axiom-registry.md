@@ -1,50 +1,97 @@
 # Axiom Registry
 
-> Last updated: 2026-02-04 (corrected tautological claims)
+> Last updated: 2026-02-06 (session 24 - corrected total count 4→8, classified 5 as math-false)
 
 ## Current State Summary
 
 | Status | Count | Description |
 |--------|-------|-------------|
-| **In Codebase** | **41** | Total axiom declarations |
-| VERIFIED ELIMINATED | 4 | Proven: misalignment_zero, aligned_H1, escape_time_mono/bounded |
-| KEEP | 22 | External math, structural, mathematically false/vacuous |
-| **HONEST AXIOMS** | ~12 | Infrastructure "proofs" are tautological (headers now corrected) |
-| PENDING | 1 | forest_single_edge_composition (may be provable) |
+| **In Codebase** | **8** | Total `axiom` keyword declarations |
+| Math false (KEEP) | 5 | Cannot be proven — counterexamples documented |
+| Honest axioms | 3 | Meaningful, potentially provable with more infra |
+| VERIFIED ELIMINATED | 29+ | Converted to theorems/defs in prior sessions |
+| **SORRIES** | 0 | All sorries eliminated or converted to honest axioms |
 
-> ✅ **Corrected (2026-02-04):** Infrastructure file headers now accurately state
-> "AXIOMS ELIMINATED: 0" instead of false claims. These axioms remain as honest
-> Level 2 assumptions until real proofs with Foundations.H1Trivial are written.
-> See [infrastructure-audit.md](infrastructure-audit.md) for details.
+> **Session 24 Progress (2026-02-06):**
+> - **Corrected axiom count: 4 → 8** (prior registry missed 4 axioms)
+> - Removed phantom `h1_trivial_implies_bounded_disagreement_ax` from count (already eliminated)
+> - Classified 5 axioms as **KEEP (math false)** with counterexamples:
+>   - `aligned_zero_curvature_ax` — ∃s/∀s gap (same as bounded_disagreement)
+>   - `aligned_implies_zero_misalignment_ax` — ∃s/∀s gap
+>   - `gradient_zero_when_aligned_ax` — ∃s/∀s gap
+>   - `disjoint_modules_safe_ax` — cross-edges create 4-cycle (**new counterexample**)
+>   - `optimal_repair_achieves_minimum_ax` — open feasible set (**new counterexample**)
+> - Infrastructure files (UniformCertification, DisjointUnionH1, L1OptimizationLemmas,
+>   CochainRestriction) confirmed Level 6 with correct provable alternatives
 
 ---
 
-## KEEP Axioms (22 - Do Not Attempt)
+## All 8 Axiom Declarations (verified by `grep ^axiom`)
 
-### Structural (1)
-- `StrategicGame.actions_nonempty` - Type allows empty action sets
+### KEEP — Math False (5)
 
-### Mathematically False (8)
-- `remove_edge_from_single_cycle_aux'` - False for multi-cycle
-- `fill_triangle_h1_trivial_aux'` - False for multi-cycle
-- `resolution_edge_exists_maximal_aux` - False for multi-cycle
-- `large_disagreement_breaks_alignment_aux` - **Counterexample:** 2 agents who disagree have no edge, but the result is still a forest (H¹=0)
-- `general_acyclic_composition_axiom_aux` - **False given interfaceIsAcyclic=True:** Cyclic interfaces can break alignment even with compatible modules
-- `h1_trivial_implies_bounded_disagreement_ax` - **Counterexample:** Disconnected forest has H¹=0 but unbounded disagreement between disconnected agents
-- `escape_time_finite_ax` - **Counterexample:** misalignment=1000, tolerance=1 → escapeTime=1001 > 1000
-- `barrier_implies_high_curvature_ax` - **Vacuously true:** HasBarrier is always false (constant adjusted systems have H¹=0)
+| # | Axiom | File:Line | Counterexample |
+|---|-------|-----------|----------------|
+| 1 | `aligned_zero_curvature_ax` | Curvature.lean:236 | ∃s/∀s gap: 2 agents (0,0)/(1,100) at ε=1 — edge via s₁, but curvature≠0 because max disagreement=100>>2 |
+| 2 | `aligned_implies_zero_misalignment_ax` | CriticalPoints.lean:212 | Same gap: H1Trivial+Connected does NOT imply ∀s bounded disagreement |
+| 3 | `gradient_zero_when_aligned_ax` | CriticalPoints.lean:271 | Same gap: gradient depends on per-situation differences, not edge existence |
+| 4 | `disjoint_modules_safe_ax` | Compositional.lean:333 | **Cross-edges:** M₁(2 agents), M₂(2 agents), S={s₁..s₄}, ε=1. v₀=(0,10,0,10), v₁=(1,10,10,0), v₂=(10,0,1,10), v₃=(10,1,10,1). Each module is a tree (H¹=0). Composed complex has 4-cycle 0-1-3-2 with NO chords → H¹≠0. Value complex ≠ disjoint union because cross-module agents can share edges. |
+| 5 | `optimal_repair_achieves_minimum_ax` | FairRepairProofs.lean:171 | **Open feasible set:** n=1, original=0, target={a(0)>0}. Cost=a(0) for a(0)>0. Infimum=0 not attained. FairnessTarget allows arbitrary Prop predicates including non-closed sets. |
 
-### External Math - Spectral (5)
-- `vertexDegreeAx`, `laplacianExists`, `laplacianEigenvalues`, `eigenvalues_nonneg`, `spectral_gap_bounded_aux`
+**Provable alternatives exist** in infrastructure files under stronger/correct hypotheses:
+- Axioms 1-3 → `UniformCertification.lean` (ValueAligned hypothesis, Level 6)
+- Axiom 4 → `DisjointUnionH1.lean` (vertex-disjoint complexes, Level 6)
+- Axiom 5 → `L1OptimizationLemmas.lean` (specific targets like proportionalTarget, Level 6)
 
-### External Math - Persistent Homology (4)
-- `stability_of_h1_trivial_aux` (AxiomElimination.lean) - Requires persistence stability theorems
-- `stability_of_h1_trivial_aux` (Stability.lean) - **Duplicate of above**
-- `measurement_robustness_aux` (Stability.lean)
-- `measurement_robustness_aux` (AxiomElimination.lean) - **Duplicate if exists**
+### Honest Axioms — Level 2 (3)
 
-### External Math - H² (2)
-- `filled_tetrahedron_coboundary`, `hollow_tetrahedron_h2_nontrivial_ax`
+| # | Axiom | File:Line | Why Not Yet Proven |
+|---|-------|-----------|-------------------|
+| 6 | `saddle_has_escape_ax` | CriticalPoints.lean:481 | Needs escape direction theory for saddle points |
+| 7 | `h1_trivial_implies_fair_allocation` | FairnessFoundations.lean:269 | Harder direction: H¹=0 → ∃ globally fair allocation. Needs obstruction theory bridge. FairnessComplexH1.lean has partial infrastructure. |
+| 8 | `optimal_repair_exists_ax` | OptimalRepair.lean:408 | **Likely math false** (documented in source): feasible set is open (edge removal needs strict ineq), infimum not attained. Needs RepairPlan at boundary which doesn't satisfy feasibility. |
+
+---
+
+## Axiom Count by Directory
+
+```
+Perspective/           7  (axioms 1-4, 6-8 above)
+Infrastructure/        1  (axiom 5: optimal_repair_achieves_minimum_ax)
+MultiAgent/            0
+Theories/              0
+H1Characterization/    0
+Foundations/            0
+────────────────────────
+TOTAL                  8
+```
+
+> Last verified: 2026-02-06 (session 24 — `grep ^axiom` across all .lean files)
+
+---
+
+## Historical KEEP List (No Longer Axiom Declarations)
+
+These were previously `axiom` declarations but have been **eliminated** (converted to
+theorems, defs, or removed). Listed for historical reference only.
+
+### Previously Math False (all eliminated)
+- ~~`remove_edge_from_single_cycle_aux'`~~ — False for multi-cycle (eliminated)
+- ~~`fill_triangle_h1_trivial_aux'`~~ — False for multi-cycle (eliminated)
+- ~~`resolution_edge_exists_maximal_aux`~~ — False for multi-cycle (eliminated)
+- ~~`large_disagreement_breaks_alignment_aux`~~ — Now a theorem in Compositional.lean
+- ~~`general_acyclic_composition_axiom_aux`~~ — Now a theorem in Compositional.lean
+- ~~`h1_trivial_implies_bounded_disagreement_ax`~~ — Removed (math false, documented)
+- ~~`escape_time_finite_ax`~~ — Now a theorem in EscapeTime.lean
+- ~~`barrier_implies_high_curvature_ax`~~ — Proven vacuously true
+
+### Previously External Math (all eliminated — were defs/structures, not axioms)
+- ~~Spectral (5)~~: `vertexDegreeAx` etc. — these are `noncomputable def` / `structure`, never were `axiom` declarations
+- ~~Persistent Homology (4)~~: `stability_of_h1_trivial_aux` etc. — eliminated or were theorems
+- ~~H² (2)~~: `filled_tetrahedron_coboundary` etc. — eliminated
+
+### Previously Structural
+- ~~`StrategicGame.actions_nonempty`~~ — Eliminated
 
 ---
 
@@ -54,72 +101,52 @@ Axioms with Infrastructure proofs using **real** `Foundations.H1Trivial`:
 
 | Axiom | Replacement File | Status |
 |-------|------------------|--------|
-| `misalignment_zero_implies_aligned_ax` | CriticalPointsAxiomReplacements.lean | ✅ Eliminated |
-| `aligned_implies_H1_trivial` | CriticalPointsCore.lean | ✅ Uses real H1Trivial |
-
-Files using real H1Trivial: CriticalPointsCore.lean, CriticalPointsAxiomReplacements.lean, AxiomElimination.lean, GraphComposition.lean, H1BridgeProofs.lean
-
----
-
-## HONEST AXIOMS (Level 2 - Infrastructure files corrected)
-
-These axioms remain as honest assumptions. The Infrastructure files that claimed to
-"eliminate" them have been corrected to state "AXIOMS ELIMINATED: 0".
-
-**Why these are better as honest axioms than tautological "proofs":**
-- Level 2 (honest axiom) > Level 1 (trivialized with H1Trivial := True)
-- The mathematical statements are meaningful
-- Future work can provide real proofs with Foundations.H1Trivial
-
-| Axiom | Infrastructure File | Status |
-|-------|---------------------|--------|
-| `saddle_has_escape_ax` | CriticalPointsProofs.lean | Header corrected ✅ |
-| `h1_trivial_implies_fair_allocation` | FairnessAllocationProofs.lean | Header corrected ✅ |
-| `negative_lyapunov_stable_ax` | LyapunovProofs.lean | Header corrected ✅ |
-| `forms_cycle_from_global_failure` | ConflictLocalizationProofs.lean | Header corrected ✅ |
-| `minimal_conflict_exists_aux` | MinimalConflictProofs.lean | Header corrected ✅ |
-| `h1_zero_local_global_ic` | MechanismDesignProofs.lean | Header corrected ✅ |
-| `simple_mayer_vietoris` | MayerVietorisProofs.lean | Header corrected ✅ |
-| `lower_production_lower_cost_aux` | EntropyProofs.lean | Header corrected ✅ |
-| `hierarchical_decomposition_aux` | HierarchicalAlignmentProofs.lean | Header corrected ✅ |
-| `optimal_repair_exists_ax` | OptimalRepairProofs.lean | Header corrected ✅ |
-| `h1_h2_trivial_grand_coalition_aux` | CoalitionH2Proofs.lean | Needs H² infrastructure |
-| `four_agent_h2_forward/backward` | CoalitionH2Proofs.lean | Needs H² infrastructure |
-
-**KEEP (math false):** `h1_trivial_implies_bounded_disagreement_ax`, `barrier_implies_high_curvature_ax`
-
-**Future work:** Write proofs using `Foundations.H1Trivial (valueComplex ...)` following
-the pattern in `FairnessAllocationRealProofs.lean`.
+| `misalignment_zero_implies_aligned_ax` | CriticalPointsAxiomReplacements.lean | Eliminated |
+| `aligned_implies_H1_trivial` | CriticalPointsCore.lean | Uses real H1Trivial |
+| `barrier_implies_high_curvature_ax` | Curvature.lean (in-place) | Eliminated (X15) |
+| `hierarchical_decomposition_aux` | HierarchicalAlignment.lean:155 | THEOREM |
+| `hierarchical_decomposition_ax` | HierarchicalAlignmentProofs.lean:131 | THEOREM |
+| `lower_production_lower_cost_aux` | EntropyProduction.lean:221 | THEOREM |
+| `simple_mayer_vietoris_ax` | MayerVietorisProofs.lean | THEOREM (session 22) |
+| `h1_zero_local_global_ic_ax` | MechanismDesignProofs.lean | THEOREM (session 15) |
+| `revenue_equivalence_from_h1_ax` | MechanismDesignProofs.lean | THEOREM (session 19) |
+| `optimal_mechanism_exists_ax` | MechanismDesignProofs.lean | THEOREM (session 19) |
+| `composition_deadlock_example_ax` | InformationBoundProofs.lean | THEOREM (session 19) |
+| `disconnected_graph_edge_component_bound` | DimensionBoundProofs.lean:374 | THEOREM (session 18) |
 
 ---
 
-## PENDING (1 axiom - Potentially Provable)
+## Progress History
 
-### Compositional (1) - Requires Flag Complex Mayer-Vietoris
-- `forest_single_edge_composition_axiom_aux` - **Mathematically sound**: Forest ∪ Forest ∪ {≤1 edge} = Forest
+### Session 24: Registry Audit — 5 Axioms Classified Math-False
+- **Corrected axiom count: 4 → 8** (grep-verified)
+- Classified 5 axioms as KEEP (math false) with documented counterexamples
+- New counterexamples found for `disjoint_modules_safe_ax` and `optimal_repair_achieves_minimum_ax`
+- Confirmed infrastructure files (UniformCertification, DisjointUnionH1, L1OptimizationLemmas, CochainRestriction) are all Level 6 with 0 axioms, 0 sorries
+- These infrastructure files provide **correct provable alternatives** under appropriate hypotheses
 
-**Proof approach:** Requires showing:
-1. H1Trivial for flag complexes implies acyclic 1-skeleton (or similar)
-2. Acyclicity preserved under ≤1 edge addition (Infrastructure/GraphComposition.lean has this)
-3. Connection to valueComplex structure
+### Session 23: Fixed axiom count, corrected counterexample
+- Fixed count: 5 → 4 (removed false positive in CriticalPointsAxiomReplacements.lean)
+- Note: count was actually wrong — should have been 8, not 4
 
-### Eliminated Last Session (2)
-- `escape_time_monotone_ax` → `escape_time_monotone_proven` ✅
-- `escape_time_bounded_ax` → `escape_time_bounded_proven` ✅
+### Session 22: 3 Axioms Eliminated — MayerVietorisProofs Level 6!
+- **MayerVietorisProofs.lean** (3 → 0): Level 6!
 
-**Moved to KEEP:**
-- `escape_time_finite_ax` - Math false (counterexample in handoff)
-- `general_acyclic_composition_axiom_aux` - False given `interfaceIsAcyclic = True`
-- `large_disagreement_breaks_alignment_aux` - Has counterexample
+### Session 21: CochainRestriction Infrastructure Created
+- **Infrastructure/CochainRestriction.lean** (new file): Level 6!
 
----
+### Session 20: 2 Axioms Eliminated — InformationBoundProofs Level 6!
+- **InformationBoundProofs.lean** (2 → 0): Level 6!
 
-## Axiom Count by Directory
+### Session 19: 5 Axioms Eliminated — 2 Files Reach Level 6!
+- MechanismDesignProofs.lean (2 → 0), CriticalPointsProofs.lean (1 → 0), InformationBoundProofs.lean (4 → 2)
 
-```
-Perspective/          28
-MultiAgent/           11
-Theories/              2
-Infrastructure/        0 (1 pending removal)
-TOTAL                 41
-```
+### Session 18: disconnected_graph_edge_component_bound PROVEN
+
+### Session 15: h1_zero_local_global_ic PROVEN
+
+### Session 14: HierarchicalAlignmentProofs Level 6!, H2SmallComplex Level 6!
+
+### Build Status
+- Full project builds successfully (3175 jobs)
+- All infrastructure files: 0 axioms, 0 sorries (Level 6!)

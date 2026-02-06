@@ -210,57 +210,10 @@ theorem global_implies_levels {K : SimplicialComplex} {n : ℕ}
     AllLevelsAcyclic assign := by
   have h_one : OneConnected K :=
     H1Characterization.h1_trivial_implies_oneConnected K hhollow h_global
+  -- OneConnected K means (oneSkeleton K).IsAcyclic which is ∀ v, (p : Walk v v), ¬p.IsCycle
+  -- So any cycle in K is impossible
   intro l v p hp _hlevel
-  exact h_one v p hp
-
-  -- First get acyclicity of K
-  have h_K_acyclic : (oneSkeleton K).IsAcyclic := by
-    rw [H1Characterization.h1_trivial_iff_oneConnected (hhollow := hhollow) (hconn := hconn)] at h_global
-    exact h_global
-
-  -- Construct vertex embedding from level subcomplex to K
-  have h_vertex_incl : ∀ v : (levelSubcomplex assign l).vertexSet, v.val ∈ K.vertexSet := by
-    intro ⟨v, hv⟩
-    rw [Foundations.SimplicialComplex.mem_vertexSet_iff] at hv ⊢
-    simp only [levelSubcomplex, Set.mem_setOf] at hv
-    exact hv.1
-
-  -- Define the embedding function
-  let f : (levelSubcomplex assign l).vertexSet → K.vertexSet := fun v => ⟨v.val, h_vertex_incl v⟩
-
-  -- Show f is injective
-  have hf_inj : Function.Injective f := by
-    intro ⟨v₁, _⟩ ⟨v₂, _⟩ heq
-    simp only [f, Subtype.mk.injEq] at heq
-    exact Subtype.ext heq
-
-  -- Show f is a graph homomorphism (preserves adjacency)
-  have hf_hom : ∀ v w : (levelSubcomplex assign l).vertexSet,
-      (oneSkeleton (levelSubcomplex assign l)).Adj v w → (oneSkeleton K).Adj (f v) (f w) := by
-    intro ⟨v, hv⟩ ⟨w, hw⟩ hadj
-    simp only [H1Characterization.oneSkeleton_adj_iff] at hadj ⊢
-    simp only [f]
-    constructor
-    · exact hadj.1
-    · -- Edge {v, w} ∈ (levelSubcomplex assign l).simplices → {v, w} ∈ K.simplices
-      simp only [levelSubcomplex, Set.mem_setOf] at hadj
-      exact hadj.2.1
-
-  -- Construct the graph homomorphism
-  let φ : (oneSkeleton (levelSubcomplex assign l)) →g (oneSkeleton K) :=
-    ⟨f, fun {a} {b} => hf_hom a b⟩
-
-  -- Get acyclicity of level subcomplex via comap
-  have h_level_acyclic : (oneSkeleton (levelSubcomplex assign l)).IsAcyclic :=
-    h_K_acyclic.comap φ hf_inj
-
-  -- Case split on connectivity
-  by_cases hconn' : (oneSkeleton (levelSubcomplex assign l)).Connected
-  · -- Connected case: use direct theorem (doesn't need hollow hypothesis)
-    exact H1Characterization.oneConnected_implies_h1_trivial (levelSubcomplex assign l) h_level_acyclic hconn'
-  · -- Disconnected case: use acyclic_implies_h1_trivial (works for forests)
-    -- A disconnected acyclic graph (forest) still has H¹ = 0
-    exact H1Characterization.acyclic_implies_h1_trivial (levelSubcomplex assign l) h_level_acyclic
+  exact h_one p hp
 
 /-! ## Part 6: Two-Level Special Case -/
 

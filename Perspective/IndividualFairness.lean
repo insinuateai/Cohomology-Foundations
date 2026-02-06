@@ -416,7 +416,7 @@ theorem individual_fairness_product [NeZero n] (metric : SimilarityMetric n)
   unfold lipschitzViolation
   exact le_max_left 0 _
 
-/--
+/-
 NOVELTY CLAIM: First Geometric Individual Fairness Theory
 
 Prior work: Individual fairness as informal principle
@@ -431,7 +431,5 @@ We establish:
 
 Publishable as: "Geometric Foundations of Individual Fairness"
 -/
-theorem novelty_claim_individual_fairness :
-    True := trivial
 
 end IndividualFairness

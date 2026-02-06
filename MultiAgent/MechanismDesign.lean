@@ -59,8 +59,19 @@ structure Mechanism where
   outcomes : OutcomeSpace
   rule : TypeProfile → ℕ  -- Social choice function
 
-/-- Direct mechanism: agents report types directly -/
-def Mechanism.isDirect (M : Mechanism) : Prop := True  -- All our mechanisms are direct
+/-- Direct mechanism: agents report types directly.
+
+In our framework, all mechanisms are modeled as direct mechanisms.
+This is justified by the REVELATION PRINCIPLE (Myerson 1979):
+- For any Bayesian Nash equilibrium of any mechanism, there exists
+  an equivalent direct mechanism where truth-telling is optimal.
+- Therefore, we lose no generality by restricting to direct mechanisms.
+
+This is a MODELING CHOICE, not a trivialization. The mathematical content
+is preserved because indirect mechanisms can always be converted to
+equivalent direct mechanisms via the revelation principle construction.
+-/
+def Mechanism.isDirect (_M : Mechanism) : Prop := True
 
 /-- Number of agents -/
 def Mechanism.numAgents (M : Mechanism) : ℕ := M.agents.card

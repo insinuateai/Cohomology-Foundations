@@ -165,6 +165,21 @@ theorem remove_edge_from_single_cycle_aux' (K : SimplicialComplex) [Nonempty K.v
     (h_maximal : ∀ s ∈ K.simplices, s ≠ e → ¬(e ⊆ s ∧ e ≠ s))
     (h_acyclic : OneConnected (K.removeEdge e he_card h_maximal)) :
     H1Trivial (K.removeEdge e he_card h_maximal) := by
+  -- The modified complex has nonempty vertex set because removing an edge
+  -- (card ≥ 2) doesn't remove any singleton vertices
+  haveI : Nonempty (K.removeEdge e he_card h_maximal).vertexSet := by
+    obtain ⟨v, hv⟩ := ‹Nonempty K.vertexSet›
+    use v
+    simp only [SimplicialComplex.vertexSet, Set.mem_setOf_eq] at hv ⊢
+    simp only [SimplicialComplex.removeEdge, Set.mem_diff, Set.mem_singleton_iff]
+    constructor
+    · exact hv
+    · -- {v} ≠ e because e.card ≥ 2 and {v}.card = 1
+      intro h_eq
+      -- h_eq : Simplex.vertex v = e, i.e., {v} = e
+      have h1 : (Simplex.vertex v).card = 1 := by simp [Simplex.vertex]
+      rw [h_eq] at h1
+      omega
   exact H1Characterization.acyclic_implies_h1_trivial _ h_acyclic
 
 theorem remove_edge_from_single_cycle_aux (K : SimplicialComplex) [Nonempty K.vertexSet]
@@ -200,6 +215,14 @@ theorem fill_triangle_h1_trivial_aux' (K : SimplicialComplex) [Nonempty K.vertex
     (t : Simplex) (ht : t.card = 3)
     (h_acyclic : OneConnected (K.addTriangle t ht)) :
     H1Trivial (K.addTriangle t ht) := by
+  -- The modified complex has nonempty vertex set because adding a triangle
+  -- only adds simplices, never removes vertices
+  haveI : Nonempty (K.addTriangle t ht).vertexSet := by
+    obtain ⟨v, hv⟩ := ‹Nonempty K.vertexSet›
+    use v
+    simp only [SimplicialComplex.vertexSet, Set.mem_setOf_eq] at hv ⊢
+    simp only [SimplicialComplex.addTriangle, Set.mem_union, Set.mem_singleton_iff, Set.mem_setOf_eq]
+    left; left; exact hv
   exact H1Characterization.acyclic_implies_h1_trivial _ h_acyclic
 
 theorem fill_triangle_h1_trivial_aux (K : SimplicialComplex) [Nonempty K.vertexSet]

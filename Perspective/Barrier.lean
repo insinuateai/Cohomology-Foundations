@@ -45,7 +45,8 @@ SORRIES: 0
 AXIOMS: 0
 -/
 
-import Perspective.Compositional
+import Perspective.OptimalRepair
+import Perspective.AgentCoordination
 import H1Characterization.Characterization
 
 namespace Barrier

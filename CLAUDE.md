@@ -10,6 +10,7 @@ Lean4 formalization of cohomology theory with applications to multi-agent coordi
 | **Sorry fixing** | `handoff.md` → target file |
 | **New feature** | `skill-document.md` (pitfalls section) |
 | **Exploration** | Skip `.claude/` entirely |
+| **Deep proof work** | Also load `.claude/memory/advanced-math.md` |
 
 ## Session Protocol
 
@@ -93,6 +94,33 @@ If you can't prove something fully → LEAVE IT AS AN AXIOM (Level 2).
 | `ValueAligned systems ε` | Pairwise bounded disagreement | `True` |
 | `OneConnected K` | 1-skeleton is acyclic | `True` |
 | `IsCocycle f` | δf = 0 | `True` |
+
+## Core Types
+
+| Type | Definition | Mathematical Meaning |
+|------|------------|---------------------|
+| `Coeff` | `ℚ` | Rational coefficients |
+| `Vertex` | `ℕ` | Abstract vertex/agent index |
+| `Simplex` | `Finset Vertex` | Set of vertices (dim = card - 1) |
+| `SimplicialComplex` | `Set Simplex` + closure axioms | Down-closed simplex collection |
+| `Cochain K k` | `ksimplices k → Coeff` | Function assigning rationals to k-simplices |
+| `IsCocycle K k f` | `δ K k f = 0` | Kernel of coboundary (closed forms) |
+| `IsCoboundary K k f` | `∃ g, δ g = f` | Image of coboundary (exact forms) |
+| `H1Trivial K` | `∀ f, IsCocycle → IsCoboundary` | H¹(K) = 0 (every 1-cocycle is exact) |
+| `OneConnected K` | `(oneSkeleton K).IsAcyclic` | 1-skeleton is a forest |
+| `ValueSystem S` | `S → ℚ` | Agent preference function |
+| `ValueAligned systems ε` | `∀ i j s, \|vᵢ(s) - vⱼ(s)\| ≤ 2ε` | Pairwise bounded disagreement |
+
+## Mathlib Foundations
+
+| Our Type | Mathlib Base | Key Lemmas |
+|----------|--------------|------------|
+| `Simplex` | `Finset` | `card_eq_two`, `card_eq_one`, `min'_mem` |
+| `SimplicialComplex` | `Set` | membership predicates |
+| `Cochain` algebra | `AddCommGroup` | pointwise ops |
+| `δ` (coboundary) | alternating sum | `Finset.sum_involution` for δ²=0 |
+| `OneConnected` | `SimpleGraph.IsAcyclic` | `path_unique`, `IsTree` |
+| `ValueAligned` | `abs` on `ℚ` | `abs_sub_le` |
 
 ## Context Efficiency
 

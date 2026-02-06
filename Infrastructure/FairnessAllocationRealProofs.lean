@@ -85,24 +85,26 @@ lemma pairs_satisfiable_implies_edges {profile : FairnessProfile n}
 /-!
 ## What's needed for full axiom elimination
 
-To prove `h1_trivial_implies_fair_allocation` with exact signature match:
+To prove `h1_trivial_implies_fair_allocation` with exact signature match, the approach is:
 
-```lean
-theorem h1_trivial_implies_fair_allocation_replacement
-    (profile : FairnessProfile n)
-    (h : FairnessH1Trivial profile) :
-    ∃ alloc : Fin n → ℚ, isGloballyFair profile alloc := by
-  -- 1. FairnessH1Trivial means all 1-cocycles are coboundaries
-  -- 2. For each pair of agents, they can be locally satisfied (by fairnessComplex definition)
-  -- 3. Use root vertex method: pick agent 0, define allocation based on coboundary
-  -- 4. Show this allocation satisfies all agents
-  sorry
-```
+1. **FairnessH1Trivial** means all 1-cocycles on `fairnessComplex profile` are coboundaries
+2. Each pair of agents can be locally satisfied (by fairnessComplex definition)
+3. Use **root vertex method**: pick agent 0, define allocation based on coboundary
+4. Show this allocation satisfies all agents
 
-This requires developing:
+**Key challenge:** The fairnessComplex encodes which groups CAN be satisfied (existentially),
+but doesn't directly encode allocation values. H1Trivial tells us cocycles are coboundaries,
+but connecting this to a concrete global allocation requires extracting witnesses from
+the existential `canSatisfyAgents` and showing they can be consistently glued.
+
+**Required infrastructure:**
 - Root vertex method for general SimplicialComplex (not just graphs)
 - Connection between canSatisfyAgents witnesses and coboundary construction
 - Careful handling of vertex indexing (Fin n ↔ ℕ vertices)
+- Witness extraction from existentials in a way compatible with H1Trivial
+
+**Status:** This axiom remains as Level 2 (honest mathematical axiom) because the proof
+requires deep cohomological machinery beyond current infrastructure.
 -/
 
 end Infrastructure.FairnessAllocationRealProofs

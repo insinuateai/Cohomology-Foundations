@@ -26,14 +26,13 @@ variable {S : Type*} [Fintype S] [DecidableEq S]
 
 /-! ## X03: misalignment_zero_implies_aligned
 
-The original axiom:
-```
-axiom misalignment_zero_implies_aligned {n : ℕ} (_hn : n ≥ 1)
-    (systems : Fin n → ValueSystem S) (epsilon : ℚ) (_hε : epsilon > 0)
-    [Nonempty S] :
-    misalignment systems epsilon = 0 →
-    H1Trivial (valueComplex systems epsilon)
-```
+The original axiom (now eliminated):
+
+    axiom misalignment_zero_implies_aligned {n : ℕ} (_hn : n ≥ 1)
+        (systems : Fin n → ValueSystem S) (epsilon : ℚ) (_hε : epsilon > 0)
+        [Nonempty S] :
+        misalignment systems epsilon = 0 →
+        H1Trivial (valueComplex systems epsilon)
 
 This replacement has the exact same signature and delegates to the proven theorem.
 -/

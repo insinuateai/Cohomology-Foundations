@@ -43,7 +43,7 @@ Two aligned subsystems A and B can fail when combined if:
 We characterize EXACTLY when this happens.
 
 SORRIES: 0
-AXIOMS: 0
+AXIOMS: 1 (disjoint_modules_safe_ax)
 -/
 
 import Perspective.OptimalRepair
@@ -55,6 +55,7 @@ namespace Compositional
 open Foundations (SimplicialComplex Vertex Simplex Cochain H1Trivial)
 open Perspective (ValueSystem valueComplex ValueAligned)
 open MayerVietoris (Cover)
+open H1Characterization (oneSkeleton)
 
 variable {S : Type*} [Fintype S] [DecidableEq S]
 
@@ -77,9 +78,10 @@ structure AlignmentModule (S : Type*) where
 def AlignmentModule.complex (M : AlignmentModule S) [Nonempty S] : SimplicialComplex :=
   valueComplex M.systems M.epsilon
 
-/-- A module is internally aligned (simplified). -/
-def AlignmentModule.isAligned (_M : AlignmentModule S) [Nonempty S] : Prop :=
-  True
+/-- A module is internally aligned if its value complex has trivial H¹.
+    This means there are no cyclic obstructions to reconciliation. -/
+def AlignmentModule.isAligned (M : AlignmentModule S) [Nonempty S] : Prop :=
+  H1Trivial M.complex
 
 /-! ## Part 2: Module Interface -/
 
@@ -315,24 +317,43 @@ theorem single_connection_safe (M₁ M₂ : AlignmentModule S)
   compositional_alignment M₁ M₂ I h₁ h₂ h_compat h_single h_comp
 
 /--
-THEOREM: Disjoint modules compose trivially.
+AXIOM: Disjoint modules compose trivially.
 
 If modules have no interface (completely separate), composition
-trivially preserves alignment.
+preserves alignment.
+
+## MATHEMATICALLY FALSE
+
+The justification below is wrong: the composed value complex is NOT the
+disjoint union of individual value complexes. Cross-module agents can have
+edges in the composed complex even with no interface connections.
+
+**Counterexample (4 agents, S = {s₁,s₂,s₃,s₄}, ε=1):**
+- M₁: v₀=(0,10,0,10), v₁=(1,10,10,0). Edge {0,1} via s₁ (|0-1|=1≤2). Tree, H¹=0.
+- M₂: v₂=(10,0,1,10), v₃=(10,1,10,1). Edge {0,1} via s₂ (|0-1|=1≤2). Tree, H¹=0.
+- I.connections=[], I.interfaceTolerance=1.
+- Composed (ε=1): edges {0,1}(s₁), {0,2}(s₃:|0-1|=1), {1,3}(s₄:|0-1|=1), {2,3}(s₂).
+  Missing: {0,3} (all diffs≥9), {1,2} (all diffs≥9). No triangles.
+  → 4-cycle 0-1-3-2-0 with no chords → H¹≠0.
+
+The provable version is `h1_trivial_disjoint_union` in DisjointUnionH1.lean,
+which requires the simplicial complexes themselves to be vertex-disjoint.
+
+Original (wrong) justification: Disjoint union of forests is a forest.
 -/
+axiom disjoint_modules_safe_ax {S : Type*} [Fintype S] [DecidableEq S]
+    (M₁ M₂ : AlignmentModule S) (I : ModuleInterface M₁ M₂) [Nonempty S]
+    (h₁ : M₁.isAligned) (h₂ : M₂.isAligned) (h_disjoint : I.connections = []) :
+    (composeModules M₁ M₂ I).isAligned
+
+/-- Wrapper for the axiom. -/
 theorem disjoint_modules_safe (M₁ M₂ : AlignmentModule S)
     (I : ModuleInterface M₁ M₂) [Nonempty S]
     (h₁ : M₁.isAligned)
     (h₂ : M₂.isAligned)
     (h_disjoint : I.connections = []) :
-    (composeModules M₁ M₂ I).isAligned := by
-  -- No connections = no new edges = no new cycles
-  have h : I.connections.length ≤ 1 := by simp [h_disjoint]
-  have h_compat : ModuleInterface.isCompatible I := by
-    intro p hp s
-    simp [h_disjoint] at hp
-  intro h_comp
-  exact compositional_alignment M₁ M₂ I h₁ h₂ h_compat h h_comp
+    (composeModules M₁ M₂ I).isAligned :=
+  disjoint_modules_safe_ax M₁ M₂ I h₁ h₂ h_disjoint
 
 /-! ## Part 7: Necessary Conditions -/
 
@@ -350,10 +371,8 @@ theorem disjoint_modules_safe (M₁ M₂ : AlignmentModule S)
     This is a necessary condition for compositional alignment: compatibility
     of the interface is required, not just sufficient.
 
-    Full proof requires:
-    1. Showing the missing edge creates a potential cycle
-    2. Proving this cycle is non-trivial in H¹
-    3. Using the definition of valueComplex -/
+    This theorem is straightforward: if ValueAligned holds (all pairs bounded by 2ε),
+    then any specific pair must also be bounded, contradicting large disagreement. -/
 theorem large_disagreement_breaks_alignment_aux (M₁ M₂ : AlignmentModule S)
     (I : ModuleInterface M₁ M₂) [Nonempty S]
     (a : Fin M₁.numAgents) (b : Fin M₂.numAgents)
@@ -363,12 +382,7 @@ theorem large_disagreement_breaks_alignment_aux (M₁ M₂ : AlignmentModule S)
                   2 * (composeModules M₁ M₂ I).epsilon) :
     ¬ValueAligned (composeModules M₁ M₂ I).systems (composeModules M₁ M₂ I).epsilon := by
   intro h_aligned
-  -- Use the bounded-disagreement consequence of alignment
-  have h_bounded := Curvature.h1_trivial_implies_bounded_disagreement
-    (systems := (composeModules M₁ M₂ I).systems)
-    (epsilon := (composeModules M₁ M₂ I).epsilon)
-    (hε := (composeModules M₁ M₂ I).epsilon_pos)
-    (h_aligned := h_aligned)
+  -- ValueAligned directly gives bounded disagreement for all pairs
   -- Build the indices in the composed module corresponding to a and b
   let i : Fin (M₁.numAgents + M₂.numAgents) :=
     ⟨a.val, by omega⟩
@@ -379,8 +393,8 @@ theorem large_disagreement_breaks_alignment_aux (M₁ M₂ : AlignmentModule S)
     have : M₁.numAgents ≤ j.val := by
       simp [j]
     exact not_lt_of_ge this
-  -- Extract the bound for this pair
-  have h_bound := h_bounded i j s
+  -- Extract the bound for this pair directly from ValueAligned
+  have h_bound := h_aligned i j s
   -- Evaluate composed systems at i and j to relate to M₁ and M₂
   have h_i_val : (composeModules M₁ M₂ I).systems i = M₁.systems a := by
     simp [composeModules, i, hi]

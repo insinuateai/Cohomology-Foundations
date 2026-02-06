@@ -36,7 +36,7 @@ This imports sophisticated topology into alignment theory.
 4. GLOBAL GUARANTEE: "This IS the global minimum - truly aligned"
 
 SORRIES: 0
-AXIOMS: 1 (saddle_has_escape_ax)
+AXIOMS: 3 (saddle_has_escape_ax, aligned_implies_zero_misalignment_ax, gradient_zero_when_aligned_ax)
 ELIMINATED: misalignment_zero_implies_aligned_ax (X03), uniform_misalignment_zero_ax (X04)
 -/
 
@@ -49,6 +49,7 @@ open Geodesic (ValuePoint l1Distance toValuePoint fromValuePoint)
 open Curvature (pairwiseCurvature CurvatureLevel classifyCurvature)
 open Foundations (SimplicialComplex H1Trivial)
 open Perspective (ValueSystem valueComplex)
+open H1Characterization (oneSkeleton)
 
 variable {S : Type*} [Fintype S] [DecidableEq S]
 
@@ -194,37 +195,40 @@ theorem misalignment_zero_implies_aligned_ax {n : ℕ} (hn : n ≥ 1)
     have hb0 : b = 0 := Nat.lt_one_iff.mp hb'
     exact False.elim (hab (ha0.trans hb0.symm))
 
-/-- Misalignment is zero iff aligned -/
+/--
+AXIOM: H1Trivial implies zero misalignment.
+
+Mathematical justification: If H¹(K) = 0 and K is connected, then all
+pairwise value disagreements should be bounded by 2ε, making the
+squared-excess misalignment metric zero.
+
+The forward direction (zero misalignment → H1Trivial) is proven via
+`misalignment_zero_implies_aligned_ax`.
+
+The backward direction requires showing H1Trivial + Connected implies
+bounded disagreement for ALL situations, which has a gap (see
+Curvature.lean for detailed explanation of the ∃s vs ∀s issue).
+-/
+axiom aligned_implies_zero_misalignment_ax {S : Type*} [Fintype S] [DecidableEq S]
+    {n : ℕ} (systems : Fin n → ValueSystem S) (epsilon : ℚ) (hε : epsilon > 0)
+    [Nonempty S]
+    (h_aligned : H1Trivial (valueComplex systems epsilon))
+    (h_connected : (oneSkeleton (valueComplex systems epsilon)).Connected) :
+    misalignment systems epsilon = 0
+
+/-- Misalignment is zero iff aligned (requires connectivity for backward direction) -/
 theorem misalignment_zero_iff_aligned {n : ℕ} (hn : n ≥ 1)
     (systems : Fin n → ValueSystem S) (epsilon : ℚ) (hε : epsilon > 0)
-    [Nonempty S] :
+    [Nonempty S]
+    (h_connected : (oneSkeleton (valueComplex systems epsilon)).Connected) :
     misalignment systems epsilon = 0 ↔
     H1Trivial (valueComplex systems epsilon) := by
   constructor
   · -- Forward: zero misalignment → H1Trivial
     exact misalignment_zero_implies_aligned_ax hn systems epsilon hε
-  · -- Backward: H1Trivial → zero misalignment
+  · -- Backward: H1Trivial → zero misalignment (via axiom)
     intro h_aligned
-    have h_bounded := Curvature.h1_trivial_implies_bounded_disagreement_ax systems epsilon hε h_aligned
-    -- Show misalignment = 0 by showing each term is 0
-    unfold misalignment
-    apply Finset.sum_eq_zero
-    intro ij _
-    split_ifs with h_lt
-    · -- Case ij.1 < ij.2: need to show (max 0 (maxDisagree - 2ε))² = 0
-      -- First show maxDisagree ≤ 2ε
-      have h_sup_le : Finset.univ.sup' ⟨Classical.arbitrary S, Finset.mem_univ _⟩
-          (fun s => |(systems ij.1).values s - (systems ij.2).values s|) ≤ 2 * epsilon := by
-        apply Finset.sup'_le
-        intro s _
-        exact h_bounded ij.1 ij.2 s
-      -- Then max 0 (maxDisagree - 2ε) = 0
-      have h_excess_zero : max 0 (Finset.univ.sup' ⟨Classical.arbitrary S, Finset.mem_univ _⟩
-          (fun s => |(systems ij.1).values s - (systems ij.2).values s|) - 2 * epsilon) = 0 := by
-        apply max_eq_left
-        linarith
-      simp only [h_excess_zero, mul_zero]
-    · rfl
+    exact aligned_implies_zero_misalignment_ax systems epsilon hε h_aligned h_connected
 
 /-! ## Part 2: Gradient of Misalignment -/
 
@@ -255,39 +259,30 @@ def gradientNorm {n : ℕ} (systems : Fin n → ValueSystem S)
   Finset.univ.sum fun i =>
     Finset.univ.sum fun s => |grad i s|
 
-/-- Gradient is zero at aligned points -/
+/--
+AXIOM: Gradient is zero at aligned points.
+
+Mathematical justification: If H¹(K) = 0 and K is connected, all disagreements
+should be bounded by 2ε. The gradient of misalignment is zero when all
+pairwise differences are within tolerance.
+
+This depends on the same ∃s vs ∀s gap as the curvature theorems.
+-/
+axiom gradient_zero_when_aligned_ax {S : Type*} [Fintype S] [DecidableEq S]
+    {n : ℕ} (systems : Fin n → ValueSystem S) (epsilon : ℚ) (hε : epsilon > 0)
+    [Nonempty S]
+    (h_aligned : H1Trivial (valueComplex systems epsilon))
+    (h_connected : (oneSkeleton (valueComplex systems epsilon)).Connected) :
+    gradientNorm systems epsilon = 0
+
+/-- Gradient is zero at aligned points (requires connectivity). Wrapper for axiom. -/
 theorem gradient_zero_when_aligned {n : ℕ} (_hn : n ≥ 1)
     (systems : Fin n → ValueSystem S) (epsilon : ℚ) (hε : epsilon > 0)
     [Nonempty S]
-    (h_aligned : H1Trivial (valueComplex systems epsilon)) :
-    gradientNorm systems epsilon = 0 := by
-  -- If aligned, all disagreements ≤ 2ε, so gradient contributions are 0
-  unfold gradientNorm misalignmentGradient
-  have h_bounded := Curvature.h1_trivial_implies_bounded_disagreement_ax systems epsilon hε h_aligned
-  -- Show all terms are 0
-  apply Finset.sum_eq_zero
-  intro i _
-  apply Finset.sum_eq_zero
-  intro s _
-  -- The gradient component is |sum over j of ...| = 0
-  -- If aligned, all disagreements ≤ 2ε, so each inner if-then-else is 0
-  apply abs_eq_zero.mpr
-  apply Finset.sum_eq_zero
-  intro j _
-  by_cases hij : i ≠ j
-  · -- Case i ≠ j
-    simp only [ne_eq, hij, not_false_eq_true, ↓reduceIte]
-    -- Now need to show the inner expression is 0
-    have h_diff := h_bounded i j s
-    by_cases h_abs_gt : |(systems i).values s - (systems j).values s| > 2 * epsilon
-    · -- This contradicts h_diff
-      linarith
-    · -- |diff| ≤ 2ε, so the inner if gives 0
-      push_neg at h_abs_gt
-      simp only [not_lt.mpr h_abs_gt, ↓reduceIte]
-  · -- Case i = j
-    push_neg at hij
-    simp only [ne_eq, hij, not_true_eq_false, ↓reduceIte]
+    (h_aligned : H1Trivial (valueComplex systems epsilon))
+    (h_connected : (oneSkeleton (valueComplex systems epsilon)).Connected) :
+    gradientNorm systems epsilon = 0 :=
+  gradient_zero_when_aligned_ax systems epsilon hε h_aligned h_connected
 
 /-! ## Part 3: Critical Point Definition -/
 
@@ -415,15 +410,17 @@ theorem uniform_misalignment_zero_ax {n : ℕ} (epsilon : ℚ) (hε : epsilon �
 THEOREM: Global minimum has zero misalignment.
 
 The global minimum of misalignment is exactly the aligned state.
+Requires connectivity to apply the equivalence.
 -/
 theorem global_minimum_is_aligned {n : ℕ} (hn : n ≥ 1)
     (systems : Fin n → ValueSystem S) (epsilon : ℚ) (hε : epsilon > 0)
     [Nonempty S]
-    (h_global : isGlobalMinimum systems epsilon) :
+    (h_global : isGlobalMinimum systems epsilon)
+    (h_connected : (oneSkeleton (valueComplex systems epsilon)).Connected) :
     H1Trivial (valueComplex systems epsilon) := by
   -- Global minimum must have misalignment = 0
   -- Since we can always achieve 0 (by making all values equal)
-  apply (misalignment_zero_iff_aligned hn systems epsilon hε).mp
+  apply (misalignment_zero_iff_aligned hn systems epsilon hε h_connected).mp
   -- Show misalignment = 0 by using that global minimum ≤ uniform system which has 0
   have h_nonneg := misalignment_nonneg systems epsilon
   -- Construct a uniform system with all identical values

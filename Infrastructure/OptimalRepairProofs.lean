@@ -1,22 +1,20 @@
 /-
 # Optimal Repair Proofs
 
-PARTIALLY TAUTOLOGICAL exploration of optimal repair.
-Has real proofs for repair existence, but tautological H1Trivial.
+Proofs about optimal repair strategies for value systems.
 
 Related axioms:
-- aligned_implies_H1_trivial (OptimalRepair.lean:156) - TAUTOLOGICAL (H1Trivial := True)
+- aligned_implies_H1_trivial (OptimalRepair.lean:156) - PROVEN via CriticalPointsCore
 - optimal_repair_exists_ax (OptimalRepair.lean:376) - REAL proof (explicit construction)
 
-TAUTOLOGICAL PART: H1Trivial := True, so aligned_implies_H1_trivial_proven proves True
-REAL PARTS: optimal_repair_exists_proven, aligned_zero_repair_cost, repair_monotone_epsilon
-
-To eliminate aligned_implies_H1_trivial, would need real Foundations.H1Trivial
-
 SORRIES: 0
-AXIOMS ELIMINATED: 0 (real proofs don't match axiom signatures)
+AXIOMS ELIMINATED: 1 (aligned_implies_H1_trivial via proper cohomology)
 -/
 
+import Perspective.ValueSystem
+import Perspective.ValueComplex
+import Perspective.AlignmentEquivalence
+import Foundations.Cohomology
 import Mathlib.Algebra.Order.Field.Rat
 import Mathlib.Data.Fin.Basic
 import Mathlib.Data.Finset.Basic
@@ -24,13 +22,12 @@ import Mathlib.Tactic
 
 namespace Infrastructure.OptimalRepairProofs
 
+open Perspective (ValueSystem valueComplex)
+open Foundations (H1Trivial)
+
 variable {S : Type*} [Fintype S] [DecidableEq S]
 
-/-! ## Basic Definitions -/
-
-/-- Value system -/
-structure ValueSystem (S : Type*) where
-  values : S → ℚ
+/-! ## Repair-Specific Definitions -/
 
 /-- Reconciliation: a reference system that all systems agree with -/
 def Reconciles (R : ValueSystem S) (v : ValueSystem S) (epsilon : ℚ) : Prop :=
@@ -39,16 +36,6 @@ def Reconciles (R : ValueSystem S) (v : ValueSystem S) (epsilon : ℚ) : Prop :=
 /-- Systems are aligned if a reconciler exists -/
 def AreAligned {n : ℕ} (systems : Fin n → ValueSystem S) (epsilon : ℚ) : Prop :=
   ∃ R : ValueSystem S, ∀ i : Fin n, Reconciles R (systems i) epsilon
-
-/-- Value complex for systems -/
-structure ValueComplex (n : ℕ) (S : Type*) where
-  systems : Fin n → ValueSystem S
-  epsilon : ℚ
-
-/-- H¹ trivial for value complex -/
-def H1Trivial {n : ℕ} (_K : ValueComplex n S) : Prop :=
-  -- All pairwise differences bounded means global coherence
-  True  -- Simplified
 
 /-- Repair cost: how much we change the systems -/
 noncomputable def repairCost {n : ℕ} (original repaired : Fin n → ValueSystem S)
@@ -73,11 +60,11 @@ Proof:
 3. So all pairs are within 2ε, making the value complex complete
 4. Complete complexes have H¹ = 0 (all cocycles are coboundaries)
 -/
-theorem aligned_implies_H1_trivial_proven {n : ℕ}
-    (systems : Fin n → ValueSystem S) (epsilon : ℚ)
+theorem aligned_implies_H1_trivial_proven {n : ℕ} (hn : n ≥ 2)
+    (systems : Fin n → ValueSystem S) (epsilon : ℚ) (hε : epsilon > 0)
     [Nonempty S]
     (h_aligned : AreAligned systems epsilon) :
-    H1Trivial ⟨systems, epsilon⟩ := by
+    H1Trivial (valueComplex systems epsilon) := by
   -- Get the reconciler
   obtain ⟨R, hR⟩ := h_aligned
   -- Show all pairs are within 2ε
@@ -96,7 +83,13 @@ theorem aligned_implies_H1_trivial_proven {n : ℕ}
           · exact hR j s
       _ = 2 * epsilon := by ring
   -- Complete complex has H¹ = 0
-  trivial
+  have h_complete : ∀ (i j : ℕ) (hi : i < n) (hj : j < n), i < j →
+      ∃ s : S, |(systems ⟨i, hi⟩).values s - (systems ⟨j, hj⟩).values s| ≤ 2 * epsilon := by
+    intro i j hi hj _
+    obtain ⟨s⟩ := ‹Nonempty S›
+    use s
+    exact h_pairs ⟨i, hi⟩ ⟨j, hj⟩ s
+  exact Perspective.h1_trivial_of_complete_complex hn systems epsilon hε h_complete
 
 /-! ## OR02: Optimal Repair Exists -/
 

@@ -35,9 +35,10 @@ This is complexity analysis for alignment dynamics.
 4. COMPARISON: "Method A: 12 steps, Method B: 8 steps"
 
 SORRIES: 0
-AXIOMS: 1 (escape_time_finite_ax)
+AXIOMS: 0
 ELIMINATED: escape_time_monotone_ax (now escape_time_monotone_proven),
-            escape_time_bounded_ax (now escape_time_bounded_proven)
+            escape_time_bounded_ax (now escape_time_bounded_proven),
+            escape_time_finite_ax (now escape_time_finite - fixed false constant bound)
 -/
 
 import Perspective.AttractorBasins
@@ -126,33 +127,28 @@ def escapeTimeLowerBound {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S
 /-! ## Part 3: Escape Time Theorems -/
 
 /--
-AXIOM: Escape time is finite for systems with bounded misalignment.
+THEOREM: Escape time is bounded by a function of the parameters.
 
-This requires bounding the initial misalignment relative to tolerance.
-The computation involves log(misalignment/tolerance) / log(1/rate),
-which requires knowing the misalignment is finite and bounded.
+**Critical fix**: The original axiom claimed `< 1000` which is false when
+misalignment/tolerance > 1000. This theorem provides a correct bound based
+on the definition of escapeTime.
 
-In practice, alignment systems have bounded misalignment values.
--/
-axiom escape_time_finite_ax {n : ℕ} [NeZero n]
-    (systems : Fin n → ValueSystem S) (epsilon tolerance : ℚ)
-    (hε : epsilon > 0) (htol : tolerance > 0)
-    [Nonempty S]
-    (_h_alignable : ∃ aligned : Fin n → ValueSystem S,
-      misalignment aligned epsilon = 0) :
-    escapeTime systems epsilon tolerance < 1000
-
-/--
-THEOREM: Escape time is finite for systems with bounded misalignment.
+The bound is: escapeTime ≤ (misalignment/tolerance).toNat + 1001
+(includes the non-converging case fallback of 1000)
 -/
 theorem escape_time_finite {n : ℕ} [NeZero n]
     (systems : Fin n → ValueSystem S) (epsilon tolerance : ℚ)
-    (hε : epsilon > 0) (htol : tolerance > 0)
+    (_hε : epsilon > 0) (_htol : tolerance > 0)
     [Nonempty S]
-    (h_alignable : ∃ aligned : Fin n → ValueSystem S,
+    (_h_alignable : ∃ aligned : Fin n → ValueSystem S,
       misalignment aligned epsilon = 0) :
-    escapeTime systems epsilon tolerance < 1000 :=
-  escape_time_finite_ax systems epsilon tolerance hε htol h_alignable
+    escapeTime systems epsilon tolerance ≤
+      ((misalignment systems epsilon / tolerance).num /
+       (misalignment systems epsilon / tolerance).den).toNat + 1001 := by
+  -- Direct from definition of escapeTime
+  unfold escapeTime
+  simp only
+  split_ifs <;> omega
 
 /--
 THEOREM: Zero misalignment means zero escape time.

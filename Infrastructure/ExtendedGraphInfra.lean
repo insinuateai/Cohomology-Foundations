@@ -127,95 +127,6 @@ theorem tree_euler [Fintype G.edgeSet] [Fintype G.ConnectedComponent] [Nonempty 
   have h2 := connected_componentCount_eq_one G h.1
   omega
 
-/-- Euler characteristic for acyclic graphs: |E| + c = |V|. -/
-theorem acyclic_euler (G : SimpleGraph V) [DecidableRel G.Adj]
-    [Fintype G.edgeSet] [Fintype G.ConnectedComponent]
-    (hacyc : G.IsAcyclic) :
-    edgeCount G + componentCount G = vertexCount (V := V) := by
-  classical
-  -- Induction on the number of edges
-  revert G
-  refine Nat.rec (motive := fun m => ∀ (G : SimpleGraph V) [DecidableRel G.Adj]
-      [Fintype G.edgeSet] [Fintype G.ConnectedComponent],
-      G.edgeFinset.card = m → G.IsAcyclic →
-      edgeCount G + componentCount G = vertexCount (V := V)) ?base ?step (G.edgeFinset.card) ?hcard hacyc
-  · intro G _ _ _ hcard hacyc
-    -- No edges: edgeCount = 0, each vertex is its own component
-    have h0 : edgeCount G = 0 := by
-      unfold edgeCount
-      simpa [hcard]
-    -- With no edges, connected components = vertices
-    have hcomp : componentCount G = vertexCount (V := V) := by
-      -- Use component count in empty-edge graph
-      -- Since every vertex is isolated, components correspond to vertices.
-      -- This is a standard result; we use `connectedComponentMk` to build a bijection.
-      unfold componentCount vertexCount
-      classical
-      have hbij : Function.Bijective (fun v : V => G.connectedComponentMk v) := by
-        refine ⟨?inj, ?surj⟩
-        · intro v w h
-          -- In an acyclic graph with no edges, reachability implies equality
-          have : G.Reachable v w := by
-            exact (ConnectedComponent.eq.mp h)
-          -- No edges => only trivial paths, so v = w
-          exact (G.reachable_iff_eq_of_no_edges ?_) this
-        · intro c
-          rcases c.exists_rep with ⟨v, rfl⟩
-          exact ⟨v, rfl⟩
-      simpa [Fintype.card_eq] using (Fintype.card_congr (Equiv.ofBijective _ hbij))
-    -- Combine
-    simpa [h0, hcomp, Nat.zero_add]
-  · intro m ih G _ _ _ hcard hacyc
-    -- If there is at least one edge, remove a bridge and apply IH
-    have hpos : 0 < G.edgeFinset.card := by
-      -- m.succ = card
-      simpa [hcard] using Nat.succ_pos m
-    obtain ⟨e, he⟩ : ∃ e, e ∈ G.edgeFinset := Finset.card_pos.mp hpos
-    have he_edge : e ∈ G.edgeSet := mem_edgeFinset.mp he
-    let e' : G.edgeSet := ⟨e, he_edge⟩
-    have hbridge : IsBridge G e := isAcyclic_isBridge (G := G) hacyc e'
-    -- Define G' by deleting the edge e
-    let G' := G.deleteEdges ({e} : Set (Sym2 V))
-    have hacyc' : G'.IsAcyclic := deleteEdges_isAcyclic (G := G) ({e} : Set (Sym2 V)) hacyc
-    -- Edge count decreases by 1
-    have hcard' : G'.edgeFinset.card = m := by
-      -- deleteEdges_singleton_card: card(G') + 1 = card(G)
-      have hdel : G'.edgeFinset.card + 1 = G.edgeFinset.card :=
-        deleteEdges_singleton_card (G := G) e he_edge
-      -- rewrite with hcard
-      have : G.edgeFinset.card = m.succ := by simpa [hcard]
-      omega
-    -- Component count increases by 1
-    have hcomp' : componentCount G' = componentCount G + 1 :=
-      bridge_splits_component (G := G) e' hbridge
-    -- Apply IH to G'
-    have hih := ih G' hcard' hacyc'
-    -- Convert edgeCount G' relation to edgeCount G
-    have hedge' : edgeCount G' + 1 = edgeCount G := by
-      unfold edgeCount
-      simpa [deleteEdges_singleton_edgeFinset (G := G) e he_edge] using
-        (deleteEdges_singleton_card (G := G) e he_edge)
-    -- Finish
-    calc
-      edgeCount G + componentCount G
-          = (edgeCount G' + 1) + (componentCount G' - 1) := by
-              -- use hedge' and hcomp'
-              have hcomp'' : componentCount G = componentCount G' - 1 := by
-                omega
-              omega
-      _ = edgeCount G' + componentCount G' := by omega
-      _ = vertexCount (V := V) := hih
-
-/-- Connected + acyclic implies |E| + 1 = |V|. -/
-theorem connected_acyclic_edgeCount (G : SimpleGraph V) [DecidableRel G.Adj]
-    [Fintype G.edgeSet] [Fintype G.ConnectedComponent]
-    (hconn : G.Connected) (hacyc : G.IsAcyclic) :
-    edgeCount G + 1 = vertexCount (V := V) := by
-  have h_euler := acyclic_euler (G := G) hacyc
-  have h_comp := connected_componentCount_eq_one (G := G) hconn
-  -- Replace componentCount with 1 in Euler formula
-  omega
-
 /-! ## Section 4: Edge Removal - FULLY PROVEN -/
 
 /-- edgeFinset of deleteEdges is the set difference -/
@@ -616,6 +527,138 @@ theorem bridge_splits_component [Fintype G.ConnectedComponent]
     (h_bridge : IsBridge G e.val) :
     componentCount (G.deleteEdges ({e.val} : Set (Sym2 V))) = componentCount G + 1 :=
   bridge_splits_component_aux V G e h_bridge
+
+/-! ## Section 9b: Acyclic Euler Characteristic - FULLY PROVEN -/
+
+/-- Euler characteristic for acyclic graphs: |E| + c = |V|.
+
+In an acyclic graph (forest), every edge is a bridge. By induction on edges:
+- Base: 0 edges means c = |V|, so 0 + |V| = |V|
+- Step: Pick any edge e (a bridge). Removing it: |E'| = |E| - 1, c' = c + 1.
+  By IH: |E'| + c' = |V|, so (|E|-1) + (c+1) = |V|, thus |E| + c = |V|. -/
+theorem acyclic_euler (G : SimpleGraph V) [DecidableRel G.Adj]
+    [Fintype G.edgeSet] [Fintype G.ConnectedComponent]
+    (hacyc : G.IsAcyclic) :
+    edgeCount G + componentCount G = vertexCount (V := V) := by
+  unfold edgeCount componentCount vertexCount
+  by_cases hne : Nonempty V
+  swap
+  · -- Empty V case: all terms are 0
+    rw [not_nonempty_iff] at hne
+    have hV : Fintype.card V = 0 := Fintype.card_eq_zero
+    have hE : G.edgeFinset.card = 0 := by
+      have : G.edgeSet = ∅ := by
+        ext e
+        simp only [Set.mem_empty_iff_false, iff_false]
+        intro he
+        rcases Sym2.mk_surjective e with ⟨⟨a, _⟩, _⟩
+        exact hne.false a
+      simp [this, edgeFinset]
+    have hC : Fintype.card G.ConnectedComponent = 0 := by
+      rw [Fintype.card_eq_zero_iff]
+      constructor
+      intro cc
+      exact hne.false cc.exists_rep.choose
+    omega
+  -- Nonempty V case
+  haveI : Nonempty V := hne
+  classical
+  -- Split into connected (tree) vs disconnected cases
+  by_cases h_conn : G.Connected
+  · -- Connected acyclic = tree
+    have h_tree : G.IsTree := ⟨h_conn, hacyc⟩
+    have h1 := h_tree.card_edgeFinset  -- |E| + 1 = |V|
+    have h2 : Fintype.card G.ConnectedComponent = 1 := by
+      rw [Fintype.card_eq_one_iff]
+      use G.connectedComponentMk (Classical.arbitrary V)
+      intro c
+      obtain ⟨v, rfl⟩ := c.exists_rep
+      exact ConnectedComponent.eq.mpr (h_conn.preconnected v _)
+    omega
+  · -- Disconnected: use strong induction on edge count
+    induction h_n : G.edgeFinset.card using Nat.strong_induction_on generalizing G with
+    | _ n ih =>
+      by_cases h_zero : n = 0
+      · -- No edges: every vertex is its own component
+        subst h_zero
+        have h_empty : G.edgeSet = ∅ := by
+          have h1 : Fintype.card G.edgeSet = 0 := by rw [← edgeFinset_card]; exact h_n
+          have hempty : IsEmpty G.edgeSet := Fintype.card_eq_zero_iff.mp h1
+          exact @Set.eq_empty_of_isEmpty _ G.edgeSet hempty
+        have h_eq : Fintype.card G.ConnectedComponent = Fintype.card V := by
+          apply Fintype.card_eq.mpr
+          refine ⟨⟨fun c => c.exists_rep.choose, G.connectedComponentMk, ?_, ?_⟩⟩
+          · intro c; exact c.exists_rep.choose_spec
+          · intro v
+            have h := (G.connectedComponentMk v).exists_rep.choose_spec
+            have h_reach : G.Reachable (G.connectedComponentMk v).exists_rep.choose v :=
+              ConnectedComponent.eq.mp h
+            obtain ⟨p⟩ := h_reach
+            cases hp : p.length with
+            | zero => exact Walk.eq_of_length_eq_zero hp
+            | succ m =>
+              exfalso
+              have hadj : G.Adj (p.getVert 0) (p.getVert 1) := p.adj_getVert_succ (by omega)
+              have h_in : s(p.getVert 0, p.getVert 1) ∈ G.edgeSet := hadj
+              rw [h_empty] at h_in
+              exact h_in
+        rw [h_eq]; omega
+      · -- At least one edge - it must be a bridge (graph is acyclic)
+        have h_pos : 0 < n := Nat.pos_of_ne_zero h_zero
+        have h_edge_pos : 0 < G.edgeFinset.card := by omega
+        have h_nonempty : G.edgeFinset.Nonempty := Finset.card_pos.mp h_edge_pos
+        obtain ⟨e, he⟩ := h_nonempty
+        have he_set : e ∈ G.edgeSet := mem_edgeFinset.mp he
+        -- Provide type class instances for deleted graph
+        haveI h_dec : DecidableRel (G.deleteEdges ({e} : Set (Sym2 V))).Adj := Classical.decRel _
+        haveI h_finite : Finite (G.deleteEdges ({e} : Set (Sym2 V))).ConnectedComponent := inferInstance
+        haveI inst_cc : Fintype (G.deleteEdges ({e} : Set (Sym2 V))).ConnectedComponent := Fintype.ofFinite _
+        -- Every edge in an acyclic graph is a bridge
+        have h_bridge : IsBridge G e := isAcyclic_isBridge G hacyc ⟨e, he_set⟩
+        -- Bridge removal increases component count by exactly 1
+        have h_comp := @bridge_splits_component V _ _ G _ _ ⟨e, he_set⟩ inst_cc h_bridge
+        simp only [Subtype.coe_mk] at h_comp
+        -- h_comp : componentCount (G.deleteEdges {e}) = componentCount G + 1
+        unfold componentCount at h_comp
+        -- h_comp : Fintype.card (G.deleteEdges {e}).CC = Fintype.card G.CC + 1
+        -- Removing the edge preserves acyclicity
+        have h_acyc' : (G.deleteEdges {e}).IsAcyclic := deleteEdges_isAcyclic G {e} hacyc
+        -- Edge count decreases by 1
+        have h_card' : (G.deleteEdges {e}).edgeFinset.card + 1 = G.edgeFinset.card :=
+          deleteEdges_singleton_card G e he_set
+        have h_lt : (G.deleteEdges {e}).edgeFinset.card < n := by omega
+        -- G.deleteEdges {e} is not connected (bridge removal creates ≥2 components)
+        have h_not_conn' : ¬(G.deleteEdges {e}).Connected := by
+          intro hc
+          have h1 : Fintype.card (G.deleteEdges {e}).ConnectedComponent = 1 := by
+            rw [Fintype.card_eq_one_iff]
+            use (G.deleteEdges {e}).connectedComponentMk (Classical.arbitrary V)
+            intro c
+            obtain ⟨v, rfl⟩ := c.exists_rep
+            exact ConnectedComponent.eq.mpr (hc.preconnected v _)
+          have h2 : Fintype.card G.ConnectedComponent ≥ 1 := Fintype.card_pos
+          -- h_comp: card (G.deleteEdges {e}).CC = card G.CC + 1
+          -- h1: card (G.deleteEdges {e}).CC = 1
+          -- So card G.CC = 0, contradicting h2 ≥ 1
+          omega
+        -- Apply induction hypothesis
+        have h_IH := ih (G.deleteEdges {e}).edgeFinset.card h_lt
+          (G.deleteEdges {e}) h_acyc' h_not_conn' rfl
+        -- h_IH: (G.deleteEdges {e}).edgeFinset.card + Fintype.card (G.deleteEdges {e}).CC = Fintype.card V
+        -- h_comp: Fintype.card (G.deleteEdges {e}).CC = Fintype.card G.CC + 1
+        -- h_card': (G.deleteEdges {e}).edgeFinset.card + 1 = n
+        -- Goal: n + Fintype.card G.CC = Fintype.card V
+        omega
+
+/-- Connected + acyclic implies |E| + 1 = |V|. -/
+theorem connected_acyclic_edgeCount (G : SimpleGraph V) [DecidableRel G.Adj]
+    [Fintype G.edgeSet] [Fintype G.ConnectedComponent]
+    (hconn : G.Connected) (hacyc : G.IsAcyclic) :
+    edgeCount G + 1 = vertexCount (V := V) := by
+  have h_euler := acyclic_euler (G := G) hacyc
+  have h_comp := connected_componentCount_eq_one (G := G) hconn
+  -- Replace componentCount with 1 in Euler formula
+  omega
 
 /-! ## Section 10: Positive Component Count - FULLY PROVEN -/
 

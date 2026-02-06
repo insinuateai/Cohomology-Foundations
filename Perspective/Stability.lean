@@ -110,12 +110,15 @@ theorem stability_of_h1_trivial_aux {S : Type*} [Fintype S] [DecidableEq S] [Non
   intro i j s
   have h_pi := _h_pert i
   have h_pj := _h_pert j
-  unfold isPerturbation valueDistance at h_pi h_pj
-  have h_pi_s : |(perturbed i).values s - (systems i).values s| ≤ delta :=
-    le_trans (Finset.le_sup' _ (Finset.mem_univ s)) h_pi
-  have h_pj_s : |(systems j).values s - (perturbed j).values s| ≤ delta := by
-    have h := le_trans (Finset.le_sup' _ (Finset.mem_univ s)) h_pj
-    simpa [abs_sub_comm] using h
+  simp only [isPerturbation, valueDistance] at h_pi h_pj
+  -- h_pi : sup' {|(systems i).values t - (perturbed i).values t|} ≤ delta
+  -- We need: |(perturbed i).values s - (systems i).values s| ≤ delta
+  have h_pi_s : |(perturbed i).values s - (systems i).values s| ≤ delta := by
+    have h1 : |(systems i).values s - (perturbed i).values s| ≤ delta :=
+      le_trans (Finset.le_sup' (fun t => |(systems i).values t - (perturbed i).values t|) (Finset.mem_univ s)) h_pi
+    rwa [abs_sub_comm] at h1
+  have h_pj_s : |(systems j).values s - (perturbed j).values s| ≤ delta :=
+    le_trans (Finset.le_sup' (fun t => |(systems j).values t - (perturbed j).values t|) (Finset.mem_univ s)) h_pj
   calc |(perturbed i).values s - (perturbed j).values s|
       = |(perturbed i).values s - (systems i).values s +
          ((systems i).values s - (systems j).values s) +
@@ -123,11 +126,18 @@ theorem stability_of_h1_trivial_aux {S : Type*} [Fintype S] [DecidableEq S] [Non
     _ ≤ |(perturbed i).values s - (systems i).values s| +
         |(systems i).values s - (systems j).values s| +
         |(systems j).values s - (perturbed j).values s| := by
-          apply le_trans (abs_add _ _)
-          apply add_le_add_right
-          apply le_trans (abs_add _ _)
-          apply add_le_add_right
-          rfl
+          calc |(perturbed i).values s - (systems i).values s +
+                ((systems i).values s - (systems j).values s) +
+                ((systems j).values s - (perturbed j).values s)|
+              ≤ |(perturbed i).values s - (systems i).values s +
+                 ((systems i).values s - (systems j).values s)| +
+                |(systems j).values s - (perturbed j).values s| := abs_add_le _ _
+            _ ≤ |(perturbed i).values s - (systems i).values s| +
+                |(systems i).values s - (systems j).values s| +
+                |(systems j).values s - (perturbed j).values s| := by
+                  have h1 := abs_add_le ((perturbed i).values s - (systems i).values s)
+                               ((systems i).values s - (systems j).values s)
+                  linarith
     _ ≤ delta + 2 * ε + delta := by
         apply add_le_add
         · exact add_le_add h_pi_s (h_aligned i j s)
@@ -138,7 +148,7 @@ theorem stability_of_h1_trivial_aux {S : Type*} [Fintype S] [DecidableEq S] [Non
     true system is also aligned. -/
 theorem measurement_robustness_aux {S : Type*} [Fintype S] [DecidableEq S] [Nonempty S]
     {n : ℕ} (_hn : n ≥ 2) (true_systems measured_systems : Fin n → ValueSystem S)
-    (ε : ℚ) (_hε : ε > 0) (delta : ℚ) (_hdelta : delta < ε)
+    (ε : ℚ) (_hε : ε > 0) (delta : ℚ) (_hdelta_pos : delta > 0) (_hdelta : delta < ε)
     (_h_error : isPerturbation true_systems measured_systems delta)
     (h_measured_aligned : ValueAligned measured_systems ε) :
     ValueAligned true_systems (ε + delta) := by
@@ -146,13 +156,15 @@ theorem measurement_robustness_aux {S : Type*} [Fintype S] [DecidableEq S] [None
   have h_pert' : isPerturbation measured_systems true_systems delta := by
     intro i
     have h := _h_error i
-    unfold isPerturbation valueDistance at h ⊢
-    -- symmetry of valueDistance
-    simpa [valueDistance_symm] using h
+    simp only [isPerturbation] at h ⊢
+    -- The goal is: valueDistance (measured i) (true i) ≤ delta
+    -- h says: valueDistance (true i) (measured i) ≤ delta
+    -- These are equal by valueDistance_symm
+    rw [valueDistance_symm]
+    exact h
   -- Apply stability with roles swapped
-  exact stability_of_h1_trivial_aux (S := S) (n := n) (systems := measured_systems)
-    (ε := ε) (h_aligned := h_measured_aligned) (perturbed := true_systems)
-    (delta := delta) (hdelta := by linarith) (hdelta_small := _hdelta) (h_pert := h_pert')
+  exact stability_of_h1_trivial_aux _hn measured_systems ε _hε h_measured_aligned
+    true_systems delta _hdelta_pos _hdelta h_pert'
 
 /-! ## Part 2: Edge Stability -/
 
@@ -391,7 +403,7 @@ the alignment assessment is still correct.
 -/
 theorem alignment_robust_to_measurement_error {n : ℕ} (hn : n ≥ 2)
   (true_systems measured_systems : Fin n → ValueSystem S) (ε : ℚ) (hε : ε > 0)
-  (delta : ℚ)
+  (delta : ℚ) (hdelta_pos : delta > 0)
   [Nonempty S]
   (h_error : isPerturbation true_systems measured_systems delta)
   (hdelta : delta < stabilityMarginSimple true_systems ε)
@@ -400,7 +412,10 @@ theorem alignment_robust_to_measurement_error {n : ℕ} (hn : n ≥ 2)
   ValueAligned true_systems (ε + delta) := by
   -- The measured system is a perturbation of the true system
   -- If measured shows aligned and error < margin, true is also aligned
-  exact measurement_robustness_aux hn true_systems measured_systems ε hε delta hdelta h_error h_measured_aligned
+  -- stabilityMarginSimple = ε, so delta < ε
+  have hdelta_lt_eps : delta < ε := by simp only [stabilityMarginSimple] at hdelta; exact hdelta
+  exact measurement_robustness_aux hn true_systems measured_systems ε hε delta hdelta_pos
+    hdelta_lt_eps h_error h_measured_aligned
 
 /--
 THEOREM: Our assessment is reliable.

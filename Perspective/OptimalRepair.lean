@@ -398,12 +398,19 @@ noncomputable def optimalRepairCost {n : ℕ} (_systems : Fin n → ValueSystem 
 /--
 AXIOM: Optimal repair exists.
 
-Mathematical justification:
-1. The set of feasible repairs is non-empty (by feasible_repair_exists)
-2. Repair costs are non-negative rationals
-3. By well-ordering of ℚ≥0, there exists a minimum-cost feasible repair
+## LIKELY MATHEMATICALLY FALSE
 
-This is axiomatized because the well-ordering argument is complex in Lean.
+The stated justification is wrong: ℚ≥0 is NOT well-ordered (unlike ℕ).
+The feasible set {plan | H1Trivial(repaired)} is open (edge removal
+requires STRICT inequality |diff| > 2ε for all situations), so the
+infimum of cost over feasible plans may not be attained.
+
+**Sketch counterexample**: 4 agents with a 4-cycle value complex.
+Breaking any edge requires ∀s |diff| > 2ε (strict), so the minimum
+cost approaches but never reaches the boundary value.
+
+The `feasible_repair_exists` theorem proves a feasible plan exists,
+but finding a MINIMUM cost one requires the feasible set to be closed.
 -/
 axiom optimal_repair_exists_ax {n : ℕ} (hn : n ≥ 2)
     (systems : Fin n → ValueSystem S) (epsilon : ℚ) (hε : epsilon > 0)
