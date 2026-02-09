@@ -43,7 +43,7 @@ Two aligned subsystems A and B can fail when combined if:
 We characterize EXACTLY when this happens.
 
 SORRIES: 0
-AXIOMS: 1 (disjoint_modules_safe_ax)
+AXIOMS: 0
 -/
 
 import Perspective.OptimalRepair
@@ -316,44 +316,15 @@ theorem single_connection_safe (M₁ M₂ : AlignmentModule S)
     (composeModules M₁ M₂ I).isAligned :=
   compositional_alignment M₁ M₂ I h₁ h₂ h_compat h_single h_comp
 
-/--
-AXIOM: Disjoint modules compose trivially.
+/-
+NOTE: Disjoint module composition was previously axiomatized but is
+MATHEMATICALLY FALSE — cross-module edges can create cycles even with
+no interface connections. See counterexample in commit history.
 
-If modules have no interface (completely separate), composition
-preserves alignment.
-
-## MATHEMATICALLY FALSE
-
-The justification below is wrong: the composed value complex is NOT the
-disjoint union of individual value complexes. Cross-module agents can have
-edges in the composed complex even with no interface connections.
-
-**Counterexample (4 agents, S = {s₁,s₂,s₃,s₄}, ε=1):**
-- M₁: v₀=(0,10,0,10), v₁=(1,10,10,0). Edge {0,1} via s₁ (|0-1|=1≤2). Tree, H¹=0.
-- M₂: v₂=(10,0,1,10), v₃=(10,1,10,1). Edge {0,1} via s₂ (|0-1|=1≤2). Tree, H¹=0.
-- I.connections=[], I.interfaceTolerance=1.
-- Composed (ε=1): edges {0,1}(s₁), {0,2}(s₃:|0-1|=1), {1,3}(s₄:|0-1|=1), {2,3}(s₂).
-  Missing: {0,3} (all diffs≥9), {1,2} (all diffs≥9). No triangles.
-  → 4-cycle 0-1-3-2-0 with no chords → H¹≠0.
-
-The provable version is `h1_trivial_disjoint_union` in DisjointUnionH1.lean,
-which requires the simplicial complexes themselves to be vertex-disjoint.
-
-Original (wrong) justification: Disjoint union of forests is a forest.
+The provable version is `h1_trivial_disjoint_union` in
+`Infrastructure/DisjointUnionH1.lean`, which correctly requires the
+simplicial complexes themselves to be vertex-disjoint.
 -/
-axiom disjoint_modules_safe_ax {S : Type*} [Fintype S] [DecidableEq S]
-    (M₁ M₂ : AlignmentModule S) (I : ModuleInterface M₁ M₂) [Nonempty S]
-    (h₁ : M₁.isAligned) (h₂ : M₂.isAligned) (h_disjoint : I.connections = []) :
-    (composeModules M₁ M₂ I).isAligned
-
-/-- Wrapper for the axiom. -/
-theorem disjoint_modules_safe (M₁ M₂ : AlignmentModule S)
-    (I : ModuleInterface M₁ M₂) [Nonempty S]
-    (h₁ : M₁.isAligned)
-    (h₂ : M₂.isAligned)
-    (h_disjoint : I.connections = []) :
-    (composeModules M₁ M₂ I).isAligned :=
-  disjoint_modules_safe_ax M₁ M₂ I h₁ h₂ h_disjoint
 
 /-! ## Part 7: Necessary Conditions -/
 

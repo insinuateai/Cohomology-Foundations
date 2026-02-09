@@ -528,22 +528,7 @@ theorem bifurcation_product {n : ℕ} [NeZero n] (_hn : n ≥ 1)
   · unfold distanceToBifurcation
     exact abs_nonneg _
 
-/--
-NOVELTY CLAIM: First Bifurcation Theory for Alignment
-
-Prior work: Check alignment at fixed parameters
-Our work: Analyze how alignment changes WITH parameters
-
-We characterize:
-- WHERE bifurcations occur (critical epsilon)
-- WHAT changes at bifurcation (catastrophic transitions)
-- HOW to avoid bifurcation (safety margins)
-
-Publishable as: "Bifurcation Analysis of Multi-Agent Alignment"
--/
-theorem novelty_claim_bifurcation :
-    -- Bifurcation theory for alignment is novel
-    True := by
-  trivial
+-- NOVELTY: First Bifurcation Theory for Alignment
+-- Analyzes how alignment changes with parameters, critical epsilon, and catastrophic transitions
 
 end Bifurcation

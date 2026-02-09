@@ -39,7 +39,7 @@ This is the FIRST optimization framework for fairness repair.
 4. INCREMENTAL: "Fix the worst violations first"
 
 SORRIES: 0
-AXIOMS: 1 (optimal_repair_exists)
+AXIOMS: 0
 -/
 
 import Perspective.FairnessDynamics

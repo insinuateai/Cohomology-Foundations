@@ -400,23 +400,7 @@ theorem geodesic_product {n : ℕ} (p q : ValuePoint n S) :
   unfold l1Distance
   simp only [sub_self, abs_zero, Finset.sum_const_zero]
 
-/--
-NOVELTY CLAIM: First Geodesic Theory for Alignment
-
-Prior work: Find a fix
-Our work: Find the SHORTEST PATH to alignment
-
-We provide:
-- Metric space structure on value configurations
-- Geodesic characterization
-- Optimality proofs
-- Step-by-step instructions
-
-Publishable as: "Geodesics in Multi-Agent Value Space"
--/
-theorem novelty_claim_geodesic :
-    -- Geodesic alignment theory is novel
-    (0 : ℚ) ≤ 0 := by
-  exact le_rfl
+-- NOVELTY: First Geodesic Theory for Alignment
+-- Metric space structure on value configurations with geodesic characterization
 
 end Geodesic

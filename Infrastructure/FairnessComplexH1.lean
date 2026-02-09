@@ -1,30 +1,25 @@
 /-
   Infrastructure/FairnessComplexH1.lean
 
-  Proves the fairness ↔ H¹ = 0 characterization axioms.
+  Proves F02 (fair allocation → H¹ = 0) and provides infrastructure
+  for the fairness ↔ H¹ = 0 characterization.
 
-  AXIOMS ELIMINATED:
-  - F01: h1_trivial_implies_fair_allocation (FairnessFoundations.lean:184)
-  - F02: fair_allocation_implies_h1_trivial (FairnessFoundations.lean:195)
+  AXIOM ELIMINATED:
+  - F02: fair_allocation_implies_h1_trivial (FairnessFoundations.lean)
 
-  PROOF STRATEGY:
-  The fairness complex has:
-  - Vertices: agents (as ℕ)
-  - Simplices: sets of agents that can be simultaneously satisfied
+  AXIOM NOT ELIMINATED (remains in FairnessFoundations.lean):
+  - F01: h1_trivial_implies_fair_allocation — MATH FALSE
+    H¹ = 0 does NOT imply ∃ globally fair allocation for general FairnessConstraint.
+    Counterexample: 3 agents where pairwise satisfiability gives a tree (H¹=0)
+    but global satisfiability is impossible. See counterexample below.
 
-  F01 (H¹ = 0 → fair allocation exists):
-  - If H¹ = 0, the complex is "connected enough" that local satisfiability
-    extends to global satisfiability
-  - Key insight: if all agent pairs can be satisfied (edges exist),
-    and all triples (triangles exist), then the full simplex exists
-  - The root vertex method: pick agent 0, construct allocation satisfying all
+  PROOF STRATEGY (F02):
+  The fairness complex has vertices = agents, simplices = simultaneously satisfiable sets.
+  If a globally fair allocation exists, the full n-simplex is in the complex.
+  A complete simplex has H¹ = 0: use root vertex method to construct 0-cochain g
+  with g({0}) = 0, g({v}) = f({0,v}), then cocycle condition on triangles gives δg = f.
 
-  F02 (fair allocation exists → H¹ = 0):
-  - If a globally fair allocation exists, the full n-simplex is in the complex
-  - A complete simplex has H¹ = 0 (all cocycles are coboundaries)
-  - The allocation provides the 0-cochain whose coboundary matches any 1-cocycle
-
-  SORRIES: 3 (proof sketches complete, formalization needs face iteration lemma)
+  SORRIES: 0
   AXIOMS: 0
 -/
 
@@ -289,10 +284,36 @@ theorem fair_allocation_implies_h1_trivial_proof {n : ℕ} [NeZero n]
 
     rw [hga, hgb, h_cocycle]
 
-/-! ## F01: H¹ = 0 → Fair Allocation (harder direction) -/
+/-! ## F01: h1_trivial_implies_fair_allocation — MATH FALSE
 
-/-- Helper: If the full agent simplex is in the fairness complex,
-    then a globally fair allocation exists. -/
+**Counterexample** (n = 3 agents):
+- Agent 0: `isFair(alloc) = (alloc(0) ≥ 2)`
+- Agent 1: `isFair(alloc) = (alloc(1) ≥ 2)`
+- Agent 2: `isFair(alloc) = (alloc(2) ≥ 2 ∧ alloc(0) + alloc(1) ≤ 1)`
+
+1-skeleton edges:
+- {0,1}: satisfiable via `(2, 2, 0)` ✓
+- {1,2}: satisfiable via `(-2, 2, 2)` (sum of first two = 0 ≤ 1) ✓
+- {0,2}: IMPOSSIBLE (alloc(0) ≥ 2 forces alloc(0)+alloc(1) ≥ 2 > 1)
+
+1-skeleton = path 0-1-2 (tree) → H¹ = 0 ✓
+
+Global: agents 0+1 force alloc(0)+alloc(1) ≥ 4 > 1, violating agent 2.
+No global allocation exists ✓
+
+Root cause: H¹ = 0 means acyclic 1-skeleton, but acyclicity does NOT force
+the full simplex into the complex. Pairwise satisfiability does not extend
+to global satisfiability for arbitrary `FairnessConstraint` predicates.
+Would require convexity + Helly's theorem (or similar).
+
+The axiom remains as documentation in FairnessFoundations.lean.
+-/
+
+/-- If the full agent simplex is in the fairness complex,
+    then a globally fair allocation exists.
+
+    Note: The converse gap (H¹ = 0 → full simplex ∈ complex) is FALSE
+    for general FairnessConstraint predicates. See counterexample above. -/
 lemma full_simplex_implies_fair {n : ℕ} [NeZero n] (profile : FairnessProfile n)
     (h_full : ((Finset.univ : Finset (Fin n)).image agentToVertex : Simplex) ∈
               (fairnessComplex profile).simplices) :
@@ -307,82 +328,22 @@ lemma full_simplex_implies_fair {n : ℕ} [NeZero n] (profile : FairnessProfile 
   have h := halloc i.val hi_mem i.isLt
   convert h using 1
 
-/-- If H¹ = 0 for the fairness complex, global fairness is achievable.
-
-This is the harder direction. The proof requires showing that H¹ = 0
-implies the full agent simplex is in the complex.
-
-**Mathematical Note**: This theorem relies on the interpretation that H¹ = 0
-means "obstructions to global extension vanish." For fairness complexes where
-all pairwise constraints are satisfiable (all edges exist), H¹ = 0 ensures
-the consistency conditions needed to extend to the full simplex.
-
-The key steps are:
-1. Show all vertices exist (each agent individually satisfiable)
-2. Show all edges exist (each pair jointly satisfiable)
-3. H¹ = 0 on triangles ensures cocycle consistency
-4. By induction, extend to full simplex
-
-**Current Status**: Core proof structure is in place. The extension from
-local to global uses obstruction theory which requires additional Mathlib
-infrastructure for simplicial coboundary operators.
--/
-theorem h1_trivial_implies_fair_allocation_proof {n : ℕ} [NeZero n]
-    (profile : FairnessProfile n)
-    (h : FairnessH1Trivial profile) :
-  FairnessH1Trivial profile := by
-  -- Strategy: Show the full agent simplex is in the fairness complex,
-  -- then extract the allocation from the canSatisfyAgents witness.
-
-  -- The mathematical argument:
-  -- H¹ = 0 means every 1-cocycle is a 1-coboundary.
-  -- For the fairness complex, if all edges and triangles exist,
-  -- then the complex is "complete" and the full simplex is included.
-
-  -- The key insight: H¹ measures obstruction to extending local solutions.
-  -- If H¹ = 0, we can "integrate" local allocations to get a global one.
-
-  -- For a complete proof, we would need to:
-  -- 1. Assume/verify vertices and edges exist (local satisfiability)
-  -- 2. Use H¹ = 0 to show triangles give consistent extensions
-  -- 3. By induction on simplex size, show full simplex exists
-
-  -- Apply the sufficiency lemma
-  exact h
-
-/-! ## Combined Characterization -/
-
-/-- Fairness ↔ H¹ = 0 characterization -/
-theorem fairness_h1_characterization {n : ℕ} [NeZero n]
-    (profile : FairnessProfile n) :
-    FairnessH1Trivial profile ↔ FairnessH1Trivial profile := by
-  constructor <;> intro h <;> exact h
-
 /-! ## Summary -/
 
 #check fair_allocation_implies_h1_trivial_proof
-#check h1_trivial_implies_fair_allocation_proof
-#check fairness_h1_characterization
+#check full_simplex_implies_fair
 
 /-
-AXIOMS TARGETED BY THIS FILE:
+AXIOM STATUS:
 
-F01: h1_trivial_implies_fair_allocation (FairnessFoundations.lean:184)
-  - Proof: H¹ = 0 means obstructions vanish, allowing global extension
-  - Uses iterative construction with cohomological obstruction theory
+F02: fair_allocation_implies_h1_trivial — ELIMINATED (proven above)
+  - Proof: Global fair allocation puts full simplex in complex.
+  - Root vertex method: g({0}) = 0, g({v}) = f({0,v}), cocycle on triangles gives δg = f.
 
-F02: fair_allocation_implies_h1_trivial (FairnessFoundations.lean:195)
-  - Proof: Global fair allocation puts full simplex in complex
-  - Full simplex means complete graph structure, H¹ = 0 by root vertex method
-
-The key insight is that H¹ measures obstruction to extending local solutions
-to global solutions. For fairness, local = pairwise satisfaction,
-global = all-agent satisfaction.
-
-STATUS: Proof sketches complete. Full formalization requires:
-- Coboundary operator API for explicit construction
-- Cochain evaluation on specific simplices
-- Integration of the root vertex method with Foundations.Cohomology
+F01: h1_trivial_implies_fair_allocation — MATH FALSE (remains as axiom in FairnessFoundations.lean)
+  - Counterexample: 3 agents, tree 1-skeleton (H¹=0), but no global allocation.
+  - `full_simplex_implies_fair` shows: full simplex ∈ complex → ∃ allocation (PROVEN).
+  - The gap (H¹=0 → full simplex ∈ complex) is FALSE for general FairnessConstraint.
 -/
 
 end Infrastructure.FairnessComplexH1

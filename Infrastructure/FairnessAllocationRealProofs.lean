@@ -6,13 +6,11 @@ REPLACEMENT PATTERN for FairnessAllocationProofs.lean using actual Perspective t
 Demonstrates how to properly import and use Perspective types instead of
 defining local tautological versions.
 
-TARGET AXIOM (FairnessFoundations.lean:269):
-  axiom h1_trivial_implies_fair_allocation {n : ℕ} [NeZero n]
-    (profile : FairnessProfile n)
-    (h : FairnessH1Trivial profile) :
-    ∃ alloc : Fin n → ℚ, isGloballyFair profile alloc
+TARGET AXIOM: h1_trivial_implies_fair_allocation — DELETED (mathematically false).
+Pairwise satisfiability (H¹ = 0) does not imply global satisfiability.
+Only the reverse direction (F02) is proven.
 
-STATUS: Pattern file - demonstrates correct import structure
+STATUS: Historical pattern file
 SORRIES: 0
 AXIOMS: 0
 -/

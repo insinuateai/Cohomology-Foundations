@@ -329,17 +329,18 @@ theorem robust_aligned_no_significant (n : ℕ) (systems : Fin n → ValueSystem
   exact _h
 
 /--
-THEOREM: Converse - no structural conflicts implies robust at most thresholds.
+AXIOM: No structural conflicts implies robust at most thresholds.
 
-If no conflict persists through the entire range, then aligned at some threshold.
+If no conflict persists through the entire range [εMin, εMax], then there
+exists a threshold ε in that range at which the system is aligned.
+Requires persistence diagram analysis for formal proof.
 -/
-theorem no_structural_implies_some_aligned (_n : ℕ) (_systems : Fin _n → ValueSystem S)
-    (_εMin _εMax : ℚ) (_hε : _εMin < _εMax) [Nonempty S]
-    (_h_no_structural : True)  -- No conflict spans entire range
-    :
-    -- There exists ε in [εMin, εMax] where aligned
-    True := by
-  exact _h_no_structural
+axiom no_structural_implies_some_aligned_ax (n : ℕ) (systems : Fin n → ValueSystem S)
+    (εMin εMax : ℚ) (hε : εMin < εMax) [Nonempty S]
+    (h_no_structural : ∀ ε, εMin ≤ ε → ε ≤ εMax →
+      Foundations.H1Trivial (valueComplex systems ε)) :
+    ∃ ε, εMin ≤ ε ∧ ε ≤ εMax ∧
+      Perspective.ValueAligned systems ε
 
 /-! ## Part 8: Persistence-Based Metrics -/
 

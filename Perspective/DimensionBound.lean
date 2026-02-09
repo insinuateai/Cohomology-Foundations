@@ -406,45 +406,53 @@ def SeverityLevel.description : SeverityLevel → String
 /-! ## Part 7: Dimension Change Tracking -/
 
 /--
-THEOREM: Adding an edge increases dimension by at most 1.
+AXIOM: Adding an edge increases dimension by at most 1.
 
 Each new relationship can create at most one new conflict.
+If endpoints were in different components: dimension unchanged.
+If endpoints were in same component: dimension increases by 1.
+Requires Mayer-Vietoris or rank-nullity infrastructure for proof.
 -/
-theorem add_edge_dimension_change (K : SimplicialComplex)
+axiom add_edge_dimension_change_ax (K K' : SimplicialComplex)
     [Fintype K.vertexSet] [DecidableEq K.vertexSet]
     [DecidableRel (oneSkeleton K).Adj]
-    (e : Simplex) (he : e.card = 2) (he_new : e ∉ K.simplices) :
-    -- Adding edge e increases dimension by 0 or 1
-    True := by
-  -- If endpoints were in different components: dimension unchanged (merges components)
-  -- If endpoints were in same component: dimension increases by 1 (creates cycle)
-  trivial
+    [Fintype K'.vertexSet] [DecidableEq K'.vertexSet]
+    [DecidableRel (oneSkeleton K').Adj]
+    (h_subset : K.simplices ⊆ K'.simplices)
+    (h_one_more_edge : (oneSkeleton K').edgeFinset.card = (oneSkeleton K).edgeFinset.card + 1) :
+    h1DimensionCompute K' ≤ h1DimensionCompute K + 1
 
 /--
-THEOREM: Removing an edge decreases dimension by at most 1.
+AXIOM: Removing an edge decreases dimension by at most 1.
 
 Each removed relationship eliminates at most one conflict.
+If edge was a bridge: dimension unchanged (splits components).
+If edge was in a cycle: dimension decreases by 1 (breaks cycle).
 -/
-theorem remove_edge_dimension_change (K : SimplicialComplex)
+axiom remove_edge_dimension_change_ax (K K' : SimplicialComplex)
     [Fintype K.vertexSet] [DecidableEq K.vertexSet]
     [DecidableRel (oneSkeleton K).Adj]
-    (e : Simplex) (he : e.card = 2) (he_in : e ∈ K.simplices) :
-    -- Removing edge e decreases dimension by 0 or 1
-    True := by
-  -- If edge was a bridge: dimension unchanged (splits components)
-  -- If edge was in a cycle: dimension decreases by 1 (breaks cycle)
-  trivial
+    [Fintype K'.vertexSet] [DecidableEq K'.vertexSet]
+    [DecidableRel (oneSkeleton K').Adj]
+    (h_subset : K'.simplices ⊆ K.simplices)
+    (h_one_less_edge : (oneSkeleton K).edgeFinset.card = (oneSkeleton K').edgeFinset.card + 1) :
+    h1DimensionCompute K ≤ h1DimensionCompute K' + 1
 
 /--
-COROLLARY: Dimension changes are gradual.
+AXIOM: Dimension changes are gradual.
 
-No single change can cause a jump of more than 1 in dimension.
-This enables smooth progress tracking.
+No single edge change can cause a jump of more than 1 in dimension.
+Follows from add_edge_dimension_change_ax and remove_edge_dimension_change_ax.
 -/
-theorem dimension_changes_gradual :
-    -- Single edge operations change dimension by at most 1
-    True := by
-  trivial
+axiom dimension_changes_gradual_ax (K K' : SimplicialComplex)
+    [Fintype K.vertexSet] [DecidableEq K.vertexSet]
+    [DecidableRel (oneSkeleton K).Adj]
+    [Fintype K'.vertexSet] [DecidableEq K'.vertexSet]
+    [DecidableRel (oneSkeleton K').Adj]
+    (h_diff : (oneSkeleton K).edgeFinset.card + 1 = (oneSkeleton K').edgeFinset.card ∨
+              (oneSkeleton K').edgeFinset.card + 1 = (oneSkeleton K).edgeFinset.card) :
+    (h1DimensionCompute K : Int) - h1DimensionCompute K' ≤ 1 ∧
+    (h1DimensionCompute K' : Int) - h1DimensionCompute K ≤ 1
 
 /-! ## Part 8: Effort Estimation -/
 
@@ -508,17 +516,7 @@ theorem quantified_misalignment_product (K : SimplicialComplex)
          severityToLevel (severityScore K), estimatedRepairEffort K,
          rfl, rfl, rfl, rfl⟩
 
-/--
-NOVELTY CLAIM: First Quantified Alignment Metric
-
-Prior work: "aligned" vs "not aligned" (binary)
-Our work: "severity 0.37, dimension 4, moderate, ~4 actions to fix"
-
-This is original mathematical contribution.
--/
-theorem novelty_claim :
-    -- We provide quantified measurement, not binary classification
-    True := by
-  trivial
+-- NOVELTY: First Quantified Alignment Metric
+-- Provides severity score, dimension, and estimated repair effort instead of binary classification
 
 end DimensionBound

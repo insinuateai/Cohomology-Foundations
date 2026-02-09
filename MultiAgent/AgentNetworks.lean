@@ -534,12 +534,11 @@ theorem forest_implies_h1_trivial (N : AgentNetwork) :
   intro hf
   exact h1_trivial_of_no_edges N.toComplex (AgentNetwork.forest_no_edges N hf)
 
-/-- Cycles imply coordination obstruction (H¹ ≠ 0)
-    The hollow triangle theorem shows this concretely:
-    3 agents, pairwise compatible, but no global coordination possible.
-    This is the contrapositive of forest_implies_h1_trivial. -/
-theorem cycle_implies_h1_nontrivial (N : AgentNetwork) :
-  ¬N.isForest → True := fun _ => trivial  -- Placeholder; real version: ¬H1Trivial
+-- NOTE: cycle_implies_h1_nontrivial_ax was deleted because it is mathematically false
+-- given the current definition of isForest (= isTrivial, i.e., agents.card ≤ 1).
+-- Counterexample: 2 incompatible agents → toComplex has no edges → H¹ = 0 → H1Trivial,
+-- but ¬isForest since agents.card = 2 > 1.
+-- A correct version would require isForest to use graph-theoretic acyclicity.
 
 -- ============================================================================
 -- THEOREM COUNT VERIFICATION

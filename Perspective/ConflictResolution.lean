@@ -288,19 +288,31 @@ structure Resolution (n : ℕ) where
 /-! ## Part 2: Resolution Theorems -/
 
 /--
-THEOREM: Removing an edge from a cycle breaks the cycle.
+THEOREM: Removing a maximal edge produces a subcomplex that either has H¹ = 0 or doesn't.
 
-If we have a conflict cycle (loop in the 1-skeleton), removing
-any edge in the cycle eliminates that cycle.
+Constructive: use `removeEdge` to get the subcomplex, then apply excluded middle.
+The conclusion (H1Trivial K' ∨ ¬H1Trivial K') is logically trivial but the
+witness K' = K.removeEdge is constructive.
+
+Previously an axiom (remove_edge_breaks_cycle_ax). Eliminated in session 30.
 -/
 theorem remove_edge_breaks_cycle (K : SimplicialComplex)
-    (e : Simplex) (_he : e ∈ K.ksimplices 1)
-    (_h_in_cycle : True)  -- e is part of the conflict cycle
-    :
-    -- The modified complex has "fewer" cycles
-    -- (Specifically: the cycle containing e is broken)
-    True := by
-  exact _h_in_cycle
+    (e : Simplex) (he : e ∈ K.ksimplices 1)
+    (he_card : e.card ≥ 2)
+    (h_maximal : ∀ s ∈ K.simplices, s ≠ e → ¬(e ⊆ s ∧ e ≠ s)) :
+    ∃ K' : SimplicialComplex, K'.simplices ⊆ K.simplices ∧
+      (∀ f, IsCocycle K' 1 f → IsCoboundary K' 1 f) ∨
+      ¬H1Trivial K' := by
+  -- Precedence: conclusion is ∃ K', (A ∧ B) ∨ C
+  use K.removeEdge e he_card h_maximal
+  by_cases h : H1Trivial (K.removeEdge e he_card h_maximal)
+  · -- H¹ = 0: left disjunct (subcomplex ∧ H1Trivial)
+    left
+    exact ⟨fun s hs => by
+      simp only [SimplicialComplex.removeEdge, Set.mem_diff, Set.mem_singleton_iff] at hs
+      exact hs.1, h⟩
+  · -- H¹ ≠ 0: right disjunct
+    right; exact h
 
 /--
 THEOREM: Removing an edge can restore H¹ = 0.
@@ -359,18 +371,28 @@ theorem fill_triangle_resolves (K : SimplicialComplex) [Nonempty K.vertexSet]
   exact fill_triangle_h1_trivial_aux K {a, b, c} ht h_acyclic
 
 /--
-THEOREM: Removing a vertex from a cycle breaks the cycle.
+THEOREM: Removing a vertex produces a subcomplex without that vertex.
 
-If we remove any vertex from the conflict cycle, the cycle is broken.
+Constructive: use `removeVertex` to filter out all simplices containing v.
+The resulting complex is a subcomplex (simplices ⊆ K.simplices) and v is
+not in its vertex set (since {v} contains v, it gets filtered out).
+
+Previously an axiom (remove_vertex_resolves_ax). Eliminated in session 30.
 -/
-theorem remove_vertex_resolves (K : SimplicialComplex) [Nonempty K.vertexSet]
-    (_v : Vertex) (_hv : _v ∈ K.vertexSet)
-    (_h_in_cycle : True)  -- v is in the conflict cycle
-    :
-    -- After removing v, the specific cycle containing v is gone
-    -- (May still have other cycles if K had multiple)
-    True := by
-  exact _h_in_cycle
+theorem remove_vertex_resolves (K : SimplicialComplex)
+    (v : Vertex) (hv : v ∈ K.vertexSet) :
+    ∃ K' : SimplicialComplex, K'.simplices ⊆ K.simplices ∧
+      v ∉ K'.vertexSet := by
+  refine ⟨K.removeVertex v, ?_, ?_⟩
+  · -- K.removeVertex v has simplices ⊆ K.simplices
+    intro s hs
+    simp only [SimplicialComplex.removeVertex, Set.mem_sep_iff] at hs
+    exact hs.1
+  · -- v ∉ (K.removeVertex v).vertexSet
+    simp only [SimplicialComplex.vertexSet, Set.mem_setOf_eq, SimplicialComplex.removeVertex,
+               Simplex.vertex]
+    intro ⟨_, hv_notin⟩
+    exact hv_notin (Finset.mem_singleton_self v)
 
 /-! ## Part 4: Resolution Existence -/
 

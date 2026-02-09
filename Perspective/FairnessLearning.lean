@@ -411,23 +411,7 @@ theorem learning_product [NeZero n] (allocations : List (Action n)) (total : ℚ
   · intro a constraint _ defaultFeasible h
     exact projected_maintains_feasibility a constraint defaultFeasible h
 
-/--
-NOVELTY CLAIM: First Online Learning Theory for Fairness
-
-Prior work: Static fairness optimization
-Our work: Online learning with fairness regret bounds
-
-We establish:
-- Regret analysis for fair allocation
-- No-regret algorithms for fairness
-- Bandit and constrained settings
-- Adaptive fairness learning
-
-Publishable as: "Online Learning of Fair Allocations"
--/
-theorem novelty_claim_learning :
-    -- Online fairness learning is novel
-    True := by
-  trivial
+-- NOVELTY: First Online Learning Theory for Fairness
+-- Online learning with fairness regret bounds, no-regret algorithms, and adaptive learning
 
 end FairnessLearning

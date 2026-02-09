@@ -178,14 +178,14 @@ theorem deadlock_iff_h1_nontrivial {S : Type*} [Fintype S] [DecidableEq S] [None
   rfl
 
 /--
-THEOREM: Deadlock detection is O(n)
+THEOREM: Deadlock detection reduces to H¹ = 0 checking.
 
-Because H¹ = 0 checking is O(n) (from Batch 1B).
+A network is deadlock-free iff its agent complex has trivial first cohomology.
+Proved trivially: `NoCoordinationObstruction` is defined as `H1Trivial (agentComplex N)`.
 -/
-theorem deadlock_detection_linear {S : Type*} [Fintype S] [DecidableEq S] [Nonempty S]
+theorem deadlock_detection_reduces_to_h1 {S : Type*} [Fintype S] [DecidableEq S] [Nonempty S]
     (N : AgentNetwork S) :
-    True := by
-  trivial
+    NoCoordinationObstruction N ↔ H1Trivial (agentComplex N) := Iff.rfl
 
 /-! ## Part 7: Deadlock Localization -/
 
@@ -590,19 +590,13 @@ theorem memory_theorems_transfer {S : Type*} [Fintype S] [DecidableEq S] [Nonemp
     -- Detection transfers
     (¬H1Trivial (agentComplex N) → HasDeadlock N) ∧
     -- Localization transfers (conflict witness = deadlock witness)
-    (HasDeadlock N → ∃ agents : List (Fin N.agents.length), agents.length ≥ 3) ∧
-    -- Resolution transfers (same strategies work)
-    True := by
+    (HasDeadlock N → ∃ agents : List (Fin N.agents.length), agents.length ≥ 3) := by
   constructor
   · intro h
     unfold HasDeadlock CoordinationObstruction
     exact h
-  constructor
   · intro h
-    -- A deadlock requires a cycle, which needs ≥3 agents
-    -- Would use deadlock_min_agents + proper localization
     exact deadlock_localization_aux N h
-  · trivial
 
 /-! ## Part 9: Composition Theorems -/
 
@@ -684,18 +678,19 @@ theorem composition_can_create_deadlock {S : Type*} [Fintype S] [DecidableEq S] 
   exact composition_deadlock_example N₁ N₂ h_thresh h_disjoint h_no_tri h_cycle
 
 /--
-THEOREM: Composing with a "hub" agent preserves deadlock-freedom.
+AXIOM: Composing with a "hub" agent preserves deadlock-freedom.
 
-If N is deadlock-free and we add a new agent that can cooperate with ALL
-existing agents, the result is still deadlock-free.
+If N is deadlock-free and hub cooperates with all agents, the extended network
+is still deadlock-free (adding a hub to a forest keeps it a forest).
 -/
-theorem hub_preserves_deadlock_free {S : Type*} [Fintype S] [DecidableEq S] [Nonempty S]
+axiom hub_preserves_deadlock_free_ax {S : Type*} [Fintype S] [DecidableEq S] [Nonempty S]
     (N : AgentNetwork S)
     (h : NoCoordinationObstruction N)
     (hub : Agent S)
-    (h_hub : ∀ a ∈ N.agents, canCooperate hub a N.threshold) :
-    True := by
-  trivial
+    (h_hub : ∀ a ∈ N.agents, canCooperate hub a N.threshold)
+    (h_nodup : (hub :: N.agents).Nodup) :
+    ∃ N' : AgentNetwork S, N'.agents = hub :: N.agents ∧
+      NoCoordinationObstruction N'
 
 /-! ## Part 10: The Product Theorem -/
 
@@ -718,15 +713,9 @@ BOTH use H¹ cohomology. BOTH are O(n). BOTH have the same guarantees.
 -/
 theorem one_engine_two_products {S : Type*} [Fintype S] [DecidableEq S] [Nonempty S] :
     ∀ N : AgentNetwork S,
-      -- Deadlock detection = memory conflict detection
-      (HasDeadlock N ↔ ¬H1Trivial (Perspective.valueComplex N.toValueSystems N.threshold)) ∧
-      -- Both are O(n)
-      True ∧
-      -- Both have resolution strategies
-      True := by
+      -- Deadlock detection = memory conflict detection (same H¹ engine)
+      HasDeadlock N ↔ ¬H1Trivial (Perspective.valueComplex N.toValueSystems N.threshold) := by
   intro N
-  constructor
-  · exact agent_memory_equivalence N
-  constructor <;> trivial
+  exact agent_memory_equivalence N
 
 end AgentCoordination

@@ -1,106 +1,109 @@
 # Agent Handoff Document
 
 > Overwritten each session. Previous versions in git history.
-> Read CLAUDE.md and skill-document.md first, then this file.
 
 ## Session Metadata
 
-- **Date**: 2026-02-05 (session 22)
-- **Primary goal**: Eliminate 3 axioms from MayerVietorisProofs.lean
-- **Status**: COMPLETE - MayerVietorisProofs.lean now Level 6!
+- **Date**: 2026-02-06 (session 30, continued)
+- **Primary goal**: Tier 2 — Axiom elimination + Dynamic Network + Byzantine Tolerance
+- **Status**: COMPLETE — 2 axioms eliminated (20→18), 3 new MultiAgent files created
 
 ## Current State
 
 | Metric | Value |
 |--------|-------|
 | **Sorries** | 0 |
-| **Axioms** | 4 in project code (down from 8) - fixed false positive count |
-| **Build Status** | Clean (3175 jobs) |
-| **Eliminated** | 3 axioms this session |
+| **Axioms** | 18 (down from 20, all genuine Level 2) |
+| **Build Status** | Clean (3175 jobs, 0 errors) |
 
-## Session Progress
+## Session 30 Summary
 
-### Achieved: MayerVietorisProofs Level 6!
+### Part 1: Protocol.lean (Tier 1)
+Created `MultiAgent/Protocol.lean` — 17 theorems formalizing synchronous coordination protocols with tree broadcast convergence.
 
-Completely rewrote `Infrastructure/MayerVietorisProofs.lean` to use:
-- `Foundations.H1Trivial` (not a shadow axiom)
-- `CochainRestriction.HasConnectedIntersection` (constructive definition)
-- **PROVEN** `simple_mayer_vietoris` theorem
+### Part 2: Axiom Elimination (Tier 2.3)
 
-**Axioms eliminated:**
-1. `H1Trivial` axiom → uses `Foundations.H1Trivial` directly
-2. `hasConnectedIntersection` axiom → uses `CochainRestriction.HasConnectedIntersection`
-3. `simple_mayer_vietoris_ax` → `simple_mayer_vietoris` **PROVEN THEOREM**
+Eliminated 2 axioms from `Perspective/ConflictResolution.lean`:
 
-### Key Proof Strategy
+| Axiom | Replacement | Proof Strategy |
+|-------|-------------|----------------|
+| `remove_vertex_resolves_ax` | `remove_vertex_resolves` (theorem) | Constructive: `K.removeVertex v` filters out simplices containing v; `v ∉ {v}` is false so `{v}` gets filtered |
+| `remove_edge_breaks_cycle_ax` | `remove_edge_breaks_cycle` (theorem) | `K.removeEdge e` + excluded middle: either H¹ = 0 (left disjunct) or H¹ ≠ 0 (right disjunct) |
 
-Given A, B subcomplexes with H¹(A) = H¹(B) = 0 and connected A ∩ B:
+Key insight: Both axioms had conclusions weaker than what the existing `removeEdge`/`removeVertex` operations provide. The edge removal axiom's conclusion was literally `H1Trivial K' ∨ ¬H1Trivial K'` — LEM.
 
-1. **Restrict cocycle f to A and B**: fA, fB are cocycles by `restrict_preserves_cocycle`
-2. **Get witnesses**: gA with δgA = fA, gB with δgB = fB (from H¹ = 0)
-3. **Adjust witnesses**: `can_adjust_to_agree` gives constant c where gA = gB + c on A∩B
-4. **Glue witnesses** via `glueWitnesses`:
-   - On vertices in A: g = gA
-   - On vertices in B\A: g = gB + c
-5. **Verify δg = f** by case analysis on edges:
-   - Edges in A: uses gA values → δgA = fA = f ✓
-   - Edges in B\A: any face in A is also in B (down-closure), so in A∩B
-     → all faces get gB + c values → sum = δgB + c×0 = f ✓
+### Part 3: DynamicNetwork.lean (Tier 2.1)
 
-**Critical insight**: sign(0) + sign(1) = 1 + (-1) = 0, so constants cancel in coboundary!
+Created `MultiAgent/DynamicNetwork.lean` — 16 theorems on agent join/leave dynamics:
 
-## Remaining Axioms (4)
+| Category | Theorems | Key Results |
+|----------|----------|-------------|
+| Leaf properties | 4 | `isLeaf` def, `root_not_leaf`, `leaf_exists` (pigeonhole), `isLeaf_iff_no_children` |
+| Protocol convergence | 3 | Monotonicity, depth-bound convergence, deeper-leaf bound |
+| Join/leave dynamics | 4 | Leaf removal safe, leaf independent, convergence adaptation |
+| Network invariants | 2 | Edge count, broadcast reaches all |
+| Protocol composition | 3 | Root-determines-final, sequential broadcast |
 
-| File | Axiom | Status |
-|------|-------|--------|
-| Perspective/CriticalPoints.lean | `saddle_has_escape_ax` | May fail for degenerate saddles |
-| Perspective/OptimalRepair.lean | `optimal_repair_exists_ax` | True but needs LP theory |
-| Perspective/Curvature.lean | `h1_trivial_implies_bounded_disagreement_ax` | **MATH FALSE** (KEEP) |
-| Perspective/FairnessFoundations.lean | `h1_trivial_implies_fair_allocation` | Likely true, needs topology |
+### Part 4: ByzantineTolerance.lean (Tier 2.2)
 
-**Notes:**
-- Fixed false positive: `CriticalPointsAxiomReplacements.lean` had "axiom" inside a doc comment
-- `h1_trivial_implies_bounded_disagreement_ax` is mathematically false: Edge requires agreement on SOME situation, but axiom requires ALL. **Counterexample**: 2 agents with values (0,0) and (1,100) at ε=1 have an edge (agree on s₁: |1-0|=1≤2ε), connected 1-skeleton, H¹=0, but disagree by 100 on s₂ >> 2ε=2
-- `saddle_has_escape_ax` may fail when gradient cancels to exactly zero at degenerate saddle points
+Created `MultiAgent/ByzantineTolerance.lean` — 18 theorems on fault tolerance:
 
-## Files Now at Level 6
+| Category | Theorems | Key Results |
+|----------|----------|-------------|
+| Subtree/ancestry | 3 | `isAncestor_refl`, `root_isAncestor`, `leaf_ancestor_iff_self` |
+| Fault isolation | 2 | `treeBroadcast_depends_only_on_root`, `leaf_fault_isolated` |
+| Root vulnerability | 2 | `root_fault_propagates`, `root_unique_single_point_of_failure` |
+| Star topology | 4 | `star_depth_one`, `star_maxDepth_le_one`, `star_tolerates_leaf_faults`, `star_root_is_critical` |
+| Fault bounds | 2 | `star_fault_tolerance`, `deeper_faults_less_damage` |
+| Honest root | 5 | `honest_root_suffices`, `no_majority_needed`, `tree_broadcast_resilience`, `star_maximizes_leaf_tolerance`, `non_star_has_internal_agents` |
 
-| Directory/File | Status |
-|----------------|--------|
-| `Foundations/` | All files Level 6 |
-| `H1Characterization/` | All files Level 6 |
-| `MultiAgent/` | All files Level 6 |
-| `Theories/` | All files Level 6 |
-| `Infrastructure/MechanismDesignProofs.lean` | Level 6 |
-| `Infrastructure/CriticalPointsProofs.lean` | Level 6 |
-| `Infrastructure/HierarchicalAlignmentProofs.lean` | Level 6 |
-| `Infrastructure/DimensionBoundProofs.lean` | Level 6 |
-| `Infrastructure/InformationBoundProofs.lean` | Level 6 |
-| `Infrastructure/CochainRestriction.lean` | Level 6 |
-| `Infrastructure/MayerVietorisProofs.lean` | **Level 6** (this session!) |
+Key insight: Tree broadcast is **root-determined** — the final state of every agent equals the root's initial value. This means tree broadcast doesn't need "honest majority" (the 2/3 threshold from classical BFT). It needs only an **honest root** — one trusted agent at the hierarchy's top.
 
-## Next Steps
+## Files Modified/Created
 
-Potential targets for elimination:
-1. `misalignment_zero_implies_aligned` - may need CriticalPointsCore analysis
-2. `optimal_repair_exists_ax` - needs optimization/existence proof infrastructure
-3. `saddle_has_escape_ax` - needs escape time infrastructure
-4. `h1_trivial_implies_fair_allocation` - may follow MechanismDesignProofs pattern
+| File | Changes |
+|------|---------|
+| `MultiAgent/Protocol.lean` | NEW — 17 theorems, coordination protocols |
+| `MultiAgent/DynamicNetwork.lean` | NEW — 16 theorems, join/leave dynamics |
+| `MultiAgent/ByzantineTolerance.lean` | NEW — 18 theorems, fault tolerance |
+| `Perspective/ConflictResolution.lean` | 2 axioms → theorems |
+
+## Approved Plan (Remaining)
+
+Plan file: `/home/codespace/.claude/plans/compressed-cuddling-robin.md`
+
+### Tier 2 (remaining)
+- Eliminate `hub_preserves_deadlock_free_ax` (requires hub→leaf reduction or topology argument)
+
+### Tier 3: The Wall / Frontier
+- Time-varying networks, partial information, evolving preferences
+
+## Remaining 18 Axioms
+
+| Directory/File | Count | Category |
+|---------------|-------|----------|
+| CriticalPoints.lean | 6 | Morse theory |
+| Curvature.lean | 3 | Riemannian geometry |
+| DimensionBound.lean | 3 | Graph component counting |
+| AttractorBasins.lean | 2 | Dynamical systems |
+| AgentCoordination.lean | 1 | Hub preserves deadlock-free |
+| Barrier.lean | 1 | Structural resolution |
+| OptimalRepair.lean | 1 | Repair convergence |
+| Persistence.lean | 1 | Persistence diagram analysis |
+
+## Technical Patterns Learned (Session 30)
+
+1. **Axiom elimination via LEM**: `H1Trivial K' ∨ ¬H1Trivial K'` is provable by `by_cases`
+2. **Constructive witness for removal axioms**: `removeVertex`/`removeEdge` already defined in same file
+3. **Pigeonhole via Finset**: `Finset.card_image_of_injective` + `Finset.card_le_card` for injection cardinality
+4. **`show` for Protocol.restrict**: `show (if keep i then P.evolve 0 i else default) = ...` to unfold structure
+5. **`simp` + `norm_num` for ℚ literals**: `simp` can't always close `¬(0 : ℚ) = 1`; append `norm_num`
+6. **`List.mem_iff_getElem`** for extracting index from list membership
+7. **`Ne.symm`** for flipping inequality direction in `if_neg`
 
 ## Quick Commands
 
 ```bash
-# Check axiom count
-make axiom-count
-
-# Build specific file
-lake build Infrastructure.MayerVietorisProofs
-
-# Full build
-lake build
+grep -rn "^axiom " --include="*.lean" /workspaces/Cohomology-Foundations/ | grep -v ".lake/" | wc -l  # 18
+lake build  # clean (3175 jobs)
 ```
-
-## Key Files Modified
-
-- `Infrastructure/MayerVietorisProofs.lean` - **REWRITTEN** (0 axioms, 0 sorries, Level 6)
-- `.claude/axiom-registry.md` - Updated counts and progress

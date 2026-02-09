@@ -526,64 +526,35 @@ def optimalEdgeToAdd (K : SimplicialComplex) [Fintype K.vertexSet]
   -- Simplified: return none
   none
 
-/--
-THEOREM: Connecting distant vertices improves gap most.
+-- NOTE: distant_connection_best_ax was redundant with spectralGap_nonneg (line 316). Deleted.
 
-Adding an edge between vertices that are far apart (in graph distance)
-tends to increase the spectral gap more than connecting nearby vertices.
--/
-theorem distant_connection_best (K : SimplicialComplex) [Fintype K.vertexSet] :
-    -- Formal statement would involve graph distance
-    True := by
-  trivial
-
-/--
-THEOREM: Bottleneck edges limit spectral gap.
-
-The spectral gap is limited by "bottleneck" edges -
-edges whose removal would increase graph distance significantly.
--/
-theorem bottleneck_limits_gap (K : SimplicialComplex) [Fintype K.vertexSet] :
-    -- Related to Cheeger inequality
-    True := by
-  trivial
+-- NOTE: bottleneck_limits_gap_ax (spectralGap K > 0 for connected K) requires real
+-- eigenvalue computation. The current placeholder laplacianEigenvalues always returns 0,
+-- making this false. Deleted to maintain soundness.
 
 /-! ## Part 8: Connection to H¹ -/
 
 /--
-THEOREM: Spectral gap and H¹ are related.
+THEOREM: Spectral gap is bounded by vertex count.
 
-λ₂ > 0 iff the graph is connected.
-Connected graph has H¹ dimension = #edges - #vertices + 1.
-
-For a TREE (H¹ = 0):
-- λ₂ depends on tree structure
-- Star: λ₂ = 1
-- Path: λ₂ ≈ π²/n²
-
-For graphs with CYCLES (H¹ ≠ 0):
-- Adding edges (cycles) increases λ₂
-- More redundancy → faster convergence
+For forests (H¹ = 0), the spectral gap is at most the number of vertices.
+Proved from placeholder definitions (spectralGap = 0 ≤ n).
 -/
 theorem spectral_gap_h1_connection (K : SimplicialComplex)
     [Fintype K.vertexSet] [Nonempty K.vertexSet]
-    (_h_connected : (oneSkeleton K).Connected) :
-    -- If H¹ dimension is higher (more cycles), spectral gap tends to be higher
-    -- This is because cycles provide redundant paths for information flow
-    True := by
-  trivial
+    (_h_connected : (oneSkeleton K).Connected)
+    (_h_trivial : Foundations.H1Trivial K) :
+    spectralGap K ≤ Fintype.card K.vertexSet := by
+  -- spectralGap is 0 (placeholder eigenvalues are all 0)
+  suffices h : spectralGap K = 0 by
+    rw [h]; exact Nat.cast_nonneg _
+  unfold spectralGap laplacianEigenvalues
+  simp only [List.getElem?_replicate]
+  split <;> (try rfl) <;> (next heq => split_ifs at heq <;> simp_all)
 
-/--
-COROLLARY: Redundancy speeds up alignment.
-
-Systems with backup communication paths (cycles) converge faster
-than minimal systems (trees).
--/
-theorem redundancy_speeds_convergence (K : SimplicialComplex)
-    [Fintype K.vertexSet] :
-    -- dim H¹ > 0 implies faster convergence (generally)
-    True := by
-  trivial
+-- NOTE: redundancy_speeds_convergence_ax (predictedConvergenceTime K < 1000000) requires
+-- real eigenvalue computation. With placeholder eigenvalues, convergence time is exactly
+-- 1000000, making this false. Deleted to maintain soundness.
 
 /-! ## Part 9: Practical Bounds -/
 
@@ -689,22 +660,7 @@ theorem convergence_prediction_product (K : SimplicialComplex)
   · exact spectralGap_nonneg K
   · exact convergenceTime_pos K
 
-/--
-NOVELTY CLAIM: First Spectral Alignment Dynamics
-
-Prior work: Spectral graph theory for random walks, mixing
-Our work: Spectral theory for VALUE ALIGNMENT DYNAMICS
-
-This connects:
-- Graph Laplacian eigenvalues
-- Alignment convergence speed
-- H¹ cohomology (redundancy)
-
-Original contribution to alignment theory.
--/
-theorem novelty_claim_spectral :
-    -- Spectral alignment dynamics is novel
-    True := by
-  trivial
+-- NOVELTY: First Spectral Alignment Dynamics
+-- Connects graph Laplacian eigenvalues, alignment convergence speed, and H¹ cohomology
 
 end SpectralGap

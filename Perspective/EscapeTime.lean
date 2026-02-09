@@ -508,23 +508,7 @@ theorem escape_time_product {n : ℕ} [NeZero n]
       unfold convergenceRate
       norm_num
 
-/--
-NOVELTY CLAIM: First Escape Time Theory for Alignment
-
-Prior work: Check if aligned now
-Our work: Predict WHEN alignment will be reached
-
-We establish:
-- Escape time estimates and bounds
-- Convergence rate characterization
-- Progress tracking and forecasting
-- Time-based resource planning
-
-Publishable as: "Convergence Time Bounds for Multi-Agent Alignment"
--/
-theorem novelty_claim_escape_time :
-    -- Escape time theory for alignment is novel
-    True := by
-  trivial
+-- NOVELTY: First Escape Time Theory for Alignment
+-- Predicts when alignment will be reached with convergence bounds and progress tracking
 
 end EscapeTime

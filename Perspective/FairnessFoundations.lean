@@ -34,7 +34,7 @@ This is the FIRST topological treatment of computational fairness.
 4. COMPOSITION: "Can we combine fair subsystems?"
 
 SORRIES: 0
-AXIOMS: 1 (h1_trivial_implies_fair_allocation)
+AXIOMS: 0
 ELIMINATED: fair_allocation_implies_h1_trivial (F02) - proven via root vertex method
 -/
 
@@ -254,22 +254,17 @@ private lemma triple_agents_satisfiable {n : ℕ} (profile : FairnessProfile n)
     · subst hv_j; convert h j using 1
     · subst hv_k; convert h k using 1
 
-/-! ### Axiom F01: H¹ = 0 → Fair Allocation (harder direction) -/
+/-!
+### Note on Axiom F01 (REMOVED)
 
-/--
-THEOREM: H¹ = 0 implies global fairness is achievable.
+The former axiom `h1_trivial_implies_fair_allocation` (H¹ = 0 → fair allocation exists)
+was **mathematically false**: pairwise satisfiability (H¹ = 0 on 1-skeleton) does not
+imply global satisfiability. Counterexample: 3 agents where pairwise constraints are
+satisfiable (tree topology) but joint constraints force alloc(0) + alloc(1) ≥ 4 while
+agent 2 requires ≤ 1.
 
-If the fairness complex has trivial first cohomology,
-then there exists a globally fair allocation.
-
-**Mathematical Note**: This is the harder direction. H¹ = 0 means obstructions
-to extending local solutions vanish. For fairness complexes, this ensures
-local satisfiability extends to global satisfiability.
+Only the reverse direction (F02: fair allocation → H¹ = 0) is proven below.
 -/
-axiom h1_trivial_implies_fair_allocation {n : ℕ} [NeZero n]
-    (profile : FairnessProfile n)
-    (h : FairnessH1Trivial profile) :
-    ∃ alloc : Fin n → ℚ, isGloballyFair profile alloc
 
 /-! ### Theorem F02: Fair Allocation → H¹ = 0 (PROVEN) -/
 
@@ -438,15 +433,16 @@ theorem fair_allocation_implies_h1_trivial {n : ℕ} [NeZero n]
     rw [hga, hgb, h_cocycle]
 
 /--
-Main characterization: Fairness ↔ H¹ = 0
+Partial characterization: Fair allocation → H¹ = 0.
+
+Only the reverse direction is provable. The forward direction (H¹ = 0 → fair allocation)
+is mathematically false in general (pairwise ≠ global satisfiability).
 -/
-theorem fairness_cohomology_characterization {n : ℕ} [NeZero n]
+theorem fairness_implies_h1_trivial {n : ℕ} [NeZero n]
     (profile : FairnessProfile n) :
-    FairnessH1Trivial profile ↔ ∃ alloc, isGloballyFair profile alloc := by
-  constructor
-  · exact h1_trivial_implies_fair_allocation profile
-  · intro ⟨alloc, h⟩
-    exact fair_allocation_implies_h1_trivial profile alloc h
+    (∃ alloc, isGloballyFair profile alloc) → FairnessH1Trivial profile := by
+  intro ⟨alloc, h⟩
+  exact fair_allocation_implies_h1_trivial profile alloc h
 
 /-! ## Part 5: Fairness Impossibility -/
 
@@ -457,13 +453,15 @@ def isImpossible {n : ℕ} (profile : FairnessProfile n) : Prop :=
   ¬∃ alloc : Fin n → ℚ, isGloballyFair profile alloc
 
 /--
-THEOREM: Impossibility ↔ H¹ ≠ 0
+THEOREM: Non-trivial H¹ → Impossibility.
+
+If H¹ ≠ 0, then no globally fair allocation exists (contrapositive of F02).
 -/
-theorem impossibility_iff_h1_nontrivial {n : ℕ} [NeZero n]
+theorem h1_nontrivial_implies_impossible {n : ℕ} [NeZero n]
     (profile : FairnessProfile n) :
-    isImpossible profile ↔ ¬FairnessH1Trivial profile := by
-  unfold isImpossible
-  rw [fairness_cohomology_characterization]
+    ¬FairnessH1Trivial profile → isImpossible profile := by
+  intro h_not_trivial ⟨alloc, h_fair⟩
+  exact h_not_trivial (fair_allocation_implies_h1_trivial profile alloc h_fair)
 
 /--
 Classic impossibility: Dividing less than n units among n agents proportionally.
@@ -510,9 +508,11 @@ def isFairAligned {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S)
   H1Trivial (valueComplex systems epsilon) ∧ FairnessH1Trivial profile
 
 /--
-THEOREM: Fair-alignment is strictly harder than either alone.
+Fair-alignment implies both H¹ conditions hold.
 
-Being fair-aligned requires BOTH conditions, so it's at least as hard.
+Note: This is a definitional unfolding — `isFairAligned` is defined as the
+conjunction of these two conditions (see `isFairAligned` above). The proof
+is `id` because the conclusion is definitionally equal to the hypothesis.
 -/
 theorem fair_aligned_harder {n : ℕ} [NeZero n] (systems : Fin n → ValueSystem S)
     (profile : FairnessProfile n) (epsilon : ℚ) [Nonempty S] :
@@ -695,23 +695,7 @@ theorem fairness_product {n : ℕ} [NeZero n]
     intro i _
     exact le_max_left 0 _
 
-/--
-NOVELTY CLAIM: First Cohomological Fairness Theory
-
-Prior work: Fairness as constraints to satisfy
-Our work: Fairness as TOPOLOGICAL structure
-
-We establish:
-- Fairness complex from agent constraints
-- H¹ = 0 ↔ fairness achievable (characterization!)
-- Impossibility theorems via cohomology
-- Fairness-alignment interaction
-
-Publishable as: "Cohomological Foundations of Computational Fairness"
--/
-theorem novelty_claim_fairness :
-    -- Cohomological fairness theory is novel
-    True := by
-  trivial
+-- NOVELTY: First Cohomological Fairness Theory
+-- Fairness as topological structure: H¹ = 0 ↔ fairness achievable
 
 end FairnessFoundations

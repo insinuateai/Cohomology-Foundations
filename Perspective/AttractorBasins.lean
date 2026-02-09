@@ -195,14 +195,16 @@ def dominantAttractor {n : ℕ} [NeZero n] (attractors : AttractorSet n S)
   attractors.argmax (fun a => basinRadius a epsilon)
 
 /--
-THEOREM: Every point is in exactly one basin (for non-degenerate systems).
+AXIOM: Every point is in exactly one basin (for non-degenerate systems).
+
+In a non-degenerate system, the attractor basins partition the value space.
+Requires dynamical systems infrastructure for proof.
 -/
-theorem unique_basin {n : ℕ} [NeZero n] (_point : ValuePoint n S)
-    (_attractors : AttractorSet n S) (_epsilon : ℚ) [Nonempty S]
-    (_h_nonempty : _attractors ≠ []) :
-    -- Point belongs to exactly one basin
-    True := by
-  trivial
+axiom unique_basin_ax {n : ℕ} [NeZero n] (point : ValuePoint n S)
+    (attractors : AttractorSet n S) (epsilon : ℚ) [Nonempty S]
+    (h_nonempty : attractors ≠ []) :
+    ∃! (a : Attractor n S), List.Mem a attractors ∧
+      l1Distance point a.point ≤ basinRadius a epsilon
 
 /-! ## Part 5: Basin Volume -/
 
@@ -282,15 +284,18 @@ def maxSafePerturbation {n : ℕ} [NeZero n] (point : ValuePoint n S)
   distanceToBoundary point attractor epsilon
 
 /--
-THEOREM: Perturbations smaller than distance to boundary stay in basin.
+AXIOM: Perturbations smaller than distance to boundary stay in basin.
+
+If perturbation is less than the distance to the basin boundary,
+the perturbed point remains in the same basin.
 -/
-theorem small_perturbation_stays {n : ℕ} [NeZero n]
-    (_point : ValuePoint n S) (_attractor : Attractor n S)
-    (_epsilon _perturbation : ℚ) [Nonempty S]
-    (_h_small : _perturbation < distanceToBoundary _point _attractor _epsilon) :
-    -- After perturbation, still in basin
-    True := by
-  trivial
+axiom small_perturbation_stays_ax {n : ℕ} [NeZero n]
+    (point : ValuePoint n S) (attractor : Attractor n S)
+    (epsilon perturbation : ℚ) [Nonempty S]
+    (h_in_basin : l1Distance point attractor.point ≤ basinRadius attractor epsilon)
+    (h_small : perturbation < distanceToBoundary point attractor epsilon) :
+    ∀ (q : ValuePoint n S), l1Distance point q ≤ perturbation →
+      l1Distance q attractor.point ≤ basinRadius attractor epsilon
 
 /-! ## Part 8: Basin Comparison -/
 
@@ -386,23 +391,7 @@ theorem basin_product {n : ℕ} [NeZero n]
   · unfold basinRadius; exact hε
   · exact basin_volume_nonneg attractor epsilon hε
 
-/--
-NOVELTY CLAIM: First Basin Analysis for Alignment
-
-Prior work: Check if aligned
-Our work: Characterize STABILITY of aligned states
-
-We establish:
-- Attractors = stable aligned configurations
-- Basins = regions that flow to each attractor
-- Basin size = robustness measure
-- Boundary distance = perturbation tolerance
-
-Publishable as: "Attractor Basins in Multi-Agent Alignment Dynamics"
--/
-theorem novelty_claim_basins :
-    -- Basin analysis for alignment is novel
-    True := by
-  trivial
+-- NOVELTY: First Basin Analysis for Alignment
+-- Characterizes attractor stability, basin regions, and perturbation tolerance
 
 end AttractorBasins
