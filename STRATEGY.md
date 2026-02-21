@@ -246,7 +246,7 @@ result = verifier.check()
 
 **Goal**: Prove the concept works outside of Lean, build initial community.
 
-1. **Complete critical proofs** — Eliminate the 18-23 axioms per AXIOM_ELIMINATION_PLAN.md (WalkDecomposition + CompleteComplexH1). This strengthens the "formally verified" narrative.
+1. **Complete critical proofs** — Eliminate 18-23 of the ~59 remaining axioms per AXIOM_ELIMINATION_PLAN.md (via WalkDecomposition + CompleteComplexH1), bringing the total down to ~36-41. This strengthens the "formally verified" narrative.
 
 2. **Build a Python prototype** — Implement the core H¹ computation in Python (not Lean). This doesn't need to be formally verified — it's a demonstration tool.
    - Input: agent graph with compatibility scores
