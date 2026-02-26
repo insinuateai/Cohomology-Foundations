@@ -1,7 +1,7 @@
 #!/bin/bash
 # Quick status for session start
 
-cd /workspaces/Cohomology-Foundations
+cd "$(git -C "$(dirname "$0")" rev-parse --show-toplevel)"
 
 # Use make targets if available (more accurate)
 SORRIES=$(grep -rE "^\s*sorry\b|:= sorry\b" --include="*.lean" --exclude-dir=.lake 2>/dev/null | grep -v "^Binary" | wc -l | tr -d ' ')
