@@ -27,7 +27,7 @@
 
 ---
 
-## Axiom Inventory (20 total)
+## Axiom Inventory (18 total)
 
 ### Perspective/CriticalPoints.lean (6 axioms)
 
@@ -147,7 +147,7 @@ These are intentionally kept as-is (skip list):
 
 ---
 
-## Why Not Proven (Classification of remaining 20)
+## Why Not Proven (Classification of remaining 18)
 
 | Category | Count | Examples |
 |----------|-------|---------|

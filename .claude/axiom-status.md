@@ -1,59 +1,56 @@
 # Axiom Status (Quick Reference)
 
 > For full details, see `axiom-registry.md`
-> Last updated: 2026-02-04 (session 2)
+> Last updated: 2026-02-06 (session 30)
 
 | Status | Count | Description |
 |--------|-------|-------------|
-| **In Codebase** | **41** | Total axiom declarations |
-| KEEP | 19 | External math, structural, mathematically false |
-| TAUTOLOGICAL | ~18 | Infrastructure proofs with wrong H1Trivial |
-| PENDING | 0 | All analyzed - moved to KEEP or TAUTOLOGICAL |
-| **ELIMINATED** | 2 | See RECENTLY ELIMINATED below |
+| **In Codebase** | **18** | Total axiom declarations |
+| All in `Perspective/` | 18 | Auxiliary application modules only |
+| **SORRIES** | 0 | All sorries eliminated |
 
-## KEEP (Don't Attempt - 19 total)
+## Location Summary
 
-| Category | Axioms |
-|----------|--------|
-| Structural (1) | `StrategicGame.actions_nonempty` |
-| Math False (7) | `remove_edge_*`, `fill_triangle_*`, `resolution_edge_*`, `large_disagreement_breaks_alignment_aux`, `general_acyclic_composition_axiom_aux`, `escape_time_finite_ax`, `forest_single_edge_composition_axiom_aux` |
-| Spectral (5) | `vertexDegreeAx`, `laplacianExists`, `laplacianEigenvalues`, `eigenvalues_nonneg`, `spectral_gap_bounded_aux` |
-| Persistent Homology (4) | `stability_of_h1_trivial_aux` (×2 duplicates), `measurement_robustness_aux` (×2 duplicates) |
-| H² Theory (2) | `filled_tetrahedron_coboundary`, `hollow_tetrahedron_h2_nontrivial_ax` |
+| File | Count |
+|------|-------|
+| `Perspective/CriticalPoints.lean` | 6 |
+| `Perspective/Curvature.lean` | 3 |
+| `Perspective/DimensionBound.lean` | 3 |
+| `Perspective/AttractorBasins.lean` | 2 |
+| `Perspective/AgentCoordination.lean` | 1 |
+| `Perspective/Barrier.lean` | 1 |
+| `Perspective/OptimalRepair.lean` | 1 |
+| `Perspective/Persistence.lean` | 1 |
+| **Total** | **18** |
 
-## PENDING (0 Elimination Targets)
+## Core Theorem Status
 
-All PENDING axioms have been analyzed. Remaining axioms are either:
-- **KEEP**: Mathematically false, external dependencies, or structural
-- **TAUTOLOGICAL**: Need full infrastructure rewrite (beyond scope)
+All four core theorems are **axiom-free** (verified by import chain analysis):
 
-## RECENTLY ELIMINATED
+| Theorem | File | Status |
+|---------|------|--------|
+| `delta_squared_zero` | `Foundations/DoubleSquaredZero.lean` | AXIOM-FREE |
+| `h1_trivial_iff_oneConnected` | `H1Characterization/Characterization.lean` | AXIOM-FREE |
+| `no_universal_reconciler_strong` | `Perspective/ImpossibilityStrong.lean` | AXIOM-FREE |
+| `tree_authority_h1_trivial` | `MultiAgent/TreeAuthorityH1.lean` | AXIOM-FREE |
 
-| Axiom | Replacement | Method |
-|-------|-------------|--------|
-| `escape_time_monotone_ax` | `escape_time_monotone_proven` | Proved using `Int.floor_le_floor` + `Int.toNat_le` |
-| `escape_time_bounded_ax` | `escape_time_bounded_proven` | Proved using `div_le_div_of_nonneg_right` + floor monotonicity |
+## Remaining Axiom Categories
 
-## Recently Moved to KEEP
-
-- `large_disagreement_breaks_alignment_aux` - Counterexample: 2 disagreeing agents = forest (H¹=0)
-- `general_acyclic_composition_axiom_aux` - `interfaceIsAcyclic=True` makes it false
-- `escape_time_finite_ax` - Counterexample: misalignment=1000, tolerance=1 gives escapeTime=1001 > 1000
-- `forest_single_edge_composition_axiom_aux` - Interface connections ≠ valueComplex edges; K₂,₂ counterexample possible
-
-## HAS REPLACEMENT (Axiom exists, proof available)
-
-Most axioms in Perspective/ and MultiAgent/ have proven replacements in Infrastructure/*Proofs.lean files. See `axiom-registry.md` for the full mapping.
-
-Key examples:
-- `saddle_has_escape_ax` → CriticalPointsProofs.lean
-- `negative_lyapunov_stable_ax` → LyapunovProofs.lean
-- `h1_trivial_implies_fair_allocation` → FairnessAllocationProofs.lean
+| Category | Count | Why Not Proven |
+|----------|-------|----------------|
+| Morse / critical point theory | 6 | Requires discrete Morse theory |
+| Riemannian geometry (curvature) | 3 | Requires continuous analysis |
+| Graph component counting | 3 | Requires detailed component lemmas |
+| Dynamical systems | 2 | Requires attractor/basin theory |
+| Hub / coordination topology | 1 | Requires hub-leaf reduction |
+| Structural resolution | 1 | Requires barrier theory |
+| Repair convergence | 1 | Requires convergence analysis |
+| Persistence diagrams | 1 | Requires persistence homology |
 
 ## Update Protocol
 
 When eliminating an axiom:
 1. Verify signature matches EXACTLY
-2. Create `*_proven` theorem in Infrastructure/
+2. Create `*_proven` theorem in `Infrastructure/`
 3. Update `axiom-registry.md`
 4. Run `make axiom-count`

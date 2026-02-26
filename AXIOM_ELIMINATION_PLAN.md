@@ -1,5 +1,18 @@
 # Axiom Elimination Plan: Two High-Impact Infrastructure Files
 
+> **STATUS: COMPLETED** (as of session 30, 2026-02-06)
+>
+> Both infrastructure files have been created and the targeted axioms eliminated:
+> - `Infrastructure/WalkDecomposition.lean` ✓
+> - `Infrastructure/CompleteComplexH1.lean` ✓
+>
+> Axiom count at time of writing: ~59 → **18 remaining** (all in `Perspective/` auxiliary modules).
+> See `.claude/axiom-registry.md` for the current inventory.
+>
+> This document is preserved as a historical record of the elimination strategy.
+
+---
+
 > **Goal**: Eliminate ~18-23 axioms by creating two infrastructure files that can be developed in parallel.
 
 ## Summary
